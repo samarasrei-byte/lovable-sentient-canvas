@@ -1,6 +1,7 @@
 import { Hero } from "@/components/Hero";
 import { EmotionSection } from "@/components/EmotionSection";
 import { AvatarShowcase } from "@/components/AvatarShowcase";
+import { InfluencerGrid } from "@/components/InfluencerGrid";
 import { CreatorStudio } from "@/components/CreatorStudio";
 import { LoveEconomy } from "@/components/LoveEconomy";
 import { Manifesto } from "@/components/Manifesto";
@@ -12,6 +13,7 @@ const Index = () => {
       <Hero />
       <EmotionSection />
       <AvatarShowcase />
+      <InfluencerGrid />
       <CreatorStudio />
       <LoveEconomy />
       <Manifesto />
