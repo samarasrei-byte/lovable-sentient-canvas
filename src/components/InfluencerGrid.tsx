@@ -15,47 +15,47 @@ const influencers = [
     id: 1,
     name: "Maya Chen",
     segment: "Tecnologia",
-    followers: "2.5M",
+    followers: "2,5M",
     image: influencerTech,
-    specialty: "AI & Innovation",
+    specialty: "IA & Inovação",
   },
   {
     id: 2,
     name: "Marcus Williams",
     segment: "Fitness",
-    followers: "3.2M",
+    followers: "3,2M",
     image: influencerFitness,
-    specialty: "Personal Training",
+    specialty: "Treinamento Pessoal",
   },
   {
     id: 3,
     name: "Isabella Laurent",
     segment: "Moda",
-    followers: "4.8M",
+    followers: "4,8M",
     image: influencerFashion,
-    specialty: "Luxury Fashion",
+    specialty: "Alta Costura",
   },
   {
     id: 4,
     name: "James Harrison",
     segment: "Negócios",
-    followers: "1.9M",
+    followers: "1,9M",
     image: influencerBusiness,
-    specialty: "Leadership",
+    specialty: "Liderança",
   },
   {
     id: 5,
     name: "Luna Rivera",
     segment: "Arte",
-    followers: "2.1M",
+    followers: "2,1M",
     image: influencerArt,
-    specialty: "Digital Art",
+    specialty: "Arte Digital",
   },
   {
     id: 6,
     name: "Sophia Green",
-    segment: "Wellness",
-    followers: "3.5M",
+    segment: "Bem-estar",
+    followers: "3,5M",
     image: influencerWellness,
     specialty: "Mindfulness",
   },
@@ -88,11 +88,11 @@ export const InfluencerGrid = () => {
         </div>
 
         {/* Influencer Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
           {influencers.map((influencer, index) => (
             <Card
               key={influencer.id}
-              className="relative overflow-hidden bg-card/30 backdrop-blur-xl border-primary/20 p-4 hover:scale-105 transition-all duration-500 cursor-pointer group"
+              className="relative overflow-hidden bg-card/30 backdrop-blur-xl border-primary/20 p-6 hover:scale-105 transition-all duration-500 cursor-pointer group"
               onClick={() => toggleSelection(influencer.id)}
               style={{ animationDelay: `${index * 100}ms` }}
             >
@@ -104,7 +104,7 @@ export const InfluencerGrid = () => {
               )}
 
               {/* Image */}
-              <div className="relative aspect-square mb-3 rounded-xl overflow-hidden">
+              <div className="relative aspect-square mb-4 rounded-2xl overflow-hidden">
                 <img
                   src={influencer.image}
                   alt={influencer.name}
@@ -113,18 +113,18 @@ export const InfluencerGrid = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                 
                 {/* Segment Badge */}
-                <div className="absolute bottom-2 left-2 right-2">
-                  <span className="text-xs bg-primary/80 backdrop-blur-sm text-primary-foreground px-2 py-1 rounded-full">
+                <div className="absolute bottom-3 left-3 right-3">
+                  <span className="text-sm font-medium bg-primary/90 backdrop-blur-sm text-primary-foreground px-3 py-1.5 rounded-full">
                     {influencer.segment}
                   </span>
                 </div>
               </div>
 
               {/* Info */}
-              <div className="space-y-1">
-                <h3 className="font-bold text-sm truncate">{influencer.name}</h3>
-                <p className="text-xs text-muted-foreground">{influencer.specialty}</p>
-                <p className="text-xs text-secondary">{influencer.followers} seguidores</p>
+              <div className="space-y-2">
+                <h3 className="font-bold text-xl truncate">{influencer.name}</h3>
+                <p className="text-sm text-muted-foreground">{influencer.specialty}</p>
+                <p className="text-sm font-medium text-secondary">{influencer.followers} seguidores</p>
               </div>
 
               {/* Hover Glow */}
