@@ -9,11 +9,17 @@ import influencerFashion from "@/assets/influencer-fashion.jpg";
 import influencerBusiness from "@/assets/influencer-business.jpg";
 import influencerArt from "@/assets/influencer-art.jpg";
 import influencerWellness from "@/assets/influencer-wellness.jpg";
+import influencerGastro from "@/assets/influencer-gastro.jpg";
+import influencerTravel from "@/assets/influencer-travel.jpg";
+import influencerMusic from "@/assets/influencer-music.jpg";
+import influencerGaming from "@/assets/influencer-gaming.jpg";
+import influencerEducation from "@/assets/influencer-education.jpg";
+import influencerEntrepreneur from "@/assets/influencer-entrepreneur.jpg";
 
 const influencers = [
   {
     id: 1,
-    name: "Maya Chen",
+    name: "Rafael Costa",
     segment: "Tecnologia",
     followers: "2,5M",
     image: influencerTech,
@@ -21,7 +27,7 @@ const influencers = [
   },
   {
     id: 2,
-    name: "Marcus Williams",
+    name: "Bruno Almeida",
     segment: "Fitness",
     followers: "3,2M",
     image: influencerFitness,
@@ -29,7 +35,7 @@ const influencers = [
   },
   {
     id: 3,
-    name: "Isabella Laurent",
+    name: "Camila Rodrigues",
     segment: "Moda",
     followers: "4,8M",
     image: influencerFashion,
@@ -37,7 +43,7 @@ const influencers = [
   },
   {
     id: 4,
-    name: "James Harrison",
+    name: "João Silva",
     segment: "Negócios",
     followers: "1,9M",
     image: influencerBusiness,
@@ -45,7 +51,7 @@ const influencers = [
   },
   {
     id: 5,
-    name: "Luna Rivera",
+    name: "Ana Beatriz",
     segment: "Arte",
     followers: "2,1M",
     image: influencerArt,
@@ -53,11 +59,59 @@ const influencers = [
   },
   {
     id: 6,
-    name: "Sophia Green",
+    name: "Maria Santos",
     segment: "Bem-estar",
     followers: "3,5M",
     image: influencerWellness,
     specialty: "Mindfulness",
+  },
+  {
+    id: 7,
+    name: "Pedro Henrique",
+    segment: "Gastronomia",
+    followers: "2,8M",
+    image: influencerGastro,
+    specialty: "Culinária Brasileira",
+  },
+  {
+    id: 8,
+    name: "Juliana Ferreira",
+    segment: "Viagens",
+    followers: "3,4M",
+    image: influencerTravel,
+    specialty: "Turismo Aventura",
+  },
+  {
+    id: 9,
+    name: "Lucas Oliveira",
+    segment: "Música",
+    followers: "5,2M",
+    image: influencerMusic,
+    specialty: "Produção Musical",
+  },
+  {
+    id: 10,
+    name: "Gabriela Lima",
+    segment: "Gaming",
+    followers: "4,1M",
+    image: influencerGaming,
+    specialty: "E-sports",
+  },
+  {
+    id: 11,
+    name: "Carlos Eduardo",
+    segment: "Educação",
+    followers: "1,7M",
+    image: influencerEducation,
+    specialty: "Ensino Digital",
+  },
+  {
+    id: 12,
+    name: "Fernanda Mendes",
+    segment: "Empreendedorismo",
+    followers: "2,3M",
+    image: influencerEntrepreneur,
+    specialty: "Startups",
   },
 ];
 
