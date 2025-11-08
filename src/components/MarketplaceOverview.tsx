@@ -201,20 +201,6 @@ export const MarketplaceOverview = () => {
           </div>
         </div>
 
-        {/* Estilo Visual */}
-        <div className="text-center">
-          <h3 className="text-3xl font-bold mb-8">
-            🎨 Estilo Visual e Experiência
-          </h3>
-          
-          <Card className="max-w-4xl mx-auto bg-gradient-to-br from-primary/5 via-card to-secondary/5">
-            <CardContent className="p-8 space-y-4 text-lg text-muted-foreground">
-              <p><strong className="text-foreground">Tema visual:</strong> Futurista, limpo e tecnológico, com tons que diferenciam "mundo real" e "mundo virtual"</p>
-              <p><strong className="text-foreground">Navegação:</strong> Scroll fluido, cards interativos, microanimações</p>
-              <p><strong className="text-foreground">Experiência:</strong> Usuário sente que está acessando um ecossistema vivo, onde humanos e avatares coexistem naturalmente</p>
-            </CardContent>
-          </Card>
-        </div>
       </div>
     </section>
   );

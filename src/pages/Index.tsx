@@ -1,6 +1,4 @@
-import { Hero } from "@/components/Hero";
 import { EmotionSection } from "@/components/EmotionSection";
-import { AvatarShowcase } from "@/components/AvatarShowcase";
 import { InfluencerGrid } from "@/components/InfluencerGrid";
 import { MarketplaceOverview } from "@/components/MarketplaceOverview";
 import { CreatorStudio } from "@/components/CreatorStudio";
@@ -11,9 +9,7 @@ import { Footer } from "@/components/Footer";
 const Index = () => {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Hero />
       <EmotionSection />
-      <AvatarShowcase />
       <InfluencerGrid />
       <MarketplaceOverview />
       <CreatorStudio />

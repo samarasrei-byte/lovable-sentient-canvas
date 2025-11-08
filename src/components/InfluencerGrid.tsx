@@ -1,7 +1,7 @@
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
 import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Users, Bot, Check } from "lucide-react";
 
 import influencerTech from "@/assets/influencer-tech.jpg";
 import influencerFitness from "@/assets/influencer-fitness.jpg";
@@ -16,7 +16,7 @@ import influencerGaming from "@/assets/influencer-gaming.jpg";
 import influencerEducation from "@/assets/influencer-education.jpg";
 import influencerEntrepreneur from "@/assets/influencer-entrepreneur.jpg";
 
-const influencers = [
+const realInfluencers = [
   {
     id: 1,
     name: "Rafael Costa",
@@ -31,7 +31,7 @@ const influencers = [
     segment: "Fitness",
     followers: "3,2M",
     image: influencerFitness,
-    specialty: "Treinamento Pessoal",
+    specialty: "Treino Funcional",
   },
   {
     id: 3,
@@ -39,7 +39,7 @@ const influencers = [
     segment: "Moda",
     followers: "4,8M",
     image: influencerFashion,
-    specialty: "Alta Costura",
+    specialty: "Streetwear",
   },
   {
     id: 4,
@@ -47,7 +47,7 @@ const influencers = [
     segment: "Negócios",
     followers: "1,9M",
     image: influencerBusiness,
-    specialty: "Liderança",
+    specialty: "Startups",
   },
   {
     id: 5,
@@ -65,6 +65,9 @@ const influencers = [
     image: influencerWellness,
     specialty: "Mindfulness",
   },
+];
+
+const avatarInfluencers = [
   {
     id: 7,
     name: "Pedro Henrique",
@@ -116,91 +119,121 @@ const influencers = [
 ];
 
 export const InfluencerGrid = () => {
-  const [selectedInfluencers, setSelectedInfluencers] = useState<number[]>([]);
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
   const toggleSelection = (id: number) => {
-    setSelectedInfluencers((prev) =>
+    setSelectedIds((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
     );
   };
 
+  const InfluencerCard = ({ influencer, isAvatar }: { influencer: typeof realInfluencers[0], isAvatar: boolean }) => {
+    const isSelected = selectedIds.includes(influencer.id);
+    
+    return (
+      <Card
+        onClick={() => toggleSelection(influencer.id)}
+        className={`group cursor-pointer transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 ${
+          isSelected ? "ring-2 ring-primary shadow-xl" : ""
+        } ${isAvatar ? "border-secondary/30 hover:border-secondary" : "border-primary/30 hover:border-primary"}`}
+      >
+        <CardContent className="p-6 space-y-4">
+          <div className="relative">
+            <img
+              src={influencer.image}
+              alt={influencer.name}
+              className="w-full aspect-square object-cover rounded-2xl"
+            />
+            {isSelected && (
+              <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-primary flex items-center justify-center animate-scale-in">
+                <Check className="w-5 h-5 text-primary-foreground" />
+              </div>
+            )}
+            <div className="absolute bottom-3 left-3">
+              <Badge className={isAvatar ? "bg-secondary text-secondary-foreground" : "bg-primary text-primary-foreground"}>
+                {isAvatar ? <Bot className="w-3 h-3 mr-1" /> : <Users className="w-3 h-3 mr-1" />}
+                {isAvatar ? "Avatar Digital" : "Influenciador Real"}
+              </Badge>
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            <h3 className="text-xl font-bold">{influencer.name}</h3>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">{influencer.segment}</span>
+              <span className="font-semibold">{influencer.followers}</span>
+            </div>
+            <p className="text-xs text-muted-foreground">{influencer.specialty}</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
   return (
-    <section className="py-32 px-6 relative overflow-hidden">
-      {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-primary/5 to-background" />
+    <section className="py-24 px-4 relative overflow-hidden">
+      {/* Background effects */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-card/50 to-background" />
       
-      <div className="max-w-7xl mx-auto relative z-10">
-        {/* Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            Escolha seu{" "}
-            <span className="text-primary">Influenciador</span>
+      <div className="container mx-auto relative z-10">
+        <div className="text-center mb-16 space-y-4">
+          <h2 className="text-5xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
+            Experimente criar com o coração
           </h2>
-          <p className="text-xl text-muted-foreground">
-            Rostos reais. Histórias autênticas. Conexões verdadeiras.
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            Escolha entre influenciadores reais e avatares digitais para suas campanhas
           </p>
         </div>
 
-        {/* Influencer Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          {influencers.map((influencer, index) => (
-            <Card
-              key={influencer.id}
-              className="relative overflow-hidden bg-card/30 backdrop-blur-xl border-primary/20 p-6 hover:scale-105 transition-all duration-500 cursor-pointer group"
-              onClick={() => toggleSelection(influencer.id)}
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              {/* Selection Indicator */}
-              {selectedInfluencers.includes(influencer.id) && (
-                <div className="absolute top-2 right-2 w-8 h-8 bg-primary rounded-full flex items-center justify-center z-10 animate-scale-in">
-                  <Check className="w-5 h-5 text-primary-foreground" />
-                </div>
-              )}
-
-              {/* Image */}
-              <div className="relative aspect-square mb-4 rounded-2xl overflow-hidden">
-                <img
-                  src={influencer.image}
-                  alt={influencer.name}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                
-                {/* Segment Badge */}
-                <div className="absolute bottom-3 left-3 right-3">
-                  <span className="text-sm font-medium bg-primary/90 backdrop-blur-sm text-primary-foreground px-3 py-1.5 rounded-full">
-                    {influencer.segment}
-                  </span>
-                </div>
+        <div className="grid lg:grid-cols-2 gap-12 max-w-7xl mx-auto">
+          {/* Influenciadores Reais */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <Users className="w-6 h-6 text-primary" />
               </div>
-
-              {/* Info */}
-              <div className="space-y-2">
-                <h3 className="font-bold text-xl truncate">{influencer.name}</h3>
-                <p className="text-sm text-muted-foreground">{influencer.specialty}</p>
-                <p className="text-sm font-medium text-secondary">{influencer.followers} seguidores</p>
+              <div>
+                <h3 className="text-2xl font-bold">Influenciadores Reais</h3>
+                <p className="text-sm text-muted-foreground">Criadores autênticos com comunidades estabelecidas</p>
               </div>
+            </div>
+            
+            <div className="grid gap-6">
+              {realInfluencers.map((influencer) => (
+                <InfluencerCard key={influencer.id} influencer={influencer} isAvatar={false} />
+              ))}
+            </div>
+          </div>
 
-              {/* Hover Glow */}
-              <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-            </Card>
-          ))}
+          {/* Avatares Digitais */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center">
+                <Bot className="w-6 h-6 text-secondary" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold">Avatares Digitais</h3>
+                <p className="text-sm text-muted-foreground">Influencers virtuais personalizáveis com IA</p>
+              </div>
+            </div>
+            
+            <div className="grid gap-6">
+              {avatarInfluencers.map((influencer) => (
+                <InfluencerCard key={influencer.id} influencer={influencer} isAvatar={true} />
+              ))}
+            </div>
+          </div>
         </div>
 
-        {/* Selection Summary */}
-        {selectedInfluencers.length > 0 && (
-          <div className="flex flex-col items-center gap-4 animate-fade-in">
-            <p className="text-muted-foreground">
-              {selectedInfluencers.length} influenciador
-              {selectedInfluencers.length > 1 ? "es" : ""} selecionado
-              {selectedInfluencers.length > 1 ? "s" : ""}
-            </p>
-            <Button
-              size="lg"
-              className="rounded-full bg-gradient-to-r from-primary to-secondary hover:scale-105 transition-transform px-10"
-            >
-              Criar Campanha com Selecionados
-            </Button>
+        {selectedIds.length > 0 && (
+          <div className="mt-12 text-center">
+            <Card className="inline-block bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/30">
+              <CardContent className="p-6">
+                <p className="text-lg font-semibold">
+                  {selectedIds.length} {selectedIds.length === 1 ? "influenciador selecionado" : "influenciadores selecionados"}
+                </p>
+              </CardContent>
+            </Card>
           </div>
         )}
       </div>
