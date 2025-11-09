@@ -60,13 +60,13 @@ export const Hero = () => {
         </div>
 
         {/* Headline */}
-        <h1 className="text-7xl md:text-9xl font-bold mb-6 bg-gradient-to-r from-foreground via-primary to-secondary bg-clip-text text-transparent animate-shimmer bg-[length:200%_100%]">
-          Design what hearts feel.
+        <h1 className="text-6xl md:text-8xl font-bold mb-8 bg-gradient-to-r from-foreground via-primary to-secondary bg-clip-text text-transparent animate-shimmer bg-[length:200%_100%]">
+          A próxima geração de conexões entre marcas e criadores.
         </h1>
 
         {/* Subheadline */}
-        <p className="text-2xl md:text-3xl text-muted-foreground mb-12 font-light tracking-wide">
-          O futuro do design emocional.
+        <p className="text-xl md:text-2xl text-muted-foreground mb-12 font-light tracking-wide max-w-4xl mx-auto">
+          Explore um marketplace inteligente que conecta marcas a influenciadores, avatares e artistas para campanhas únicas, autênticas e inesquecíveis.
         </p>
 
         {/* CTA Button */}
@@ -74,7 +74,7 @@ export const Hero = () => {
           size="lg"
           className="text-lg px-12 py-6 rounded-full bg-gradient-to-r from-primary to-secondary hover:scale-105 transition-transform duration-300 shadow-2xl shadow-primary/50 border border-primary/30"
         >
-          COMEÇAR A SENTIR
+          Explorar talentos
         </Button>
       </div>
 
