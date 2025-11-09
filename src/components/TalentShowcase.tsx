@@ -9,21 +9,16 @@ export const TalentShowcase = () => {
       title: "Influenciadores reais",
       description: "Conecte-se a vozes autênticas que geram resultados reais.",
       cta: "Ver influenciadores",
-      gradient: "from-primary/20 to-primary/5"
+      gradient: "from-blue-500/20 to-blue-500/5",
+      bgClass: "bg-gradient-to-br from-blue-500/10 to-transparent"
     },
     {
       icon: Bot,
       title: "Avatares digitais",
       description: "Experimente campanhas com personagens virtuais e tecnologia 3D.",
       cta: "Conhecer avatares",
-      gradient: "from-secondary/20 to-secondary/5"
-    },
-    {
-      icon: Palette,
-      title: "Artistas",
-      description: "Descubra criadores que transformam ideias em expressões visuais e emocionais.",
-      cta: "Explorar artistas",
-      gradient: "from-accent/20 to-accent/5"
+      gradient: "from-purple-500/20 to-purple-500/5",
+      bgClass: "bg-gradient-to-br from-purple-500/10 to-transparent"
     }
   ];
 
@@ -32,19 +27,23 @@ export const TalentShowcase = () => {
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Title */}
         <h2 className="text-4xl md:text-6xl font-bold text-center mb-6">
-          Três dimensões, um mesmo propósito
+          Dois universos, infinitas possibilidades
         </h2>
-        <p className="text-xl md:text-2xl text-muted-foreground text-center mb-16 font-light">
+        <p className="text-xl md:text-2xl text-muted-foreground text-center mb-4 font-light">
           Potencializar sua marca.
+        </p>
+        <p className="text-sm text-muted-foreground text-center mb-16 max-w-2xl mx-auto">
+          Os artistas fazem parte da nossa curadoria premium. Disponíveis exclusivamente para marcas Enterprise, em colaborações criativas de alto impacto.
         </p>
 
         {/* Talent Cards */}
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
           {talents.map((talent, index) => (
             <Card 
               key={index}
-              className="group hover:scale-105 transition-all duration-500 border-border/50 bg-card/50 backdrop-blur overflow-hidden"
+              className="group hover:scale-105 transition-all duration-500 border-border/50 backdrop-blur overflow-hidden relative"
             >
+              <div className={`absolute inset-0 ${talent.bgClass}`} />
               <div className={`absolute inset-0 bg-gradient-to-br ${talent.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
               
               <CardHeader className="relative z-10">

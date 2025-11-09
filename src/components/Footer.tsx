@@ -40,14 +40,12 @@ export const Footer = () => {
         <div className="h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent mb-8" />
 
         {/* Bottom */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
+        <div className="flex flex-col md:flex-row items-center justify-center gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
             <Heart className="w-4 h-4 text-primary animate-pulse" fill="currentColor" />
-            <span>© 2067 LOVABLE</span>
-          </div>
-          
-          <div className="text-center md:text-right">
-            A division of Human Emotion Systems
+            <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent font-semibold">
+              Lovable — Human Emotion Systems
+            </span>
           </div>
         </div>
       </div>

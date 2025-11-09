@@ -13,9 +13,8 @@ export const LiveShop = () => {
             </h2>
             
             <p className="text-xl text-muted-foreground mb-8 font-light leading-relaxed">
-              Leve sua marca para o universo do live shopping.
-              Ative produtos, influenciadores e artistas em transmissões interativas 
-              com métricas em tempo real.
+              Transforme cada live em uma experiência imersiva. Ative produtos, talentos e arte em tempo real, 
+              com dados que revelam o impacto de cada conexão.
             </p>
             
             <div className="space-y-4 mb-8">

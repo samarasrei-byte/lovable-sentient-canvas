@@ -41,13 +41,13 @@ export const Pricing = () => {
       description: "Solução completa para grandes marcas",
       features: [
         "Tudo do Professional",
+        "Curadoria premium de artistas",
+        "Colaborações criativas exclusivas",
         "Avatares ilimitados",
         "White-label disponível",
         "API personalizada",
         "Gerente de conta exclusivo",
-        "SLA garantido",
-        "Treinamento da equipe",
-        "Relatórios customizados"
+        "SLA garantido"
       ],
       highlighted: false
     }

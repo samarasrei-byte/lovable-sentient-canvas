@@ -64,75 +64,74 @@ export const MarketplaceOverview = () => {
             💡 Diferenciais Inovadores
           </h3>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card className="hover:shadow-xl transition-all duration-300">
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <Card className="hover:shadow-xl transition-all duration-300 text-center">
               <CardHeader>
-                <Target className="w-10 h-10 text-accent mb-4" />
-                <CardTitle className="text-xl">Marketplace Inteligente</CardTitle>
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                  <Target className="w-8 h-8 text-primary" />
+                </div>
+                <CardTitle className="text-xl mb-3">IA Inteligente</CardTitle>
+                <CardDescription className="text-base">
+                  Recomenda talentos com base em dados, propósito e emoção.
+                </CardDescription>
               </CardHeader>
-              <CardContent className="text-sm text-muted-foreground space-y-2">
-                <p>Sistema de IA que recomenda influenciadores ideais baseado em:</p>
-                <p>• Público-alvo</p>
-                <p>• Estilo de comunicação</p>
-                <p>• Histórico de campanhas</p>
-                <p>• Emoções e tom de voz</p>
-              </CardContent>
             </Card>
 
-            <Card className="hover:shadow-xl transition-all duration-300">
+            <Card className="hover:shadow-xl transition-all duration-300 text-center">
               <CardHeader>
-                <ShoppingBag className="w-10 h-10 text-accent mb-4" />
-                <CardTitle className="text-xl">Live Shop Integrado</CardTitle>
+                <div className="w-16 h-16 rounded-full bg-secondary/10 flex items-center justify-center mx-auto mb-4">
+                  <ShoppingBag className="w-8 h-8 text-secondary" />
+                </div>
+                <CardTitle className="text-xl mb-3">Live Shop Integrado</CardTitle>
+                <CardDescription className="text-base">
+                  Venda em tempo real, com criadores e métricas de impacto.
+                </CardDescription>
               </CardHeader>
-              <CardContent className="text-sm text-muted-foreground space-y-2">
-                <p>• Integração com TikTok Shop, Instagram Live Shopping e YouTube Shopping</p>
-                <p>• Lives de vendas dentro da plataforma</p>
-                <p>• Analytics de conversão em tempo real</p>
-              </CardContent>
             </Card>
 
-            <Card className="hover:shadow-xl transition-all duration-300">
+            <Card className="hover:shadow-xl transition-all duration-300 text-center">
               <CardHeader>
-                <Briefcase className="w-10 h-10 text-accent mb-4" />
-                <CardTitle className="text-xl">Consultoria Estratégica</CardTitle>
+                <div className="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center mx-auto mb-4">
+                  <Briefcase className="w-8 h-8 text-accent" />
+                </div>
+                <CardTitle className="text-xl mb-3">Consultoria Estratégica</CardTitle>
+                <CardDescription className="text-base">
+                  Planejamento de campanhas que unem humanos e tecnologia.
+                </CardDescription>
               </CardHeader>
-              <CardContent className="text-sm text-muted-foreground space-y-2">
-                <p>• Matching de marcas e creators</p>
-                <p>• Planejamento de campanhas omnichannel</p>
-                <p>• Criação de narrativas para ambos os mundos</p>
-              </CardContent>
             </Card>
-
           </div>
         </div>
 
         {/* Fluxo de Uso */}
         <div className="mb-20">
           <h3 className="text-3xl font-bold text-center mb-12">
-            💼 Fluxo de Uso
+            💼 Como funciona
           </h3>
           
-          <div className="max-w-4xl mx-auto">
-            <Card className="bg-gradient-to-br from-card to-card/50">
-              <CardContent className="p-8">
-                <div className="space-y-6">
-                  {[
-                    { step: "1", text: "Marcas se cadastram → Informam objetivos, público e orçamento" },
-                    { step: "2", text: "IA recomenda influenciadores reais e/ou avatares adequados" },
-                    { step: "3", text: "Negociação e contratação via chat interno com consultoria integrada" },
-                    { step: "4", text: "Execução de campanha (post, live, collab, etc)" },
-                    { step: "5", text: "Analytics unificado: engajamento, ROI, conversão, feedback" },
-                  ].map((item) => (
-                    <div key={item.step} className="flex items-start gap-4 group">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center font-bold text-lg shrink-0 group-hover:scale-110 transition-transform">
-                        {item.step}
-                      </div>
-                      <p className="text-lg text-foreground pt-2">{item.text}</p>
+          <div className="max-w-6xl mx-auto">
+            <div className="grid md:grid-cols-5 gap-4">
+              {[
+                { step: "1", icon: "🎯", text: "Cadastre sua marca", desc: "Objetivos e público" },
+                { step: "2", icon: "🤖", text: "IA recomenda", desc: "Talentos ideais" },
+                { step: "3", icon: "💬", text: "Negocie", desc: "Com consultoria" },
+                { step: "4", icon: "🚀", text: "Execute", desc: "Campanha ao vivo" },
+                { step: "5", icon: "📊", text: "Acompanhe", desc: "ROI em tempo real" },
+              ].map((item) => (
+                <Card key={item.step} className="group hover:shadow-xl hover:-translate-y-2 transition-all duration-300 text-center">
+                  <CardContent className="p-6">
+                    <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">
+                      {item.icon}
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center font-bold text-sm mx-auto mb-3">
+                      {item.step}
+                    </div>
+                    <p className="font-semibold mb-1">{item.text}</p>
+                    <p className="text-xs text-muted-foreground">{item.desc}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
         </div>
 
