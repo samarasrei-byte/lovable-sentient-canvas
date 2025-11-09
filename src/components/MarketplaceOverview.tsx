@@ -13,11 +13,6 @@ export const MarketplaceOverview = () => {
           <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
             🔥 Visão Geral
           </h2>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-4xl mx-auto leading-relaxed">
-            Crie o primeiro marketplace de influência integrado, que conecta marcas, influenciadores reais e avatares digitais, 
-            em um único ecossistema. Aqui, humanos e avatares coexistem e colaboram para amplificar resultados — tanto em 
-            campanhas de marketing, lives, vendas sociais e conteúdo imersivo.
-          </p>
         </div>
 
         {/* Duas Dimensões */}
@@ -108,41 +103,6 @@ export const MarketplaceOverview = () => {
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-xl transition-all duration-300">
-              <CardHeader>
-                <Palette className="w-10 h-10 text-accent mb-4" />
-                <CardTitle className="text-xl">Design UX/UI Imersivo</CardTitle>
-              </CardHeader>
-              <CardContent className="text-sm text-muted-foreground space-y-2">
-                <p>• Dashboard visual intuitivo com visão 360º</p>
-                <p>• Interface fluida com microinterações</p>
-                <p>• Visual futurista diferenciando humanos e avatares</p>
-              </CardContent>
-            </Card>
-
-            <Card className="hover:shadow-xl transition-all duration-300">
-              <CardHeader>
-                <Sparkles className="w-10 h-10 text-accent mb-4" />
-                <CardTitle className="text-xl">NFT & Licenciamento</CardTitle>
-              </CardHeader>
-              <CardContent className="text-sm text-muted-foreground space-y-2">
-                <p>• Licenciar ou vender avatares como NFTs</p>
-                <p>• Marcas podem comprar "aparências" exclusivas</p>
-                <p>• Ativos digitais únicos para campanhas</p>
-              </CardContent>
-            </Card>
-
-            <Card className="hover:shadow-xl transition-all duration-300">
-              <CardHeader>
-                <TrendingUp className="w-10 h-10 text-accent mb-4" />
-                <CardTitle className="text-xl">Analytics Unificado</CardTitle>
-              </CardHeader>
-              <CardContent className="text-sm text-muted-foreground space-y-2">
-                <p>• Engajamento em tempo real</p>
-                <p>• ROI e conversão detalhados</p>
-                <p>• Feedback e insights acionáveis</p>
-              </CardContent>
-            </Card>
           </div>
         </div>
 

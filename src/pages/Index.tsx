@@ -4,6 +4,7 @@ import { InfluencerGrid } from "@/components/InfluencerGrid";
 import { HowItWorks } from "@/components/HowItWorks";
 import { LiveShop } from "@/components/LiveShop";
 import { MarketplaceOverview } from "@/components/MarketplaceOverview";
+import { Pricing } from "@/components/Pricing";
 import { TrustedBrands } from "@/components/TrustedBrands";
 import { Manifesto } from "@/components/Manifesto";
 import { Footer } from "@/components/Footer";
@@ -17,6 +18,7 @@ const Index = () => {
       <HowItWorks />
       <LiveShop />
       <MarketplaceOverview />
+      <Pricing />
       <TrustedBrands />
       <Manifesto />
       <Footer />
