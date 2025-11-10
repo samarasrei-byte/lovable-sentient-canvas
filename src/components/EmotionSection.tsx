@@ -28,7 +28,7 @@ export const EmotionSection = () => {
             </h2>
             
             <p className="text-xl text-muted-foreground leading-relaxed">
-              LOVABLE transforma emoções em experiências digitais vivas.
+              ARCANA transforma emoções em experiências digitais vivas.
             </p>
 
             <Button 

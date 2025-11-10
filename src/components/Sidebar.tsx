@@ -20,7 +20,7 @@ export const Sidebar = () => {
     <aside className="w-64 border-r border-border/50 bg-card/30 backdrop-blur-sm p-6">
       <Link to="/" className="flex items-center gap-2 mb-8">
         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary" />
-        <span className="text-xl font-bold text-foreground">Lovable</span>
+        <span className="text-xl font-bold text-foreground">ARCANA</span>
       </Link>
 
       <nav className="space-y-2">
