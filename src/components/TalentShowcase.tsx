@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, Bot, Palette } from "lucide-react";
+import { Users, Palette } from "lucide-react";
 
 export const TalentShowcase = () => {
   const talents = [
@@ -13,10 +13,10 @@ export const TalentShowcase = () => {
       bgClass: "bg-gradient-to-br from-blue-500/10 to-transparent"
     },
     {
-      icon: Bot,
-      title: "Avatares digitais",
-      description: "Experimente campanhas com personagens virtuais e tecnologia 3D.",
-      cta: "Conhecer avatares",
+      icon: Palette,
+      title: "Artistas",
+      description: "Curadoria premium para colaborações criativas de alto impacto. Exclusivo Enterprise.",
+      cta: "Conhecer artistas",
       gradient: "from-purple-500/20 to-purple-500/5",
       bgClass: "bg-gradient-to-br from-purple-500/10 to-transparent"
     }

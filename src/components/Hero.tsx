@@ -43,19 +43,13 @@ export const Hero = () => {
 
       {/* Content */}
       <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
-        {/* Logo - Geometric Pulsating Heart */}
+        {/* Logo - Modern ARCANA */}
         <div className="mb-8 flex justify-center">
-          <div className="relative">
-            <Heart 
-              className="w-24 h-24 text-primary animate-breathe"
-              fill="currentColor"
-            />
-            <div className="absolute inset-0 w-24 h-24">
-              <Heart 
-                className="w-24 h-24 text-primary/30 animate-pulse"
-                fill="currentColor"
-              />
-            </div>
+          <div className="relative group">
+            <h1 className="text-7xl md:text-8xl font-black tracking-tighter bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent animate-shimmer bg-[length:200%_100%] [text-shadow:0_0_40px_rgba(255,102,196,0.3)]">
+              ARCANA
+            </h1>
+            <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 to-secondary/20 blur-3xl opacity-50 group-hover:opacity-100 transition-opacity duration-500 -z-10" />
           </div>
         </div>
 

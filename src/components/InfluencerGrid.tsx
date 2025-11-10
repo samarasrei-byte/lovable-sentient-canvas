@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Users, Bot, Check } from "lucide-react";
+import { Users, Palette, Check } from "lucide-react";
 
 import influencerTech from "@/assets/influencer-tech.jpg";
 import influencerFitness from "@/assets/influencer-fitness.jpg";
@@ -127,39 +127,38 @@ export const InfluencerGrid = () => {
     );
   };
 
-  const InfluencerCard = ({ influencer, isAvatar }: { influencer: typeof realInfluencers[0], isAvatar: boolean }) => {
+  const InfluencerCard = ({ influencer, isArtist }: { influencer: typeof realInfluencers[0], isArtist: boolean }) => {
     const isSelected = selectedIds.includes(influencer.id);
     
     return (
       <Card
         onClick={() => toggleSelection(influencer.id)}
-        className={`group cursor-pointer transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 ${
+        className={`group cursor-pointer transition-all duration-500 hover:shadow-xl hover:-translate-y-1 ${
           isSelected ? "ring-2 ring-primary shadow-xl" : ""
-        } ${isAvatar ? "border-secondary/30 hover:border-secondary" : "border-primary/30 hover:border-primary"}`}
+        } ${isArtist ? "border-secondary/30 hover:border-secondary" : "border-primary/30 hover:border-primary"}`}
       >
-        <CardContent className="p-6 space-y-4">
+        <CardContent className="p-4 space-y-3">
           <div className="relative">
             <img
               src={influencer.image}
               alt={influencer.name}
-              className="w-full aspect-square object-cover rounded-2xl"
+              className="w-full aspect-square object-cover rounded-xl"
             />
             {isSelected && (
-              <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-primary flex items-center justify-center animate-scale-in">
-                <Check className="w-5 h-5 text-primary-foreground" />
+              <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-primary flex items-center justify-center animate-scale-in">
+                <Check className="w-4 h-4 text-primary-foreground" />
               </div>
             )}
-            <div className="absolute bottom-3 left-3">
-              <Badge className={isAvatar ? "bg-secondary text-secondary-foreground" : "bg-primary text-primary-foreground"}>
-                {isAvatar ? <Bot className="w-3 h-3 mr-1" /> : <Users className="w-3 h-3 mr-1" />}
-                {isAvatar ? "Avatar Digital" : "Influenciador Real"}
+            <div className="absolute bottom-2 left-2">
+              <Badge variant="secondary" className="text-xs">
+                {isArtist ? "Artista" : "Influenciador"}
               </Badge>
             </div>
           </div>
           
-          <div className="space-y-2">
-            <h3 className="text-xl font-bold">{influencer.name}</h3>
-            <div className="flex items-center justify-between text-sm">
+          <div className="space-y-1">
+            <h3 className="text-lg font-bold">{influencer.name}</h3>
+            <div className="flex items-center justify-between text-xs">
               <span className="text-muted-foreground">{influencer.segment}</span>
               <span className="font-semibold">{influencer.followers}</span>
             </div>
@@ -181,45 +180,43 @@ export const InfluencerGrid = () => {
             Experimente criar com o coração
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Escolha entre influenciadores reais e avatares digitais para suas campanhas
+            Conecte-se com influenciadores reais e artistas para suas campanhas
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-12 max-w-7xl mx-auto">
-          {/* Influenciadores Reais */}
+        <div className="max-w-6xl mx-auto">
+          {/* Influenciadores Reais e Artistas */}
           <div className="space-y-6">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <Users className="w-6 h-6 text-primary" />
+            <div className="flex items-center gap-4 mb-8">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Users className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold">Influenciadores Reais</h3>
+                  <p className="text-sm text-muted-foreground">Criadores autênticos com comunidades estabelecidas</p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-2xl font-bold">Influenciadores Reais</h3>
-                <p className="text-sm text-muted-foreground">Criadores autênticos com comunidades estabelecidas</p>
+              
+              <div className="h-8 w-px bg-border mx-4" />
+              
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center">
+                  <Palette className="w-6 h-6 text-secondary" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold">Artistas</h3>
+                  <p className="text-sm text-muted-foreground">Curadoria premium para colaborações de alto impacto</p>
+                </div>
               </div>
             </div>
             
-            <div className="grid gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {realInfluencers.map((influencer) => (
-                <InfluencerCard key={influencer.id} influencer={influencer} isAvatar={false} />
+                <InfluencerCard key={influencer.id} influencer={influencer} isArtist={false} />
               ))}
-            </div>
-          </div>
-
-          {/* Avatares Digitais */}
-          <div className="space-y-6">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center">
-                <Bot className="w-6 h-6 text-secondary" />
-              </div>
-              <div>
-                <h3 className="text-2xl font-bold">Avatares Digitais</h3>
-                <p className="text-sm text-muted-foreground">Influencers virtuais personalizáveis com IA</p>
-              </div>
-            </div>
-            
-            <div className="grid gap-6">
               {avatarInfluencers.map((influencer) => (
-                <InfluencerCard key={influencer.id} influencer={influencer} isAvatar={true} />
+                <InfluencerCard key={influencer.id} influencer={influencer} isArtist={true} />
               ))}
             </div>
           </div>
@@ -230,7 +227,7 @@ export const InfluencerGrid = () => {
             <Card className="inline-block bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/30">
               <CardContent className="p-6">
                 <p className="text-lg font-semibold">
-                  {selectedIds.length} {selectedIds.length === 1 ? "influenciador selecionado" : "influenciadores selecionados"}
+                  {selectedIds.length} {selectedIds.length === 1 ? "talento selecionado" : "talentos selecionados"}
                 </p>
               </CardContent>
             </Card>
