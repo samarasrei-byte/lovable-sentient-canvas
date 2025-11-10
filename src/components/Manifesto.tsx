@@ -20,6 +20,7 @@ export const Manifesto = () => {
         <Button 
           size="lg"
           className="text-lg px-12 py-6 rounded-full bg-gradient-to-r from-primary to-secondary hover:scale-105 transition-transform duration-300 shadow-2xl shadow-primary/50 border border-primary/30"
+          onClick={() => window.location.href = '/app/dashboard'}
         >
           Comece agora
         </Button>
