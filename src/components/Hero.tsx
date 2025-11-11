@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Heart } from "lucide-react";
+import { Zap } from "lucide-react";
 import heroLiquid from "@/assets/hero-liquid.jpg";
 
 export const Hero = () => {
@@ -20,6 +20,36 @@ export const Hero = () => {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      {/* Navigation */}
+      <nav className="absolute top-0 left-0 right-0 z-50 px-6 py-6">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          {/* Animated Logo */}
+          <div className="relative group">
+            <div className="absolute -inset-2 bg-gradient-to-r from-primary to-secondary rounded-lg opacity-30 group-hover:opacity-50 blur transition duration-500 animate-glow" />
+            <div className="relative flex items-center gap-2 px-4 py-2 bg-background/80 backdrop-blur-sm rounded-lg border border-primary/20">
+              <Zap className="w-5 h-5 text-primary animate-pulse" />
+              <span className="text-2xl font-bold bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent animate-shimmer bg-[length:200%_auto]">
+                ARCANA
+              </span>
+            </div>
+          </div>
+          <div className="hidden md:flex items-center gap-8">
+            <a href="#talentos" className="text-sm font-medium text-foreground/80 hover:text-foreground transition-colors">
+              Talentos
+            </a>
+            <a href="#como-funciona" className="text-sm font-medium text-foreground/80 hover:text-foreground transition-colors">
+              Como Funciona
+            </a>
+            <a href="#planos" className="text-sm font-medium text-foreground/80 hover:text-foreground transition-colors">
+              Planos
+            </a>
+            <Button variant="outline" className="border-primary/20 hover:bg-primary/10">
+              Entrar
+            </Button>
+          </div>
+        </div>
+      </nav>
+
       {/* Animated Background */}
       <div 
         className="absolute inset-0 transition-transform duration-1000 ease-out"
@@ -42,19 +72,9 @@ export const Hero = () => {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
-        {/* Logo - Modern ARCANA */}
-        <div className="mb-8 flex justify-center">
-          <div className="relative group">
-            <h1 className="text-7xl md:text-8xl font-black tracking-tighter bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent animate-shimmer bg-[length:200%_100%] [text-shadow:0_0_40px_rgba(255,102,196,0.3)]">
-              ARCANA
-            </h1>
-            <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 to-secondary/20 blur-3xl opacity-50 group-hover:opacity-100 transition-opacity duration-500 -z-10" />
-          </div>
-        </div>
-
+      <div className="relative z-10 text-center px-6 max-w-5xl mx-auto pt-20">
         {/* Headline */}
-        <h1 className="text-6xl md:text-8xl font-bold mb-8 bg-gradient-to-r from-foreground via-primary to-secondary bg-clip-text text-transparent animate-shimmer bg-[length:200%_100%]">
+        <h1 className="text-5xl md:text-7xl font-bold mb-8 bg-gradient-to-r from-foreground via-primary to-secondary bg-clip-text text-transparent animate-shimmer bg-[length:200%_100%]">
           A próxima geração de conexões entre marcas e criadores.
         </h1>
 

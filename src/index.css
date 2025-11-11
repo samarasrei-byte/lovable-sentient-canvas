@@ -8,46 +8,48 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 3%;
+    --background: 0 0% 2%;
     --foreground: 0 0% 98%;
 
-    --card: 0 0% 8%;
+    --card: 0 0% 5%;
     --card-foreground: 0 0% 98%;
 
     --popover: 0 0% 5%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 330 100% 70%;
+    --primary: 270 100% 65%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 195 100% 82%;
+    --secondary: 180 100% 50%;
     --secondary-foreground: 0 0% 10%;
 
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 55%;
 
-    --accent: 330 100% 70%;
+    --accent: 270 100% 65%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 330 100% 70%;
+    --border: 270 50% 20%;
+    --input: 270 30% 15%;
+    --ring: 270 100% 65%;
 
     --radius: 1rem;
 
-    /* Blueprint 2067 Design System */
-    --liquid-black: 0 0% 3%;
-    --liquid-white: 0 0% 98%;
-    --emotion-pink: 330 100% 70%;
-    --prism-blue: 195 100% 82%;
-    --glass-border: 0 0% 100% / 0.1;
+    /* Arcana Neo-Futuristic Design System */
+    --deep-black: 0 0% 2%;
+    --electric-violet: 270 100% 65%;
+    --pure-white: 0 0% 98%;
+    --cyan-glow: 180 100% 50%;
+    --purple-glow: 270 100% 70%;
+    --glass-border: 270 50% 50% / 0.1;
     
     /* Gradients */
-    --gradient-emotion: linear-gradient(135deg, hsl(330 100% 70% / 0.3), hsl(195 100% 82% / 0.3));
-    --gradient-glow: radial-gradient(circle at center, hsl(330 100% 70% / 0.2), transparent);
+    --gradient-arcana: linear-gradient(135deg, hsl(270 100% 65% / 0.3), hsl(180 100% 50% / 0.3));
+    --gradient-glow: radial-gradient(circle at center, hsl(270 100% 65% / 0.2), transparent);
+    --gradient-cyber: linear-gradient(90deg, hsl(270 100% 65%), hsl(180 100% 50%));
     
     /* Animations */
     --transition-fluid: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
