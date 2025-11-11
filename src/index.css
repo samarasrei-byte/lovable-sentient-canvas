@@ -22,6 +22,9 @@ All colors MUST be HSL.
 
     --secondary: 180 100% 50%;
     --secondary-foreground: 0 0% 10%;
+    
+    --artist: 30 100% 60%;
+    --artist-foreground: 0 0% 10%;
 
     --muted: 0 0% 10%;
     --muted-foreground: 0 0% 55%;
@@ -44,6 +47,7 @@ All colors MUST be HSL.
     --pure-white: 0 0% 98%;
     --cyan-glow: 180 100% 50%;
     --purple-glow: 270 100% 70%;
+    --orange-artist: 30 100% 60%;
     --glass-border: 270 50% 50% / 0.1;
     
     /* Gradients */

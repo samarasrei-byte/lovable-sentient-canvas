@@ -2,7 +2,7 @@ import { Hero } from "@/components/Hero";
 import { AvatarGenerator } from "@/components/AvatarGenerator";
 import { OnboardingQuiz } from "@/components/OnboardingQuiz";
 import { TalentShowcase } from "@/components/TalentShowcase";
-import { InfluencerGrid } from "@/components/InfluencerGrid";
+import { MarketplaceGrid } from "@/components/MarketplaceGrid";
 import { HowItWorks } from "@/components/HowItWorks";
 import { LiveShop } from "@/components/LiveShop";
 import { MarketplaceOverview } from "@/components/MarketplaceOverview";
@@ -18,7 +18,7 @@ const Index = () => {
       <AvatarGenerator />
       <OnboardingQuiz />
       <TalentShowcase />
-      <InfluencerGrid />
+      <MarketplaceGrid />
       <HowItWorks />
       <LiveShop />
       <MarketplaceOverview />

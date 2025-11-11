@@ -27,6 +27,10 @@ export default {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",
         },
+        artist: {
+          DEFAULT: "hsl(var(--artist))",
+          foreground: "hsl(var(--artist-foreground))",
+        },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
@@ -100,6 +104,10 @@ export default {
           "0%, 100%": { transform: "scale(1)", opacity: "1" },
           "50%": { transform: "scale(1.02)", opacity: "0.95" },
         },
+        "scale-in": {
+          "0%": { transform: "scale(0.8)", opacity: "0" },
+          "100%": { transform: "scale(1)", opacity: "1" }
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -109,6 +117,7 @@ export default {
         glow: "glow 4s ease-in-out infinite",
         shimmer: "shimmer 3s linear infinite",
         breathe: "breathe 4s ease-in-out infinite",
+        "scale-in": "scale-in 0.3s ease-out",
       },
     },
   },
