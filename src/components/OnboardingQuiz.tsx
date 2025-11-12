@@ -235,10 +235,19 @@ export const OnboardingQuiz = () => {
     <section className="py-24 px-6 relative overflow-hidden bg-gradient-to-b from-primary/5 to-transparent">
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            Descubra o criador ideal para sua marca
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20 mb-6">
+            <Sparkles className="w-4 h-4 text-primary" />
+            <span className="text-sm font-medium bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              Visão Geral
+            </span>
+          </div>
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 flex items-center justify-center gap-3">
+            <span className="text-3xl">👥</span>
+            <span className="bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent animate-shimmer bg-[length:200%_auto]">
+              3 Dimensões do Marketplace
+            </span>
           </h2>
-          <p className="text-lg text-muted-foreground">
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Um diagnóstico completo para encontrar a parceria perfeita para suas campanhas
           </p>
         </div>
