@@ -9,6 +9,7 @@ import AppLayout, { RedirectToDashboard } from "./pages/app/AppLayout";
 import Dashboard from "./pages/app/Dashboard";
 import Talentos from "./pages/app/Talentos";
 import Planos from "./pages/app/Planos";
+import LiveShop from "./pages/app/LiveShop";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ const App = () => (
             <Route index element={<RedirectToDashboard />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="talentos" element={<Talentos />} />
+            <Route path="liveshop" element={<LiveShop />} />
             <Route path="planos" element={<Planos />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

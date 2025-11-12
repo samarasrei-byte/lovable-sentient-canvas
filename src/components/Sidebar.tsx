@@ -1,15 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Users, Bot, Briefcase, Video, BarChart3, Sparkles, User, CreditCard } from "lucide-react";
+import { Home, Users, Video, CreditCard } from "lucide-react";
 
 const menuItems = [
   { path: "/app/dashboard", icon: Home, label: "Dashboard" },
   { path: "/app/talentos", icon: Users, label: "Talentos" },
-  { path: "/app/avatares", icon: Bot, label: "Avatares" },
-  { path: "/app/campanhas", icon: Briefcase, label: "Campanhas" },
-  { path: "/app/live-shop", icon: Video, label: "Live Shop" },
-  { path: "/app/analytics", icon: BarChart3, label: "Analytics" },
-  { path: "/app/consultoria-ia", icon: Sparkles, label: "Consultoria IA" },
-  { path: "/app/perfil", icon: User, label: "Perfil" },
+  { path: "/app/liveshop", icon: Video, label: "Live Shop" },
   { path: "/app/planos", icon: CreditCard, label: "Planos" },
 ];
 
