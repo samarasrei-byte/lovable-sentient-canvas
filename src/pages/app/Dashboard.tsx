@@ -33,10 +33,19 @@ import {
   MousePointerClick,
   Repeat,
   ShoppingCart,
-  Star
+  Star,
+  Instagram,
+  Youtube,
+  Twitter
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+
+// Import real influencer images
+import influencerTech from "@/assets/influencer-tech.jpg";
+import influencerFitness from "@/assets/influencer-fitness.jpg";
+import influencerFashion from "@/assets/influencer-fashion.jpg";
+import influencerWellness from "@/assets/influencer-wellness.jpg";
 
 interface Talent {
   id: number;
@@ -601,6 +610,114 @@ export default function Dashboard() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Marketplace Influencers Section */}
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold">Talentos do Marketplace</h2>
+            <p className="text-muted-foreground">Conecte-se com influenciadores reais verificados</p>
+          </div>
+          <Button variant="outline" className="gap-2" onClick={() => navigate("/")}>
+            <Users className="w-4 h-4" />
+            Ver Todos
+          </Button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[
+            {
+              name: "Rafael Costa",
+              category: "Tecnologia",
+              followers: "2.5M",
+              engagement: "8.5%",
+              image: influencerTech,
+              verified: true,
+              niche: "IA & Inovação",
+              platforms: ["instagram", "youtube", "twitter"]
+            },
+            {
+              name: "Bruno Almeida",
+              category: "Fitness",
+              followers: "3.2M",
+              engagement: "9.2%",
+              image: influencerFitness,
+              verified: true,
+              niche: "Treino Funcional",
+              platforms: ["instagram", "youtube"]
+            },
+            {
+              name: "Camila Rodrigues",
+              category: "Moda",
+              followers: "4.8M",
+              engagement: "11.3%",
+              image: influencerFashion,
+              verified: true,
+              niche: "Streetwear",
+              platforms: ["instagram", "twitter"]
+            },
+            {
+              name: "Maria Santos",
+              category: "Bem-estar",
+              followers: "3.5M",
+              engagement: "10.1%",
+              image: influencerWellness,
+              verified: true,
+              niche: "Mindfulness",
+              platforms: ["instagram", "youtube"]
+            }
+          ].map((influencer, i) => (
+            <Card key={i} className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-border/50 hover:border-primary/50 overflow-hidden">
+              <div className="relative h-48 overflow-hidden">
+                <img 
+                  src={influencer.image} 
+                  alt={influencer.name}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                <div className="absolute bottom-3 left-3 right-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h4 className="text-white font-bold text-lg">{influencer.name}</h4>
+                    {influencer.verified && (
+                      <Badge variant="secondary" className="bg-primary/20 text-primary border-primary/50 text-xs">
+                        ✓
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-white/80 text-sm">{influencer.niche}</p>
+                </div>
+              </div>
+              
+              <CardContent className="p-4 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Seguidores</p>
+                    <p className="font-bold text-lg">{influencer.followers}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-muted-foreground">Engajamento</p>
+                    <p className="font-bold text-lg text-green-500">{influencer.engagement}</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  {influencer.platforms.map((platform) => (
+                    <div key={platform} className="p-2 rounded-lg bg-muted hover:bg-primary/10 transition-colors cursor-pointer">
+                      {platform === "instagram" && <Instagram className="w-4 h-4" />}
+                      {platform === "youtube" && <Youtube className="w-4 h-4" />}
+                      {platform === "twitter" && <Twitter className="w-4 h-4" />}
+                    </div>
+                  ))}
+                </div>
+
+                <Button className="w-full" variant="outline">
+                  Ver Perfil Completo
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
 
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
