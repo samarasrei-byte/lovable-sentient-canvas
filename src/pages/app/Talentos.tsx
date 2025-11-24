@@ -1,19 +1,21 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Filter, Bot, Users, Palette, Star, TrendingUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export default function Talentos() {
+  const navigate = useNavigate();
   const [filter, setFilter] = useState("all");
   
   const talents = [
-    { name: "Luna AI", category: "Fashion", followers: "500K", engagement: "8.5%", type: "avatar", verified: true },
-    { name: "Ana Silva", category: "Lifestyle", followers: "820K", engagement: "9.2%", type: "influencer", verified: true },
-    { name: "Pedro Costa", category: "Tech", followers: "320K", engagement: "7.2%", type: "influencer", verified: false },
-    { name: "Sophia Digital", category: "Beauty", followers: "650K", engagement: "10.1%", type: "avatar", verified: true },
-    { name: "Maria Santos", category: "Wellness", followers: "890K", engagement: "9.1%", type: "influencer", verified: true },
-    { name: "Carlos Mendes", category: "Arte Urbana", followers: "450K", engagement: "8.8%", type: "artist", verified: true },
+    { id: "luna-ai", name: "Luna AI", category: "Fashion", followers: "500K", engagement: "8.5%", type: "avatar", verified: true },
+    { id: "ana-silva", name: "Ana Silva", category: "Lifestyle", followers: "820K", engagement: "9.2%", type: "influencer", verified: true },
+    { id: "pedro-costa", name: "Pedro Costa", category: "Tech", followers: "320K", engagement: "7.2%", type: "influencer", verified: false },
+    { id: "sophia-digital", name: "Sophia Digital", category: "Beauty", followers: "650K", engagement: "10.1%", type: "avatar", verified: true },
+    { id: "maria-santos", name: "Maria Santos", category: "Wellness", followers: "890K", engagement: "9.1%", type: "influencer", verified: true },
+    { id: "carlos-mendes", name: "Carlos Mendes", category: "Arte Urbana", followers: "450K", engagement: "8.8%", type: "artist", verified: true },
   ];
 
   const filteredTalents = filter === "all" ? talents : talents.filter(t => t.type === filter);
@@ -118,7 +120,13 @@ export default function Talentos() {
                   </div>
                 </div>
                 
-                <Button className="w-full" variant="outline">Ver Perfil</Button>
+                <Button 
+                  className="w-full" 
+                  variant="outline"
+                  onClick={() => navigate(`/app/talentos/${talent.id}`)}
+                >
+                  Ver Perfil
+                </Button>
               </div>
             </div>
           );

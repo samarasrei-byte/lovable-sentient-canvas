@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Bot, Users, Palette, Star, TrendingUp, Eye, Heart, MessageCircle, Instagram, Youtube, ArrowUpRight, Video } from "lucide-react";
@@ -11,11 +12,13 @@ import influencerArt from "@/assets/influencer-art.jpg";
 import influencerWellness from "@/assets/influencer-wellness.jpg";
 
 export default function TalentosAprimorado() {
+  const navigate = useNavigate();
   const [filter, setFilter] = useState("all");
   
   const talents = [
     { 
-      name: "Rafael Costa", 
+      id: "rafael-costa",
+      name: "Rafael Costa",
       category: "Tecnologia & IA", 
       followers: "2.5M", 
       engagement: "12.4%", 
@@ -31,7 +34,8 @@ export default function TalentosAprimorado() {
       reachLast30: "12.5M"
     },
     { 
-      name: "Camila Rodrigues", 
+      id: "camila-rodrigues",
+      name: "Camila Rodrigues",
       category: "Moda & Lifestyle", 
       followers: "4.8M", 
       engagement: "15.2%", 
@@ -47,7 +51,8 @@ export default function TalentosAprimorado() {
       reachLast30: "18.2M"
     },
     { 
-      name: "Bruno Almeida", 
+      id: "bruno-almeida",
+      name: "Bruno Almeida",
       category: "Fitness & Saúde", 
       followers: "3.2M", 
       engagement: "10.8%", 
@@ -63,7 +68,8 @@ export default function TalentosAprimorado() {
       reachLast30: "15.8M"
     },
     { 
-      name: "João Silva", 
+      id: "joao-silva",
+      name: "João Silva",
       category: "Negócios & Startups", 
       followers: "1.9M", 
       engagement: "9.5%", 
@@ -79,7 +85,8 @@ export default function TalentosAprimorado() {
       reachLast30: "8.9M"
     },
     { 
-      name: "Ana Beatriz", 
+      id: "ana-beatriz",
+      name: "Ana Beatriz",
       category: "Arte Digital & NFT", 
       followers: "2.1M", 
       engagement: "14.2%", 
@@ -95,7 +102,8 @@ export default function TalentosAprimorado() {
       reachLast30: "11.2M"
     },
     { 
-      name: "Maria Santos", 
+      id: "maria-santos",
+      name: "Maria Santos",
       category: "Bem-estar & Mindfulness", 
       followers: "3.5M", 
       engagement: "11.8%", 
@@ -233,7 +241,7 @@ export default function TalentosAprimorado() {
                           })}
                         </div>
                       </div>
-                      <Button>Ver Perfil</Button>
+                      <Button onClick={() => navigate(`/app/talentos/${talent.id}`)}>Ver Perfil</Button>
                     </div>
 
                     {/* Main Stats */}
