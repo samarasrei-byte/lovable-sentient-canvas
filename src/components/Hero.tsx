@@ -27,10 +27,9 @@ export const Hero = () => {
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           {/* Animated Logo */}
           <div className="relative group">
-            <div className="absolute -inset-2 bg-gradient-to-r from-primary to-secondary rounded-lg opacity-30 group-hover:opacity-50 blur transition duration-500 animate-glow" />
-          <div className="relative flex items-center gap-2 px-4 py-2 bg-background/80 backdrop-blur-sm rounded-lg border border-primary/20">
-              <Zap className="w-5 h-5 text-[#06B6D4] animate-pulse" />
-              <span className="text-2xl font-bold text-[#06B6D4]">
+            <div className="relative flex items-center gap-2 px-4 py-2 bg-background/80 backdrop-blur-sm rounded-lg border border-secondary/30">
+              <Zap className="w-5 h-5 text-secondary" />
+              <span className="text-2xl font-bold text-secondary">
                 ARCANA
               </span>
             </div>
@@ -66,21 +65,21 @@ export const Hero = () => {
         <img 
           src={heroLiquid} 
           alt="Liquid background"
-          className="w-full h-full object-cover opacity-40 scale-110"
+          className="w-full h-full object-cover opacity-30 scale-110"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/50 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/60 to-background" />
       </div>
 
       {/* Animated Glow Orbs */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#A855F7]/20 rounded-full blur-[100px] animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#06B6D4]/20 rounded-full blur-[100px] animate-pulse delay-1000" />
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[100px] animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary/20 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '1s' }} />
       </div>
 
       {/* Content */}
       <div className="relative z-10 text-center px-6 max-w-5xl mx-auto pt-20">
         {/* Headline */}
-        <h1 className="text-5xl md:text-7xl font-bold mb-8 bg-gradient-to-r from-[#A855F7] via-[#6366F1] to-[#06B6D4] bg-clip-text text-transparent animate-shimmer bg-[length:200%_100%]">
+        <h1 className="text-5xl md:text-7xl font-bold mb-8 bg-gradient-to-r from-primary via-[#6366F1] to-secondary bg-clip-text text-transparent">
           A próxima geração de conexões entre marcas e criadores.
         </h1>
 
@@ -92,7 +91,7 @@ export const Hero = () => {
         {/* CTA Button */}
         <Button 
           size="lg"
-          className="text-lg px-12 py-6 rounded-full bg-gradient-to-r from-[#A855F7] to-[#06B6D4] hover:scale-105 transition-transform duration-300 shadow-2xl shadow-primary/50 border border-primary/30"
+          className="text-lg px-12 py-6 rounded-full bg-gradient-to-r from-primary to-secondary hover:scale-105 transition-transform duration-300 shadow-2xl shadow-primary/50"
           onClick={() => navigate("/login")}
         >
           Explorar talentos
