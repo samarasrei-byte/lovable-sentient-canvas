@@ -41,23 +41,39 @@ export const AvatarGenerator = () => {
   const influencers = [
     {
       name: "Sarah Tech",
-      description: "Influencer de IA: mulher, 28 anos, estilo tech minimalista, confiante, inovadora",
-      image: "🤖"
+      description: "Mulher, 28 anos, tech minimalista, confiante, inovadora",
+      emoji: "🤖",
+      gradient: "from-cyan-500 to-blue-600"
     },
     {
       name: "Marcus Fit",
-      description: "Homem atlético, 32 anos, personal trainer, estilo fitness motivacional",
-      image: "💪"
+      description: "Homem atlético, 32 anos, personal trainer, fitness motivacional",
+      emoji: "💪",
+      gradient: "from-orange-500 to-red-600"
     },
     {
       name: "Luna Fashion",
-      description: "Mulher fashion, 25 anos, modelo, estilo haute couture contemporâneo",
-      image: "👗"
+      description: "Mulher fashion, 25 anos, modelo, haute couture contemporâneo",
+      emoji: "👗",
+      gradient: "from-pink-500 to-purple-600"
     },
     {
-      name: "Alex Gaming",
-      description: "Gamer profissional, 26 anos, estilo cyberpunk futurista, energético",
-      image: "🎮"
+      name: "Ana Wellness",
+      description: "Mulher, 30 anos, yoga e bem-estar, serena, inspiradora",
+      emoji: "🧘‍♀️",
+      gradient: "from-green-500 to-emerald-600"
+    },
+    {
+      name: "Carlos Chef",
+      description: "Homem, 35 anos, chef de cozinha, gastronomia sofisticada",
+      emoji: "👨‍🍳",
+      gradient: "from-yellow-500 to-orange-600"
+    },
+    {
+      name: "Julia Travel",
+      description: "Mulher, 27 anos, viajante, aventureira, lifestyle nômade",
+      emoji: "✈️",
+      gradient: "from-blue-500 to-cyan-600"
     }
   ];
 
@@ -83,20 +99,20 @@ export const AvatarGenerator = () => {
           </p>
         </div>
 
-        {/* Main Grid */}
-        <div className="grid lg:grid-cols-2 gap-8 mb-12">
-          {/* Generator Card */}
+        {/* Main Layout */}
+        <div className="grid lg:grid-cols-[2fr,1fr] gap-8 mb-12">
+          {/* Generator Card - LARGER */}
           <div className="relative group">
             <div className="absolute -inset-1 bg-gradient-to-r from-primary via-secondary to-primary rounded-3xl opacity-20 group-hover:opacity-40 blur-xl transition duration-500" />
             
-            <div className="relative bg-card/90 backdrop-blur-xl border border-border/50 rounded-3xl p-10">
-              <div className="space-y-6">
-                <div className="relative">
+            <div className="relative bg-card/90 backdrop-blur-xl border border-border/50 rounded-3xl p-10 h-full flex flex-col">
+              <div className="space-y-6 flex-1">
+                <div className="relative flex-1">
                   <Textarea
                     placeholder="Descreva seu influencer ideal: estilo, personalidade, características físicas..."
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
-                    className="min-h-[160px] text-lg bg-background/50 border-primary/30 focus:border-primary rounded-2xl resize-none"
+                    className="min-h-[300px] text-lg bg-background/50 border-primary/30 focus:border-primary rounded-2xl resize-none"
                     disabled={isGenerating}
                   />
                   <div className="absolute right-4 top-4">
@@ -142,32 +158,32 @@ export const AvatarGenerator = () => {
             </div>
           </div>
 
-          {/* Influencer Examples */}
+          {/* Influencer Examples - SMALLER & ORGANIZED */}
           <div className="space-y-4">
-            <h3 className="text-2xl font-bold mb-6 flex items-center gap-3">
-              <Zap className="w-6 h-6 text-secondary" />
-              Influencers de Exemplo
-            </h3>
+            <div className="flex items-center gap-3 mb-6">
+              <Zap className="w-5 h-5 text-secondary" />
+              <h3 className="text-xl font-bold">Influencers de Exemplo</h3>
+            </div>
             
-            <div className="grid gap-4">
+            <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
               {influencers.map((influencer, i) => (
                 <div
                   key={i}
                   onClick={() => setPrompt(influencer.description)}
                   className="group relative cursor-pointer"
                 >
-                  <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/0 via-secondary/0 to-primary/0 group-hover:from-primary/50 group-hover:via-secondary/50 group-hover:to-primary/50 rounded-2xl blur transition duration-300" />
+                  <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/0 via-secondary/0 to-primary/0 group-hover:from-primary/50 group-hover:via-secondary/50 group-hover:to-primary/50 rounded-xl blur transition duration-300" />
                   
-                  <div className="relative bg-card/70 backdrop-blur-xl border border-border/50 group-hover:border-primary/50 rounded-2xl p-6 transition-all group-hover:scale-[1.02]">
-                    <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center text-3xl flex-shrink-0">
-                        {influencer.image}
+                  <div className="relative bg-card/70 backdrop-blur-xl border border-border/50 group-hover:border-primary/50 rounded-xl p-4 transition-all group-hover:scale-[1.02]">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${influencer.gradient} flex items-center justify-center text-2xl flex-shrink-0 shadow-lg`}>
+                        {influencer.emoji}
                       </div>
-                      <div className="flex-1">
-                        <h4 className="font-bold text-lg mb-1">{influencer.name}</h4>
-                        <p className="text-sm text-muted-foreground line-clamp-2">{influencer.description}</p>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-bold text-sm mb-0.5">{influencer.name}</h4>
+                        <p className="text-xs text-muted-foreground line-clamp-2">{influencer.description}</p>
                       </div>
-                      <Wand2 className="w-5 h-5 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <Wand2 className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
                     </div>
                   </div>
                 </div>
