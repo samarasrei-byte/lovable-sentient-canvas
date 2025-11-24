@@ -8,52 +8,62 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 2%;
-    --foreground: 0 0% 98%;
+    /* Arcana Oracle Color Palette */
+    --background: 220 18% 7%;
+    --foreground: 0 0% 95%;
 
-    --card: 0 0% 5%;
-    --card-foreground: 0 0% 98%;
+    --card: 220 15% 10%;
+    --card-foreground: 0 0% 95%;
 
-    --popover: 0 0% 5%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 220 15% 10%;
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 270 100% 65%;
+    /* Primary: Roxo Arcano #4A1FFF */
+    --primary: 258 100% 56%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 180 100% 50%;
-    --secondary-foreground: 0 0% 10%;
+    /* Secondary: Preto Noite #0D0E11 */
+    --secondary: 220 18% 7%;
+    --secondary-foreground: 0 0% 95%;
     
+    /* Artist/Creator */
     --artist: 30 100% 60%;
     --artist-foreground: 0 0% 10%;
 
-    --muted: 0 0% 10%;
-    --muted-foreground: 0 0% 55%;
+    /* Accent: Dourado Místico #F3C623 */
+    --accent: 45 94% 55%;
+    --accent-foreground: 220 18% 7%;
+    
+    /* Success: Verde Magia #1BE07A */
+    --success: 153 82% 49%;
+    --success-foreground: 0 0% 100%;
 
-    --accent: 270 100% 65%;
-    --accent-foreground: 0 0% 100%;
+    --muted: 220 15% 15%;
+    --muted-foreground: 0 0% 60%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
+    /* Destructive: Vermelho Ritual #FF3B3B */
+    --destructive: 0 100% 62%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 270 50% 20%;
-    --input: 270 30% 15%;
-    --ring: 270 100% 65%;
+    --border: 220 15% 20%;
+    --input: 220 15% 20%;
+    --ring: 258 100% 56%;
 
     --radius: 1rem;
 
-    /* Arcana Neo-Futuristic Design System */
-    --deep-black: 0 0% 2%;
-    --electric-violet: 270 100% 65%;
-    --pure-white: 0 0% 98%;
-    --cyan-glow: 180 100% 50%;
-    --purple-glow: 270 100% 70%;
-    --orange-artist: 30 100% 60%;
-    --glass-border: 270 50% 50% / 0.1;
+    /* Arcana Oracle Design System */
+    --deep-black: 220 18% 7%;
+    --electric-violet: 258 100% 56%;
+    --pure-white: 0 0% 95%;
+    --mystic-gold: 45 94% 55%;
+    --magic-green: 153 82% 49%;
+    --ritual-red: 0 100% 62%;
+    --glass-border: 220 15% 20% / 0.1;
     
     /* Gradients */
-    --gradient-arcana: linear-gradient(135deg, hsl(270 100% 65% / 0.3), hsl(180 100% 50% / 0.3));
-    --gradient-glow: radial-gradient(circle at center, hsl(270 100% 65% / 0.2), transparent);
-    --gradient-cyber: linear-gradient(90deg, hsl(270 100% 65%), hsl(180 100% 50%));
+    --gradient-arcana: linear-gradient(135deg, hsl(258 100% 56% / 0.3), hsl(45 94% 55% / 0.3));
+    --gradient-glow: radial-gradient(circle at center, hsl(258 100% 56% / 0.2), transparent);
+    --gradient-oracle: linear-gradient(90deg, hsl(258 100% 56%), hsl(45 94% 55%));
     
     /* Animations */
     --transition-fluid: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);

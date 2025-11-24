@@ -14,6 +14,105 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_2fa: {
+        Row: {
+          backup_codes: string[] | null
+          created_at: string
+          id: string
+          is_enabled: boolean
+          last_used: string | null
+          secret: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          backup_codes?: string[] | null
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          last_used?: string | null
+          secret: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          backup_codes?: string[] | null
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          last_used?: string | null
+          secret?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      admin_settings: {
+        Row: {
+          created_at: string
+          id: string
+          setting_key: string
+          setting_value: Json
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          setting_key: string
+          setting_value: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          setting_key?: string
+          setting_value?: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      audit_logs: {
+        Row: {
+          action: string
+          admin_id: string | null
+          created_at: string
+          entity_id: string | null
+          entity_type: string
+          id: string
+          ip_address: string | null
+          new_data: Json | null
+          old_data: Json | null
+          user_agent: string | null
+        }
+        Insert: {
+          action: string
+          admin_id?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          ip_address?: string | null
+          new_data?: Json | null
+          old_data?: Json | null
+          user_agent?: string | null
+        }
+        Update: {
+          action?: string
+          admin_id?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          ip_address?: string | null
+          new_data?: Json | null
+          old_data?: Json | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       bans: {
         Row: {
           banned_at: string
@@ -41,6 +140,51 @@ export type Database = {
           is_active?: boolean
           reason?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      brand_verifications: {
+        Row: {
+          brand_id: string
+          cnpj: string | null
+          company_name: string | null
+          created_at: string
+          documents_verified: boolean
+          financial_verified: boolean
+          id: string
+          status: string
+          updated_at: string
+          verified_at: string | null
+          verifier_id: string | null
+          verifier_notes: string | null
+        }
+        Insert: {
+          brand_id: string
+          cnpj?: string | null
+          company_name?: string | null
+          created_at?: string
+          documents_verified?: boolean
+          financial_verified?: boolean
+          id?: string
+          status?: string
+          updated_at?: string
+          verified_at?: string | null
+          verifier_id?: string | null
+          verifier_notes?: string | null
+        }
+        Update: {
+          brand_id?: string
+          cnpj?: string | null
+          company_name?: string | null
+          created_at?: string
+          documents_verified?: boolean
+          financial_verified?: boolean
+          id?: string
+          status?: string
+          updated_at?: string
+          verified_at?: string | null
+          verifier_id?: string | null
+          verifier_notes?: string | null
         }
         Relationships: []
       }
@@ -92,6 +236,56 @@ export type Database = {
             foreignKeyName: "contracts_influencer_id_fkey"
             columns: ["influencer_id"]
             isOneToOne: false
+            referencedRelation: "influencers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      influencer_approvals: {
+        Row: {
+          authenticity_score: number | null
+          created_at: string
+          documents_verified: boolean
+          engagement_score: number | null
+          id: string
+          influencer_id: string
+          reviewed_at: string | null
+          reviewer_id: string | null
+          reviewer_notes: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          authenticity_score?: number | null
+          created_at?: string
+          documents_verified?: boolean
+          engagement_score?: number | null
+          id?: string
+          influencer_id: string
+          reviewed_at?: string | null
+          reviewer_id?: string | null
+          reviewer_notes?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          authenticity_score?: number | null
+          created_at?: string
+          documents_verified?: boolean
+          engagement_score?: number | null
+          id?: string
+          influencer_id?: string
+          reviewed_at?: string | null
+          reviewer_id?: string | null
+          reviewer_notes?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "influencer_approvals_influencer_id_fkey"
+            columns: ["influencer_id"]
+            isOneToOne: true
             referencedRelation: "influencers"
             referencedColumns: ["id"]
           },
@@ -239,6 +433,44 @@ export type Database = {
           },
         ]
       }
+      platform_fees: {
+        Row: {
+          arcana_platform_fee: number
+          arcana_whitelabel_fee: number
+          contract_id: string
+          created_at: string
+          id: string
+          total_fees: number
+          withdrawal_fee: number | null
+        }
+        Insert: {
+          arcana_platform_fee: number
+          arcana_whitelabel_fee: number
+          contract_id: string
+          created_at?: string
+          id?: string
+          total_fees: number
+          withdrawal_fee?: number | null
+        }
+        Update: {
+          arcana_platform_fee?: number
+          arcana_whitelabel_fee?: number
+          contract_id?: string
+          created_at?: string
+          id?: string
+          total_fees?: number
+          withdrawal_fee?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_fees_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -299,6 +531,83 @@ export type Database = {
         }
         Relationships: []
       }
+      support_tickets: {
+        Row: {
+          assigned_to: string | null
+          category: string
+          created_at: string
+          description: string
+          id: string
+          priority: string
+          resolved_at: string | null
+          status: string
+          subject: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          category: string
+          created_at?: string
+          description: string
+          id?: string
+          priority: string
+          resolved_at?: string | null
+          status?: string
+          subject: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assigned_to?: string | null
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          priority?: string
+          resolved_at?: string | null
+          status?: string
+          subject?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ticket_messages: {
+        Row: {
+          created_at: string
+          id: string
+          is_internal: boolean
+          message: string
+          sender_id: string
+          ticket_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_internal?: boolean
+          message: string
+          sender_id: string
+          ticket_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_internal?: boolean
+          message?: string
+          sender_id?: string
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_messages_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -320,6 +629,62 @@ export type Database = {
         }
         Relationships: []
       }
+      withdrawals: {
+        Row: {
+          amount: number
+          bank_account: string | null
+          created_at: string
+          fee: number
+          id: string
+          influencer_id: string
+          net_amount: number
+          payment_method: string
+          pix_key: string | null
+          processed_at: string | null
+          processed_by: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          bank_account?: string | null
+          created_at?: string
+          fee: number
+          id?: string
+          influencer_id: string
+          net_amount: number
+          payment_method: string
+          pix_key?: string | null
+          processed_at?: string | null
+          processed_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          bank_account?: string | null
+          created_at?: string
+          fee?: number
+          id?: string
+          influencer_id?: string
+          net_amount?: number
+          payment_method?: string
+          pix_key?: string | null
+          processed_at?: string | null
+          processed_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "withdrawals_influencer_id_fkey"
+            columns: ["influencer_id"]
+            isOneToOne: false
+            referencedRelation: "influencers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -333,6 +698,16 @@ export type Database = {
         Returns: boolean
       }
       is_user_banned: { Args: { _user_id: string }; Returns: boolean }
+      log_admin_action: {
+        Args: {
+          p_action: string
+          p_entity_id: string
+          p_entity_type: string
+          p_new_data?: Json
+          p_old_data?: Json
+        }
+        Returns: string
+      }
     }
     Enums: {
       app_role: "brand" | "influencer" | "admin"
