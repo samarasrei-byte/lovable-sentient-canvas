@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Users, Video, CreditCard, Sparkles, Settings, Zap, Target, FileText, Wallet } from "lucide-react";
+import { Home, Users, Video, CreditCard, Sparkles, Settings, Zap, Target, FileText, Wallet, Activity, Brain } from "lucide-react";
 
 const menuItems = [
   { path: "/app/dashboard", icon: Home, label: "Dashboard" },
@@ -7,6 +7,8 @@ const menuItems = [
   { path: "/app/campanhas", icon: Target, label: "Campanhas" },
   { path: "/app/contratos", icon: FileText, label: "Contratos" },
   { path: "/app/pagamentos", icon: Wallet, label: "Pagamentos" },
+  { path: "/app/monitoramento", icon: Activity, label: "Monitoramento" },
+  { path: "/app/ia-insights", icon: Brain, label: "IA Insights" },
   { path: "/app/liveshop", icon: Video, label: "Live Shop" },
   { path: "/app/consultoria", icon: Sparkles, label: "Consultoria IA" },
   { path: "/app/planos", icon: CreditCard, label: "Planos" },

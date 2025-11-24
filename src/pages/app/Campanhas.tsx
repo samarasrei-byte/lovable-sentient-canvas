@@ -121,7 +121,10 @@ export default function Campanhas() {
             Crie, gerencie e otimize suas campanhas com influenciadores e avatares IA
           </p>
         </div>
-        <Button className="bg-gradient-to-r from-primary to-secondary hover:opacity-90">
+        <Button 
+          className="bg-gradient-to-r from-primary to-secondary hover:opacity-90"
+          onClick={() => window.alert('Modal de criação de campanha será implementado em breve!')}
+        >
           <Plus className="w-4 h-4 mr-2" />
           Nova Campanha
         </Button>

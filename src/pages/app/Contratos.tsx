@@ -193,7 +193,13 @@ export default function Contratos() {
 
       {/* Active Contracts */}
       <div className="space-y-4">
-        <h2 className="text-2xl font-bold">Contratos em Andamento</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold">Contratos em Andamento</h2>
+          <Button variant="outline">
+            <FileText className="w-4 h-4 mr-2" />
+            Upload Contrato
+          </Button>
+        </div>
         {contracts.map((contract) => {
           const statusInfo = getStatusInfo(contract.status);
           const StatusIcon = statusInfo.icon;
