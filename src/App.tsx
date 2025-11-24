@@ -24,6 +24,13 @@ import IAInsights from "./pages/app/IAInsights";
 import AvatarStudio from "./pages/app/AvatarStudio";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminInfluencers from "./pages/admin/Influencers";
+import AdminBrands from "./pages/admin/Brands";
+import AdminCampaigns from "./pages/admin/Campaigns";
+import AdminFinancial from "./pages/admin/Financial";
+import AdminWhiteLabel from "./pages/admin/WhiteLabel";
+import AdminSupport from "./pages/admin/Support";
+import AdminLogs from "./pages/admin/Logs";
+import AdminSettings from "./pages/admin/Settings";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +48,13 @@ const App = () => (
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="influencers" element={<AdminInfluencers />} />
+            <Route path="brands" element={<AdminBrands />} />
+            <Route path="campaigns" element={<AdminCampaigns />} />
+            <Route path="financial" element={<AdminFinancial />} />
+            <Route path="whitelabel" element={<AdminWhiteLabel />} />
+            <Route path="support" element={<AdminSupport />} />
+            <Route path="logs" element={<AdminLogs />} />
+            <Route path="settings" element={<AdminSettings />} />
           </Route>
           
           {/* App Routes */}
