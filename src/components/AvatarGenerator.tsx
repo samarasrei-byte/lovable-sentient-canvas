@@ -101,7 +101,7 @@ export const AvatarGenerator = () => {
         </div>
 
         {/* Main Generator Layout - Side by Side */}
-        <div className="grid lg:grid-cols-2 gap-8 mb-20">
+        <div className="grid lg:grid-cols-2 gap-8">
           {/* Input Side */}
           <div className="relative group">
             <div className="absolute -inset-1 bg-gradient-to-r from-primary via-secondary to-primary rounded-3xl opacity-20 group-hover:opacity-40 blur-xl transition duration-500" />
@@ -173,48 +173,6 @@ export const AvatarGenerator = () => {
                 </div>
               )}
             </div>
-          </div>
-        </div>
-
-        {/* Influencer Examples Below */}
-        <div className="space-y-8">
-          <div className="text-center">
-            <h3 className="text-3xl font-bold mb-2">Influencers de Exemplo</h3>
-            <p className="text-muted-foreground">Clique em um exemplo para usar como referência</p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {influencers.map((influencer, i) => (
-              <Card
-                key={i}
-                onClick={() => setPrompt(influencer.description)}
-                className="group relative cursor-pointer overflow-hidden border-primary/20 hover:border-primary/40 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/20 hover:-translate-y-2"
-              >
-                {/* Image */}
-                <div className="relative h-80 overflow-hidden">
-                  <img
-                    src={influencer.image}
-                    alt={influencer.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
-                  
-                  {/* Hover Overlay */}
-                  <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                    <div className="bg-background/90 backdrop-blur-sm px-6 py-3 rounded-full border border-primary">
-                      <Wand2 className="w-5 h-5 text-primary inline mr-2" />
-                      <span className="text-sm font-bold">Usar como exemplo</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Content */}
-                <div className="p-6 relative">
-                  <h4 className="text-xl font-bold mb-2">{influencer.name}</h4>
-                  <p className="text-sm text-muted-foreground">{influencer.description}</p>
-                </div>
-              </Card>
-            ))}
           </div>
         </div>
       </div>
