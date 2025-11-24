@@ -62,18 +62,6 @@ export const AvatarGenerator = () => {
       description: "Mulher, 30 anos, yoga e bem-estar, serena, inspiradora",
       emoji: "🧘‍♀️",
       gradient: "from-green-500 to-emerald-600"
-    },
-    {
-      name: "Carlos Chef",
-      description: "Homem, 35 anos, chef de cozinha, gastronomia sofisticada",
-      emoji: "👨‍🍳",
-      gradient: "from-yellow-500 to-orange-600"
-    },
-    {
-      name: "Julia Travel",
-      description: "Mulher, 27 anos, viajante, aventureira, lifestyle nômade",
-      emoji: "✈️",
-      gradient: "from-blue-500 to-cyan-600"
     }
   ];
 
