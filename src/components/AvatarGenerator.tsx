@@ -180,26 +180,6 @@ export const AvatarGenerator = () => {
           </div>
         </div>
 
-        {/* Features */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {[
-            { label: "Geração Instantânea", icon: Zap, color: "from-primary to-secondary" },
-            { label: "Hiper-Realista", icon: Sparkles, color: "from-secondary to-artist" },
-            { label: "Ilimitadas Variações", icon: Wand2, color: "from-artist to-primary" },
-            { label: "100% Personalizado", icon: Brain, color: "from-primary to-secondary" }
-          ].map((feature, i) => {
-            const Icon = feature.icon;
-            return (
-              <div key={i} className="relative group">
-                <div className={`absolute inset-0 bg-gradient-to-r ${feature.color} rounded-2xl opacity-0 group-hover:opacity-20 blur transition duration-300`} />
-                <div className="relative bg-card/50 backdrop-blur border border-border/50 rounded-2xl p-6 text-center group-hover:border-primary/50 transition-all">
-                  <Icon className={`w-10 h-10 mx-auto mb-3 bg-gradient-to-r ${feature.color} bg-clip-text text-transparent group-hover:scale-110 transition-transform`} />
-                  <div className="font-semibold">{feature.label}</div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
       </div>
     </section>
   );
