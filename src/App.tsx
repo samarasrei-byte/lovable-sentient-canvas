@@ -31,6 +31,10 @@ import AdminWhiteLabel from "./pages/admin/WhiteLabel";
 import AdminSupport from "./pages/admin/Support";
 import AdminLogs from "./pages/admin/Logs";
 import AdminSettings from "./pages/admin/Settings";
+import Chat from "./pages/app/Chat";
+import InfluencerContratos from "./pages/app/influencer/Contratos";
+import InfluencerPagamentos from "./pages/app/influencer/Pagamentos";
+import InfluencerMonitoramento from "./pages/app/influencer/Monitoramento";
 
 const queryClient = new QueryClient();
 
@@ -66,13 +70,19 @@ const App = () => (
             <Route path="campanhas" element={<Campanhas />} />
             <Route path="contratos" element={<Contratos />} />
             <Route path="pagamentos" element={<Pagamentos />} />
-              <Route path="monitoramento" element={<Monitoramento />} />
-              <Route path="ia-insights" element={<IAInsights />} />
-              <Route path="avatar-studio" element={<AvatarStudio />} />
-              <Route path="liveshop" element={<LiveShop />} />
+            <Route path="monitoramento" element={<Monitoramento />} />
+            <Route path="ia-insights" element={<IAInsights />} />
+            <Route path="avatar-studio" element={<AvatarStudio />} />
+            <Route path="liveshop" element={<LiveShop />} />
             <Route path="consultoria" element={<Consultoria />} />
             <Route path="planos" element={<Planos />} />
             <Route path="perfil" element={<PerfilRouter />} />
+            <Route path="chat" element={<Chat />} />
+            
+            {/* Influencer Routes */}
+            <Route path="influencer/contratos" element={<InfluencerContratos />} />
+            <Route path="influencer/pagamentos" element={<InfluencerPagamentos />} />
+            <Route path="influencer/monitoramento" element={<InfluencerMonitoramento />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
