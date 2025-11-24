@@ -166,10 +166,7 @@ export const AvatarGenerator = () => {
             {/* Features grid with Lucide icons */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 pt-8 border-t border-border/50">
               {[
-                { label: "Ajuste de voz", icon: Mic, color: "text-primary" },
-                { label: "Múltiplos idiomas", icon: Globe, color: "text-secondary" },
-                { label: "Tom personalizado", icon: Drama, color: "text-artist" },
-                { label: "Estilo único", icon: Palette, color: "text-primary" }
+                { label: "Tom personalizado", icon: Drama, color: "text-artist" }
               ].map((feature, i) => {
                 const Icon = feature.icon;
                 return (
@@ -188,8 +185,8 @@ export const AvatarGenerator = () => {
           <p className="text-sm text-muted-foreground mb-3">Exemplos populares:</p>
           <div className="flex flex-wrap gap-2 justify-center">
             {[
+              "Influencer de Inteligência Artificial: mulher, 30 anos, estilo tech futurista",
               "Homem de 35 anos, executivo, look corporativo",
-              "Mulher atlética, 25 anos, estilo fitness",
               "Artista urbano, 30 anos, streetwear"
             ].map((example, i) => (
               <button

@@ -1,0 +1,4 @@
+project_id = "nvmvyjajmasaksyffemu"
+
+[functions.consultoria-ai]
+verify_jwt = false
