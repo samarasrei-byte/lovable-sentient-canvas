@@ -35,6 +35,7 @@ import Chat from "./pages/app/Chat";
 import InfluencerContratos from "./pages/app/influencer/Contratos";
 import InfluencerPagamentos from "./pages/app/influencer/Pagamentos";
 import InfluencerMonitoramento from "./pages/app/influencer/Monitoramento";
+import InfluencerAnalytics from "./pages/app/influencer/Analytics";
 
 const queryClient = new QueryClient();
 
@@ -83,6 +84,7 @@ const App = () => (
             <Route path="influencer/contratos" element={<InfluencerContratos />} />
             <Route path="influencer/pagamentos" element={<InfluencerPagamentos />} />
             <Route path="influencer/monitoramento" element={<InfluencerMonitoramento />} />
+            <Route path="influencer/analytics" element={<InfluencerAnalytics />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
