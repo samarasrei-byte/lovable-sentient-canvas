@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Zap, User, Users, Shield } from "lucide-react";
+import { Loader2, Zap, User, Users, Shield, Building2 } from "lucide-react";
 import { Session } from "@supabase/supabase-js";
 
 const Login = () => {
@@ -15,7 +15,15 @@ const Login = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
-  const [userType, setUserType] = useState<"brand" | "influencer" | "admin">("brand");
+  const [userType, setUserType] = useState<"brand" | "influencer" | "admin" | "whitelabel">("brand");
+
+  // Demo credentials
+  const demoCredentials = {
+    brand: { email: "marca@demo.com", password: "demo123" },
+    influencer: { email: "influencer@demo.com", password: "demo123" },
+    admin: { email: "admin@arcana.com", password: "admin123" },
+    whitelabel: { email: "agencia@demo.com", password: "demo123" }
+  };
 
   useEffect(() => {
     // Check for existing session
@@ -134,10 +142,11 @@ const Login = () => {
     }
 
     if (data.user) {
-      // Add user role
+      // Add user role - map whitelabel to brand role
+      const dbRole = userType === "whitelabel" ? "brand" : userType;
       const { error: roleError } = await supabase.from("user_roles").insert({
         user_id: data.user.id,
-        role: userType,
+        role: dbRole,
       });
 
       if (roleError) {
@@ -202,7 +211,7 @@ const Login = () => {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="brand" onValueChange={(v) => setUserType(v as any)}>
-            <TabsList className="grid w-full grid-cols-3 mb-6">
+            <TabsList className="grid w-full grid-cols-4 mb-6">
               <TabsTrigger value="brand" className="flex items-center gap-2">
                 <User className="w-4 h-4" />
                 Marca
@@ -210,6 +219,10 @@ const Login = () => {
               <TabsTrigger value="influencer" className="flex items-center gap-2">
                 <Users className="w-4 h-4" />
                 Influencer
+              </TabsTrigger>
+              <TabsTrigger value="whitelabel" className="flex items-center gap-2">
+                <Building2 className="w-4 h-4" />
+                Agência
               </TabsTrigger>
               <TabsTrigger value="admin" className="flex items-center gap-2">
                 <Shield className="w-4 h-4" />
@@ -226,6 +239,11 @@ const Login = () => {
                 </TabsList>
 
                 <TabsContent value="login">
+                  <div className="p-4 rounded-lg bg-primary/10 border border-primary/20 mb-4">
+                    <p className="text-sm font-medium mb-2">Credenciais Demo:</p>
+                    <p className="text-xs text-muted-foreground">Email: {demoCredentials.brand.email}</p>
+                    <p className="text-xs text-muted-foreground">Senha: {demoCredentials.brand.password}</p>
+                  </div>
                   <form onSubmit={handleLogin} className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="email">Email</Label>
@@ -313,6 +331,11 @@ const Login = () => {
                 </TabsList>
 
                 <TabsContent value="login">
+                  <div className="p-4 rounded-lg bg-primary/10 border border-primary/20 mb-4">
+                    <p className="text-sm font-medium mb-2">Credenciais Demo:</p>
+                    <p className="text-xs text-muted-foreground">Email: {demoCredentials.influencer.email}</p>
+                    <p className="text-xs text-muted-foreground">Senha: {demoCredentials.influencer.password}</p>
+                  </div>
                   <form onSubmit={handleLogin} className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="email">Email</Label>
@@ -423,14 +446,108 @@ const Login = () => {
               </Tabs>
             </TabsContent>
 
+            {/* White Label Tab */}
+            <TabsContent value="whitelabel">
+              <Tabs defaultValue="login" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="login">Login</TabsTrigger>
+                  <TabsTrigger value="signup">Cadastro</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="login">
+                  <div className="p-4 rounded-lg bg-primary/10 border border-primary/20 mb-4">
+                    <p className="text-sm font-medium mb-2">Credenciais Demo:</p>
+                    <p className="text-xs text-muted-foreground">Email: {demoCredentials.whitelabel.email}</p>
+                    <p className="text-xs text-muted-foreground">Senha: {demoCredentials.whitelabel.password}</p>
+                  </div>
+                  <form onSubmit={handleLogin} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input 
+                        id="email" 
+                        name="email" 
+                        type="email"
+                        placeholder="agencia@exemplo.com"
+                        required 
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="password">Senha</Label>
+                      <Input 
+                        id="password" 
+                        name="password" 
+                        type="password"
+                        placeholder="••••••••"
+                        required 
+                      />
+                    </div>
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90" 
+                      disabled={loading}
+                    >
+                      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      Entrar
+                    </Button>
+                  </form>
+                </TabsContent>
+
+                <TabsContent value="signup">
+                  <form onSubmit={handleSignup} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="fullName">Nome da Agência</Label>
+                      <Input 
+                        id="fullName" 
+                        name="fullName" 
+                        type="text"
+                        placeholder="Growth Agency Pro"
+                        required 
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input 
+                        id="email" 
+                        name="email" 
+                        type="email"
+                        placeholder="contato@agencia.com"
+                        required 
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="password">Senha</Label>
+                      <Input 
+                        id="password" 
+                        name="password" 
+                        type="password"
+                        placeholder="Mínimo 6 caracteres"
+                        required 
+                        minLength={6} 
+                      />
+                    </div>
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90" 
+                      disabled={loading}
+                    >
+                      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      Criar Conta
+                    </Button>
+                  </form>
+                </TabsContent>
+              </Tabs>
+            </TabsContent>
+
             {/* Admin Tab */}
             <TabsContent value="admin">
               <form onSubmit={handleLogin} className="space-y-4">
-                <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg mb-4">
-                  <p className="text-sm text-muted-foreground flex items-center gap-2">
-                    <Shield className="w-4 h-4 text-primary" />
-                    Acesso restrito para administradores
+                <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg mb-4">
+                  <p className="text-sm font-medium mb-2 flex items-center gap-2">
+                    <Shield className="w-4 h-4 text-destructive" />
+                    Credenciais Demo Admin:
                   </p>
+                  <p className="text-xs text-muted-foreground">Email: {demoCredentials.admin.email}</p>
+                  <p className="text-xs text-muted-foreground">Senha: {demoCredentials.admin.password}</p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="admin-email">Email Administrativo</Label>
