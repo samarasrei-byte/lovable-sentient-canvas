@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Bot, Users, Palette, Check, Filter } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 import influencerTech from "@/assets/influencer-tech.jpg";
 import influencerFitness from "@/assets/influencer-fitness.jpg";
@@ -173,11 +175,46 @@ const typeConfig = {
 export const MarketplaceGrid = () => {
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [filterType, setFilterType] = useState<TalentType | "all">("all");
+  const navigate = useNavigate();
+
+  // Load selections from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem("selectedTalents");
+    if (saved) {
+      try {
+        const ids = JSON.parse(saved);
+        setSelectedIds(ids);
+      } catch (e) {
+        console.error("Failed to load selections", e);
+      }
+    }
+  }, []);
 
   const toggleSelection = (id: number) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    );
+    setSelectedIds((prev) => {
+      const newIds = prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id];
+      
+      // Save to localStorage
+      localStorage.setItem("selectedTalents", JSON.stringify(newIds));
+      
+      // Also save full talent data
+      const selectedTalents = talents.filter(t => newIds.includes(t.id));
+      localStorage.setItem("selectedTalentsData", JSON.stringify(selectedTalents));
+      
+      return newIds;
+    });
+  };
+
+  const handleCreateCampaign = () => {
+    const selectedTalents = talents.filter(t => selectedIds.includes(t.id));
+    if (selectedTalents.length === 0) {
+      toast.error("Selecione pelo menos um talento");
+      return;
+    }
+    
+    localStorage.setItem("selectedTalentsData", JSON.stringify(selectedTalents));
+    toast.success(`${selectedTalents.length} ${selectedTalents.length === 1 ? 'talento adicionado' : 'talentos adicionados'} ao painel`);
+    navigate("/app/dashboard");
   };
 
   const filteredTalents = filterType === "all" 
@@ -311,8 +348,11 @@ export const MarketplaceGrid = () => {
                     {selectedIds.length === 1 ? "talento selecionado" : "talentos selecionados"}
                   </p>
                 </div>
-                <Button className="bg-gradient-to-r from-primary to-secondary hover:opacity-90">
-                  Criar Campanha
+                <Button 
+                  className="bg-gradient-to-r from-primary to-secondary hover:opacity-90"
+                  onClick={handleCreateCampaign}
+                >
+                  Adicionar ao Painel
                 </Button>
               </CardContent>
             </Card>

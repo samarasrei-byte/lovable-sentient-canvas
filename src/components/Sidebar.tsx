@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Users, Video, CreditCard, Sparkles, Settings } from "lucide-react";
+import { Home, Users, Video, CreditCard, Sparkles, Settings, Zap } from "lucide-react";
 
 const menuItems = [
   { path: "/app/dashboard", icon: Home, label: "Dashboard" },
@@ -15,9 +15,16 @@ export const Sidebar = () => {
 
   return (
     <aside className="w-64 border-r border-border/50 bg-card/30 backdrop-blur-sm p-6">
-      <Link to="/" className="flex items-center gap-2 mb-8">
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary" />
-        <span className="text-xl font-bold text-foreground">ARCANA</span>
+      <Link to="/" className="flex items-center gap-2 mb-8 group">
+        <div className="relative">
+          <div className="absolute -inset-1 bg-gradient-to-r from-primary to-secondary rounded-lg opacity-30 group-hover:opacity-50 blur transition duration-300" />
+          <div className="relative w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+            <Zap className="w-4 h-4 text-white" />
+          </div>
+        </div>
+        <span className="text-xl font-bold bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
+          ARCANA
+        </span>
       </Link>
 
       <nav className="space-y-2">

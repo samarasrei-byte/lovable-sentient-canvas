@@ -15,13 +15,13 @@ export const MarketplaceOverview = () => {
           </h2>
         </div>
 
-        {/* Duas Dimensões */}
+        {/* Três Dimensões */}
         <div className="mb-20">
           <h3 className="text-3xl font-bold text-center mb-12">
-            👥 Duas Dimensões do Marketplace
+            👥 Três Dimensões do Marketplace
           </h3>
           
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid md:grid-cols-3 gap-8">
             {/* Influenciadores Reais */}
             <Card className="group hover:shadow-2xl transition-all duration-500 border-primary/20 hover:border-primary/50">
               <CardHeader>
@@ -44,7 +44,7 @@ export const MarketplaceOverview = () => {
                 <div className="w-16 h-16 rounded-2xl bg-secondary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <Bot className="w-8 h-8 text-secondary" />
                 </div>
-                <CardTitle className="text-2xl">🤖 Avatares Digitais / Influencers Virtuais</CardTitle>
+                <CardTitle className="text-2xl">🤖 Avatares IA</CardTitle>
                 <CardDescription>Avatares 3D ou 2D personalizáveis com identidades únicas</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3 text-muted-foreground">
@@ -53,6 +53,24 @@ export const MarketplaceOverview = () => {
                 <p>• Gerados e administrados pela sua equipe ou pelos próprios usuários</p>
                 <p>• Suporte a IA para responder, interagir e gerar conteúdo automatizado</p>
                 <p>• Conexão com ambientes de realidade aumentada (AR) e metaverso</p>
+              </CardContent>
+            </Card>
+
+            {/* Artistas */}
+            <Card className="group hover:shadow-2xl transition-all duration-500 border-orange-500/20 hover:border-orange-500/50">
+              <CardHeader>
+                <div className="w-16 h-16 rounded-2xl bg-orange-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <Palette className="w-8 h-8 text-orange-500" />
+                </div>
+                <CardTitle className="text-2xl">🎨 Artistas</CardTitle>
+                <CardDescription>Criadores premium para colaborações de alto impacto</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3 text-muted-foreground">
+                <p>• Curadoria exclusiva de artistas e criadores de elite</p>
+                <p>• Parcerias estratégicas para campanhas de marca premium</p>
+                <p>• Especialistas em arte digital, design e conteúdo criativo</p>
+                <p>• Colaborações exclusivas para marcas Enterprise</p>
+                <p>• Projetos personalizados de alta qualidade e impacto</p>
               </CardContent>
             </Card>
           </div>
