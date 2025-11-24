@@ -6,6 +6,8 @@ import { MarketplaceGrid } from "@/components/MarketplaceGrid";
 import { HowItWorks } from "@/components/HowItWorks";
 import { LiveShop } from "@/components/LiveShop";
 import { MarketplaceOverview } from "@/components/MarketplaceOverview";
+import { SuccessCases } from "@/components/SuccessCases";
+import { Testimonials } from "@/components/Testimonials";
 import { Pricing } from "@/components/Pricing";
 import { TrustedBrands } from "@/components/TrustedBrands";
 import { Manifesto } from "@/components/Manifesto";
@@ -22,6 +24,8 @@ const Index = () => {
       <OnboardingQuiz />
       <HowItWorks />
       <LiveShop />
+      <SuccessCases />
+      <Testimonials />
       <Pricing />
       <TrustedBrands />
       <Manifesto />
