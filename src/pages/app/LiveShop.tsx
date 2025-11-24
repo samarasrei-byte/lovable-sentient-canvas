@@ -15,7 +15,8 @@ import {
   User,
   Sparkles,
   Clock,
-  TrendingUp
+  TrendingUp,
+  Share2
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -42,6 +43,7 @@ export default function LiveShop() {
   const [likes, setLikes] = useState(3456);
   const [presenter, setPresenter] = useState<"avatar" | "influencer">("avatar");
   const [chatMessage, setChatMessage] = useState("");
+  const [shareLink, setShareLink] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([
     { id: 1, user: "Maria S.", message: "Esse produto é incrível! 😍", timestamp: new Date(), isBot: false },
     { id: 2, user: "João P.", message: "Qual o desconto disponível?", timestamp: new Date(), isBot: false },
@@ -117,7 +119,7 @@ export default function LiveShop() {
 
   const handleLike = () => {
     setLikes(prev => prev + 1);
-    toast("❤️ Você curtiu a live!");
+    toast.success("❤️ Você curtiu a live!");
   };
 
   const togglePresenter = () => {
@@ -127,6 +129,13 @@ export default function LiveShop() {
         ? "Trocado para Influencer Real" 
         : "Trocado para Avatar IA"
     );
+  };
+
+  const handleShareLink = () => {
+    const liveLink = `${window.location.origin}/live/black-friday-especial`;
+    setShareLink(liveLink);
+    navigator.clipboard.writeText(liveLink);
+    toast.success("Link copiado para área de transferência!");
   };
 
   return (
@@ -149,6 +158,14 @@ export default function LiveShop() {
           </div>
           
           <div className="flex items-center gap-6 text-sm">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={handleShareLink}
+            >
+              <Share2 className="w-4 h-4 mr-2" />
+              Compartilhar Live
+            </Button>
             <div className="flex items-center gap-2">
               <Eye className="w-4 h-4 text-primary" />
               <span className="font-semibold">{viewers.toLocaleString()}</span>

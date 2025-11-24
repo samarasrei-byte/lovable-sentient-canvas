@@ -7,7 +7,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import AppLayout, { RedirectToDashboard } from "./pages/app/AppLayout";
 import Dashboard from "./pages/app/Dashboard";
-import Talentos from "./pages/app/Talentos";
+import Talentos from "./pages/app/TalentosAprimorado";
 import Planos from "./pages/app/Planos";
 import LiveShop from "./pages/app/LiveShop";
 import Consultoria from "./pages/app/Consultoria";
@@ -15,6 +15,8 @@ import Perfil from "./pages/app/Perfil";
 import Campanhas from "./pages/app/Campanhas";
 import Contratos from "./pages/app/Contratos";
 import Pagamentos from "./pages/app/Pagamentos";
+import Monitoramento from "./pages/app/Monitoramento";
+import IAInsights from "./pages/app/IAInsights";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +35,8 @@ const App = () => (
             <Route path="campanhas" element={<Campanhas />} />
             <Route path="contratos" element={<Contratos />} />
             <Route path="pagamentos" element={<Pagamentos />} />
+            <Route path="monitoramento" element={<Monitoramento />} />
+            <Route path="ia-insights" element={<IAInsights />} />
             <Route path="liveshop" element={<LiveShop />} />
             <Route path="consultoria" element={<Consultoria />} />
             <Route path="planos" element={<Planos />} />
