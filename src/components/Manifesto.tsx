@@ -1,12 +1,23 @@
+import { useRef } from "react";
 import { Button } from "@/components/ui/button";
+import { useParallax } from "@/hooks/use-parallax";
 
 export const Manifesto = () => {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const contentOffset = useParallax(sectionRef, 0.3);
+
   return (
     <section className="py-32 px-6 relative overflow-hidden bg-black">
       {/* Subtle Glow */}
       <div className="absolute inset-0 bg-gradient-radial from-primary/5 to-transparent" />
       
-      <div className="max-w-4xl mx-auto relative z-10 text-center">
+      <div 
+        ref={sectionRef}
+        className="max-w-4xl mx-auto relative z-10 text-center"
+        style={{
+          transform: `translateY(${-contentOffset}px)`,
+        }}
+      >
         <h2 className="text-4xl md:text-6xl font-bold mb-8">
           O futuro do design é sentir.
         </h2>

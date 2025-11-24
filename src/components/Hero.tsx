@@ -1,12 +1,18 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import heroLiquid from "@/assets/hero-liquid.jpg";
+import { useParallax } from "@/hooks/use-parallax";
 
 export const Hero = () => {
   const navigate = useNavigate();
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const contentRef = useRef<HTMLDivElement>(null);
+  const backgroundRef = useRef<HTMLDivElement>(null);
+  
+  const contentOffset = useParallax(contentRef, 0.3);
+  const backgroundOffset = useParallax(backgroundRef, -0.2);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -57,9 +63,10 @@ export const Hero = () => {
 
       {/* Animated Background */}
       <div 
+        ref={backgroundRef}
         className="absolute inset-0 transition-transform duration-1000 ease-out"
         style={{
-          transform: `translate(${mousePosition.x}px, ${mousePosition.y}px)`,
+          transform: `translate(${mousePosition.x}px, ${mousePosition.y + backgroundOffset}px)`,
         }}
       >
         <img 
@@ -77,7 +84,13 @@ export const Hero = () => {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 text-center px-6 max-w-5xl mx-auto pt-20">
+      <div 
+        ref={contentRef}
+        className="relative z-10 text-center px-6 max-w-5xl mx-auto pt-20"
+        style={{
+          transform: `translateY(${-contentOffset}px)`,
+        }}
+      >
         {/* Headline */}
         <h1 className="text-5xl md:text-7xl font-bold mb-8 bg-gradient-to-r from-primary via-[#6366F1] to-secondary bg-clip-text text-transparent">
           A próxima geração de conexões entre marcas e criadores.
