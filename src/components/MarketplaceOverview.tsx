@@ -22,6 +22,24 @@ export const MarketplaceOverview = () => {
           </h3>
           
           <div className="grid md:grid-cols-3 gap-8">
+            {/* Avatares IA */}
+            <Card className="group hover:shadow-2xl transition-all duration-500 border-secondary/20 hover:border-secondary/50">
+              <CardHeader>
+                <div className="w-16 h-16 rounded-2xl bg-secondary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <Bot className="w-8 h-8 text-secondary" />
+                </div>
+                <CardTitle className="text-2xl">🤖 Avatares IA</CardTitle>
+                <CardDescription>Ultrarealismo: Avatares realistas e UGC personalizados</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3 text-muted-foreground">
+                <p>• Avatares ultrarrealistas com identidades e estilos únicos</p>
+                <p>• Geração de conteúdo UGC (User Generated Content) autêntico</p>
+                <p>• Podem representar a marca em campanhas, vídeos e lives</p>
+                <p>• Suporte a IA para responder, interagir e gerar conteúdo automatizado</p>
+                <p>• Conexão com ambientes de realidade aumentada (AR) e metaverso</p>
+              </CardContent>
+            </Card>
+
             {/* Influenciadores Reais */}
             <Card className="group hover:shadow-2xl transition-all duration-500 border-primary/20 hover:border-primary/50">
               <CardHeader>
@@ -29,30 +47,13 @@ export const MarketplaceOverview = () => {
                   <Users className="w-8 h-8 text-primary" />
                 </div>
                 <CardTitle className="text-2xl">🧍‍♀️ Influenciadores Reais</CardTitle>
-                <CardDescription>Criadores autênticos com comunidades já estabelecidas</CardDescription>
+                <CardDescription>Conecte-se a vozes autênticas que geram resultados reais</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3 text-muted-foreground">
-                <p>• Perfil com métricas integradas (seguidores, engajamento, taxa de conversão, dados de vendas na TikTok Shop e Instagram)</p>
-                <p>• Ferramentas para conectar facilmente marcas a creators por nicho, estilo, linguagem e público</p>
-                <p>• Possibilidade de integrar contratos, recebimentos e resultados em um dashboard</p>
-              </CardContent>
-            </Card>
-
-            {/* Avatares Digitais */}
-            <Card className="group hover:shadow-2xl transition-all duration-500 border-secondary/20 hover:border-secondary/50">
-              <CardHeader>
-                <div className="w-16 h-16 rounded-2xl bg-secondary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <Bot className="w-8 h-8 text-secondary" />
-                </div>
-                <CardTitle className="text-2xl">🤖 Avatares IA</CardTitle>
-                <CardDescription>Avatares 3D ou 2D personalizáveis com identidades únicas</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3 text-muted-foreground">
-                <p>• Avatares 3D ou 2D personalizáveis, com identidades e estilos únicos</p>
-                <p>• Podem representar a marca em campanhas, vídeos e lives</p>
-                <p>• Gerados e administrados pela sua equipe ou pelos próprios usuários</p>
-                <p>• Suporte a IA para responder, interagir e gerar conteúdo automatizado</p>
-                <p>• Conexão com ambientes de realidade aumentada (AR) e metaverso</p>
+                <p>• Criadores com comunidades estabelecidas e engajadas</p>
+                <p>• Métricas integradas: seguidores, engajamento, conversão e vendas</p>
+                <p>• Conexão por nicho, estilo, linguagem e público-alvo</p>
+                <p>• Dashboard unificado para contratos, pagamentos e resultados</p>
               </CardContent>
             </Card>
 
