@@ -1,7 +1,15 @@
+import { useRef } from "react";
 import interface3d from "@/assets/interface-3d.jpg";
 import { Button } from "@/components/ui/button";
+import { useParallax } from "@/hooks/use-parallax";
 
 export const EmotionSection = () => {
+  const imageRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  
+  const imageOffset = useParallax(imageRef, -0.15);
+  const contentOffset = useParallax(contentRef, 0.25);
+
   return (
     <section className="py-32 px-6 relative overflow-hidden">
       {/* Background Glow */}
@@ -10,7 +18,13 @@ export const EmotionSection = () => {
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="grid md:grid-cols-2 gap-16 items-center">
           {/* Image */}
-          <div className="relative">
+          <div 
+            ref={imageRef}
+            className="relative"
+            style={{
+              transform: `translateY(${-imageOffset}px)`,
+            }}
+          >
             <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-3xl blur-2xl animate-pulse" />
             <img 
               src={interface3d}
@@ -20,7 +34,13 @@ export const EmotionSection = () => {
           </div>
 
           {/* Content */}
-          <div className="space-y-8">
+          <div 
+            ref={contentRef}
+            className="space-y-8"
+            style={{
+              transform: `translateY(${-contentOffset}px)`,
+            }}
+          >
             <h2 className="text-5xl md:text-6xl font-bold leading-tight">
               We build{" "}
               <span className="text-primary animate-glow">love</span>,{" "}
