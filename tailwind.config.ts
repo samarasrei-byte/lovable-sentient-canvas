@@ -89,27 +89,15 @@ export default {
           },
         },
         pulse: {
-          "0%, 100%": { opacity: "1", transform: "scale(1)" },
-          "50%": { opacity: "0.8", transform: "scale(1.05)" },
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.7" },
         },
         float: {
           "0%, 100%": { transform: "translateY(0px)" },
-          "50%": { transform: "translateY(-20px)" },
-        },
-        glow: {
-          "0%, 100%": { filter: "brightness(1) blur(0px)" },
-          "50%": { filter: "brightness(1.3) blur(2px)" },
-        },
-        shimmer: {
-          "0%": { backgroundPosition: "-200% 0" },
-          "100%": { backgroundPosition: "200% 0" },
-        },
-        breathe: {
-          "0%, 100%": { transform: "scale(1)", opacity: "1" },
-          "50%": { transform: "scale(1.02)", opacity: "0.95" },
+          "50%": { transform: "translateY(-10px)" },
         },
         "scale-in": {
-          "0%": { transform: "scale(0.8)", opacity: "0" },
+          "0%": { transform: "scale(0.95)", opacity: "0" },
           "100%": { transform: "scale(1)", opacity: "1" }
         },
       },
@@ -117,10 +105,7 @@ export default {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         pulse: "pulse 3s ease-in-out infinite",
-        float: "float 6s ease-in-out infinite",
-        glow: "glow 4s ease-in-out infinite",
-        shimmer: "shimmer 3s linear infinite",
-        breathe: "breathe 4s ease-in-out infinite",
+        float: "float 3s ease-in-out infinite",
         "scale-in": "scale-in 0.3s ease-out",
       },
     },
