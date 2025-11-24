@@ -1,15 +1,14 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Sparkles, Wand2, Mic, Globe, Drama, Palette, ArrowRight, Crown } from "lucide-react";
+import { Sparkles, Wand2, Brain, Zap, Download, Share2 } from "lucide-react";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 export const AvatarGenerator = () => {
   const [prompt, setPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
-  const [showPlanSelection, setShowPlanSelection] = useState(false);
-  const navigate = useNavigate();
+  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {
@@ -19,186 +18,183 @@ export const AvatarGenerator = () => {
 
     setIsGenerating(true);
     
-    // Simulate AI generation
-    setTimeout(() => {
+    try {
+      const { data, error } = await supabase.functions.invoke("consultoria-ai", {
+        body: { 
+          messages: [{ role: "user", content: `Crie um avatar de influencer digital baseado nesta descrição: ${prompt}` }],
+          type: 'generate-avatar'
+        }
+      });
+
+      if (error) throw error;
+
+      setGeneratedImage(data.image);
       toast.success("Avatar gerado com sucesso!");
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("Erro ao gerar avatar. Tente novamente.");
+    } finally {
       setIsGenerating(false);
-      setShowPlanSelection(true);
-    }, 3000);
+    }
   };
 
-  const handlePlanSelection = (plan: string) => {
-    toast.success(`Plano ${plan} selecionado! Redirecionando...`);
-    setTimeout(() => {
-      navigate("/app/planos");
-    }, 1000);
-  };
-
-  if (showPlanSelection) {
-    return (
-      <section className="relative py-24 px-6 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-secondary/5" />
-        <div className="absolute top-1/2 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[120px] animate-pulse" />
-        
-        <div className="max-w-5xl mx-auto relative z-10">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6 animate-scale-in">
-              <Crown className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium text-primary">Avatar Gerado</span>
-            </div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
-              Escolha seu Plano
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Selecione o plano ideal para começar a usar seu influencer IA
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            {[
-              { name: "Starter", price: "R$ 497", features: ["1 Avatar IA", "Voz básica", "Analytics básico", "Suporte por email"] },
-              { name: "Professional", price: "R$ 997", features: ["3 Avatares IA", "Voz premium", "Analytics avançado", "Consultoria IA", "Suporte prioritário"], popular: true },
-              { name: "Enterprise", price: "Personalizado", features: ["Avatares ilimitados", "Voz ultra-realista", "Analytics completo", "Consultoria dedicada", "Suporte VIP", "API access"] }
-            ].map((plan, i) => (
-              <div key={i} className="relative group">
-                {plan.popular && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-primary to-secondary px-4 py-1 rounded-full text-xs font-bold z-10">
-                    MAIS POPULAR
-                  </div>
-                )}
-                <div className={`relative bg-card/60 backdrop-blur-xl border rounded-2xl p-8 h-full transition-all ${
-                  plan.popular ? 'border-primary/50 shadow-lg shadow-primary/20 scale-105' : 'border-border/50 hover:border-primary/30'
-                }`}>
-                  <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
-                  <div className="text-3xl font-bold mb-6 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                    {plan.price}
-                  </div>
-                  <ul className="space-y-3 mb-8">
-                    {plan.features.map((feature, j) => (
-                      <li key={j} className="flex items-center gap-2 text-sm">
-                        <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                          <Sparkles className="w-3 h-3 text-primary" />
-                        </div>
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                  <Button
-                    onClick={() => handlePlanSelection(plan.name)}
-                    className={`w-full ${plan.popular ? 'bg-gradient-to-r from-primary to-secondary' : ''}`}
-                    variant={plan.popular ? 'default' : 'outline'}
-                  >
-                    Escolher Plano
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    );
-  }
+  const influencers = [
+    {
+      name: "Sarah Tech",
+      description: "Influencer de IA: mulher, 28 anos, estilo tech minimalista, confiante, inovadora",
+      image: "🤖"
+    },
+    {
+      name: "Marcus Fit",
+      description: "Homem atlético, 32 anos, personal trainer, estilo fitness motivacional",
+      image: "💪"
+    },
+    {
+      name: "Luna Fashion",
+      description: "Mulher fashion, 25 anos, modelo, estilo haute couture contemporâneo",
+      image: "👗"
+    },
+    {
+      name: "Alex Gaming",
+      description: "Gamer profissional, 26 anos, estilo cyberpunk futurista, energético",
+      image: "🎮"
+    }
+  ];
 
   return (
     <section className="relative py-24 px-6 overflow-hidden">
-      {/* Background glow effects */}
-      <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-secondary/5" />
-      <div className="absolute top-1/2 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[120px] animate-pulse" />
-      <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-secondary/20 rounded-full blur-[120px] animate-pulse delay-1000" />
+      {/* Background effects */}
+      <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-transparent to-secondary/10" />
+      <div className="absolute top-1/2 left-1/4 w-[600px] h-[600px] bg-primary/20 rounded-full blur-[150px] animate-pulse" />
+      <div className="absolute top-1/3 right-1/4 w-[600px] h-[600px] bg-secondary/20 rounded-full blur-[150px] animate-pulse" />
 
-      <div className="max-w-5xl mx-auto relative z-10">
+      <div className="max-w-7xl mx-auto relative z-10">
         {/* Title */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6">
-            <Wand2 className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium text-primary">IA Generativa</span>
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-primary/20 to-secondary/20 border border-primary/30 mb-8 animate-scale-in">
+            <Brain className="w-5 h-5 text-primary" />
+            <span className="text-sm font-bold text-primary">Powered by Nano Banana</span>
           </div>
-          <h2 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent animate-shimmer bg-[length:200%_auto]">
-            Prompt → Influencer IA
+          <h2 className="text-5xl md:text-7xl font-black mb-8 bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent animate-shimmer bg-[length:200%_auto]">
+            Crie Seu Influencer IA
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Descreva seu avatar ideal e deixe a IA criar um influencer digital personalizado para suas campanhas
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            Transforme ideias em realidade. Gere avatares hiper-realistas em segundos com tecnologia de ponta.
           </p>
         </div>
 
-        {/* Generator Card */}
-        <div className="relative group">
-          {/* Glow border effect */}
-          <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-secondary rounded-2xl opacity-30 group-hover:opacity-50 blur transition duration-500" />
-          
-          <div className="relative bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl p-8 md:p-12">
-            {/* Input area */}
-            <div className="space-y-6">
-              <div className="relative">
-                <Textarea
-                  placeholder='Ex: "Mulher de olhos azuis, cabelos castanhos, 28 anos, corpo fitness, estilo moderno e confiante, sorriso natural, cabelo ondulado, look casual-chic"'
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  className="min-h-[120px] text-base bg-background/50 border-primary/20 focus:border-primary/50 transition-all resize-none"
-                  disabled={isGenerating}
-                />
-                <Sparkles className="absolute right-4 top-4 w-5 h-5 text-primary/40" />
-              </div>
+        {/* Main Grid */}
+        <div className="grid lg:grid-cols-2 gap-8 mb-12">
+          {/* Generator Card */}
+          <div className="relative group">
+            <div className="absolute -inset-1 bg-gradient-to-r from-primary via-secondary to-primary rounded-3xl opacity-20 group-hover:opacity-40 blur-xl transition duration-500" />
+            
+            <div className="relative bg-card/90 backdrop-blur-xl border border-border/50 rounded-3xl p-10">
+              <div className="space-y-6">
+                <div className="relative">
+                  <Textarea
+                    placeholder="Descreva seu influencer ideal: estilo, personalidade, características físicas..."
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    className="min-h-[160px] text-lg bg-background/50 border-primary/30 focus:border-primary rounded-2xl resize-none"
+                    disabled={isGenerating}
+                  />
+                  <div className="absolute right-4 top-4">
+                    <Sparkles className="w-6 h-6 text-primary animate-pulse" />
+                  </div>
+                </div>
 
-              <Button
-                onClick={handleGenerate}
-                disabled={isGenerating}
-                className="w-full h-16 text-lg bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-all relative overflow-hidden group"
-              >
-                <span className="relative z-10 flex items-center gap-3">
+                <Button
+                  onClick={handleGenerate}
+                  disabled={isGenerating}
+                  size="lg"
+                  className="w-full h-16 text-xl font-bold bg-gradient-to-r from-primary via-secondary to-primary hover:scale-[1.02] transition-all shadow-lg shadow-primary/50"
+                >
                   {isGenerating ? (
                     <>
-                      <div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                      Gerando Avatar IA...
+                      <div className="w-6 h-6 border-3 border-white/20 border-t-white rounded-full animate-spin mr-3" />
+                      Criando Magia...
                     </>
                   ) : (
                     <>
-                      <Wand2 className="w-6 h-6" />
-                      Gerar Influencer IA
+                      <Wand2 className="w-6 h-6 mr-3" />
+                      Gerar Agora
                     </>
                   )}
-                </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-secondary to-primary opacity-0 group-hover:opacity-100 transition-opacity" />
-              </Button>
-            </div>
+                </Button>
 
-            {/* Features grid with Lucide icons */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 pt-8 border-t border-border/50">
-              {[
-                { label: "Tom personalizado", icon: Drama, color: "text-artist" }
-              ].map((feature, i) => {
-                const Icon = feature.icon;
-                return (
-                  <div key={i} className="text-center p-4 rounded-lg bg-background/30 border border-border/30 hover:border-primary/30 hover:bg-background/50 transition-all group/item">
-                    <Icon className={`w-8 h-8 mx-auto mb-2 ${feature.color} group-hover/item:scale-110 transition-transform`} />
-                    <div className="text-sm text-muted-foreground">{feature.label}</div>
+                {generatedImage && (
+                  <div className="space-y-4 animate-scale-in">
+                    <div className="relative rounded-2xl overflow-hidden border-2 border-primary/50">
+                      <img src={generatedImage} alt="Avatar gerado" className="w-full" />
+                      <div className="absolute top-4 right-4 flex gap-2">
+                        <Button size="icon" variant="secondary" className="bg-background/80 backdrop-blur">
+                          <Download className="w-4 h-4" />
+                        </Button>
+                        <Button size="icon" variant="secondary" className="bg-background/80 backdrop-blur">
+                          <Share2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
                   </div>
-                );
-              })}
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Influencer Examples */}
+          <div className="space-y-4">
+            <h3 className="text-2xl font-bold mb-6 flex items-center gap-3">
+              <Zap className="w-6 h-6 text-secondary" />
+              Influencers de Exemplo
+            </h3>
+            
+            <div className="grid gap-4">
+              {influencers.map((influencer, i) => (
+                <div
+                  key={i}
+                  onClick={() => setPrompt(influencer.description)}
+                  className="group relative cursor-pointer"
+                >
+                  <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/0 via-secondary/0 to-primary/0 group-hover:from-primary/50 group-hover:via-secondary/50 group-hover:to-primary/50 rounded-2xl blur transition duration-300" />
+                  
+                  <div className="relative bg-card/70 backdrop-blur-xl border border-border/50 group-hover:border-primary/50 rounded-2xl p-6 transition-all group-hover:scale-[1.02]">
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center text-3xl flex-shrink-0">
+                        {influencer.image}
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-bold text-lg mb-1">{influencer.name}</h4>
+                        <p className="text-sm text-muted-foreground line-clamp-2">{influencer.description}</p>
+                      </div>
+                      <Wand2 className="w-5 h-5 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Example prompts */}
-        <div className="mt-8 text-center">
-          <p className="text-sm text-muted-foreground mb-3">Exemplos populares:</p>
-          <div className="flex flex-wrap gap-2 justify-center">
-            {[
-              "Influencer de Inteligência Artificial: mulher, 30 anos, estilo tech futurista",
-              "Homem de 35 anos, executivo, look corporativo",
-              "Artista urbano, 30 anos, streetwear"
-            ].map((example, i) => (
-              <button
-                key={i}
-                onClick={() => setPrompt(example)}
-                disabled={isGenerating}
-                className="px-4 py-2 rounded-full bg-primary/5 border border-primary/20 hover:bg-primary/10 hover:scale-105 text-sm text-foreground/80 transition-all disabled:opacity-50"
-              >
-                {example}
-              </button>
-            ))}
-          </div>
+        {/* Features */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {[
+            { label: "Geração Instantânea", icon: Zap, color: "from-primary to-secondary" },
+            { label: "Hiper-Realista", icon: Sparkles, color: "from-secondary to-artist" },
+            { label: "Ilimitadas Variações", icon: Wand2, color: "from-artist to-primary" },
+            { label: "100% Personalizado", icon: Brain, color: "from-primary to-secondary" }
+          ].map((feature, i) => {
+            const Icon = feature.icon;
+            return (
+              <div key={i} className="relative group">
+                <div className={`absolute inset-0 bg-gradient-to-r ${feature.color} rounded-2xl opacity-0 group-hover:opacity-20 blur transition duration-300`} />
+                <div className="relative bg-card/50 backdrop-blur border border-border/50 rounded-2xl p-6 text-center group-hover:border-primary/50 transition-all">
+                  <Icon className={`w-10 h-10 mx-auto mb-3 bg-gradient-to-r ${feature.color} bg-clip-text text-transparent group-hover:scale-110 transition-transform`} />
+                  <div className="font-semibold">{feature.label}</div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

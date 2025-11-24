@@ -11,6 +11,7 @@ import Talentos from "./pages/app/Talentos";
 import Planos from "./pages/app/Planos";
 import LiveShop from "./pages/app/LiveShop";
 import Consultoria from "./pages/app/Consultoria";
+import Perfil from "./pages/app/Perfil";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="liveshop" element={<LiveShop />} />
             <Route path="consultoria" element={<Consultoria />} />
             <Route path="planos" element={<Planos />} />
+            <Route path="perfil" element={<Perfil />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
