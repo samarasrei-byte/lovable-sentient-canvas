@@ -1,5 +1,6 @@
 import { Hero } from "@/components/Hero";
 import { AvatarGenerator } from "@/components/AvatarGenerator";
+import { MarketplaceExplorer } from "@/components/MarketplaceExplorer";
 import { OnboardingQuiz } from "@/components/OnboardingQuiz";
 import { TalentShowcase } from "@/components/TalentShowcase";
 import { MarketplaceGrid } from "@/components/MarketplaceGrid";
@@ -19,6 +20,7 @@ const Index = () => {
       <Hero />
       <TalentShowcase />
       <AvatarGenerator />
+      <MarketplaceExplorer />
       <MarketplaceGrid />
       <MarketplaceOverview />
       <OnboardingQuiz />

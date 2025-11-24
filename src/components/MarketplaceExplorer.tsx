@@ -205,7 +205,7 @@ export const MarketplaceExplorer = () => {
             return (
               <Card
                 key={talent.id}
-                className="group relative overflow-hidden border-primary/20 hover:border-primary/40 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/20 hover:-translate-y-2"
+                className="group relative overflow-hidden border-primary/20 hover:border-primary/40 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/20 hover:-translate-y-2 animate-fade-in"
               >
                 {/* Image */}
                 <div className="relative h-80 overflow-hidden">
