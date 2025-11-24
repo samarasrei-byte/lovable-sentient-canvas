@@ -36,6 +36,7 @@ const brandMenuItems = [
 
 const influencerMenuItems = [
   { path: "/app/dashboard", icon: Home, label: "Dashboard" },
+  { path: "/app/influencer/analytics", icon: Brain, label: "Analytics" },
   { path: "/app/influencer/contratos", icon: FileText, label: "Contratos" },
   { path: "/app/influencer/pagamentos", icon: Wallet, label: "Pagamentos" },
   { path: "/app/influencer/monitoramento", icon: Activity, label: "Monitoramento" },
