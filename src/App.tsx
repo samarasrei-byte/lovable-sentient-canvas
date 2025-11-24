@@ -32,6 +32,7 @@ import AdminSupport from "./pages/admin/Support";
 import AdminLogs from "./pages/admin/Logs";
 import AdminSettings from "./pages/admin/Settings";
 import Chat from "./pages/app/Chat";
+import WhiteLabelDashboard from "./pages/app/WhiteLabelDashboard";
 import InfluencerContratos from "./pages/app/influencer/Contratos";
 import InfluencerPagamentos from "./pages/app/influencer/Pagamentos";
 import InfluencerMonitoramento from "./pages/app/influencer/Monitoramento";
@@ -86,6 +87,10 @@ const App = () => (
             <Route path="influencer/monitoramento" element={<InfluencerMonitoramento />} />
             <Route path="influencer/analytics" element={<InfluencerAnalytics />} />
           </Route>
+
+          {/* White Label Agency Routes */}
+          <Route path="/whitelabel/:domain" element={<WhiteLabelDashboard />} />
+          
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

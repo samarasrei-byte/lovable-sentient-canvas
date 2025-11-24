@@ -45,7 +45,11 @@ export default function InfluencerDashboard() {
   const headerOffset = useParallax(headerRef, 0.2);
 
   useEffect(() => {
+    document.documentElement.setAttribute('data-theme', 'influencer');
     loadInfluencerData();
+    return () => {
+      document.documentElement.removeAttribute('data-theme');
+    };
   }, []);
 
   const loadInfluencerData = async () => {

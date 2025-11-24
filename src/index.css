@@ -8,55 +8,99 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Modern Color Palette - Based on Reference */
-    --background: 222 47% 11%;
+    /* Base Dark Theme */
+    --background: 222 47% 8%;
     --foreground: 210 40% 98%;
-
     --card: 222 47% 11%;
     --card-foreground: 210 40% 98%;
-
     --popover: 222 47% 11%;
     --popover-foreground: 210 40% 98%;
+    
+    /* Brand Colors - Corporate Blue & Gold */
+    --brand-primary: 220 90% 56%;
+    --brand-secondary: 43 96% 56%;
+    --brand-accent: 200 90% 50%;
+    
+    /* Influencer Colors - Creative Purple & Pink */
+    --influencer-primary: 280 85% 65%;
+    --influencer-secondary: 330 85% 65%;
+    --influencer-accent: 290 90% 55%;
+    
+    /* White Label Colors - Premium Emerald & Cyan */
+    --whitelabel-primary: 168 76% 42%;
+    --whitelabel-secondary: 186 94% 43%;
+    --whitelabel-accent: 160 84% 39%;
 
-    /* Primary: Purple #A855F7 */
-    --primary: 270 91% 65%;
+    /* Default to Brand Theme */
+    --primary: 220 90% 56%;
     --primary-foreground: 210 40% 98%;
-
-    /* Secondary: Cyan #06B6D4 */
-    --secondary: 188 94% 43%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 43 96% 56%;
+    --secondary-foreground: 222 47% 11%;
+    --accent: 200 90% 50%;
+    --accent-foreground: 210 40% 98%;
+    
+    /* Success: Green */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
     
     /* Artist/Creator - Orange */
     --artist: 30 100% 60%;
     --artist-foreground: 0 0% 10%;
 
-    /* Accent: Cyan #06B6D4 */
-    --accent: 188 94% 43%;
-    --accent-foreground: 222 47% 11%;
-    
-    /* Success: Green */
-    --success: 153 82% 49%;
-    --success-foreground: 0 0% 100%;
-
-    --muted: 217 33% 17%;
+    --muted: 217 33% 15%;
     --muted-foreground: 215 20% 65%;
 
     /* Destructive: Red */
-    --destructive: 0 84% 60%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 217 33% 17%;
     --input: 217 33% 17%;
-    --ring: 270 91% 65%;
+    --ring: 220 90% 56%;
 
     --radius: 1rem;
     
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(270 91% 65%), hsl(188 94% 43%));
-    --gradient-glow: radial-gradient(circle at center, hsl(270 91% 65% / 0.2), transparent);
+    --gradient-brand: linear-gradient(135deg, hsl(220 90% 56%), hsl(43 96% 56%));
+    --gradient-influencer: linear-gradient(135deg, hsl(280 85% 65%), hsl(330 85% 65%));
+    --gradient-whitelabel: linear-gradient(135deg, hsl(168 76% 42%), hsl(186 94% 43%));
+    --gradient-glow: radial-gradient(circle at center, hsl(var(--primary) / 0.15), transparent);
     
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Influencer Theme Override */
+  [data-theme="influencer"] {
+    --primary: 280 85% 65%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 330 85% 65%;
+    --secondary-foreground: 210 40% 98%;
+    --accent: 290 90% 55%;
+    --accent-foreground: 210 40% 98%;
+    --ring: 280 85% 65%;
+  }
+
+  /* White Label Theme Override */
+  [data-theme="whitelabel"] {
+    --primary: 168 76% 42%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 186 94% 43%;
+    --secondary-foreground: 210 40% 98%;
+    --accent: 160 84% 39%;
+    --accent-foreground: 210 40% 98%;
+    --ring: 168 76% 42%;
+  }
+
+  /* Admin Theme - Red & Dark */
+  [data-theme="admin"] {
+    --primary: 0 72% 51%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 280 70% 50%;
+    --secondary-foreground: 210 40% 98%;
+    --accent: 340 75% 55%;
+    --accent-foreground: 210 40% 98%;
+    --ring: 0 72% 51%;
   }
 }
 
