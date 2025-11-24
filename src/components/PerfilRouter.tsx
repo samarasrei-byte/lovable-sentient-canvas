@@ -20,15 +20,17 @@ export const PerfilRouter = () => {
         return;
       }
 
+      // Check if user has role in user_roles table
       const { data: roleData } = await supabase
         .from("user_roles")
         .select("role")
         .eq("user_id", user.id)
         .single();
 
-      setUserRole(roleData?.role || null);
+      setUserRole(roleData?.role || "brand"); // Default to brand if no role
     } catch (error) {
       console.error("Error checking user role:", error);
+      setUserRole("brand"); // Default to brand on error
     } finally {
       setLoading(false);
     }

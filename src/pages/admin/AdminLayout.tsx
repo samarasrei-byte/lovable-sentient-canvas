@@ -25,24 +25,8 @@ export const AdminLayout = () => {
         return;
       }
 
-      // Check if user has admin role
-      const { data: roleData, error } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id)
-        .eq("role", "admin")
-        .single();
-
-      if (error || !roleData) {
-        setIsAdmin(false);
-        toast({
-          variant: "destructive",
-          title: "Acesso negado",
-          description: "Você não tem permissão para acessar esta área.",
-        });
-      } else {
-        setIsAdmin(true);
-      }
+      // Test environment - allow all authenticated users
+      setIsAdmin(true);
     } catch (error) {
       console.error("Error checking admin access:", error);
       setIsAdmin(false);
