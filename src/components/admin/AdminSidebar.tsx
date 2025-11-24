@@ -9,11 +9,14 @@ import {
   FileText,
   Zap,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Palette,
+  LifeBuoy
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { Separator } from "@/components/ui/separator";
 
 const adminMenuItems = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard, end: true },
@@ -21,7 +24,11 @@ const adminMenuItems = [
   { title: "Marcas", url: "/admin/brands", icon: Building2 },
   { title: "Campanhas", url: "/admin/campaigns", icon: Megaphone },
   { title: "Financeiro", url: "/admin/financial", icon: DollarSign },
-  { title: "Suporte", url: "/admin/support", icon: Shield },
+];
+
+const systemMenuItems = [
+  { title: "White Label", url: "/admin/whitelabel", icon: Palette },
+  { title: "Suporte", url: "/admin/support", icon: LifeBuoy },
   { title: "Logs", url: "/admin/logs", icon: FileText },
   { title: "Configurações", url: "/admin/settings", icon: Settings },
 ];
@@ -72,19 +79,39 @@ export const AdminSidebar = () => {
       </Button>
 
       {/* Menu Items */}
-      <nav className="flex-1 p-4 space-y-2">
-        {adminMenuItems.map((item) => (
-          <NavLink
-            key={item.url}
-            to={item.url}
-            end={item.end}
-            className="flex items-center gap-3 px-3 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-            activeClassName="bg-primary/10 text-primary font-semibold border border-primary/20"
-          >
-            <item.icon className="h-5 w-5 flex-shrink-0" />
-            {!collapsed && <span>{item.title}</span>}
-          </NavLink>
-        ))}
+      <nav className="flex-1 p-4 space-y-6">
+        <div className="space-y-2">
+          {!collapsed && <p className="text-xs font-semibold text-muted-foreground px-3 mb-2">GERENCIAMENTO</p>}
+          {adminMenuItems.map((item) => (
+            <NavLink
+              key={item.url}
+              to={item.url}
+              end={item.end}
+              className="flex items-center gap-3 px-3 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+              activeClassName="bg-primary/10 text-primary font-semibold border border-primary/20"
+            >
+              <item.icon className="h-5 w-5 flex-shrink-0" />
+              {!collapsed && <span>{item.title}</span>}
+            </NavLink>
+          ))}
+        </div>
+
+        {!collapsed && <Separator />}
+
+        <div className="space-y-2">
+          {!collapsed && <p className="text-xs font-semibold text-muted-foreground px-3 mb-2">SISTEMA</p>}
+          {systemMenuItems.map((item) => (
+            <NavLink
+              key={item.url}
+              to={item.url}
+              className="flex items-center gap-3 px-3 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+              activeClassName="bg-accent/10 text-accent font-semibold border border-accent/20"
+            >
+              <item.icon className="h-5 w-5 flex-shrink-0" />
+              {!collapsed && <span>{item.title}</span>}
+            </NavLink>
+          ))}
+        </div>
       </nav>
 
       {/* Footer */}
