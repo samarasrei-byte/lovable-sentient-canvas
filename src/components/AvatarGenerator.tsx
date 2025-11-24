@@ -1,9 +1,16 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Sparkles, Wand2, Brain, Zap, Download, Share2 } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Sparkles, Wand2, Brain, Download, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import influencerTech from "@/assets/influencer-tech.jpg";
+import influencerFitness from "@/assets/influencer-fitness.jpg";
+import influencerFashion from "@/assets/influencer-fashion.jpg";
+import influencerWellness from "@/assets/influencer-wellness.jpg";
+import influencerBusiness from "@/assets/influencer-business.jpg";
+import influencerTravel from "@/assets/influencer-travel.jpg";
 
 export const AvatarGenerator = () => {
   const [prompt, setPrompt] = useState("");
@@ -42,44 +49,50 @@ export const AvatarGenerator = () => {
     {
       name: "Sarah Tech",
       description: "Mulher, 28 anos, tech minimalista, confiante, inovadora",
-      emoji: "🤖",
-      gradient: "from-cyan-500 to-blue-600"
+      image: influencerTech,
     },
     {
       name: "Marcus Fit",
       description: "Homem atlético, 32 anos, personal trainer, fitness motivacional",
-      emoji: "💪",
-      gradient: "from-orange-500 to-red-600"
+      image: influencerFitness,
     },
     {
       name: "Luna Fashion",
       description: "Mulher fashion, 25 anos, modelo, haute couture contemporâneo",
-      emoji: "👗",
-      gradient: "from-pink-500 to-purple-600"
+      image: influencerFashion,
     },
     {
       name: "Ana Wellness",
       description: "Mulher, 30 anos, yoga e bem-estar, serena, inspiradora",
-      emoji: "🧘‍♀️",
-      gradient: "from-green-500 to-emerald-600"
+      image: influencerWellness,
+    },
+    {
+      name: "Ricardo Business",
+      description: "Homem, 35 anos, empreendedor, business casual, executivo",
+      image: influencerBusiness,
+    },
+    {
+      name: "Julia Travel",
+      description: "Mulher, 26 anos, travel blogger, aventureira, autêntica",
+      image: influencerTravel,
     }
   ];
 
   return (
-    <section className="relative py-24 px-6 overflow-hidden">
+    <section className="relative py-32 px-6 overflow-hidden">
       {/* Background effects */}
-      <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-transparent to-secondary/10" />
-      <div className="absolute top-1/2 left-1/4 w-[600px] h-[600px] bg-primary/20 rounded-full blur-[150px] animate-pulse" />
-      <div className="absolute top-1/3 right-1/4 w-[600px] h-[600px] bg-secondary/20 rounded-full blur-[150px] animate-pulse" />
+      <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-secondary/5" />
+      <div className="absolute top-1/2 left-1/4 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[150px] animate-pulse" />
+      <div className="absolute top-1/3 right-1/4 w-[600px] h-[600px] bg-secondary/10 rounded-full blur-[150px] animate-pulse" />
 
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Title */}
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-primary/20 to-secondary/20 border border-primary/30 mb-8 animate-scale-in">
+          <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-primary/20 to-secondary/20 border border-primary/30 mb-8">
             <Brain className="w-5 h-5 text-primary" />
             <span className="text-sm font-bold text-primary">Powered by Nano Banana</span>
           </div>
-          <h2 className="text-5xl md:text-7xl font-black mb-8 bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent animate-shimmer bg-[length:200%_auto]">
+          <h2 className="text-5xl md:text-7xl font-black mb-6 bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent animate-shimmer bg-[length:200%_auto]">
             Crie Seu Influencer IA
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
@@ -87,15 +100,15 @@ export const AvatarGenerator = () => {
           </p>
         </div>
 
-        {/* Main Layout */}
-        <div className="grid lg:grid-cols-[2fr,1fr] gap-8 mb-12">
-          {/* Generator Card - LARGER */}
+        {/* Main Generator Layout - Side by Side */}
+        <div className="grid lg:grid-cols-2 gap-8 mb-20">
+          {/* Input Side */}
           <div className="relative group">
             <div className="absolute -inset-1 bg-gradient-to-r from-primary via-secondary to-primary rounded-3xl opacity-20 group-hover:opacity-40 blur-xl transition duration-500" />
             
-            <div className="relative bg-card/90 backdrop-blur-xl border border-border/50 rounded-3xl p-10 h-full flex flex-col">
-              <div className="space-y-6 flex-1">
-                <div className="relative flex-1">
+            <div className="relative bg-card/90 backdrop-blur-xl border border-border/50 rounded-3xl p-8 h-full flex flex-col">
+              <div className="space-y-6">
+                <div className="relative">
                   <Textarea
                     placeholder="Descreva seu influencer ideal: estilo, personalidade, características físicas..."
                     value={prompt}
@@ -126,60 +139,84 @@ export const AvatarGenerator = () => {
                     </>
                   )}
                 </Button>
-
-                {generatedImage && (
-                  <div className="space-y-4 animate-scale-in">
-                    <div className="relative rounded-2xl overflow-hidden border-2 border-primary/50">
-                      <img src={generatedImage} alt="Avatar gerado" className="w-full" />
-                      <div className="absolute top-4 right-4 flex gap-2">
-                        <Button size="icon" variant="secondary" className="bg-background/80 backdrop-blur">
-                          <Download className="w-4 h-4" />
-                        </Button>
-                        <Button size="icon" variant="secondary" className="bg-background/80 backdrop-blur">
-                          <Share2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           </div>
 
-          {/* Influencer Examples - SMALLER & ORGANIZED */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-3 mb-6">
-              <Zap className="w-5 h-5 text-secondary" />
-              <h3 className="text-xl font-bold">Influencers de Exemplo</h3>
-            </div>
+          {/* Generated Image Side */}
+          <div className="relative group">
+            <div className="absolute -inset-1 bg-gradient-to-r from-secondary via-primary to-secondary rounded-3xl opacity-20 group-hover:opacity-40 blur-xl transition duration-500" />
             
-            <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
-              {influencers.map((influencer, i) => (
-                <div
-                  key={i}
-                  onClick={() => setPrompt(influencer.description)}
-                  className="group relative cursor-pointer"
-                >
-                  <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/0 via-secondary/0 to-primary/0 group-hover:from-primary/50 group-hover:via-secondary/50 group-hover:to-primary/50 rounded-xl blur transition duration-300" />
-                  
-                  <div className="relative bg-card/70 backdrop-blur-xl border border-border/50 group-hover:border-primary/50 rounded-xl p-4 transition-all group-hover:scale-[1.02]">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${influencer.gradient} flex items-center justify-center text-2xl flex-shrink-0 shadow-lg`}>
-                        {influencer.emoji}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-bold text-sm mb-0.5">{influencer.name}</h4>
-                        <p className="text-xs text-muted-foreground line-clamp-2">{influencer.description}</p>
-                      </div>
-                      <Wand2 className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+            <div className="relative bg-card/90 backdrop-blur-xl border border-border/50 rounded-3xl p-8 h-full flex items-center justify-center">
+              {generatedImage ? (
+                <div className="space-y-4 animate-scale-in w-full">
+                  <div className="relative rounded-2xl overflow-hidden border-2 border-primary/50">
+                    <img src={generatedImage} alt="Avatar gerado" className="w-full" />
+                    <div className="absolute top-4 right-4 flex gap-2">
+                      <Button size="icon" variant="secondary" className="bg-background/80 backdrop-blur">
+                        <Download className="w-4 h-4" />
+                      </Button>
+                      <Button size="icon" variant="secondary" className="bg-background/80 backdrop-blur">
+                        <Share2 className="w-4 h-4" />
+                      </Button>
                     </div>
                   </div>
                 </div>
-              ))}
+              ) : (
+                <div className="text-center py-20">
+                  <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+                    <Sparkles className="w-12 h-12 text-primary" />
+                  </div>
+                  <p className="text-muted-foreground text-lg">
+                    Seu avatar gerado aparecerá aqui
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
 
+        {/* Influencer Examples Below */}
+        <div className="space-y-8">
+          <div className="text-center">
+            <h3 className="text-3xl font-bold mb-2">Influencers de Exemplo</h3>
+            <p className="text-muted-foreground">Clique em um exemplo para usar como referência</p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {influencers.map((influencer, i) => (
+              <Card
+                key={i}
+                onClick={() => setPrompt(influencer.description)}
+                className="group relative cursor-pointer overflow-hidden border-primary/20 hover:border-primary/40 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/20 hover:-translate-y-2"
+              >
+                {/* Image */}
+                <div className="relative h-80 overflow-hidden">
+                  <img
+                    src={influencer.image}
+                    alt={influencer.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
+                  
+                  {/* Hover Overlay */}
+                  <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                    <div className="bg-background/90 backdrop-blur-sm px-6 py-3 rounded-full border border-primary">
+                      <Wand2 className="w-5 h-5 text-primary inline mr-2" />
+                      <span className="text-sm font-bold">Usar como exemplo</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="p-6 relative">
+                  <h4 className="text-xl font-bold mb-2">{influencer.name}</h4>
+                  <p className="text-sm text-muted-foreground">{influencer.description}</p>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );
