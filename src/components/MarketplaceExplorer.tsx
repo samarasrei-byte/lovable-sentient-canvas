@@ -21,6 +21,7 @@ interface TalentCard {
 }
 
 const talents: TalentCard[] = [
+  // Avatares IA
   {
     id: "1",
     name: "Maya Tech",
@@ -48,6 +49,72 @@ const talents: TalentCard[] = [
     type: "avatar-ia",
     category: "Negócios",
     image: influencerBusiness,
+  },
+  // Influenciadores Reais
+  {
+    id: "5",
+    name: "Ana Silva",
+    type: "influenciadores",
+    category: "Lifestyle",
+    image: influencerFashion,
+    followers: "250K",
+    engagement: "8.5%",
+  },
+  {
+    id: "6",
+    name: "Pedro Santos",
+    type: "influenciadores",
+    category: "Fitness",
+    image: influencerFitness,
+    followers: "180K",
+    engagement: "9.2%",
+  },
+  {
+    id: "7",
+    name: "Julia Costa",
+    type: "influenciadores",
+    category: "Tecnologia",
+    image: influencerTech,
+    followers: "320K",
+    engagement: "7.8%",
+  },
+  {
+    id: "8",
+    name: "Lucas Oliveira",
+    type: "influenciadores",
+    category: "Empreendedorismo",
+    image: influencerBusiness,
+    followers: "450K",
+    engagement: "6.5%",
+  },
+  // Artistas
+  {
+    id: "9",
+    name: "Beatriz Almeida",
+    type: "artistas",
+    category: "Arte Digital",
+    image: influencerFashion,
+  },
+  {
+    id: "10",
+    name: "Rafael Mendes",
+    type: "artistas",
+    category: "Motion Design",
+    image: influencerTech,
+  },
+  {
+    id: "11",
+    name: "Camila Rocha",
+    type: "artistas",
+    category: "Ilustração",
+    image: influencerBusiness,
+  },
+  {
+    id: "12",
+    name: "Thiago Ferreira",
+    type: "artistas",
+    category: "3D Artist",
+    image: influencerFitness,
   },
 ];
 
@@ -121,43 +188,71 @@ export const MarketplaceExplorer = () => {
 
         {/* Talent Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
-          {filteredTalents.map((talent) => (
-            <Card
-              key={talent.id}
-              className="group relative overflow-hidden border-primary/20 hover:border-primary/40 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/20 hover:-translate-y-2"
-            >
-              {/* Image */}
-              <div className="relative h-80 overflow-hidden">
-                <img
-                  src={talent.image}
-                  alt={talent.name}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
-                
-                {/* Badge */}
-                <div className="absolute top-4 left-4">
-                  <Badge className="bg-primary/90 backdrop-blur-sm">
-                    <Bot className="w-3 h-3 mr-1" />
-                    Avatar IA
-                  </Badge>
-                </div>
-              </div>
+          {filteredTalents.map((talent) => {
+            const getBadgeContent = () => {
+              if (talent.type === "avatar-ia") {
+                return { icon: Bot, label: "Avatar IA", color: "bg-secondary/90" };
+              } else if (talent.type === "influenciadores") {
+                return { icon: Users, label: "Influenciador", color: "bg-primary/90" };
+              } else {
+                return { icon: Palette, label: "Artista", color: "bg-orange-500/90" };
+              }
+            };
 
-              {/* Content */}
-              <div className="p-6 relative">
-                <h3 className="text-xl font-bold mb-2">{talent.name}</h3>
-                <p className="text-sm text-muted-foreground mb-4">{talent.category}</p>
-                
-                <Button 
-                  size="sm" 
-                  className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity"
-                >
-                  Ver Perfil
-                </Button>
-              </div>
-            </Card>
-          ))}
+            const badge = getBadgeContent();
+            const BadgeIcon = badge.icon;
+
+            return (
+              <Card
+                key={talent.id}
+                className="group relative overflow-hidden border-primary/20 hover:border-primary/40 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/20 hover:-translate-y-2"
+              >
+                {/* Image */}
+                <div className="relative h-80 overflow-hidden">
+                  <img
+                    src={talent.image}
+                    alt={talent.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
+                  
+                  {/* Badge */}
+                  <div className="absolute top-4 left-4">
+                    <Badge className={`${badge.color} backdrop-blur-sm`}>
+                      <BadgeIcon className="w-3 h-3 mr-1" />
+                      {badge.label}
+                    </Badge>
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="p-6 relative">
+                  <h3 className="text-xl font-bold mb-2">{talent.name}</h3>
+                  <p className="text-sm text-muted-foreground mb-2">{talent.category}</p>
+                  
+                  {talent.followers && (
+                    <div className="flex gap-4 mb-4 text-xs">
+                      <div>
+                        <span className="text-muted-foreground">Seguidores:</span>
+                        <span className="ml-1 font-semibold">{talent.followers}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Engagement:</span>
+                        <span className="ml-1 font-semibold">{talent.engagement}</span>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <Button 
+                    size="sm" 
+                    className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity"
+                  >
+                    Ver Perfil
+                  </Button>
+                </div>
+              </Card>
+            );
+          })}
         </div>
       </div>
     </section>
