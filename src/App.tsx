@@ -17,6 +17,7 @@ import Contratos from "./pages/app/Contratos";
 import Pagamentos from "./pages/app/Pagamentos";
 import Monitoramento from "./pages/app/Monitoramento";
 import IAInsights from "./pages/app/IAInsights";
+import AvatarStudio from "./pages/app/AvatarStudio";
 
 const queryClient = new QueryClient();
 
@@ -35,9 +36,10 @@ const App = () => (
             <Route path="campanhas" element={<Campanhas />} />
             <Route path="contratos" element={<Contratos />} />
             <Route path="pagamentos" element={<Pagamentos />} />
-            <Route path="monitoramento" element={<Monitoramento />} />
-            <Route path="ia-insights" element={<IAInsights />} />
-            <Route path="liveshop" element={<LiveShop />} />
+              <Route path="monitoramento" element={<Monitoramento />} />
+              <Route path="ia-insights" element={<IAInsights />} />
+              <Route path="avatar-studio" element={<AvatarStudio />} />
+              <Route path="liveshop" element={<LiveShop />} />
             <Route path="consultoria" element={<Consultoria />} />
             <Route path="planos" element={<Planos />} />
             <Route path="perfil" element={<Perfil />} />
