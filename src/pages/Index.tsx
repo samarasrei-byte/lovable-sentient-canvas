@@ -3,7 +3,6 @@ import { AvatarGenerator } from "@/components/AvatarGenerator";
 import { OnboardingQuiz } from "@/components/OnboardingQuiz";
 import { TalentShowcase } from "@/components/TalentShowcase";
 import { MarketplaceGrid } from "@/components/MarketplaceGrid";
-import { MarketplaceExplorer } from "@/components/MarketplaceExplorer";
 import { HowItWorks } from "@/components/HowItWorks";
 import { LiveShop } from "@/components/LiveShop";
 import { MarketplaceOverview } from "@/components/MarketplaceOverview";
@@ -19,7 +18,6 @@ const Index = () => {
     <div className="min-h-screen bg-background text-foreground">
       <Hero />
       <TalentShowcase />
-      <MarketplaceExplorer />
       <AvatarGenerator />
       <MarketplaceGrid />
       <MarketplaceOverview />
