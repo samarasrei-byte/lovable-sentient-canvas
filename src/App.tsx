@@ -8,6 +8,7 @@ import NotFound from "./pages/NotFound";
 import AppLayout, { RedirectToDashboard } from "./pages/app/AppLayout";
 import Dashboard from "./pages/app/Dashboard";
 import Talentos from "./pages/app/TalentosAprimorado";
+import PerfilTalento from "./pages/app/PerfilTalento";
 import Planos from "./pages/app/Planos";
 import LiveShop from "./pages/app/LiveShop";
 import Consultoria from "./pages/app/Consultoria";
@@ -33,6 +34,7 @@ const App = () => (
             <Route index element={<RedirectToDashboard />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="talentos" element={<Talentos />} />
+            <Route path="talentos/:id" element={<PerfilTalento />} />
             <Route path="campanhas" element={<Campanhas />} />
             <Route path="contratos" element={<Contratos />} />
             <Route path="pagamentos" element={<Pagamentos />} />
