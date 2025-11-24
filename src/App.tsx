@@ -50,7 +50,7 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           
           {/* Admin Routes */}
-          <Route path="/admin" element={<AdminLayout />}>
+          <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminLayout /></ProtectedRoute>}>
             <Route index element={<AdminDashboard />} />
             <Route path="influencers" element={<AdminInfluencers />} />
             <Route path="brands" element={<AdminBrands />} />
