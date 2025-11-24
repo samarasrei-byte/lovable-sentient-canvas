@@ -12,6 +12,9 @@ import Planos from "./pages/app/Planos";
 import LiveShop from "./pages/app/LiveShop";
 import Consultoria from "./pages/app/Consultoria";
 import Perfil from "./pages/app/Perfil";
+import Campanhas from "./pages/app/Campanhas";
+import Contratos from "./pages/app/Contratos";
+import Pagamentos from "./pages/app/Pagamentos";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +30,9 @@ const App = () => (
             <Route index element={<RedirectToDashboard />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="talentos" element={<Talentos />} />
+            <Route path="campanhas" element={<Campanhas />} />
+            <Route path="contratos" element={<Contratos />} />
+            <Route path="pagamentos" element={<Pagamentos />} />
             <Route path="liveshop" element={<LiveShop />} />
             <Route path="consultoria" element={<Consultoria />} />
             <Route path="planos" element={<Planos />} />
