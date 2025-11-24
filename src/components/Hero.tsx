@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Zap } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import heroLiquid from "@/assets/hero-liquid.jpg";
 
 export const Hero = () => {
+  const navigate = useNavigate();
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
@@ -43,7 +45,11 @@ export const Hero = () => {
             <a href="#planos" className="text-sm font-medium text-foreground/80 hover:text-foreground transition-colors">
               Planos
             </a>
-            <Button variant="outline" className="border-primary/20 hover:bg-primary/10">
+            <Button 
+              variant="outline" 
+              className="border-primary/20 hover:bg-primary/10"
+              onClick={() => navigate("/login")}
+            >
               Entrar
             </Button>
           </div>
@@ -87,8 +93,9 @@ export const Hero = () => {
         <Button 
           size="lg"
           className="text-lg px-12 py-6 rounded-full bg-gradient-to-r from-primary to-secondary hover:scale-105 transition-transform duration-300 shadow-2xl shadow-primary/50 border border-primary/30"
+          onClick={() => navigate("/login")}
         >
-          Explorar talentos
+          Começar Agora
         </Button>
       </div>
 
