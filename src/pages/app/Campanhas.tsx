@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { CreateCampaignModal } from "@/components/CreateCampaignModal";
 import { 
   Plus, 
   TrendingUp, 
@@ -16,6 +18,7 @@ import {
 } from "lucide-react";
 
 export default function Campanhas() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const campaigns = [
     {
       id: 1,
@@ -123,7 +126,7 @@ export default function Campanhas() {
         </div>
         <Button 
           className="bg-gradient-to-r from-primary to-secondary hover:opacity-90"
-          onClick={() => window.alert('Modal de criação de campanha será implementado em breve!')}
+          onClick={() => setIsModalOpen(true)}
         >
           <Plus className="w-4 h-4 mr-2" />
           Nova Campanha
@@ -224,6 +227,9 @@ export default function Campanhas() {
           );
         })}
       </div>
+
+      {/* Modal de Criação */}
+      <CreateCampaignModal open={isModalOpen} onOpenChange={setIsModalOpen} />
     </div>
   );
 }
