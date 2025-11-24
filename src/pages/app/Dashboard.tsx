@@ -1,251 +1,439 @@
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, Target, TrendingUp, DollarSign, Play, Eye, BarChart3, Sparkles, Plus } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { 
+  TrendingUp, 
+  Users, 
+  Eye, 
+  Heart, 
+  MessageCircle,
+  BarChart3,
+  Target,
+  Sparkles,
+  Video,
+  DollarSign,
+  ArrowUpRight,
+  Bot,
+  Palette,
+  ExternalLink,
+  Search,
+  Plus
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+
+interface Talent {
+  id: number;
+  name: string;
+  segment: string;
+  followers: string;
+  image: string;
+  specialty: string;
+  type: "avatar" | "influencer" | "artist";
+}
 
 export default function Dashboard() {
-  const metrics = [
-    {
-      label: "Total de Seguidores",
-      value: "2.4M",
-      change: "+12.5%",
+  const navigate = useNavigate();
+  const [selectedTalents, setSelectedTalents] = useState<Talent[]>([]);
+  const [analyzingLink, setAnalyzingLink] = useState<number | null>(null);
+  const [linkUrl, setLinkUrl] = useState("");
+
+  useEffect(() => {
+    const saved = localStorage.getItem("selectedTalentsData");
+    if (saved) {
+      try {
+        const talents = JSON.parse(saved);
+        setSelectedTalents(talents);
+      } catch (e) {
+        console.error("Failed to load talents", e);
+      }
+    }
+  }, []);
+
+  const analyzeLink = (talentId: number) => {
+    if (!linkUrl.trim()) {
+      toast.error("Insira uma URL válida");
+      return;
+    }
+    
+    setAnalyzingLink(talentId);
+    
+    // Simulate analysis
+    setTimeout(() => {
+      setAnalyzingLink(null);
+      toast.success("Análise concluída! Métricas atualizadas.");
+      setLinkUrl("");
+    }, 2000);
+  };
+
+  const typeConfig = {
+    avatar: {
+      label: "Avatar IA",
+      icon: Bot,
+      color: "hsl(var(--primary))",
+      bgColor: "bg-primary/10",
+    },
+    influencer: {
+      label: "Influenciador",
       icon: Users,
-      color: "from-purple-500 to-purple-600",
-      bgColor: "bg-purple-500/20"
+      color: "hsl(var(--secondary))",
+      bgColor: "bg-secondary/10",
     },
-    {
-      label: "Campanhas Ativas",
-      value: "8",
-      change: "+25%",
-      icon: Target,
-      color: "from-cyan-500 to-cyan-600",
-      bgColor: "bg-cyan-500/20"
-    },
-    {
-      label: "Engajamento",
-      value: "8.7%",
-      change: "+5.3%",
-      icon: TrendingUp,
-      color: "from-orange-500 to-orange-600",
-      bgColor: "bg-orange-500/20"
-    },
-    {
-      label: "ROI Médio",
-      value: "4.2x",
-      change: "+18.7%",
-      icon: DollarSign,
-      color: "from-green-500 to-green-600",
-      bgColor: "bg-green-500/20"
+    artist: {
+      label: "Artista",
+      icon: Palette,
+      color: "hsl(30, 100%, 60%)",
+      bgColor: "bg-orange-500/10",
     }
-  ];
-
-  const campaigns = [
-    {
-      name: "Lançamento Produto X",
-      reach: "450K",
-      engagement: "9.2%",
-      status: "Ao Vivo",
-      statusColor: "bg-green-500",
-      icon: "✨",
-      iconBg: "from-purple-500 to-purple-600"
-    },
-    {
-      name: "Collab Fashion Week",
-      reach: "890K",
-      engagement: "12.1%",
-      status: "Ao Vivo",
-      statusColor: "bg-green-500",
-      icon: "✨",
-      iconBg: "from-cyan-500 to-cyan-600"
-    },
-    {
-      name: "Campanha Verão 2025",
-      reach: "320K",
-      engagement: "7.8%",
-      status: "Agendado",
-      statusColor: "bg-yellow-500",
-      icon: "✨",
-      iconBg: "from-orange-500 to-orange-600"
-    }
-  ];
-
-  const topTalents = [
-    { name: "Sarah Tech", category: "Tech IA", engagement: "12.5%", avatar: "🤖", color: "from-primary to-secondary" },
-    { name: "Marcus Fit", category: "Fitness", engagement: "10.8%", avatar: "💪", color: "from-secondary to-artist" },
-    { name: "Luna Fashion", category: "Fashion", engagement: "15.2%", avatar: "👗", color: "from-artist to-primary" }
-  ];
-
-  const insights = [
-    { title: "Melhor Horário", value: "19h - 21h", icon: "⏰" },
-    { title: "Conteúdo Top", value: "Reels", icon: "🎬" },
-    { title: "Público Alvo", value: "18-34 anos", icon: "🎯" },
-    { title: "Hashtag #1", value: "#TechLife", icon: "📈" }
-  ];
+  };
 
   return (
-    <div className="min-h-screen bg-background p-6 md:p-8">
-      <div className="max-w-[1600px] mx-auto space-y-8">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
-              Dashboard
-            </h1>
-            <p className="text-muted-foreground">Visão geral das suas campanhas e talentos</p>
-          </div>
-          <Link to="/app/consultoria">
-            <Button size="lg" className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 shadow-lg shadow-primary/50">
-              <Plus className="w-5 h-5 mr-2" />
-              Nova Campanha
-            </Button>
-          </Link>
+    <div className="p-8 space-y-8 bg-background min-h-screen">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
+            Dashboard
+          </h1>
+          <p className="text-muted-foreground mt-2">Visão geral das suas campanhas e talentos</p>
         </div>
+        <Button className="bg-gradient-to-r from-primary to-secondary hover:opacity-90">
+          <Plus className="w-4 h-4 mr-2" />
+          Nova Campanha
+        </Button>
+      </div>
 
-        {/* Metrics Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {metrics.map((metric, i) => {
-            const Icon = metric.icon;
-            return (
-              <div key={i} className="relative group">
-                <div className={`absolute -inset-0.5 bg-gradient-to-r ${metric.color} rounded-2xl opacity-0 group-hover:opacity-20 blur transition duration-300`} />
-                <div className="relative bg-card/70 backdrop-blur-xl border border-border/50 rounded-2xl p-6 hover:border-primary/50 transition-all">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className={`w-12 h-12 rounded-xl ${metric.bgColor} flex items-center justify-center`}>
-                      <Icon className="w-6 h-6" style={{ color: metric.color.split(' ')[1].replace('to-', '') }} />
-                    </div>
-                    <span className="text-green-500 text-sm font-semibold">{metric.change}</span>
-                  </div>
-                  <div className="text-3xl font-bold mb-1">{metric.value}</div>
-                  <div className="text-sm text-muted-foreground">{metric.label}</div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+      {/* Key Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[
+          { 
+            title: "Alcance Total", 
+            value: "12.5M", 
+            change: "+23%", 
+            icon: Eye,
+            color: "text-primary"
+          },
+          { 
+            title: "Engajamento", 
+            value: "8.2%", 
+            change: "+5.3%", 
+            icon: Heart,
+            color: "text-secondary"
+          },
+          { 
+            title: "Campanhas Ativas", 
+            value: "24", 
+            change: "+12", 
+            icon: Target,
+            color: "text-orange-500"
+          },
+          { 
+            title: "ROI Médio", 
+            value: "385%", 
+            change: "+45%", 
+            icon: TrendingUp,
+            color: "text-green-500"
+          },
+        ].map((metric, idx) => {
+          const Icon = metric.icon;
+          return (
+            <Card key={idx} className="border-border/50 bg-card/50 backdrop-blur">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                  <Icon className={`w-4 h-4 ${metric.color}`} />
+                  {metric.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold">{metric.value}</div>
+                <p className="text-sm text-green-500 flex items-center gap-1 mt-1">
+                  <ArrowUpRight className="w-3 h-3" />
+                  {metric.change} vs mês anterior
+                </p>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Recent Campaigns */}
-          <div className="lg:col-span-2 space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <BarChart3 className="w-6 h-6 text-primary" />
-                <h2 className="text-2xl font-bold">Campanhas Recentes</h2>
-              </div>
-              <Link to="/app/talentos">
-                <Button variant="ghost" size="sm">Ver Todas</Button>
-              </Link>
+      {/* Selected Talents Section */}
+      {selectedTalents.length > 0 && (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold">Meus Talentos</h2>
+              <p className="text-muted-foreground">Influenciadores e avatares da sua conta</p>
             </div>
+            <Button 
+              variant="outline" 
+              onClick={() => navigate("/")}
+              className="gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              Adicionar Mais
+            </Button>
+          </div>
 
-            <div className="space-y-4">
-              {campaigns.map((campaign, i) => (
-                <div key={i} className="relative group">
-                  <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/0 to-secondary/0 group-hover:from-primary/30 group-hover:to-secondary/30 rounded-2xl blur transition duration-300" />
-                  <div className="relative bg-card/70 backdrop-blur-xl border border-border/50 rounded-2xl p-6 hover:border-primary/50 transition-all">
-                    <div className="flex items-center gap-4">
-                      <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${campaign.iconBg} flex items-center justify-center text-2xl flex-shrink-0`}>
-                        {campaign.icon}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {selectedTalents.map((talent) => {
+              const config = typeConfig[talent.type];
+              const Icon = config.icon;
+              
+              return (
+                <Card key={talent.id} className="border-border/50 bg-card/50 backdrop-blur overflow-hidden">
+                  <CardHeader>
+                    <div className="flex items-start gap-4">
+                      <div className="relative">
+                        <img 
+                          src={talent.image} 
+                          alt={talent.name}
+                          className="w-20 h-20 rounded-xl object-cover"
+                        />
+                        <Badge 
+                          className={`absolute -bottom-2 -right-2 ${config.bgColor} border-0 flex items-center gap-1`}
+                          style={{ color: config.color }}
+                        >
+                          <Icon className="w-3 h-3" />
+                          <span className="text-xs">{config.label}</span>
+                        </Badge>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-lg mb-1">{campaign.name}</h3>
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                          <span>Alcance: {campaign.reach}</span>
-                          <span>•</span>
-                          <span>Eng: {campaign.engagement}</span>
+                      <div className="flex-1">
+                        <CardTitle className="text-xl">{talent.name}</CardTitle>
+                        <CardDescription className="text-sm">{talent.segment}</CardDescription>
+                        <div className="flex items-center gap-4 mt-2">
+                          <span className="text-sm font-semibold" style={{ color: config.color }}>
+                            {talent.followers} seguidores
+                          </span>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${campaign.statusColor} text-white`}>
-                          {campaign.status}
-                        </span>
-                        <Button size="sm" variant="outline">
-                          Ver
+                    </div>
+                  </CardHeader>
+
+                  <CardContent className="space-y-4">
+                    {/* Metrics */}
+                    <div className="grid grid-cols-3 gap-4 p-4 rounded-lg bg-muted/30">
+                      <div className="text-center">
+                        <Eye className="w-5 h-5 mx-auto mb-1 text-primary" />
+                        <div className="text-lg font-bold">
+                          {Math.floor(Math.random() * 500 + 100)}K
+                        </div>
+                        <div className="text-xs text-muted-foreground">Visualizações</div>
+                      </div>
+                      <div className="text-center">
+                        <Heart className="w-5 h-5 mx-auto mb-1 text-secondary" />
+                        <div className="text-lg font-bold">
+                          {(Math.random() * 10 + 2).toFixed(1)}%
+                        </div>
+                        <div className="text-xs text-muted-foreground">Engajamento</div>
+                      </div>
+                      <div className="text-center">
+                        <MessageCircle className="w-5 h-5 mx-auto mb-1 text-orange-500" />
+                        <div className="text-lg font-bold">
+                          {Math.floor(Math.random() * 50 + 10)}K
+                        </div>
+                        <div className="text-xs text-muted-foreground">Interações</div>
+                      </div>
+                    </div>
+
+                    {/* Link Analysis */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Analisar Link do Influenciador</label>
+                      <div className="flex gap-2">
+                        <Input 
+                          placeholder="Cole a URL do perfil (Instagram, TikTok, etc.)"
+                          value={analyzingLink === talent.id ? "" : linkUrl}
+                          onChange={(e) => setLinkUrl(e.target.value)}
+                          disabled={analyzingLink === talent.id}
+                          className="flex-1"
+                        />
+                        <Button 
+                          onClick={() => analyzeLink(talent.id)}
+                          disabled={analyzingLink === talent.id}
+                          className="gap-2"
+                        >
+                          {analyzingLink === talent.id ? (
+                            <>
+                              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                              Analisando
+                            </>
+                          ) : (
+                            <>
+                              <Search className="w-4 h-4" />
+                              Analisar
+                            </>
+                          )}
                         </Button>
                       </div>
                     </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+
+                    {/* Sites/Links */}
+                    <div className="flex flex-wrap gap-2">
+                      <Button variant="outline" size="sm" className="gap-2">
+                        <ExternalLink className="w-3 h-3" />
+                        Instagram
+                      </Button>
+                      <Button variant="outline" size="sm" className="gap-2">
+                        <ExternalLink className="w-3 h-3" />
+                        TikTok
+                      </Button>
+                      <Button variant="outline" size="sm" className="gap-2">
+                        <ExternalLink className="w-3 h-3" />
+                        YouTube
+                      </Button>
+                    </div>
+
+                    <Button 
+                      className="w-full" 
+                      variant="outline"
+                      onClick={() => navigate("/app/talentos")}
+                    >
+                      <BarChart3 className="w-4 h-4 mr-2" />
+                      Ver Métricas Completas
+                    </Button>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
+        </div>
+      )}
 
-          {/* Top Talents */}
-          <div className="space-y-6">
-            <div className="flex items-center gap-3">
-              <Sparkles className="w-6 h-6 text-secondary" />
-              <h2 className="text-2xl font-bold">Top Talentos</h2>
-            </div>
+      {/* Empty state */}
+      {selectedTalents.length === 0 && (
+        <Card className="border-border/50 bg-card/50 backdrop-blur">
+          <CardContent className="py-16 text-center">
+            <Users className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+            <h3 className="text-xl font-semibold mb-2">Nenhum talento selecionado</h3>
+            <p className="text-muted-foreground mb-6">
+              Adicione influenciadores e avatares ao seu painel para começar
+            </p>
+            <Button onClick={() => navigate("/")}>
+              <Plus className="w-4 h-4 mr-2" />
+              Explorar Marketplace
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
-            <div className="space-y-4">
-              {topTalents.map((talent, i) => (
-                <div key={i} className="bg-card/70 backdrop-blur-xl border border-border/50 rounded-2xl p-6 hover:border-primary/50 transition-all">
+      {/* Recent Campaigns */}
+      <div className="space-y-6">
+        <h2 className="text-2xl font-bold">Campanhas Recentes</h2>
+        
+        <div className="grid gap-4">
+          {[
+            {
+              name: "Lançamento Produto X",
+              status: "Ativa",
+              engagement: "12.5%",
+              reach: "2.3M",
+              talents: 3,
+              statusColor: "bg-green-500"
+            },
+            {
+              name: "Black Friday 2024",
+              status: "Planejamento",
+              engagement: "-",
+              reach: "-",
+              talents: 5,
+              statusColor: "bg-yellow-500"
+            },
+            {
+              name: "Verão 2025",
+              status: "Em Análise",
+              engagement: "8.7%",
+              reach: "1.8M",
+              talents: 4,
+              statusColor: "bg-blue-500"
+            },
+          ].map((campaign, idx) => (
+            <Card key={idx} className="border-border/50 bg-card/50 backdrop-blur hover:shadow-lg transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${talent.color} flex items-center justify-center text-xl`}>
-                      {talent.avatar}
-                    </div>
-                    <div className="flex-1">
-                      <div className="font-bold mb-1">{talent.name}</div>
-                      <div className="text-sm text-muted-foreground">{talent.category}</div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-sm font-semibold text-green-500">{talent.engagement}</div>
-                      <div className="text-xs text-muted-foreground">eng.</div>
+                    <div className={`w-2 h-2 rounded-full ${campaign.statusColor}`} />
+                    <div>
+                      <h3 className="font-semibold text-lg">{campaign.name}</h3>
+                      <p className="text-sm text-muted-foreground">{campaign.status}</p>
                     </div>
                   </div>
+                  
+                  <div className="flex items-center gap-8">
+                    <div className="text-center">
+                      <div className="text-sm text-muted-foreground">Engajamento</div>
+                      <div className="text-lg font-bold">{campaign.engagement}</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-sm text-muted-foreground">Alcance</div>
+                      <div className="text-lg font-bold">{campaign.reach}</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-sm text-muted-foreground">Talentos</div>
+                      <div className="text-lg font-bold">{campaign.talents}</div>
+                    </div>
+                    
+                    <Button variant="outline">Ver Detalhes</Button>
+                  </div>
                 </div>
-              ))}
-
-              <Link to="/app/talentos">
-                <Button variant="outline" className="w-full">
-                  Ver Todos os Talentos
-                </Button>
-              </Link>
-            </div>
-          </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
+      </div>
 
-        {/* Insights */}
-        <div className="bg-gradient-to-r from-primary/10 via-secondary/10 to-artist/10 border border-primary/20 rounded-2xl p-8">
-          <div className="flex items-center gap-3 mb-6">
-            <Eye className="w-6 h-6 text-primary" />
-            <h2 className="text-2xl font-bold">Insights Rápidos</h2>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {insights.map((insight, i) => (
-              <div key={i} className="bg-card/70 backdrop-blur-xl border border-border/50 rounded-xl p-4 hover:border-primary/50 transition-all text-center">
-                <div className="text-3xl mb-2">{insight.icon}</div>
-                <div className="font-bold mb-1">{insight.value}</div>
-                <div className="text-xs text-muted-foreground">{insight.title}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="grid md:grid-cols-3 gap-6">
-          <Link to="/app/consultoria" className="group">
-            <div className="bg-gradient-to-br from-primary/20 to-secondary/20 border border-primary/30 rounded-2xl p-6 hover:scale-[1.02] transition-all">
-              <Sparkles className="w-10 h-10 text-primary mb-4" />
-              <h3 className="font-bold text-lg mb-2">Consultoria IA</h3>
-              <p className="text-sm text-muted-foreground">Obtenha insights personalizados e estratégias de campanha</p>
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card 
+          className="border-border/50 bg-gradient-to-br from-primary/10 to-transparent hover:shadow-xl transition-all cursor-pointer group"
+          onClick={() => navigate("/app/consultoria")}
+        >
+          <CardContent className="p-6 text-center space-y-4">
+            <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Sparkles className="w-8 h-8 text-white" />
             </div>
-          </Link>
-
-          <Link to="/app/liveshop" className="group">
-            <div className="bg-gradient-to-br from-secondary/20 to-artist/20 border border-secondary/30 rounded-2xl p-6 hover:scale-[1.02] transition-all">
-              <Play className="w-10 h-10 text-secondary mb-4" />
-              <h3 className="font-bold text-lg mb-2">Live Shop</h3>
-              <p className="text-sm text-muted-foreground">Transmissões ao vivo com vendas integradas</p>
+            <div>
+              <h3 className="font-bold text-xl mb-2">Consultoria IA</h3>
+              <p className="text-sm text-muted-foreground">
+                Estratégias personalizadas com IA
+              </p>
             </div>
-          </Link>
+          </CardContent>
+        </Card>
 
-          <Link to="/app/talentos" className="group">
-            <div className="bg-gradient-to-br from-artist/20 to-primary/20 border border-artist/30 rounded-2xl p-6 hover:scale-[1.02] transition-all">
-              <Users className="w-10 h-10 text-artist mb-4" />
-              <h3 className="font-bold text-lg mb-2">Descobrir Talentos</h3>
-              <p className="text-sm text-muted-foreground">Encontre o criador perfeito para sua marca</p>
+        <Card 
+          className="border-border/50 bg-gradient-to-br from-secondary/10 to-transparent hover:shadow-xl transition-all cursor-pointer group"
+          onClick={() => navigate("/app/liveshop")}
+        >
+          <CardContent className="p-6 text-center space-y-4">
+            <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-r from-secondary to-primary flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Video className="w-8 h-8 text-white" />
             </div>
-          </Link>
-        </div>
+            <div>
+              <h3 className="font-bold text-xl mb-2">Live Shop</h3>
+              <p className="text-sm text-muted-foreground">
+                Transmissões ao vivo com vendas
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card 
+          className="border-border/50 bg-gradient-to-br from-orange-500/10 to-transparent hover:shadow-xl transition-all cursor-pointer group"
+          onClick={() => navigate("/app/talentos")}
+        >
+          <CardContent className="p-6 text-center space-y-4">
+            <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-r from-orange-500 to-secondary flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Users className="w-8 h-8 text-white" />
+            </div>
+            <div>
+              <h3 className="font-bold text-xl mb-2">Descobrir Talentos</h3>
+              <p className="text-sm text-muted-foreground">
+                Explore influenciadores e avatares
+              </p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
