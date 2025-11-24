@@ -1,7 +1,24 @@
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, Users, Video, CreditCard, Sparkles, Settings, Zap, Target, FileText, Wallet, Activity, Brain, UserCircle } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { 
+  Home, 
+  Users, 
+  Video, 
+  CreditCard, 
+  Sparkles, 
+  Settings, 
+  Zap, 
+  Target, 
+  FileText, 
+  Wallet, 
+  Activity, 
+  Brain, 
+  UserCircle,
+  MessageCircle
+} from "lucide-react";
 
-const menuItems = [
+const brandMenuItems = [
   { path: "/app/dashboard", icon: Home, label: "Dashboard" },
   { path: "/app/talentos", icon: Users, label: "Talentos" },
   { path: "/app/campanhas", icon: Target, label: "Campanhas" },
@@ -12,12 +29,48 @@ const menuItems = [
   { path: "/app/avatar-studio", icon: UserCircle, label: "Avatar Studio" },
   { path: "/app/liveshop", icon: Video, label: "Live Shop" },
   { path: "/app/consultoria", icon: Sparkles, label: "Consultoria IA" },
+  { path: "/app/chat", icon: MessageCircle, label: "Chat" },
   { path: "/app/planos", icon: CreditCard, label: "Planos" },
+  { path: "/app/perfil", icon: Settings, label: "Perfil" },
+];
+
+const influencerMenuItems = [
+  { path: "/app/dashboard", icon: Home, label: "Dashboard" },
+  { path: "/app/influencer/contratos", icon: FileText, label: "Contratos" },
+  { path: "/app/influencer/pagamentos", icon: Wallet, label: "Pagamentos" },
+  { path: "/app/influencer/monitoramento", icon: Activity, label: "Monitoramento" },
+  { path: "/app/avatar-studio", icon: UserCircle, label: "Avatar Studio" },
+  { path: "/app/consultoria", icon: Sparkles, label: "Consultoria IA" },
+  { path: "/app/chat", icon: MessageCircle, label: "Chat" },
   { path: "/app/perfil", icon: Settings, label: "Perfil" },
 ];
 
 export const Sidebar = () => {
   const location = useLocation();
+  const [userRole, setUserRole] = useState<string>("brand");
+
+  useEffect(() => {
+    checkUserRole();
+  }, []);
+
+  const checkUserRole = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: roleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .single();
+
+      setUserRole(roleData?.role || "brand");
+    } catch (error) {
+      console.error("Error checking user role:", error);
+    }
+  };
+
+  const menuItems = userRole === "influencer" ? influencerMenuItems : brandMenuItems;
 
   return (
     <aside className="w-64 border-r border-border/50 bg-card/30 backdrop-blur-sm p-6">
