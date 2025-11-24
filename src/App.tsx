@@ -8,14 +8,14 @@ import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import AppLayout, { RedirectToDashboard } from "./pages/app/AppLayout";
-import { AdminLayout } from "./pages/admin/AdminLayout";
-import Dashboard from "./pages/app/Dashboard";
+import { DashboardRouter } from "./components/DashboardRouter";
+import { PerfilRouter } from "./components/PerfilRouter";
 import Talentos from "./pages/app/TalentosAprimorado";
+import { AdminLayout } from "./pages/admin/AdminLayout";
 import PerfilTalento from "./pages/app/PerfilTalento";
 import Planos from "./pages/app/Planos";
 import LiveShop from "./pages/app/LiveShop";
 import Consultoria from "./pages/app/Consultoria";
-import Perfil from "./pages/app/Perfil";
 import Campanhas from "./pages/app/Campanhas";
 import Contratos from "./pages/app/Contratos";
 import Pagamentos from "./pages/app/Pagamentos";
@@ -46,7 +46,7 @@ const App = () => (
           {/* App Routes */}
           <Route path="/app" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
             <Route index element={<RedirectToDashboard />} />
-            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="dashboard" element={<DashboardRouter />} />
             <Route path="talentos" element={<Talentos />} />
             <Route path="talentos/:id" element={<PerfilTalento />} />
             <Route path="campanhas" element={<Campanhas />} />
@@ -58,7 +58,7 @@ const App = () => (
               <Route path="liveshop" element={<LiveShop />} />
             <Route path="consultoria" element={<Consultoria />} />
             <Route path="planos" element={<Planos />} />
-            <Route path="perfil" element={<Perfil />} />
+            <Route path="perfil" element={<PerfilRouter />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

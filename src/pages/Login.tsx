@@ -23,7 +23,7 @@ const Login = () => {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
 
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -33,24 +33,6 @@ const Login = () => {
         variant: "destructive",
         title: "Erro ao fazer login",
         description: error.message,
-      });
-      setLoading(false);
-      return;
-    }
-
-    // Check user role
-    const { data: roleData } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", data.user.id)
-      .single();
-
-    if (roleData?.role !== userType) {
-      await supabase.auth.signOut();
-      toast({
-        variant: "destructive",
-        title: "Acesso negado",
-        description: `Esta conta não é do tipo ${userType === "brand" ? "Marca" : "Influenciador"}`,
       });
       setLoading(false);
       return;
@@ -137,12 +119,19 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-3xl font-bold text-center">Arcana</CardTitle>
-          <CardDescription className="text-center">
-            Entre ou crie sua conta
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-deep-black via-background to-primary/10 p-4">
+      <Card className="w-full max-w-md border-glass-border bg-card/80 backdrop-blur-xl shadow-2xl">
+        <CardHeader className="space-y-4">
+          <div className="flex items-center justify-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary via-secondary to-artist flex items-center justify-center">
+              <span className="text-xl font-bold text-white">A</span>
+            </div>
+            <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary via-secondary to-artist bg-clip-text text-transparent">
+              Arcana
+            </CardTitle>
+          </div>
+          <CardDescription className="text-center text-base">
+            Bem-vindo de volta! Entre para continuar
           </CardDescription>
         </CardHeader>
         <CardContent>
