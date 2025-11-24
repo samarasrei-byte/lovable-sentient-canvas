@@ -8,6 +8,7 @@ import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import AppLayout, { RedirectToDashboard } from "./pages/app/AppLayout";
+import { AdminLayout } from "./pages/admin/AdminLayout";
 import Dashboard from "./pages/app/Dashboard";
 import Talentos from "./pages/app/TalentosAprimorado";
 import PerfilTalento from "./pages/app/PerfilTalento";
@@ -21,6 +22,8 @@ import Pagamentos from "./pages/app/Pagamentos";
 import Monitoramento from "./pages/app/Monitoramento";
 import IAInsights from "./pages/app/IAInsights";
 import AvatarStudio from "./pages/app/AvatarStudio";
+import AdminDashboard from "./pages/admin/Dashboard";
+import AdminInfluencers from "./pages/admin/Influencers";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +36,14 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
+          
+          {/* Admin Routes */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="influencers" element={<AdminInfluencers />} />
+          </Route>
+          
+          {/* App Routes */}
           <Route path="/app" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
             <Route index element={<RedirectToDashboard />} />
             <Route path="dashboard" element={<Dashboard />} />
