@@ -15,11 +15,11 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Hero />
+      <TalentShowcase />
       <AvatarGenerator />
+      <MarketplaceGrid />
       <MarketplaceOverview />
       <OnboardingQuiz />
-      <TalentShowcase />
-      <MarketplaceGrid />
       <HowItWorks />
       <LiveShop />
       <Pricing />
