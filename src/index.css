@@ -8,69 +8,56 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Base Dark Theme */
-    --background: 222 47% 8%;
+    /* Base Dark Theme - Arcana Original */
+    --background: 222 47% 11%;
     --foreground: 210 40% 98%;
     --card: 222 47% 11%;
     --card-foreground: 210 40% 98%;
     --popover: 222 47% 11%;
     --popover-foreground: 210 40% 98%;
-    
-    /* Brand Colors - Corporate Blue & Gold */
-    --brand-primary: 220 90% 56%;
-    --brand-secondary: 43 96% 56%;
-    --brand-accent: 200 90% 50%;
-    
-    /* Influencer Colors - Creative Purple & Pink */
-    --influencer-primary: 280 85% 65%;
-    --influencer-secondary: 330 85% 65%;
-    --influencer-accent: 290 90% 55%;
-    
-    /* White Label Colors - Premium Emerald & Cyan */
-    --whitelabel-primary: 168 76% 42%;
-    --whitelabel-secondary: 186 94% 43%;
-    --whitelabel-accent: 160 84% 39%;
 
-    /* Default to Brand Theme */
-    --primary: 220 90% 56%;
+    /* Primary: Purple #A855F7 - Arcana Roxo */
+    --primary: 270 91% 65%;
     --primary-foreground: 210 40% 98%;
-    --secondary: 43 96% 56%;
-    --secondary-foreground: 222 47% 11%;
-    --accent: 200 90% 50%;
-    --accent-foreground: 210 40% 98%;
-    
-    /* Success: Green */
-    --success: 142 76% 36%;
-    --success-foreground: 0 0% 100%;
+
+    /* Secondary: Cyan #06B6D4 - Arcana Cyan */
+    --secondary: 188 94% 43%;
+    --secondary-foreground: 210 40% 98%;
     
     /* Artist/Creator - Orange */
     --artist: 30 100% 60%;
     --artist-foreground: 0 0% 10%;
 
-    --muted: 217 33% 15%;
+    /* Accent: Cyan #06B6D4 */
+    --accent: 188 94% 43%;
+    --accent-foreground: 222 47% 11%;
+    
+    /* Success: Green */
+    --success: 153 82% 49%;
+    --success-foreground: 0 0% 100%;
+
+    --muted: 217 33% 17%;
     --muted-foreground: 215 20% 65%;
 
     /* Destructive: Red */
-    --destructive: 0 72% 51%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 217 33% 17%;
     --input: 217 33% 17%;
-    --ring: 220 90% 56%;
+    --ring: 270 91% 65%;
 
     --radius: 1rem;
     
-    /* Gradients */
-    --gradient-brand: linear-gradient(135deg, hsl(220 90% 56%), hsl(43 96% 56%));
-    --gradient-influencer: linear-gradient(135deg, hsl(280 85% 65%), hsl(330 85% 65%));
-    --gradient-whitelabel: linear-gradient(135deg, hsl(168 76% 42%), hsl(186 94% 43%));
-    --gradient-glow: radial-gradient(circle at center, hsl(var(--primary) / 0.15), transparent);
+    /* Gradients - Arcana Roxo para Cyan */
+    --gradient-primary: linear-gradient(135deg, hsl(270 91% 65%), hsl(188 94% 43%));
+    --gradient-glow: radial-gradient(circle at center, hsl(270 91% 65% / 0.2), transparent);
     
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  /* Influencer Theme Override */
+  /* Influencer Theme - Mantém roxo/rosa criativo */
   [data-theme="influencer"] {
     --primary: 280 85% 65%;
     --primary-foreground: 210 40% 98%;
@@ -81,7 +68,7 @@ All colors MUST be HSL.
     --ring: 280 85% 65%;
   }
 
-  /* White Label Theme Override */
+  /* White Label Theme - Mantém emerald/cyan */
   [data-theme="whitelabel"] {
     --primary: 168 76% 42%;
     --primary-foreground: 210 40% 98%;
