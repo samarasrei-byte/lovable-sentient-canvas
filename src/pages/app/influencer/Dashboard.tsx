@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useParallax } from "@/hooks/use-parallax";
+import { InfluencerOnboarding } from "@/components/InfluencerOnboarding";
 import {
   TrendingUp,
   Users,
@@ -41,6 +42,8 @@ export default function InfluencerDashboard() {
   const navigate = useNavigate();
   const [influencerData, setInfluencerData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const headerOffset = useParallax(headerRef, 0.2);
 
@@ -57,6 +60,8 @@ export default function InfluencerDashboard() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      setUserId(user.id);
+
       const { data: influencer } = await supabase
         .from("influencers")
         .select("*")
@@ -65,12 +70,21 @@ export default function InfluencerDashboard() {
 
       if (influencer) {
         setInfluencerData(influencer);
+      } else {
+        // No profile found, show onboarding
+        setShowOnboarding(true);
       }
     } catch (error) {
       console.error("Error loading influencer data:", error);
+      setShowOnboarding(true);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleOnboardingComplete = () => {
+    setShowOnboarding(false);
+    loadInfluencerData();
   };
 
   const stats = [
@@ -209,6 +223,10 @@ export default function InfluencerDashboard() {
         <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
       </div>
     );
+  }
+
+  if (showOnboarding && userId) {
+    return <InfluencerOnboarding userId={userId} onComplete={handleOnboardingComplete} />;
   }
 
   return (
