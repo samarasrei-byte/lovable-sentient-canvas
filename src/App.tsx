@@ -37,6 +37,7 @@ import InfluencerContratos from "./pages/app/influencer/Contratos";
 import InfluencerPagamentos from "./pages/app/influencer/Pagamentos";
 import InfluencerMonitoramento from "./pages/app/influencer/Monitoramento";
 import InfluencerAnalytics from "./pages/app/influencer/Analytics";
+import AgencyDashboard from "./pages/app/agency/Dashboard";
 
 const queryClient = new QueryClient();
 
@@ -86,6 +87,9 @@ const App = () => (
             <Route path="influencer/pagamentos" element={<InfluencerPagamentos />} />
             <Route path="influencer/monitoramento" element={<InfluencerMonitoramento />} />
             <Route path="influencer/analytics" element={<InfluencerAnalytics />} />
+            
+            {/* Agency Routes */}
+            <Route path="agency/dashboard" element={<AgencyDashboard />} />
           </Route>
 
           {/* White Label Agency Routes */}
