@@ -74,34 +74,34 @@ export const Sidebar = () => {
   const menuItems = userRole === "influencer" ? influencerMenuItems : brandMenuItems;
 
   return (
-    <aside className="w-64 border-r border-border/50 bg-card/30 backdrop-blur-sm p-6">
-      <Link to="/" className="flex items-center gap-2 mb-8 group">
+    <aside className="w-60 border-r border-border/30 bg-card/40 backdrop-blur-xl p-5">
+      <Link to="/" className="flex items-center gap-2.5 mb-10 group px-2">
         <div className="relative">
-          <div className="absolute -inset-1 bg-gradient-to-r from-primary to-secondary rounded-lg opacity-30 group-hover:opacity-50 blur transition duration-300" />
-          <div className="relative w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-            <Zap className="w-4 h-4 text-white" />
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-secondary rounded-lg opacity-40 group-hover:opacity-70 blur-sm transition-all duration-300" />
+          <div className="relative w-9 h-9 rounded-lg bg-gradient-to-br from-primary via-secondary to-primary flex items-center justify-center shadow-glow">
+            <Zap className="w-5 h-5 text-white" />
           </div>
         </div>
-        <span className="text-xl font-bold bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
+        <span className="text-lg font-bold tracking-wide bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
           ARCANA
         </span>
       </Link>
 
-      <nav className="space-y-2">
+      <nav className="space-y-1">
         {menuItems.map((item) => {
           const isActive = location.pathname === item.path;
           return (
             <Link
               key={item.path}
               to={item.path}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+              className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
                 isActive
-                  ? "bg-primary text-primary-foreground shadow-lg"
-                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                  ? "bg-gradient-to-r from-primary/10 to-secondary/10 text-primary border border-primary/20 shadow-lg shadow-primary/10"
+                  : "text-muted-foreground/80 hover:text-foreground hover:bg-accent/50 border border-transparent"
               }`}
             >
-              <item.icon className="w-5 h-5" />
-              <span className="font-medium">{item.label}</span>
+              <item.icon className={`w-4 h-4 transition-transform duration-200 ${isActive ? "scale-110" : "group-hover:scale-105"}`} />
+              <span className="text-xs font-medium tracking-wide">{item.label}</span>
             </Link>
           );
         })}
