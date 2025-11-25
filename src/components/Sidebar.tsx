@@ -65,7 +65,8 @@ export const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { collapsed } = useSidebar();
+  const { state } = useSidebar();
+  const isCollapsed = state === "collapsed";
   const [userRole, setUserRole] = useState<string>("brand");
 
   useEffect(() => {
@@ -109,7 +110,7 @@ export const Sidebar = () => {
   const menuItems = userRole === "influencer" ? influencerMenuItems : brandMenuItems;
 
   return (
-    <SidebarContainer collapsible="icon" className={collapsed ? "w-14" : "w-60"}>
+    <SidebarContainer collapsible="icon" className={isCollapsed ? "w-14" : "w-60"}>
       <SidebarContent>
         <div className="p-5">
           <Link to="/" className="flex items-center gap-2.5 mb-10 group">
@@ -119,7 +120,7 @@ export const Sidebar = () => {
                 <Zap className="w-5 h-5 text-white" />
               </div>
             </div>
-            {!collapsed && (
+            {!isCollapsed && (
               <span className="text-lg font-bold tracking-wide bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
                 ARCANA
               </span>
@@ -146,7 +147,7 @@ export const Sidebar = () => {
                     >
                       <Link to={item.path}>
                         <item.icon className={`w-4 h-4 transition-transform duration-200 ${isActive ? "scale-110" : "group-hover:scale-105"}`} />
-                        {!collapsed && <span className="text-xs font-medium tracking-wide">{item.label}</span>}
+                        {!isCollapsed && <span className="text-xs font-medium tracking-wide">{item.label}</span>}
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -165,7 +166,7 @@ export const Sidebar = () => {
               className="text-muted-foreground/80 hover:text-destructive hover:bg-destructive/10"
             >
               <LogOut className="w-4 h-4" />
-              {!collapsed && <span className="text-xs font-medium tracking-wide">Sair</span>}
+              {!isCollapsed && <span className="text-xs font-medium tracking-wide">Sair</span>}
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
