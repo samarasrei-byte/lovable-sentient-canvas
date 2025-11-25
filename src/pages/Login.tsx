@@ -111,6 +111,64 @@ const Login = () => {
     setLoading(false);
   };
 
+  const handleQuickDemoLogin = async (type: "brand" | "influencer" | "admin" | "whitelabel") => {
+    setLoading(true);
+    const creds = demoCredentials[type];
+    
+    // Try to create account first
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      email: creds.email,
+      password: creds.password,
+      options: {
+        data: { full_name: `Demo ${type.charAt(0).toUpperCase() + type.slice(1)}` },
+        emailRedirectTo: `${window.location.origin}/app/dashboard`,
+      },
+    });
+
+    // If signup succeeded, create role and profile
+    if (signUpData.user && !signUpError) {
+      const dbRole = type === "whitelabel" ? "brand" : type;
+      await supabase.from("user_roles").insert({
+        user_id: signUpData.user.id,
+        role: dbRole,
+      });
+
+      if (type === "influencer") {
+        await supabase.from("influencers").insert({
+          user_id: signUpData.user.id,
+          stage_name: "Demo Influencer",
+          category: "Tech",
+          price_per_post: 1000,
+        });
+      }
+    }
+
+    // Now login (works whether account was just created or already existed)
+    const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
+      email: creds.email,
+      password: creds.password,
+    });
+
+    if (loginError) {
+      toast({
+        variant: "destructive",
+        title: "Erro ao fazer login",
+        description: loginError.message,
+      });
+      setLoading(false);
+      return;
+    }
+
+    if (loginData.user) {
+      toast({
+        title: "Login Demo realizado!",
+        description: `Entrando como ${type}...`,
+      });
+    }
+
+    setLoading(false);
+  };
+
   const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
@@ -239,10 +297,23 @@ const Login = () => {
                 </TabsList>
 
                 <TabsContent value="login">
-                  <div className="p-4 rounded-lg bg-primary/10 border border-primary/20 mb-4">
-                    <p className="text-sm font-medium mb-2">Credenciais Demo:</p>
-                    <p className="text-xs text-muted-foreground">Email: {demoCredentials.brand.email}</p>
-                    <p className="text-xs text-muted-foreground">Senha: {demoCredentials.brand.password}</p>
+                  <div className="mb-4">
+                    <Button 
+                      onClick={() => handleQuickDemoLogin("brand")}
+                      className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90 mb-4"
+                      disabled={loading}
+                    >
+                      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      🚀 Login Rápido Demo
+                    </Button>
+                  </div>
+                  <div className="relative mb-4">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t border-muted" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-card px-2 text-muted-foreground">Ou use suas credenciais</span>
+                    </div>
                   </div>
                   <form onSubmit={handleLogin} className="space-y-4">
                     <div className="space-y-2">
@@ -331,10 +402,23 @@ const Login = () => {
                 </TabsList>
 
                 <TabsContent value="login">
-                  <div className="p-4 rounded-lg bg-primary/10 border border-primary/20 mb-4">
-                    <p className="text-sm font-medium mb-2">Credenciais Demo:</p>
-                    <p className="text-xs text-muted-foreground">Email: {demoCredentials.influencer.email}</p>
-                    <p className="text-xs text-muted-foreground">Senha: {demoCredentials.influencer.password}</p>
+                  <div className="mb-4">
+                    <Button 
+                      onClick={() => handleQuickDemoLogin("influencer")}
+                      className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90 mb-4"
+                      disabled={loading}
+                    >
+                      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      🚀 Login Rápido Demo
+                    </Button>
+                  </div>
+                  <div className="relative mb-4">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t border-muted" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-card px-2 text-muted-foreground">Ou use suas credenciais</span>
+                    </div>
                   </div>
                   <form onSubmit={handleLogin} className="space-y-4">
                     <div className="space-y-2">
@@ -455,10 +539,23 @@ const Login = () => {
                 </TabsList>
 
                 <TabsContent value="login">
-                  <div className="p-4 rounded-lg bg-primary/10 border border-primary/20 mb-4">
-                    <p className="text-sm font-medium mb-2">Credenciais Demo:</p>
-                    <p className="text-xs text-muted-foreground">Email: {demoCredentials.whitelabel.email}</p>
-                    <p className="text-xs text-muted-foreground">Senha: {demoCredentials.whitelabel.password}</p>
+                  <div className="mb-4">
+                    <Button 
+                      onClick={() => handleQuickDemoLogin("whitelabel")}
+                      className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90 mb-4"
+                      disabled={loading}
+                    >
+                      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      🚀 Login Rápido Demo
+                    </Button>
+                  </div>
+                  <div className="relative mb-4">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t border-muted" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-card px-2 text-muted-foreground">Ou use suas credenciais</span>
+                    </div>
                   </div>
                   <form onSubmit={handleLogin} className="space-y-4">
                     <div className="space-y-2">
@@ -540,15 +637,25 @@ const Login = () => {
 
             {/* Admin Tab */}
             <TabsContent value="admin">
-              <form onSubmit={handleLogin} className="space-y-4">
-                <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg mb-4">
-                  <p className="text-sm font-medium mb-2 flex items-center gap-2">
-                    <Shield className="w-4 h-4 text-destructive" />
-                    Credenciais Demo Admin:
-                  </p>
-                  <p className="text-xs text-muted-foreground">Email: {demoCredentials.admin.email}</p>
-                  <p className="text-xs text-muted-foreground">Senha: {demoCredentials.admin.password}</p>
+              <div className="mb-4">
+                <Button 
+                  onClick={() => handleQuickDemoLogin("admin")}
+                  className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90 mb-4"
+                  disabled={loading}
+                >
+                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  🚀 Login Rápido Demo
+                </Button>
+              </div>
+              <div className="relative mb-4">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-muted" />
                 </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-card px-2 text-muted-foreground">Ou use suas credenciais</span>
+                </div>
+              </div>
+              <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="admin-email">Email Administrativo</Label>
                   <Input 
