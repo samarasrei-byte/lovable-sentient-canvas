@@ -41,6 +41,7 @@ export default function Chat() {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [userRole, setUserRole] = useState<string>("");
+  const [isSimulation, setIsSimulation] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -226,7 +227,7 @@ export default function Chat() {
   }
 
   return (
-    <div className="p-6 h-[calc(100vh-120px)]">
+    <div className="p-6 h-[calc(100vh-220px)]">
       <div className="mb-6">
         <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary via-secondary to-artist bg-clip-text text-transparent">
           Chat com {userRole === "influencer" ? "Marcas" : "Influenciadores"}
@@ -234,55 +235,64 @@ export default function Chat() {
         <p className="text-muted-foreground">
           Comunique-se de forma segura através da plataforma
         </p>
+        {isSimulation && (
+          <div className="mt-4 p-4 rounded-lg border border-orange-500/50 bg-orange-500/10">
+            <p className="text-sm text-orange-600 dark:text-orange-400 font-medium">
+              🎭 Modo Simulação - Para desbloquear o chat real, aceite um contrato e realize o pagamento
+            </p>
+          </div>
+        )}
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-6 h-[calc(100%-100px)]">
+      <div className="grid lg:grid-cols-3 gap-6 h-[calc(100%-140px)]">
         {/* Contracts List */}
         <Card className="lg:col-span-1 p-6 border-border/50 bg-card/50 backdrop-blur">
           <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
             <MessageCircle className="w-5 h-5 text-primary" />
-            Contratos Ativos
+            Simulação de Contratos
           </h2>
           <ScrollArea className="h-[calc(100%-60px)]">
             <div className="space-y-3">
-              {contracts.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <MessageCircle className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                  <p className="text-sm">Nenhum contrato ativo</p>
-                </div>
-              ) : (
-                contracts.map((contract) => (
-                  <div
-                    key={contract.id}
-                    onClick={() => setSelectedContract(contract.id)}
-                    className={`p-4 rounded-lg border cursor-pointer transition-all hover:border-primary/50 ${
-                      selectedContract === contract.id
-                        ? "border-primary bg-primary/5"
-                        : "border-border/50 bg-background/50"
-                    }`}
-                  >
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold">
-                          {(userRole === "influencer" ? contract.brand_name : contract.influencer_name).charAt(0)}
-                        </div>
-                        <div>
-                          <p className="font-semibold text-sm">
-                            {userRole === "influencer" ? contract.brand_name : contract.influencer_name}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            R$ {contract.amount.toLocaleString()}
-                          </p>
-                        </div>
+              {/* Always show simulation contracts */}
+              {[
+                { id: "sim-1", name: "Nike Brasil", amount: 25000, type: "brand" },
+                { id: "sim-2", name: "Adidas", amount: 18000, type: "brand" },
+                { id: "sim-3", name: "Coca-Cola", amount: 35000, type: "brand" },
+              ].map((contract) => (
+                <div
+                  key={contract.id}
+                  onClick={() => {
+                    setSelectedContract(contract.id);
+                    toast({
+                      title: "Chat Bloqueado",
+                      description: "Aceite um contrato e realize o pagamento para desbloquear o chat real.",
+                      variant: "destructive",
+                    });
+                  }}
+                  className={`p-4 rounded-lg border cursor-pointer transition-all hover:border-primary/50 relative ${
+                    selectedContract === contract.id
+                      ? "border-primary bg-primary/5"
+                      : "border-border/50 bg-background/50 opacity-60"
+                  }`}
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold">
+                        {contract.name.charAt(0)}
                       </div>
-                      <Badge variant="outline" className="text-xs">
-                        <CheckCircle2 className="w-3 h-3 mr-1" />
-                        Ativo
-                      </Badge>
+                      <div>
+                        <p className="font-semibold text-sm">{contract.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          R$ {contract.amount.toLocaleString()}
+                        </p>
+                      </div>
                     </div>
+                    <Badge variant="outline" className="text-xs bg-orange-500/20 border-orange-500/50">
+                      🔒 Simulação
+                    </Badge>
                   </div>
-                ))
-              )}
+                </div>
+              ))}
             </div>
           </ScrollArea>
         </Card>
@@ -316,36 +326,48 @@ export default function Chat() {
                 </div>
               </div>
 
-              {/* Messages */}
-              <ScrollArea className="flex-1 p-6">
+              {/* Messages - Simulation Mode */}
+              <ScrollArea className="flex-1 p-6 relative">
                 <div className="space-y-4">
-                  {messages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`flex ${message.is_own ? "justify-end" : "justify-start"}`}
-                    >
-                      <div
-                        className={`max-w-[70%] p-4 rounded-2xl ${
-                          message.is_own
-                            ? "bg-gradient-to-r from-primary to-secondary text-white"
-                            : "bg-muted"
-                        }`}
-                      >
-                        <p className="text-sm">{message.content}</p>
-                        <p
-                          className={`text-xs mt-2 ${
-                            message.is_own ? "text-white/70" : "text-muted-foreground"
-                          }`}
-                        >
-                          {new Date(message.created_at).toLocaleTimeString("pt-BR", {
-                            hour: "2-digit",
-                            minute: "2-digit"
-                          })}
-                        </p>
+                  {/* Example messages */}
+                  <div className="flex justify-start">
+                    <div className="max-w-[70%] p-4 rounded-2xl bg-muted">
+                      <p className="text-sm">Olá! Gostaria de discutir uma parceria para nossa nova campanha.</p>
+                      <p className="text-xs mt-2 text-muted-foreground">10:30</p>
+                    </div>
+                  </div>
+                  <div className="flex justify-end">
+                    <div className="max-w-[70%] p-4 rounded-2xl bg-gradient-to-r from-primary to-secondary text-white">
+                      <p className="text-sm">Olá! Fico feliz com seu interesse. Conte-me mais sobre a campanha.</p>
+                      <p className="text-xs mt-2 text-white/70">10:32</p>
+                    </div>
+                  </div>
+                  <div ref={messagesEndRef} />
+                </div>
+                {/* Blur overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent backdrop-blur-sm flex items-center justify-center">
+                  <div className="text-center p-8 bg-card/90 rounded-2xl border-2 border-primary/50 shadow-2xl shadow-primary/20 max-w-md">
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center mx-auto mb-4">
+                      <MessageCircle className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold mb-2">Chat Bloqueado</h3>
+                    <p className="text-muted-foreground mb-6">
+                      Para desbloquear o chat real e começar a conversar com marcas e influenciadores, você precisa:
+                    </p>
+                    <div className="space-y-2 text-left mb-6">
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-primary" />
+                        <span>Aceitar uma proposta de contrato</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-primary" />
+                        <span>Realizar o pagamento da campanha</span>
                       </div>
                     </div>
-                  ))}
-                  <div ref={messagesEndRef} />
+                    <Button className="w-full bg-gradient-to-r from-primary to-secondary">
+                      Ver Contratos Disponíveis
+                    </Button>
+                  </div>
                 </div>
               </ScrollArea>
 
@@ -360,27 +382,19 @@ export default function Chat() {
                 </div>
               </div>
 
-              {/* Message Input */}
+              {/* Message Input - Disabled in simulation */}
               <div className="p-6 border-t border-border/50">
                 <div className="flex gap-3">
                   <Input
-                    placeholder="Digite sua mensagem..."
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-                    disabled={sending}
-                    className="flex-1"
+                    placeholder="Chat bloqueado - Aceite um contrato para desbloquear..."
+                    disabled
+                    className="flex-1 opacity-50"
                   />
                   <Button
-                    onClick={handleSendMessage}
-                    disabled={!newMessage.trim() || sending}
-                    className="bg-gradient-to-r from-primary to-secondary"
+                    disabled
+                    className="bg-gradient-to-r from-primary to-secondary opacity-50"
                   >
-                    {sending ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Send className="w-4 h-4" />
-                    )}
+                    <Send className="w-4 h-4" />
                   </Button>
                 </div>
               </div>

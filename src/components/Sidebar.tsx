@@ -15,8 +15,23 @@ import {
   Activity, 
   Brain, 
   UserCircle,
-  MessageCircle
+  MessageCircle,
+  LogOut
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Sidebar as SidebarContainer,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  useSidebar,
+  SidebarFooter
+} from "@/components/ui/sidebar";
 
 const brandMenuItems = [
   { path: "/app/dashboard", icon: Home, label: "Dashboard" },
@@ -48,6 +63,9 @@ const influencerMenuItems = [
 
 export const Sidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const { collapsed } = useSidebar();
   const [userRole, setUserRole] = useState<string>("brand");
 
   useEffect(() => {
@@ -71,41 +89,87 @@ export const Sidebar = () => {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast({
+        title: "Logout realizado",
+        description: "Você foi desconectado com sucesso.",
+      });
+      navigate("/login");
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Erro ao sair",
+        description: "Não foi possível fazer logout.",
+      });
+    }
+  };
+
   const menuItems = userRole === "influencer" ? influencerMenuItems : brandMenuItems;
 
   return (
-    <aside className="w-60 border-r border-border/30 bg-card/40 backdrop-blur-xl p-5">
-      <Link to="/" className="flex items-center gap-2.5 mb-10 group px-2">
-        <div className="relative">
-          <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-secondary rounded-lg opacity-40 group-hover:opacity-70 blur-sm transition-all duration-300" />
-          <div className="relative w-9 h-9 rounded-lg bg-gradient-to-br from-primary via-secondary to-primary flex items-center justify-center shadow-glow">
-            <Zap className="w-5 h-5 text-white" />
-          </div>
+    <SidebarContainer collapsible="icon" className={collapsed ? "w-14" : "w-60"}>
+      <SidebarContent>
+        <div className="p-5">
+          <Link to="/" className="flex items-center gap-2.5 mb-10 group">
+            <div className="relative">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-secondary rounded-lg opacity-40 group-hover:opacity-70 blur-sm transition-all duration-300" />
+              <div className="relative w-9 h-9 rounded-lg bg-gradient-to-br from-primary via-secondary to-primary flex items-center justify-center shadow-glow">
+                <Zap className="w-5 h-5 text-white" />
+              </div>
+            </div>
+            {!collapsed && (
+              <span className="text-lg font-bold tracking-wide bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
+                ARCANA
+              </span>
+            )}
+          </Link>
         </div>
-        <span className="text-lg font-bold tracking-wide bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
-          ARCANA
-        </span>
-      </Link>
 
-      <nav className="space-y-1">
-        {menuItems.map((item) => {
-          const isActive = location.pathname === item.path;
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
-                isActive
-                  ? "bg-gradient-to-r from-primary/10 to-secondary/10 text-primary border border-primary/20 shadow-lg shadow-primary/10"
-                  : "text-muted-foreground/80 hover:text-foreground hover:bg-accent/50 border border-transparent"
-              }`}
+        <SidebarGroup>
+          <SidebarGroupLabel>Menu Principal</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {menuItems.map((item) => {
+                const isActive = location.pathname === item.path;
+                return (
+                  <SidebarMenuItem key={item.path}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive}
+                      className={`transition-all duration-200 ${
+                        isActive
+                          ? "bg-gradient-to-r from-primary/10 to-secondary/10 text-primary border border-primary/20 shadow-lg shadow-primary/10"
+                          : "text-muted-foreground/80 hover:text-foreground hover:bg-accent/50"
+                      }`}
+                    >
+                      <Link to={item.path}>
+                        <item.icon className={`w-4 h-4 transition-transform duration-200 ${isActive ? "scale-110" : "group-hover:scale-105"}`} />
+                        {!collapsed && <span className="text-xs font-medium tracking-wide">{item.label}</span>}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              onClick={handleLogout}
+              className="text-muted-foreground/80 hover:text-destructive hover:bg-destructive/10"
             >
-              <item.icon className={`w-4 h-4 transition-transform duration-200 ${isActive ? "scale-110" : "group-hover:scale-105"}`} />
-              <span className="text-xs font-medium tracking-wide">{item.label}</span>
-            </Link>
-          );
-        })}
-      </nav>
-    </aside>
+              <LogOut className="w-4 h-4" />
+              {!collapsed && <span className="text-xs font-medium tracking-wide">Sair</span>}
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
+    </SidebarContainer>
   );
 };
