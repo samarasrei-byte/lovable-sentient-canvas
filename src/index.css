@@ -8,53 +8,64 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Base Dark Theme - Arcana Original */
-    --background: 222 47% 11%;
+    /* Ultra Modern Dark Theme - Futuristic Arcana */
+    --background: 222 47% 8%;
     --foreground: 210 40% 98%;
-    --card: 222 47% 11%;
+    --card: 222 47% 10%;
     --card-foreground: 210 40% 98%;
-    --popover: 222 47% 11%;
+    --popover: 222 47% 10%;
     --popover-foreground: 210 40% 98%;
 
-    /* Primary: Purple #A855F7 - Arcana Roxo */
-    --primary: 270 91% 65%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary: Electric Purple - Ultra Vibrant */
+    --primary: 270 95% 70%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 270 100% 80%;
 
-    /* Secondary: Cyan #06B6D4 - Arcana Cyan */
-    --secondary: 188 94% 43%;
-    --secondary-foreground: 210 40% 98%;
+    /* Secondary: Neon Cyan - Sharp & Modern */
+    --secondary: 188 100% 50%;
+    --secondary-foreground: 0 0% 100%;
+    --secondary-glow: 188 100% 60%;
     
-    /* Artist/Creator - Orange */
+    /* Artist/Creator - Vivid Orange */
     --artist: 30 100% 60%;
-    --artist-foreground: 0 0% 10%;
+    --artist-foreground: 0 0% 100%;
 
-    /* Accent: Cyan #06B6D4 */
-    --accent: 188 94% 43%;
-    --accent-foreground: 222 47% 11%;
+    /* Accent: Electric Magenta */
+    --accent: 300 95% 65%;
+    --accent-foreground: 0 0% 100%;
     
-    /* Success: Green */
-    --success: 153 82% 49%;
+    /* Success: Neon Green */
+    --success: 153 100% 55%;
     --success-foreground: 0 0% 100%;
 
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 217 33% 14%;
+    --muted-foreground: 215 25% 70%;
 
-    /* Destructive: Red */
-    --destructive: 0 84% 60%;
+    /* Destructive: Hot Pink */
+    --destructive: 340 100% 65%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 217 33% 17%;
-    --input: 217 33% 17%;
-    --ring: 270 91% 65%;
+    --border: 217 33% 18%;
+    --input: 217 33% 15%;
+    --ring: 270 95% 70%;
 
-    --radius: 1rem;
+    --radius: 1.25rem;
     
-    /* Gradients - Arcana Roxo para Cyan */
-    --gradient-primary: linear-gradient(135deg, hsl(270 91% 65%), hsl(188 94% 43%));
-    --gradient-glow: radial-gradient(circle at center, hsl(270 91% 65% / 0.2), transparent);
+    /* Ultra Modern Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(270 95% 70%), hsl(300 95% 65%), hsl(188 100% 50%));
+    --gradient-secondary: linear-gradient(90deg, hsl(188 100% 50%), hsl(270 95% 70%));
+    --gradient-glow: radial-gradient(circle at center, hsl(270 95% 70% / 0.3), transparent);
+    --gradient-accent: linear-gradient(135deg, hsl(300 95% 65%), hsl(340 100% 65%));
+    
+    /* Modern Shadows */
+    --shadow-glow: 0 0 40px hsl(270 95% 70% / 0.5);
+    --shadow-glow-strong: 0 0 60px hsl(270 95% 70% / 0.7);
+    --shadow-neon: 0 0 20px hsl(188 100% 50% / 0.6);
+    --shadow-card: 0 8px 32px hsl(222 47% 4% / 0.8);
     
     /* Animations */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   }
 
   /* Influencer Theme - Mantém roxo/rosa criativo */
