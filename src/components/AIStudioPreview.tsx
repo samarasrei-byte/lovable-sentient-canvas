@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -48,6 +48,28 @@ export const AIStudioPreview = () => {
   const [productImage, setProductImage] = useState<File | null>(null);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [generationsLeft, setGenerationsLeft] = useState(3);
+
+  useEffect(() => {
+    const checkGenerationLimit = () => {
+      const today = new Date().toDateString();
+      const stored = localStorage.getItem('arcana_free_generations');
+      
+      if (stored) {
+        const data = JSON.parse(stored);
+        if (data.date === today) {
+          setGenerationsLeft(Math.max(0, 3 - data.count));
+        } else {
+          localStorage.setItem('arcana_free_generations', JSON.stringify({ date: today, count: 0 }));
+          setGenerationsLeft(3);
+        }
+      } else {
+        localStorage.setItem('arcana_free_generations', JSON.stringify({ date: today, count: 0 }));
+      }
+    };
+    
+    checkGenerationLimit();
+  }, []);
 
   const handleTemplateClick = (template: typeof templates[0]) => {
     setSelectedTemplate(template);
@@ -74,6 +96,11 @@ export const AIStudioPreview = () => {
       return;
     }
 
+    if (generationsLeft <= 0) {
+      toast.error("Você atingiu o limite diário. Crie uma conta para gerações ilimitadas!");
+      return;
+    }
+
     if (!selectedTemplate) return;
 
     setIsGenerating(true);
@@ -92,6 +119,24 @@ export const AIStudioPreview = () => {
 
       if (data?.image) {
         setGeneratedImage(data.image);
+        
+        const today = new Date().toDateString();
+        const stored = localStorage.getItem('arcana_free_generations');
+        if (stored) {
+          const genData = JSON.parse(stored);
+          const newCount = genData.count + 1;
+          localStorage.setItem('arcana_free_generations', JSON.stringify({ date: today, count: newCount }));
+          setGenerationsLeft(Math.max(0, 3 - newCount));
+        }
+        
+        await supabase.from('generated_images').insert({
+          template_name: selectedTemplate.name,
+          product_name: productName,
+          image_url: data.image,
+          is_public: true,
+          user_id: null
+        });
+        
         toast.success("Imagem gerada! Cadastre-se para remover a marca d'água 🎨");
       }
     } catch (error) {
@@ -263,6 +308,12 @@ export const AIStudioPreview = () => {
             <DialogDescription>
               Veja como seu produto ficaria com {selectedTemplate?.name}. Para gerar de verdade, faça seu cadastro!
             </DialogDescription>
+            <div className="flex items-center gap-2 mt-2 px-3 py-2 bg-primary/10 rounded-lg">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium">
+                {generationsLeft} {generationsLeft === 1 ? 'geração gratuita restante' : 'gerações gratuitas restantes'} hoje
+              </span>
+            </div>
           </DialogHeader>
 
           {selectedTemplate && (

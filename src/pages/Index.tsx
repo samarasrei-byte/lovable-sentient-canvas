@@ -1,5 +1,6 @@
 import { Hero } from "@/components/Hero";
 import { AIStudioPreview } from "@/components/AIStudioPreview";
+import { PublicShowcase } from "@/components/PublicShowcase";
 import { AvatarGenerator } from "@/components/AvatarGenerator";
 import { OnboardingQuiz } from "@/components/OnboardingQuiz";
 import { TalentShowcase } from "@/components/TalentShowcase";
@@ -19,6 +20,7 @@ const Index = () => {
     <div className="min-h-screen bg-background text-foreground">
       <Hero />
       <AIStudioPreview />
+      <PublicShowcase />
       <TalentShowcase />
       <AvatarGenerator />
       <MarketplaceGrid />
