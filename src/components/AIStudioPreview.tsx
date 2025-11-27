@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Sparkles, ArrowRight, Wand2, Lock, Download, Upload, Loader2 } from "lucide-react";
+import { Sparkles, ArrowRight, Wand2, Lock, Download, Upload, Loader2, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -60,17 +60,17 @@ export const AIStudioPreview = () => {
   const [customDescription, setCustomDescription] = useState("");
 
   useEffect(() => {
-    const checkGenerationLimit = () => {
+      const checkGenerationLimit = () => {
       const today = new Date().toDateString();
       const stored = localStorage.getItem('arcana_free_generations');
       
       if (stored) {
         const data = JSON.parse(stored);
         if (data.date === today) {
-          setGenerationsLeft(Math.max(0, 3 - data.count));
+          setGenerationsLeft(Math.max(0, 5 - data.count));
         } else {
           localStorage.setItem('arcana_free_generations', JSON.stringify({ date: today, count: 0 }));
-          setGenerationsLeft(3);
+          setGenerationsLeft(5);
         }
       } else {
         localStorage.setItem('arcana_free_generations', JSON.stringify({ date: today, count: 0 }));
@@ -168,7 +168,7 @@ export const AIStudioPreview = () => {
           const genData = JSON.parse(stored);
           const newCount = genData.count + 1;
           localStorage.setItem('arcana_free_generations', JSON.stringify({ date: today, count: newCount }));
-          setGenerationsLeft(Math.max(0, 3 - newCount));
+          setGenerationsLeft(Math.max(0, 5 - newCount));
         }
         
         await supabase.from('generated_images').insert({
@@ -203,7 +203,7 @@ export const AIStudioPreview = () => {
 
       <div className="container mx-auto px-6 relative z-10">
         {/* Header */}
-        <div className="text-center mb-16 space-y-6">
+        <div className="text-center mb-16 space-y-8">
           <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20 backdrop-blur-sm">
             <Sparkles className="w-4 h-4 text-primary animate-pulse" />
             <span className="text-sm font-semibold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
@@ -221,14 +221,39 @@ export const AIStudioPreview = () => {
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
             Escolha um template de influencer, personalize com seu produto e gere imagens e vídeos de alta qualidade com IA em segundos
           </p>
+
+          {/* Free Tier Badge */}
+          <Card className="max-w-md mx-auto border-2 border-primary/20 bg-gradient-to-br from-primary/5 via-purple-500/5 to-pink-500/5 shadow-lg">
+            <div className="flex items-center justify-between p-5">
+              <div className="flex items-center gap-4">
+                <div className="p-3 rounded-xl bg-primary/10 backdrop-blur-sm">
+                  <Sparkles className="w-6 h-6 text-primary" />
+                </div>
+                <div className="text-left">
+                  <p className="text-base font-bold text-foreground">Plano Gratuito</p>
+                  <p className="text-sm text-muted-foreground">Teste sem compromisso</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-3xl font-black bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent">5</p>
+                <p className="text-xs text-muted-foreground font-medium">artes/dia</p>
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        {/* Section Header */}
+        <div className="text-center mb-10 space-y-3">
+          <h3 className="text-3xl md:text-4xl font-bold">Escolha seu Template</h3>
+          <p className="text-lg text-muted-foreground">Selecione o estilo que melhor representa seu produto</p>
         </div>
 
         {/* Templates Grid */}
-        <div className="grid md:grid-cols-3 gap-8 mb-12">
+        <div className="grid md:grid-cols-3 gap-8 mb-16">
           {templates.map((template) => (
             <Card
               key={template.id}
-              className="group cursor-pointer transition-all duration-500 overflow-hidden hover:shadow-2xl hover:shadow-primary/20 border-border/50 hover:border-primary/50"
+              className="group cursor-pointer transition-all duration-500 overflow-hidden hover:shadow-2xl hover:shadow-primary/20 border-2 border-border/50 hover:border-primary/50 hover:scale-[1.02]"
               onMouseEnter={() => setHoveredTemplate(template.id)}
               onMouseLeave={() => setHoveredTemplate(null)}
               onClick={() => handleTemplateClick(template)}
@@ -342,20 +367,35 @@ export const AIStudioPreview = () => {
       {/* Simulation Modal */}
       <Dialog open={!!selectedTemplate} onOpenChange={(open) => !open && setSelectedTemplate(null)}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-2xl flex items-center gap-2">
-              <Wand2 className="w-6 h-6 text-primary" />
-              Simule seu Produto
-            </DialogTitle>
-            <DialogDescription>
-              Veja como seu produto ficaria com {selectedTemplate?.name}. Para gerar de verdade, faça seu cadastro!
-            </DialogDescription>
-            <div className="flex items-center gap-2 mt-2 px-3 py-2 bg-primary/10 rounded-lg">
-              <Sparkles className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium">
-                {generationsLeft} {generationsLeft === 1 ? 'geração gratuita restante' : 'gerações gratuitas restantes'} hoje
-              </span>
+          <DialogHeader className="space-y-4">
+            <div className="space-y-2">
+              <DialogTitle className="text-3xl font-bold flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-primary/10">
+                  <Wand2 className="w-7 h-7 text-primary" />
+                </div>
+                Personalize sua Criação
+              </DialogTitle>
+              <DialogDescription className="text-base">
+                Veja como seu produto ficaria com {selectedTemplate?.name}. Configure cada detalhe!
+              </DialogDescription>
             </div>
+            <Card className="border-2 border-primary/30 bg-gradient-to-r from-primary/10 via-purple-500/10 to-pink-500/10">
+              <div className="flex items-center justify-between p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-primary/20">
+                    <Sparkles className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold">Gerações Gratuitas Hoje</p>
+                    <p className="text-xs text-muted-foreground">Teste sem compromisso</p>
+                  </div>
+                </div>
+                <div className="text-center px-4 py-2 rounded-lg bg-background/50 backdrop-blur-sm border border-primary/20">
+                  <p className="text-2xl font-black bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent">{generationsLeft}</p>
+                  <p className="text-[10px] text-muted-foreground font-medium">de 5 artes</p>
+                </div>
+              </div>
+            </Card>
           </DialogHeader>
 
           {selectedTemplate && (
@@ -444,26 +484,40 @@ export const AIStudioPreview = () => {
 
                 {/* Input Side */}
                 <div className="space-y-6">
-                  <div className="p-6 bg-muted/50 rounded-lg space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">Template Selecionado</p>
-                    <p className="text-xl font-bold">{selectedTemplate.name}</p>
-                    <p className="text-sm text-muted-foreground">{selectedTemplate.description}</p>
-                  </div>
+                  <Card className="border-2 border-primary/20 bg-gradient-to-br from-background to-muted/30">
+                    <div className="p-5 space-y-2">
+                      <div className="flex items-center gap-2 text-primary">
+                        <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+                        <p className="text-sm font-semibold uppercase tracking-wide">Template Selecionado</p>
+                      </div>
+                      <p className="text-2xl font-bold">{selectedTemplate.name}</p>
+                      <p className="text-sm text-muted-foreground">{selectedTemplate.description}</p>
+                    </div>
+                  </Card>
 
                   {/* Personalization Form */}
-                  <div className="space-y-4 p-6 bg-primary/5 rounded-lg border border-primary/20">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Wand2 className="w-5 h-5 text-primary" />
-                      <h3 className="text-lg font-bold">Personalize a Modelo</h3>
+                  <Card className="border-2 border-primary/20 shadow-lg">
+                    <div className="border-b bg-muted/30 p-5">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-primary/10">
+                          <Wand2 className="w-5 h-5 text-primary" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-bold">Personalize a Modelo</h3>
+                          <p className="text-xs text-muted-foreground">
+                            Configure cada característica
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Escolha as características da influencer para a sua simulação
-                    </p>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="p-5 space-y-5">
+                      <div className="grid grid-cols-2 gap-4">
                       {/* Hair Color */}
                       <div className="space-y-2">
-                        <Label htmlFor="hair-color" className="text-sm font-semibold">Cor do Cabelo</Label>
+                        <Label htmlFor="hair-color" className="text-sm font-medium flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                          Cor do Cabelo
+                        </Label>
                         <Select value={hairColor} onValueChange={setHairColor}>
                           <SelectTrigger id="hair-color">
                             <SelectValue />
@@ -480,7 +534,10 @@ export const AIStudioPreview = () => {
 
                       {/* Eye Color */}
                       <div className="space-y-2">
-                        <Label htmlFor="eye-color" className="text-sm font-semibold">Cor dos Olhos</Label>
+                        <Label htmlFor="eye-color" className="text-sm font-medium flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                          Cor dos Olhos
+                        </Label>
                         <Select value={eyeColor} onValueChange={setEyeColor}>
                           <SelectTrigger id="eye-color">
                             <SelectValue />
@@ -497,7 +554,10 @@ export const AIStudioPreview = () => {
 
                       {/* Skin Tone */}
                       <div className="space-y-2">
-                        <Label htmlFor="skin-tone" className="text-sm font-semibold">Tom de Pele</Label>
+                        <Label htmlFor="skin-tone" className="text-sm font-medium flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                          Tom de Pele
+                        </Label>
                         <Select value={skinTone} onValueChange={setSkinTone}>
                           <SelectTrigger id="skin-tone">
                             <SelectValue />
@@ -514,7 +574,10 @@ export const AIStudioPreview = () => {
 
                       {/* Height */}
                       <div className="space-y-2">
-                        <Label htmlFor="height" className="text-sm font-semibold">Altura</Label>
+                        <Label htmlFor="height" className="text-sm font-medium flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                          Altura
+                        </Label>
                         <Select value={height} onValueChange={setHeight}>
                           <SelectTrigger id="height">
                             <SelectValue />
@@ -529,7 +592,10 @@ export const AIStudioPreview = () => {
 
                       {/* Hair Style - Full Width */}
                       <div className="space-y-2 md:col-span-2">
-                        <Label htmlFor="hair-style" className="text-sm font-semibold">Estilo do Cabelo</Label>
+                        <Label htmlFor="hair-style" className="text-sm font-medium flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                          Estilo do Cabelo
+                        </Label>
                         <Select value={hairStyle} onValueChange={setHairStyle}>
                           <SelectTrigger id="hair-style">
                             <SelectValue />
@@ -549,83 +615,106 @@ export const AIStudioPreview = () => {
                     </div>
 
                     {/* Custom Description */}
-                    <div className="space-y-2 pt-2">
-                      <Label htmlFor="custom-desc" className="text-sm font-semibold">
-                        Descrição Personalizada (Opcional)
-                      </Label>
-                      <Textarea
-                        id="custom-desc"
-                        placeholder="Ex: Gostaria que ela fosse mais jovem, com sorriso largo, usando óculos..."
-                        value={customDescription}
-                        onChange={(e) => setCustomDescription(e.target.value)}
-                        className="min-h-[80px] text-sm"
-                        disabled={isGenerating}
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        Descreva características adicionais que gostaria de ver na modelo
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <Label htmlFor="product-upload" className="text-base font-semibold">
-                      Suba seu produto aqui
-                    </Label>
-                    <p className="text-sm text-muted-foreground">
-                      Faça upload da imagem do seu produto para ver como ficaria na simulação com essa influencer
-                    </p>
-                    {productImage ? (
-                      <div className="border-2 border-primary rounded-lg p-4 space-y-3">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted flex items-center justify-center">
-                              <img 
-                                src={URL.createObjectURL(productImage)} 
-                                alt="Preview do produto"
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium">{productImage.name}</p>
-                              <p className="text-xs text-muted-foreground">
-                                {(productImage.size / 1024 / 1024).toFixed(2)} MB
-                              </p>
-                            </div>
+                    <Card className="border-2 border-dashed border-primary/20 bg-primary/5">
+                      <div className="p-4 space-y-3">
+                        <div className="flex items-start gap-2">
+                          <div className="p-1.5 rounded-lg bg-primary/10 mt-0.5">
+                            <Sparkles className="w-4 h-4 text-primary" />
                           </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setProductImage(null)}
-                            disabled={isGenerating}
-                          >
-                            Remover
-                          </Button>
+                          <div className="flex-1 space-y-2">
+                            <Label htmlFor="custom-desc" className="text-sm font-medium">
+                              Descrição Personalizada (Opcional)
+                            </Label>
+                            <Textarea
+                              id="custom-desc"
+                              placeholder="Ex: Gostaria que ela fosse mais jovem, com sorriso largo, usando óculos..."
+                              value={customDescription}
+                              onChange={(e) => setCustomDescription(e.target.value)}
+                              className="min-h-[80px] text-sm bg-background/50 border-primary/20"
+                              disabled={isGenerating}
+                            />
+                            <p className="text-xs text-muted-foreground">
+                              Descreva características adicionais que gostaria de ver na modelo
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    ) : (
-                      <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleProductUpload}
-                          className="hidden"
-                          id="product-upload"
-                          disabled={isGenerating}
-                        />
-                        <label htmlFor="product-upload" className="cursor-pointer">
-                          <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-                          <p className="text-sm text-muted-foreground">
-                            Clique para fazer upload (máx 5MB)
+                    </Card>
+                     </div>
+                  </Card>
+
+                  <Card className="border-2 border-dashed border-primary/30 bg-primary/5">
+                    <div className="p-5 space-y-4">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-primary/10">
+                          <Upload className="w-5 h-5 text-primary" />
+                        </div>
+                        <div>
+                          <h4 className="text-base font-bold">Suba seu produto aqui</h4>
+                          <p className="text-xs text-muted-foreground">
+                            Adicione a imagem para simulação
                           </p>
-                        </label>
+                        </div>
                       </div>
-                    )}
-                  </div>
+                      {productImage ? (
+                        <div className="border-2 border-primary/50 rounded-xl p-4 bg-background/50 backdrop-blur-sm">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted flex items-center justify-center border-2 border-border">
+                                <img 
+                                  src={URL.createObjectURL(productImage)} 
+                                  alt="Preview do produto"
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                              <div>
+                                <p className="text-sm font-semibold truncate max-w-[180px]">{productImage.name}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {(productImage.size / 1024 / 1024).toFixed(2)} MB
+                                </p>
+                              </div>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setProductImage(null)}
+                              disabled={isGenerating}
+                              className="hover:bg-destructive/10 hover:text-destructive"
+                            >
+                              Remover
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="border-2 border-dashed border-primary/30 rounded-xl p-8 text-center hover:border-primary hover:bg-primary/5 transition-all group cursor-pointer">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleProductUpload}
+                            className="hidden"
+                            id="product-upload"
+                            disabled={isGenerating}
+                          />
+                          <label htmlFor="product-upload" className="cursor-pointer space-y-3 block">
+                            <div className="w-16 h-16 mx-auto bg-gradient-to-br from-primary/20 to-purple-500/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                              <Upload className="w-8 h-8 text-primary" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-semibold">Clique para fazer upload</p>
+                              <p className="text-xs text-muted-foreground">
+                                PNG, JPG ou WEBP (máx. 5MB)
+                              </p>
+                            </div>
+                          </label>
+                        </div>
+                      )}
+                    </div>
+                  </Card>
 
                   <Button
                     onClick={handleGenerate}
                     disabled={!productImage || isGenerating}
-                    className="w-full h-12 text-base gap-2"
+                    className="w-full h-14 text-base font-bold gap-2 shadow-lg hover:shadow-xl transition-all bg-gradient-to-r from-primary via-purple-500 to-pink-500 hover:opacity-90"
                     size="lg"
                   >
                     {isGenerating ? (
