@@ -91,8 +91,8 @@ export const AIStudioPreview = () => {
   };
 
   const handleGenerate = async () => {
-    if (!productName || productName.trim().length < 2) {
-      toast.error("Digite o nome do seu produto");
+    if (!productImage) {
+      toast.error("Faça upload da imagem do seu produto");
       return;
     }
 
@@ -105,25 +105,30 @@ export const AIStudioPreview = () => {
 
     setIsGenerating(true);
     try {
-      const customPrompt = selectedTemplate.prompt.replace("{PRODUCT}", productName);
-      
-      // Convert product image to base64 if available
-      let productImageBase64 = null;
-      if (productImage) {
-        productImageBase64 = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result as string);
-          reader.onerror = reject;
-          reader.readAsDataURL(productImage);
-        });
-      }
+      // Convert product image to base64
+      const productImageBase64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(productImage);
+      });
+
+      // Convert template image to base64 as reference
+      const templateImageResponse = await fetch(selectedTemplate.image);
+      const templateBlob = await templateImageResponse.blob();
+      const templateImageBase64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(templateBlob);
+      });
 
       const { data, error } = await supabase.functions.invoke("generate-product-image", {
         body: { 
-          prompt: customPrompt,
-          productName,
+          productName: productName || "Produto",
           templateId: selectedTemplate.id,
-          productImageBase64
+          productImageBase64,
+          templateImageBase64
         }
       });
 
@@ -143,7 +148,7 @@ export const AIStudioPreview = () => {
         
         await supabase.from('generated_images').insert({
           template_name: selectedTemplate.name,
-          product_name: productName,
+          product_name: productName || "Produto",
           image_url: data.image,
           is_public: true,
           user_id: null
@@ -421,7 +426,7 @@ export const AIStudioPreview = () => {
                   </div>
 
                   <div className="space-y-3">
-                    <Label htmlFor="product-name">Nome do seu Produto *</Label>
+                    <Label htmlFor="product-name">Nome do seu Produto (Opcional)</Label>
                     <Input
                       id="product-name"
                       placeholder="Ex: WHEY PROTEIN ULTRA, Perfume Essence..."
@@ -434,7 +439,7 @@ export const AIStudioPreview = () => {
                   </div>
 
                   <div className="space-y-3">
-                    <Label htmlFor="product-upload">Upload do Produto (Opcional)</Label>
+                    <Label htmlFor="product-upload">Upload do Produto *</Label>
                     <p className="text-xs text-muted-foreground">
                       Faça upload da imagem do seu produto para que ele apareça exatamente como você enviou na geração final.
                     </p>
@@ -488,7 +493,7 @@ export const AIStudioPreview = () => {
 
                   <Button
                     onClick={handleGenerate}
-                    disabled={!productName || productName.trim().length < 2 || isGenerating}
+                    disabled={!productImage || isGenerating}
                     className="w-full h-12 text-base gap-2"
                     size="lg"
                   >

@@ -11,81 +11,36 @@ serve(async (req) => {
   }
 
   try {
-    const { prompt, productName, templateId, productImageBase64 } = await req.json();
+    const { productName, templateId, productImageBase64, templateImageBase64 } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
 
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY not configured');
     }
 
-    console.log('Generating image with template:', templateId, 'product:', productName);
-
-    // If product image is provided, use image editing to composite the real product
-    if (productImageBase64) {
-      console.log('Using product image for realistic composition');
-      
-      // Enhanced prompt for image editing with real product
-      const editPrompt = `Edite esta imagem para incluir o produto específico fornecido na segunda imagem. 
-O produto deve estar sendo segurado pela modelo nas mãos dela, com o rótulo "${productName}" claramente visível.
-O produto deve parecer natural na cena, com iluminação e perspectiva corretas.
-Mantenha a pose da modelo e o ambiente, apenas adicione/substitua o produto que ela está segurando.
-Ultra-realista, comercial, iluminação natural.`;
-
-      const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'google/gemini-2.5-flash-image-preview',
-          messages: [
-            {
-              role: 'user',
-              content: [
-                {
-                  type: 'text',
-                  text: editPrompt
-                },
-                {
-                  type: 'image_url',
-                  image_url: {
-                    url: productImageBase64
-                  }
-                }
-              ]
-            }
-          ],
-          modalities: ['image', 'text']
-        }),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('AI Gateway error:', response.status, errorText);
-        throw new Error(`AI Gateway error: ${response.status}`);
-      }
-
-      const data = await response.json();
-      const generatedImageUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
-
-      if (!generatedImageUrl) {
-        throw new Error('No image generated');
-      }
-
-      return new Response(
-        JSON.stringify({ 
-          image: generatedImageUrl,
-          productName,
-          templateId 
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    if (!productImageBase64 || !templateImageBase64) {
+      throw new Error('Product image and template image are required');
     }
 
-    // Fallback to text-only generation if no product image
-    console.log('Generating image with text prompt only');
-    
+    console.log('Generating image with template:', templateId, 'product:', productName);
+
+    // Use image editing to composite the product into the template scene
+    const editPrompt = `Você receberá duas imagens:
+1. A primeira imagem é o template de referência (influenciadora fitness)
+2. A segunda imagem é o produto que deve ser incluído
+
+INSTRUÇÕES CRÍTICAS:
+- Mantenha EXATAMENTE a mesma pessoa da primeira imagem (cabelo ruivo, características faciais, tom de pele, expressão)
+- Mantenha EXATAMENTE a mesma pose, ângulo e composição da primeira imagem
+- Mantenha o mesmo ambiente (academia) e iluminação da primeira imagem
+- Substitua APENAS o produto que a pessoa está segurando pelo produto da segunda imagem
+- O produto da segunda imagem deve estar sendo segurado nas mãos da modelo
+- O produto deve parecer natural na cena, com tamanho proporcional e iluminação correta
+- Mantenha todos os outros elementos iguais: roupa, fundo, equipamentos desfocados
+- Ultra-realista, comercial, 1024x1024
+
+IMPORTANTE: Não mude a pessoa! Use a mesma modelo da primeira imagem!`;
+
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -97,7 +52,24 @@ Ultra-realista, comercial, iluminação natural.`;
         messages: [
           {
             role: 'user',
-            content: prompt
+            content: [
+              {
+                type: 'text',
+                text: editPrompt
+              },
+              {
+                type: 'image_url',
+                image_url: {
+                  url: templateImageBase64
+                }
+              },
+              {
+                type: 'image_url',
+                image_url: {
+                  url: productImageBase64
+                }
+              }
+            ]
           }
         ],
         modalities: ['image', 'text']
