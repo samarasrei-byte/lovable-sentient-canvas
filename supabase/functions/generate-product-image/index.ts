@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { productName, templateId, productImageBase64, templateImageBase64 } = await req.json();
+    const { productName, templateId, productImageBase64, templateImageBase64, customPrompt } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
 
     if (!LOVABLE_API_KEY) {
@@ -24,19 +24,19 @@ serve(async (req) => {
 
     console.log('Generating image with template:', templateId, 'product:', productName);
 
-    // Use image editing to composite the product into the template scene
-    const editPrompt = `Você receberá duas imagens:
-1. A primeira imagem é o template de referência (influenciadora fitness)
+    // Use custom prompt or default editing prompt
+    const editPrompt = customPrompt || `Você receberá duas imagens:
+1. A primeira imagem é o template de referência
 2. A segunda imagem é o produto que deve ser incluído
 
 INSTRUÇÕES CRÍTICAS:
-- Mantenha EXATAMENTE a mesma pessoa da primeira imagem (cabelo ruivo, características faciais, tom de pele, expressão)
+- Mantenha EXATAMENTE a mesma pessoa da primeira imagem (cabelo, características faciais, tom de pele, expressão)
 - Mantenha EXATAMENTE a mesma pose, ângulo e composição da primeira imagem
-- Mantenha o mesmo ambiente (academia) e iluminação da primeira imagem
+- Mantenha o mesmo ambiente e iluminação da primeira imagem
 - Substitua APENAS o produto que a pessoa está segurando pelo produto da segunda imagem
 - O produto da segunda imagem deve estar sendo segurado nas mãos da modelo
 - O produto deve parecer natural na cena, com tamanho proporcional e iluminação correta
-- Mantenha todos os outros elementos iguais: roupa, fundo, equipamentos desfocados
+- Mantenha todos os outros elementos iguais: roupa, fundo, ambiente
 - Ultra-realista, comercial, 1024x1024
 
 IMPORTANTE: Não mude a pessoa! Use a mesma modelo da primeira imagem!`;

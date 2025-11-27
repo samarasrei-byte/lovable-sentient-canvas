@@ -4,31 +4,24 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Sparkles, ArrowRight, Wand2, Lock, Download, Upload, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import templateFitness from "@/assets/template-fitness.png";
 import templateBeauty from "@/assets/template-beauty.png";
 import templatePerfume from "@/assets/template-perfume.png";
 
 const templates = [
-  {
-    id: "fitness",
-    name: "Fitness Influencer",
-    description: "Academia premium • Whey Protein • Estilo atlético",
-    image: templateFitness,
-    category: "fitness",
-    prompt: "Fotografia hiper-realista de uma influenciadora fitness jovem em close médio (torso e rosto), segurando um grande pote de whey protein com o rótulo '{PRODUCT}' visível e centralizado. Mulher caucasiana ruiva, cabelos longos e ondulados, pele levemente bronzeada com textura de pele realista e sardas sutis, sorriso confiante, olhar direto para a câmera. Corpo tonificado e braços definidos, usando top esportivo cinza escuro e legging combinando. Ambiente: academia premium bem iluminada com equipamentos desfocados no fundo, janelas grandes à direita proporcionando luz natural difusa + luzes artificiais de teto criando highlights musculares. Iluminação cinematográfica com key light suave do lado direito e rim light sutil para definir contorno. Ultra-realista, comercial, 1024x1024."
-  },
   {
     id: "beauty",
     name: "Beauty Store",
     description: "Loja de cosméticos • Produtos de beleza • Elegância natural",
     image: templateBeauty,
     category: "beauty",
-    prompt: "Fotografia comercial hiper-realista de uma mulher negra jovem apresentando um frasco de produto cosmético (pump) com o rótulo '{PRODUCT}' em destaque. Mulher com cabelo afro volumoso, textura de cachos bem definidos, pele rica e luminosa com acabamento natural, sorriso aberto e olhar direto para a câmera. Veste camisa de tecido acetinado cor pêssego/claro, brincos pequenos dourados, maquiagem leve e impecável. Posicionamento: close de busto, frasco segurado com a mão direita próximo ao rosto (rótulo voltado para a câmera), profundidade de campo curta que desfoca as prateleiras de produtos ao fundo (ambiente de loja cosméticos). Iluminação: luz de loja suave e uniforme com highlights sutis na pele; temperatura de cor neutra. Composição: enquadramento vertical, foco nos olhos e no rótulo, textura de pele realista, dentes naturais, brilho suave. 1024x1024."
+    prompt: "Fotografia comercial hiper-realista de uma mulher {HAIR_COLOR} jovem apresentando um frasco de produto cosmético (pump) com o rótulo '{PRODUCT}' em destaque. Mulher com {HAIR_STYLE}, {EYE_COLOR}, pele {SKIN_TONE} e luminosa com acabamento natural, sorriso aberto e olhar direto para a câmera, altura {HEIGHT}. Veste camisa de tecido acetinado cor pêssego/claro, brincos pequenos dourados, maquiagem leve e impecável. Posicionamento: close de busto, frasco segurado com a mão direita próximo ao rosto (rótulo voltado para a câmera), profundidade de campo curta que desfoca as prateleiras de produtos ao fundo (ambiente de loja cosméticos). Iluminação: luz de loja suave e uniforme com highlights sutis na pele; temperatura de cor neutra. Composição: enquadramento vertical, foco nos olhos e no rótulo, textura de pele realista, dentes naturais, brilho suave. 1024x1024. {CUSTOM_DESCRIPTION}"
   },
   {
     id: "perfume",
@@ -36,7 +29,7 @@ const templates = [
     description: "Boutique de luxo • Perfumes premium • Sofisticação",
     image: templatePerfume,
     category: "perfume",
-    prompt: "Fotografia editoral comercial hiper-realista de uma vendedora em boutique de perfumes segurando um frasco de perfume transparente com tampa e caixa de apresentação sobre o balcão com o rótulo '{PRODUCT}'. Mulher caucasiana morena, cabelos lisos castanhos escuros, corte reto e sofisticado até os ombros, pele suave, sobrancelhas definidas, sorriso caloroso e olhar para a câmera. Usa uniforme preto elegante com bordado discreto em dourado no lado do peito. Posição: mão direita segurando o frasco elevado em frente ao peito, mão esquerda aberta em gesto de apresentação, bancada de mármore levemente refletiva à frente com caixas expositoras desfocadas ao fundo. Iluminação: luz quente de boutique, pontos de destaque sobre o produto, iluminação ambiente aconchegante, bokeh elegante nas prateleiras. Composição: frontal, simetria leve, foco nítido no rosto e no frasco, textura de pele natural. 1024x1024."
+    prompt: "Fotografia editoral comercial hiper-realista de uma vendedora em boutique de perfumes segurando um frasco de perfume transparente com tampa e caixa de apresentação sobre o balcão com o rótulo '{PRODUCT}'. Mulher {HAIR_COLOR}, {HAIR_STYLE}, {EYE_COLOR}, pele {SKIN_TONE}, sobrancelhas definidas, sorriso caloroso e olhar para a câmera, altura {HEIGHT}. Usa uniforme preto elegante com bordado discreto em dourado no lado do peito. Posição: mão direita segurando o frasco elevado em frente ao peito, mão esquerda aberta em gesto de apresentação, bancada de mármore levemente refletiva à frente com caixas expositoras desfocadas ao fundo. Iluminação: luz quente de boutique, pontos de destaque sobre o produto, iluminação ambiente aconchegante, bokeh elegante nas prateleiras. Composição: frontal, simetria leve, foco nítido no rosto e no frasco, textura de pele natural. 1024x1024. {CUSTOM_DESCRIPTION}"
   }
 ];
 
@@ -48,6 +41,14 @@ export const AIStudioPreview = () => {
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationsLeft, setGenerationsLeft] = useState(3);
+  
+  // Customization states
+  const [hairColor, setHairColor] = useState("cabelos castanhos");
+  const [eyeColor, setEyeColor] = useState("olhos castanhos");
+  const [skinTone, setSkinTone] = useState("pele clara");
+  const [height, setHeight] = useState("média (1,65m)");
+  const [hairStyle, setHairStyle] = useState("cabelos longos e lisos");
+  const [customDescription, setCustomDescription] = useState("");
 
   useEffect(() => {
     const checkGenerationLimit = () => {
@@ -74,6 +75,13 @@ export const AIStudioPreview = () => {
     setSelectedTemplate(template);
     setProductImage(null);
     setGeneratedImage(null);
+    // Reset customizations
+    setHairColor("cabelos castanhos");
+    setEyeColor("olhos castanhos");
+    setSkinTone("pele clara");
+    setHeight("média (1,65m)");
+    setHairStyle("cabelos longos e lisos");
+    setCustomDescription("");
   };
 
   const handleProductUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -121,12 +129,22 @@ export const AIStudioPreview = () => {
         reader.readAsDataURL(templateBlob);
       });
 
+      // Apply customizations to prompt
+      let customizedPrompt = selectedTemplate.prompt
+        .replace('{HAIR_COLOR}', hairColor)
+        .replace('{EYE_COLOR}', eyeColor)
+        .replace('{SKIN_TONE}', skinTone)
+        .replace('{HEIGHT}', height)
+        .replace('{HAIR_STYLE}', hairStyle)
+        .replace('{CUSTOM_DESCRIPTION}', customDescription ? `Detalhes adicionais: ${customDescription}` : '');
+
       const { data, error } = await supabase.functions.invoke("generate-product-image", {
         body: { 
           productName: "Produto",
           templateId: selectedTemplate.id,
           productImageBase64,
-          templateImageBase64
+          templateImageBase64,
+          customPrompt: customizedPrompt
         }
       });
 
@@ -197,7 +215,7 @@ export const AIStudioPreview = () => {
         </div>
 
         {/* Templates Grid */}
-        <div className="grid md:grid-cols-3 gap-8 mb-12">
+        <div className="grid md:grid-cols-2 gap-8 mb-12 max-w-4xl mx-auto">
           {templates.map((template) => (
             <Card
               key={template.id}
@@ -421,6 +439,123 @@ export const AIStudioPreview = () => {
                     <p className="text-sm font-medium text-muted-foreground">Template Selecionado</p>
                     <p className="text-xl font-bold">{selectedTemplate.name}</p>
                     <p className="text-sm text-muted-foreground">{selectedTemplate.description}</p>
+                  </div>
+
+                  {/* Personalization Form */}
+                  <div className="space-y-4 p-6 bg-primary/5 rounded-lg border border-primary/20">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Wand2 className="w-5 h-5 text-primary" />
+                      <h3 className="text-lg font-bold">Personalize a Modelo</h3>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Escolha as características da influencer para a sua simulação
+                    </p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Hair Color */}
+                      <div className="space-y-2">
+                        <Label htmlFor="hair-color" className="text-sm font-semibold">Cor do Cabelo</Label>
+                        <Select value={hairColor} onValueChange={setHairColor}>
+                          <SelectTrigger id="hair-color">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="cabelos loiros">Loiro</SelectItem>
+                            <SelectItem value="cabelos castanhos">Castanho</SelectItem>
+                            <SelectItem value="cabelos ruivos">Ruivo</SelectItem>
+                            <SelectItem value="cabelos pretos">Preto</SelectItem>
+                            <SelectItem value="cabelos grisalhos">Grisalho</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Eye Color */}
+                      <div className="space-y-2">
+                        <Label htmlFor="eye-color" className="text-sm font-semibold">Cor dos Olhos</Label>
+                        <Select value={eyeColor} onValueChange={setEyeColor}>
+                          <SelectTrigger id="eye-color">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="olhos castanhos">Castanhos</SelectItem>
+                            <SelectItem value="olhos azuis">Azuis</SelectItem>
+                            <SelectItem value="olhos verdes">Verdes</SelectItem>
+                            <SelectItem value="olhos pretos">Pretos</SelectItem>
+                            <SelectItem value="olhos mel">Mel</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Skin Tone */}
+                      <div className="space-y-2">
+                        <Label htmlFor="skin-tone" className="text-sm font-semibold">Tom de Pele</Label>
+                        <Select value={skinTone} onValueChange={setSkinTone}>
+                          <SelectTrigger id="skin-tone">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="pele muito clara">Muito Clara</SelectItem>
+                            <SelectItem value="pele clara">Clara</SelectItem>
+                            <SelectItem value="pele média">Média</SelectItem>
+                            <SelectItem value="pele morena">Morena</SelectItem>
+                            <SelectItem value="pele negra">Negra</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Height */}
+                      <div className="space-y-2">
+                        <Label htmlFor="height" className="text-sm font-semibold">Altura</Label>
+                        <Select value={height} onValueChange={setHeight}>
+                          <SelectTrigger id="height">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="baixa (1,55m)">Baixa (1,55m)</SelectItem>
+                            <SelectItem value="média (1,65m)">Média (1,65m)</SelectItem>
+                            <SelectItem value="alta (1,75m)">Alta (1,75m)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Hair Style - Full Width */}
+                      <div className="space-y-2 md:col-span-2">
+                        <Label htmlFor="hair-style" className="text-sm font-semibold">Estilo do Cabelo</Label>
+                        <Select value={hairStyle} onValueChange={setHairStyle}>
+                          <SelectTrigger id="hair-style">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="cabelos longos e lisos">Longos e Lisos</SelectItem>
+                            <SelectItem value="cabelos longos e ondulados">Longos e Ondulados</SelectItem>
+                            <SelectItem value="cabelos longos e cacheados">Longos e Cacheados</SelectItem>
+                            <SelectItem value="cabelos curtos e lisos">Curtos e Lisos</SelectItem>
+                            <SelectItem value="cabelos curtos e ondulados">Curtos e Ondulados</SelectItem>
+                            <SelectItem value="cabelos afro volumoso">Afro Volumoso</SelectItem>
+                            <SelectItem value="cabelos médios e lisos">Médios e Lisos</SelectItem>
+                            <SelectItem value="cabelos com franja">Com Franja</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    {/* Custom Description */}
+                    <div className="space-y-2 pt-2">
+                      <Label htmlFor="custom-desc" className="text-sm font-semibold">
+                        Descrição Personalizada (Opcional)
+                      </Label>
+                      <Textarea
+                        id="custom-desc"
+                        placeholder="Ex: Gostaria que ela fosse mais jovem, com sorriso largo, usando óculos..."
+                        value={customDescription}
+                        onChange={(e) => setCustomDescription(e.target.value)}
+                        className="min-h-[80px] text-sm"
+                        disabled={isGenerating}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Descreva características adicionais que gostaria de ver na modelo
+                      </p>
+                    </div>
                   </div>
 
                   <div className="space-y-3">
