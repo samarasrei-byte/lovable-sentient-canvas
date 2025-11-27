@@ -11,10 +11,19 @@ import { Sparkles, ArrowRight, Wand2, Lock, Download, Upload, Loader2 } from "lu
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import templateFitness from "@/assets/template-fitness.png";
 import templateBeauty from "@/assets/template-beauty.png";
 import templatePerfume from "@/assets/template-perfume.png";
 
 const templates = [
+  {
+    id: "fitness",
+    name: "Fitness Influencer",
+    description: "Academia premium • Whey Protein • Estilo atlético",
+    image: templateFitness,
+    category: "fitness",
+    prompt: "Fotografia hiper-realista de uma influenciadora fitness jovem em close médio (torso e rosto), segurando um grande pote de suplemento com o rótulo '{PRODUCT}' visível e centralizado. Mulher {HAIR_COLOR}, {HAIR_STYLE}, {EYE_COLOR}, pele {SKIN_TONE} com textura de pele realista e sardas sutis, sorriso confiante, olhar direto para a câmera, altura {HEIGHT}. Corpo tonificado e braços definidos, usando top esportivo cinza escuro e legging combinando. Ambiente: academia premium bem iluminada com equipamentos desfocados no fundo, janelas grandes à direita proporcionando luz natural difusa + luzes artificiais de teto criando highlights musculares. Iluminação cinematográfica com key light suave do lado direito e rim light sutil para definir contorno. Ultra-realista, comercial, 1024x1024. {CUSTOM_DESCRIPTION}"
+  },
   {
     id: "beauty",
     name: "Beauty Store",
@@ -215,7 +224,7 @@ export const AIStudioPreview = () => {
         </div>
 
         {/* Templates Grid */}
-        <div className="grid md:grid-cols-2 gap-8 mb-12 max-w-4xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-8 mb-12">
           {templates.map((template) => (
             <Card
               key={template.id}
