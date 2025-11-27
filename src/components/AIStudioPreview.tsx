@@ -11,6 +11,9 @@ import { Sparkles, ArrowRight, Wand2, Lock, Download, Upload, Loader2, User } fr
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { CommunityCarousel } from "@/components/CommunityCarousel";
+import { UserGallery } from "@/components/UserGallery";
+import { ImageEditor } from "@/components/ImageEditor";
 import templateFitness from "@/assets/template-fitness.png";
 import templateBeauty from "@/assets/template-beauty.png";
 import templatePerfume from "@/assets/template-perfume.png";
@@ -50,6 +53,7 @@ export const AIStudioPreview = () => {
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationsLeft, setGenerationsLeft] = useState(3);
+  const [showImageEditor, setShowImageEditor] = useState(false);
   
   // Customization states
   const [hairColor, setHairColor] = useState("cabelos castanhos");
@@ -184,15 +188,18 @@ export const AIStudioPreview = () => {
           setGenerationsLeft(Math.max(0, 5 - newCount));
         }
         
+        const { data: { user } } = await supabase.auth.getUser();
+        
         await supabase.from('generated_images').insert({
           template_name: selectedTemplate.name,
           product_name: "Produto",
           image_url: data.image,
           is_public: true,
-          user_id: null
+          user_id: user?.id || null
         });
         
         toast.success("Imagem gerada! Cadastre-se para remover a marca d'água 🎨");
+        setShowImageEditor(true);
       }
     } catch (error) {
       console.error("Error generating image:", error);
@@ -375,7 +382,18 @@ export const AIStudioPreview = () => {
             ⚡ Simulação grátis • Geração real com cadastro • Veo 3 powered
           </p>
         </div>
+
+        {/* User Gallery Section */}
+        <div className="mt-16">
+          <UserGallery onReuse={(image) => {
+            toast.info("Template e configurações carregados!");
+            // You can add logic to load the image configuration here
+          }} />
+        </div>
       </div>
+
+      {/* Community Carousel */}
+      <CommunityCarousel />
 
       {/* Simulation Modal */}
       <Dialog open={!!selectedTemplate} onOpenChange={(open) => !open && setSelectedTemplate(null)}>
@@ -555,6 +573,16 @@ export const AIStudioPreview = () => {
                   )}
                 </div>
               </div>
+
+              {/* Image Editor Section - Show after generation */}
+              {generatedImage && showImageEditor && (
+                <ImageEditor 
+                  imageUrl={generatedImage}
+                  onDownload={(editedImage) => {
+                    toast.success("Imagem editada baixada com sucesso!");
+                  }}
+                />
+              )}
 
               {/* Configuration Section */}
               <div className="space-y-6">
