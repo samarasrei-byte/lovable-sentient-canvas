@@ -41,10 +41,16 @@ export const CommunityCarousel = () => {
         .select('*')
         .eq('is_public', true)
         .order('likes_count', { ascending: false })
-        .limit(9);
+        .limit(10);
 
       if (error) throw error;
-      setImages(data || []);
+      
+      // Filter out the specific unwanted image (product name "Forte")
+      const filteredData = (data || []).filter(img => 
+        img.product_name !== "Forte"
+      ).slice(0, 9);
+      
+      setImages(filteredData);
     } catch (error) {
       console.error('Error fetching showcase images:', error);
     } finally {
