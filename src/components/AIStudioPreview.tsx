@@ -5,9 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Sparkles, ArrowRight, Wand2, Lock, Download } from "lucide-react";
+import { Sparkles, ArrowRight, Wand2, Lock, Download, Upload, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import templateFitness from "@/assets/template-fitness.png";
 import templateBeauty from "@/assets/template-beauty.png";
 import templatePerfume from "@/assets/template-perfume.png";
@@ -16,23 +17,26 @@ const templates = [
   {
     id: "fitness",
     name: "Fitness Influencer",
-    description: "Academia premium • Whey Protein",
+    description: "Academia premium • Whey Protein • Estilo atlético",
     image: templateFitness,
     category: "fitness",
+    prompt: "Fotografia hiper-realista de uma influenciadora fitness jovem em close médio (torso e rosto), segurando um grande pote de whey protein com o rótulo '{PRODUCT}' visível e centralizado. Mulher caucasiana ruiva, cabelos longos e ondulados, pele levemente bronzeada com textura de pele realista e sardas sutis, sorriso confiante, olhar direto para a câmera. Corpo tonificado e braços definidos, usando top esportivo cinza escuro e legging combinando. Ambiente: academia premium bem iluminada com equipamentos desfocados no fundo, janelas grandes à direita proporcionando luz natural difusa + luzes artificiais de teto criando highlights musculares. Iluminação cinematográfica com key light suave do lado direito e rim light sutil para definir contorno. Ultra-realista, comercial, 1024x1024."
   },
   {
     id: "beauty",
     name: "Beauty Store",
-    description: "Loja de cosméticos • Beleza natural",
+    description: "Loja de cosméticos • Produtos de beleza • Elegância natural",
     image: templateBeauty,
     category: "beauty",
+    prompt: "Fotografia comercial hiper-realista de uma mulher negra jovem apresentando um frasco de produto cosmético (pump) com o rótulo '{PRODUCT}' em destaque. Mulher com cabelo afro volumoso, textura de cachos bem definidos, pele rica e luminosa com acabamento natural, sorriso aberto e olhar direto para a câmera. Veste camisa de tecido acetinado cor pêssego/claro, brincos pequenos dourados, maquiagem leve e impecável. Posicionamento: close de busto, frasco segurado com a mão direita próximo ao rosto (rótulo voltado para a câmera), profundidade de campo curta que desfoca as prateleiras de produtos ao fundo (ambiente de loja cosméticos). Iluminação: luz de loja suave e uniforme com highlights sutis na pele; temperatura de cor neutra. Composição: enquadramento vertical, foco nos olhos e no rótulo, textura de pele realista, dentes naturais, brilho suave. 1024x1024."
   },
   {
     id: "perfume",
     name: "Luxury Boutique",
-    description: "Boutique de luxo • Perfumes premium",
+    description: "Boutique de luxo • Perfumes premium • Sofisticação",
     image: templatePerfume,
     category: "perfume",
+    prompt: "Fotografia editoral comercial hiper-realista de uma vendedora em boutique de perfumes segurando um frasco de perfume transparente com tampa e caixa de apresentação sobre o balcão com o rótulo '{PRODUCT}'. Mulher caucasiana morena, cabelos lisos castanhos escuros, corte reto e sofisticado até os ombros, pele suave, sobrancelhas definidas, sorriso caloroso e olhar para a câmera. Usa uniforme preto elegante com bordado discreto em dourado no lado do peito. Posição: mão direita segurando o frasco elevado em frente ao peito, mão esquerda aberta em gesto de apresentação, bancada de mármore levemente refletiva à frente com caixas expositoras desfocadas ao fundo. Iluminação: luz quente de boutique, pontos de destaque sobre o produto, iluminação ambiente aconchegante, bokeh elegante nas prateleiras. Composição: frontal, simetria leve, foco nítido no rosto e no frasco, textura de pele natural. 1024x1024."
   }
 ];
 
@@ -41,21 +45,61 @@ export const AIStudioPreview = () => {
   const [hoveredTemplate, setHoveredTemplate] = useState<string | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<typeof templates[0] | null>(null);
   const [productName, setProductName] = useState("");
-  const [showPreview, setShowPreview] = useState(false);
+  const [productImage, setProductImage] = useState<File | null>(null);
+  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const handleTemplateClick = (template: typeof templates[0]) => {
     setSelectedTemplate(template);
     setProductName("");
-    setShowPreview(false);
+    setProductImage(null);
+    setGeneratedImage(null);
   };
 
-  const handleSimulate = () => {
+  const handleProductUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Imagem muito grande! Máximo 5MB");
+        return;
+      }
+      setProductImage(file);
+      toast.success("Imagem do produto carregada!");
+    }
+  };
+
+  const handleGenerate = async () => {
     if (!productName || productName.trim().length < 2) {
       toast.error("Digite o nome do seu produto");
       return;
     }
-    setShowPreview(true);
-    toast.success("Simulação pronta! Cadastre-se para gerar de verdade 🎨");
+
+    if (!selectedTemplate) return;
+
+    setIsGenerating(true);
+    try {
+      const customPrompt = selectedTemplate.prompt.replace("{PRODUCT}", productName);
+
+      const { data, error } = await supabase.functions.invoke("generate-product-image", {
+        body: { 
+          prompt: customPrompt,
+          productName,
+          templateId: selectedTemplate.id
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.image) {
+        setGeneratedImage(data.image);
+        toast.success("Imagem gerada! Cadastre-se para remover a marca d'água 🎨");
+      }
+    } catch (error) {
+      console.error("Error generating image:", error);
+      toast.error("Erro ao gerar imagem. Tente novamente.");
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const handleCreateAccount = () => {
@@ -226,52 +270,81 @@ export const AIStudioPreview = () => {
               <div className="grid md:grid-cols-2 gap-6">
                 {/* Preview Side */}
                 <div className="space-y-4">
-                  <Label className="text-base font-semibold">Preview da Simulação</Label>
+                  <Label className="text-base font-semibold">Preview da Geração</Label>
                   <div className="relative aspect-square rounded-lg overflow-hidden bg-muted">
-                    <img
-                      src={selectedTemplate.image}
-                      alt={selectedTemplate.name}
-                      className="w-full h-full object-cover"
-                    />
-                    
-                    {/* Product name overlay */}
-                    {showPreview && productName && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-                        <div className="text-center space-y-4 p-8">
-                          <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-8 shadow-2xl max-w-sm">
-                            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary to-secondary mb-4">
-                              <Sparkles className="w-8 h-8 text-white" />
+                    {isGenerating ? (
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-secondary/10">
+                        <div className="text-center space-y-4">
+                          <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto" />
+                          <div className="space-y-2">
+                            <p className="text-lg font-semibold">Gerando sua imagem...</p>
+                            <p className="text-sm text-muted-foreground">Isso pode levar alguns segundos</p>
+                          </div>
+                        </div>
+                      </div>
+                    ) : generatedImage ? (
+                      <div className="relative w-full h-full">
+                        <img
+                          src={generatedImage}
+                          alt="Generated product"
+                          className="w-full h-full object-cover"
+                          onContextMenu={(e) => e.preventDefault()}
+                          style={{ userSelect: "none", pointerEvents: "none" }}
+                        />
+                        
+                        {/* ARCANA Watermark - Center */}
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                          <div className="text-center opacity-50">
+                            <div className="text-6xl font-bold text-white/80 drop-shadow-2xl" style={{ 
+                              textShadow: "0 0 30px rgba(0,0,0,0.8), 0 0 60px rgba(0,0,0,0.6)",
+                              transform: "rotate(-15deg)"
+                            }}>
+                              ARCANA
                             </div>
-                            <h3 className="text-3xl font-bold text-gray-900 mb-2">
-                              {productName}
-                            </h3>
-                            <Badge className="mb-4">{selectedTemplate.category}</Badge>
-                            <p className="text-sm text-gray-600 mb-6">
-                              Esta é uma simulação. A imagem real será gerada com seu produto integrado!
-                            </p>
-                            <div className="flex items-center gap-2 text-xs text-gray-500 justify-center">
-                              <Lock className="w-4 h-4" />
-                              <span>Faça login para gerar de verdade</span>
+                            <div className="text-sm text-white/70 font-medium">
+                              Cadastre-se para remover
                             </div>
+                          </div>
+                        </div>
+
+                        {/* Corner Watermarks */}
+                        <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full border border-white/20">
+                          ARCANA.AI
+                        </div>
+                        <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full border border-white/20">
+                          Feito com ARCANA
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <div className="text-center text-muted-foreground space-y-3">
+                          <img
+                            src={selectedTemplate.image}
+                            alt={selectedTemplate.name}
+                            className="w-full h-full object-cover opacity-30 absolute inset-0"
+                          />
+                          <div className="relative z-10 bg-background/80 backdrop-blur-sm p-6 rounded-lg mx-4">
+                            <Wand2 className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                            <p>Sua imagem gerada aparecerá aqui</p>
                           </div>
                         </div>
                       </div>
                     )}
-
-                    {/* Watermark for simulation */}
-                    {showPreview && (
-                      <div className="absolute top-4 right-4 bg-yellow-500 text-black text-xs font-bold px-3 py-1 rounded-full">
-                        SIMULAÇÃO
-                      </div>
-                    )}
                   </div>
 
-                  {showPreview && (
-                    <div className="p-4 bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-                      <p className="text-sm text-yellow-800 dark:text-yellow-200 flex items-center gap-2">
-                        <Lock className="w-4 h-4" />
-                        Esta é apenas uma prévia. Cadastre-se para gerar imagens reais em alta qualidade!
-                      </p>
+                  {generatedImage && (
+                    <div className="p-4 bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 rounded-lg space-y-2">
+                      <div className="flex items-start gap-2">
+                        <Lock className="w-4 h-4 mt-0.5 text-yellow-600" />
+                        <div className="space-y-1 flex-1">
+                          <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-200">
+                            Marca d'água ARCANA
+                          </p>
+                          <p className="text-xs text-yellow-700 dark:text-yellow-300">
+                            Esta imagem contém marca d'água e não pode ser baixada ou copiada. Cadastre-se gratuitamente para gerar sem marca d'água e ter acesso completo!
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -285,31 +358,58 @@ export const AIStudioPreview = () => {
                   </div>
 
                   <div className="space-y-3">
-                    <Label htmlFor="product-name">Nome do seu Produto</Label>
+                    <Label htmlFor="product-name">Nome do seu Produto *</Label>
                     <Input
                       id="product-name"
-                      placeholder="Ex: WHEY PROTEIN ULTRA, Perfume Essence, Skincare Premium..."
+                      placeholder="Ex: WHEY PROTEIN ULTRA, Perfume Essence..."
                       value={productName}
                       onChange={(e) => setProductName(e.target.value)}
                       className="text-lg h-12"
-                      onKeyDown={(e) => e.key === "Enter" && handleSimulate()}
+                      disabled={isGenerating}
+                      onKeyDown={(e) => e.key === "Enter" && !isGenerating && handleGenerate()}
                     />
-                    <p className="text-xs text-muted-foreground">
-                      Digite o nome que aparecerá no produto na imagem
-                    </p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label htmlFor="product-upload">Upload do Produto (Opcional)</Label>
+                    <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleProductUpload}
+                        className="hidden"
+                        id="product-upload"
+                        disabled={isGenerating}
+                      />
+                      <label htmlFor="product-upload" className="cursor-pointer">
+                        <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                        <p className="text-sm text-muted-foreground">
+                          {productImage ? productImage.name : "Clique para fazer upload (máx 5MB)"}
+                        </p>
+                      </label>
+                    </div>
                   </div>
 
                   <Button
-                    onClick={handleSimulate}
-                    disabled={!productName || productName.trim().length < 2}
+                    onClick={handleGenerate}
+                    disabled={!productName || productName.trim().length < 2 || isGenerating}
                     className="w-full h-12 text-base gap-2"
                     size="lg"
                   >
-                    <Wand2 className="w-5 h-5" />
-                    Ver Simulação
+                    {isGenerating ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        Gerando...
+                      </>
+                    ) : (
+                      <>
+                        <Wand2 className="w-5 h-5" />
+                        Gerar Imagem Agora
+                      </>
+                    )}
                   </Button>
 
-                  {showPreview && (
+                  {generatedImage && (
                     <div className="space-y-3 pt-4 border-t">
                       <div className="space-y-2">
                         <p className="text-sm font-semibold">🎨 Gostou do resultado?</p>
@@ -317,11 +417,11 @@ export const AIStudioPreview = () => {
                           Crie sua conta gratuitamente e tenha acesso a:
                         </p>
                         <ul className="text-sm text-muted-foreground space-y-1 ml-4">
-                          <li>• Geração real de imagens em alta qualidade</li>
-                          <li>• Personalização completa (cabelo, olhos, pele)</li>
-                          <li>• Criação de vídeos com IA (Veo 3)</li>
-                          <li>• Download sem marca d'água</li>
-                          <li>• Galeria de todas suas criações</li>
+                          <li>• ✨ Imagens <strong>SEM marca d'água</strong></li>
+                          <li>• 🎬 Download em alta qualidade</li>
+                          <li>• 🎨 Personalização completa (cabelo, olhos, pele)</li>
+                          <li>• 🎥 Criação de vídeos com IA (Veo 3)</li>
+                          <li>• 📁 Galeria de todas suas criações</li>
                         </ul>
                       </div>
 
@@ -329,7 +429,6 @@ export const AIStudioPreview = () => {
                         onClick={handleCreateAccount}
                         className="w-full h-12 text-base gap-2"
                         size="lg"
-                        variant="default"
                       >
                         <Sparkles className="w-5 h-5" />
                         Criar Conta Grátis
@@ -337,15 +436,15 @@ export const AIStudioPreview = () => {
 
                       <Button
                         onClick={() => {
-                          toast.info("Faça login para baixar suas criações!");
-                          handleCreateAccount();
+                          toast.error("Faça login para baixar sem marca d'água!");
+                          setTimeout(() => handleCreateAccount(), 1500);
                         }}
                         className="w-full gap-2"
                         variant="outline"
                         disabled
                       >
                         <Download className="w-4 h-4" />
-                        Baixar (Requer Cadastro)
+                        Baixar sem Marca d'água (Requer Cadastro)
                       </Button>
                     </div>
                   )}
