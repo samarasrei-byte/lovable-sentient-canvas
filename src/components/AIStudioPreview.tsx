@@ -22,7 +22,7 @@ const templates = [
     description: "Academia premium • Whey Protein • Estilo atlético",
     image: templateFitness,
     category: "fitness",
-    prompt: "Fotografia hiper-realista de uma influenciadora fitness jovem em close médio (torso e rosto), segurando um grande pote de suplemento com o rótulo '{PRODUCT}' visível e centralizado. Mulher {HAIR_COLOR}, {HAIR_STYLE}, {EYE_COLOR}, pele {SKIN_TONE} com textura de pele realista e sardas sutis, sorriso confiante, olhar direto para a câmera, altura {HEIGHT}. Corpo tonificado e braços definidos, usando top esportivo cinza escuro e legging combinando. Ambiente: academia premium bem iluminada com equipamentos desfocados no fundo, janelas grandes à direita proporcionando luz natural difusa + luzes artificiais de teto criando highlights musculares. Iluminação cinematográfica com key light suave do lado direito e rim light sutil para definir contorno. Ultra-realista, comercial, 1024x1024. {CUSTOM_DESCRIPTION}"
+    prompt: "Fotografia hiper-realista de uma influenciadora fitness jovem em close médio (torso e rosto), segurando um grande pote de suplemento WHEY PROTEIN com o rótulo bem visível e centralizado nas mãos. Mulher {HAIR_COLOR}, {HAIR_STYLE}, {EYE_COLOR}, pele {SKIN_TONE} com textura de pele realista e sardas sutis, sorriso confiante, olhar direto para a câmera, altura {HEIGHT}. Corpo tonificado e braços definidos, usando top esportivo cinza escuro e legging combinando. Ambiente: {SCENARIO} bem iluminada com equipamentos de musculação desfocados no fundo, janelas grandes à direita proporcionando luz natural difusa + luzes artificiais de teto criando highlights musculares. O pote de suplemento deve estar sendo segurado com as duas mãos na frente do corpo, rótulo voltado para a câmera. Iluminação cinematográfica com key light suave do lado direito e rim light sutil para definir contorno. Ultra-realista, comercial, fotografia profissional de produto, 1024x1024. {CUSTOM_DESCRIPTION}"
   },
   {
     id: "beauty",
@@ -30,7 +30,7 @@ const templates = [
     description: "Loja de cosméticos • Produtos de beleza • Elegância natural",
     image: templateBeauty,
     category: "beauty",
-    prompt: "Fotografia comercial hiper-realista de uma mulher {HAIR_COLOR} jovem apresentando um frasco de produto cosmético (pump) com o rótulo '{PRODUCT}' em destaque. Mulher com {HAIR_STYLE}, {EYE_COLOR}, pele {SKIN_TONE} e luminosa com acabamento natural, sorriso aberto e olhar direto para a câmera, altura {HEIGHT}. Veste camisa de tecido acetinado cor pêssego/claro, brincos pequenos dourados, maquiagem leve e impecável. Posicionamento: close de busto, frasco segurado com a mão direita próximo ao rosto (rótulo voltado para a câmera), profundidade de campo curta que desfoca as prateleiras de produtos ao fundo (ambiente de loja cosméticos). Iluminação: luz de loja suave e uniforme com highlights sutis na pele; temperatura de cor neutra. Composição: enquadramento vertical, foco nos olhos e no rótulo, textura de pele realista, dentes naturais, brilho suave. 1024x1024. {CUSTOM_DESCRIPTION}"
+    prompt: "Fotografia comercial hiper-realista de uma mulher {HAIR_COLOR} jovem apresentando um frasco de produto cosmético (pump/frasco elegante) nas mãos com destaque total. Mulher com {HAIR_STYLE}, {EYE_COLOR}, pele {SKIN_TONE} e luminosa com acabamento natural, sorriso aberto e olhar direto para a câmera, altura {HEIGHT}. Veste camisa de tecido acetinado cor pêssego/claro, brincos pequenos dourados, maquiagem leve e impecável. Posicionamento: close de busto, frasco segurado com as duas mãos na frente do corpo (rótulo do produto voltado para a câmera e bem legível), profundidade de campo curta que desfoca as prateleiras de produtos ao fundo. Ambiente: {SCENARIO} com prateleiras de produtos desfocadas. O produto deve estar sendo segurado de forma destacada e profissional. Iluminação: luz de loja suave e uniforme com highlights sutis na pele; temperatura de cor neutra. Composição: enquadramento vertical, foco nos olhos e no produto, textura de pele realista, dentes naturais, brilho suave. Ultra-realista, fotografia comercial de produto, 1024x1024. {CUSTOM_DESCRIPTION}"
   },
   {
     id: "perfume",
@@ -38,7 +38,7 @@ const templates = [
     description: "Boutique de luxo • Perfumes premium • Sofisticação",
     image: templatePerfume,
     category: "perfume",
-    prompt: "Fotografia editoral comercial hiper-realista de uma vendedora em boutique de perfumes segurando um frasco de perfume transparente com tampa e caixa de apresentação sobre o balcão com o rótulo '{PRODUCT}'. Mulher {HAIR_COLOR}, {HAIR_STYLE}, {EYE_COLOR}, pele {SKIN_TONE}, sobrancelhas definidas, sorriso caloroso e olhar para a câmera, altura {HEIGHT}. Usa uniforme preto elegante com bordado discreto em dourado no lado do peito. Posição: mão direita segurando o frasco elevado em frente ao peito, mão esquerda aberta em gesto de apresentação, bancada de mármore levemente refletiva à frente com caixas expositoras desfocadas ao fundo. Iluminação: luz quente de boutique, pontos de destaque sobre o produto, iluminação ambiente aconchegante, bokeh elegante nas prateleiras. Composição: frontal, simetria leve, foco nítido no rosto e no frasco, textura de pele natural. 1024x1024. {CUSTOM_DESCRIPTION}"
+    prompt: "Fotografia editorial comercial hiper-realista de uma vendedora elegante segurando um frasco de perfume sofisticado com tampa e embalagem de apresentação. Mulher {HAIR_COLOR}, {HAIR_STYLE}, {EYE_COLOR}, pele {SKIN_TONE}, sobrancelhas definidas, sorriso caloroso e olhar para a câmera, altura {HEIGHT}. Usa uniforme preto elegante com bordado discreto em dourado no lado do peito. Posição: frasco de perfume sendo segurado com a mão direita elevado em frente ao peito (produto em destaque), mão esquerda aberta em gesto de apresentação, bancada de mármore levemente refletiva à frente. Ambiente: {SCENARIO} com prateleiras de perfumes desfocadas ao fundo, caixas expositoras elegantes. O produto deve estar sendo apresentado de forma sofisticada e profissional. Iluminação: luz quente de boutique, pontos de destaque sobre o frasco de perfume, iluminação ambiente aconchegante, bokeh elegante nas prateleiras. Composição: frontal, simetria leve, foco nítido no rosto e no frasco, textura de pele natural. Ultra-realista, fotografia comercial de luxo, 1024x1024. {CUSTOM_DESCRIPTION}"
   }
 ];
 
@@ -58,6 +58,7 @@ export const AIStudioPreview = () => {
   const [height, setHeight] = useState("média (1,65m)");
   const [hairStyle, setHairStyle] = useState("cabelos longos e lisos");
   const [customDescription, setCustomDescription] = useState("");
+  const [scenario, setScenario] = useState("academia premium");
 
   useEffect(() => {
       const checkGenerationLimit = () => {
@@ -91,6 +92,14 @@ export const AIStudioPreview = () => {
     setHeight("média (1,65m)");
     setHairStyle("cabelos longos e lisos");
     setCustomDescription("");
+    // Set default scenario based on template
+    if (template.id === "fitness") {
+      setScenario("academia premium");
+    } else if (template.id === "beauty") {
+      setScenario("loja de cosméticos");
+    } else if (template.id === "perfume") {
+      setScenario("boutique de luxo");
+    }
   };
 
   const handleProductUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -138,14 +147,18 @@ export const AIStudioPreview = () => {
         reader.readAsDataURL(templateBlob);
       });
 
-      // Apply customizations to prompt
+      // Apply customizations to prompt - replace all placeholders
       let customizedPrompt = selectedTemplate.prompt
+        .replace('{PRODUCT}', 'PRODUTO')
         .replace('{HAIR_COLOR}', hairColor)
         .replace('{EYE_COLOR}', eyeColor)
         .replace('{SKIN_TONE}', skinTone)
         .replace('{HEIGHT}', height)
         .replace('{HAIR_STYLE}', hairStyle)
+        .replace('{SCENARIO}', scenario)
         .replace('{CUSTOM_DESCRIPTION}', customDescription ? `Detalhes adicionais: ${customDescription}` : '');
+
+      console.log('Sending prompt:', customizedPrompt.substring(0, 300));
 
       const { data, error } = await supabase.functions.invoke("generate-product-image", {
         body: { 
@@ -512,6 +525,9 @@ export const AIStudioPreview = () => {
                               <Badge variant="secondary" className="text-xs justify-center py-1.5">
                                 {skinTone.split(' ')[1]}
                               </Badge>
+                              <Badge variant="secondary" className="text-xs justify-center py-1.5 col-span-2">
+                                📍 {scenario}
+                              </Badge>
                             </div>
                             <p className="text-[10px] text-muted-foreground text-center">
                               Clique em "Gerar" para criar a imagem final
@@ -668,6 +684,32 @@ export const AIStudioPreview = () => {
                             <SelectItem value="cabelos afro volumoso">Afro Volumoso</SelectItem>
                             <SelectItem value="cabelos médios e lisos">Médios e Lisos</SelectItem>
                             <SelectItem value="cabelos com franja">Com Franja</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Scenario - Full Width */}
+                      <div className="space-y-2 col-span-2">
+                        <Label htmlFor="scenario" className="text-xs font-medium flex items-center gap-1.5">
+                          <div className="w-1 h-1 rounded-full bg-primary"></div>
+                          Cenário
+                        </Label>
+                        <Select value={scenario} onValueChange={setScenario}>
+                          <SelectTrigger id="scenario" className="h-9 text-sm">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="academia premium">Academia Premium</SelectItem>
+                            <SelectItem value="academia moderna">Academia Moderna</SelectItem>
+                            <SelectItem value="estúdio fitness minimalista">Estúdio Fitness</SelectItem>
+                            <SelectItem value="loja de cosméticos">Loja de Cosméticos</SelectItem>
+                            <SelectItem value="spa luxuoso">Spa Luxuoso</SelectItem>
+                            <SelectItem value="boutique elegante">Boutique Elegante</SelectItem>
+                            <SelectItem value="boutique de luxo">Boutique de Luxo</SelectItem>
+                            <SelectItem value="showroom moderno">Showroom Moderno</SelectItem>
+                            <SelectItem value="ambiente clean e minimalista">Clean Minimalista</SelectItem>
+                            <SelectItem value="ambiente aconchegante">Ambiente Aconchegante</SelectItem>
+                            <SelectItem value="estúdio profissional">Estúdio Profissional</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
