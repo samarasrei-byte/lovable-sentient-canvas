@@ -1,6 +1,5 @@
 import { Hero } from "@/components/Hero";
 import { AIStudioPreview } from "@/components/AIStudioPreview";
-import { PublicShowcase } from "@/components/PublicShowcase";
 import { TalentShowcase } from "@/components/TalentShowcase";
 import { OnboardingQuiz } from "@/components/OnboardingQuiz";
 import { MarketplaceGrid } from "@/components/MarketplaceGrid";
@@ -13,19 +12,20 @@ import { Pricing } from "@/components/Pricing";
 import { TrustedBrands } from "@/components/TrustedBrands";
 import { Manifesto } from "@/components/Manifesto";
 import { Footer } from "@/components/Footer";
+import { AvatarShowcase } from "@/components/AvatarShowcase";
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Hero />
       <AIStudioPreview />
-      <PublicShowcase />
       <TalentShowcase />
       <MarketplaceGrid />
       <MarketplaceOverview />
       <OnboardingQuiz />
       <HowItWorks />
       <LiveShop />
+      <AvatarShowcase />
       <SuccessCases />
       <Testimonials />
       <Pricing />
