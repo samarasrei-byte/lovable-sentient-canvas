@@ -24,22 +24,10 @@ serve(async (req) => {
 
     console.log('Generating image with template:', templateId, 'product:', productName);
 
-    // Use custom prompt or default editing prompt
-    const editPrompt = customPrompt || `Você receberá duas imagens:
-1. A primeira imagem é o template de referência
-2. A segunda imagem é o produto que deve ser incluído
+    // Generate a new image based on the custom prompt (which already includes all customizations)
+    const generationPrompt = customPrompt || `Crie uma fotografia comercial profissional de alta qualidade mostrando uma influencer segurando um produto. A imagem deve ser ultra-realista, estilo comercial/editorial, com iluminação cinematográfica e composição profissional. 1024x1024.`;
 
-INSTRUÇÕES CRÍTICAS:
-- Mantenha EXATAMENTE a mesma pessoa da primeira imagem (cabelo, características faciais, tom de pele, expressão)
-- Mantenha EXATAMENTE a mesma pose, ângulo e composição da primeira imagem
-- Mantenha o mesmo ambiente e iluminação da primeira imagem
-- Substitua APENAS o produto que a pessoa está segurando pelo produto da segunda imagem
-- O produto da segunda imagem deve estar sendo segurado nas mãos da modelo
-- O produto deve parecer natural na cena, com tamanho proporcional e iluminação correta
-- Mantenha todos os outros elementos iguais: roupa, fundo, ambiente
-- Ultra-realista, comercial, 1024x1024
-
-IMPORTANTE: Não mude a pessoa! Use a mesma modelo da primeira imagem!`;
+    console.log('Using prompt:', generationPrompt.substring(0, 200) + '...');
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -52,24 +40,7 @@ IMPORTANTE: Não mude a pessoa! Use a mesma modelo da primeira imagem!`;
         messages: [
           {
             role: 'user',
-            content: [
-              {
-                type: 'text',
-                text: editPrompt
-              },
-              {
-                type: 'image_url',
-                image_url: {
-                  url: templateImageBase64
-                }
-              },
-              {
-                type: 'image_url',
-                image_url: {
-                  url: productImageBase64
-                }
-              }
-            ]
+            content: generationPrompt
           }
         ],
         modalities: ['image', 'text']
@@ -79,15 +50,20 @@ IMPORTANTE: Não mude a pessoa! Use a mesma modelo da primeira imagem!`;
     if (!response.ok) {
       const errorText = await response.text();
       console.error('AI Gateway error:', response.status, errorText);
-      throw new Error(`AI Gateway error: ${response.status}`);
+      throw new Error(`AI Gateway error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
+    console.log('API Response structure:', JSON.stringify(data, null, 2));
+    
     const generatedImageUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
 
     if (!generatedImageUrl) {
-      throw new Error('No image generated');
+      console.error('No image URL in response. Full response:', JSON.stringify(data));
+      throw new Error('No image generated - check logs for details');
     }
+    
+    console.log('Successfully generated image');
 
     return new Response(
       JSON.stringify({ 
