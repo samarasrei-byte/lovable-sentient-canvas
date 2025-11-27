@@ -44,7 +44,6 @@ export const AIStudioPreview = () => {
   const navigate = useNavigate();
   const [hoveredTemplate, setHoveredTemplate] = useState<string | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<typeof templates[0] | null>(null);
-  const [productName, setProductName] = useState("");
   const [productImage, setProductImage] = useState<File | null>(null);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -73,7 +72,6 @@ export const AIStudioPreview = () => {
 
   const handleTemplateClick = (template: typeof templates[0]) => {
     setSelectedTemplate(template);
-    setProductName("");
     setProductImage(null);
     setGeneratedImage(null);
   };
@@ -125,7 +123,7 @@ export const AIStudioPreview = () => {
 
       const { data, error } = await supabase.functions.invoke("generate-product-image", {
         body: { 
-          productName: productName || "Produto",
+          productName: "Produto",
           templateId: selectedTemplate.id,
           productImageBase64,
           templateImageBase64
@@ -148,7 +146,7 @@ export const AIStudioPreview = () => {
         
         await supabase.from('generated_images').insert({
           template_name: selectedTemplate.name,
-          product_name: productName || "Produto",
+          product_name: "Produto",
           image_url: data.image,
           is_public: true,
           user_id: null
@@ -426,22 +424,11 @@ export const AIStudioPreview = () => {
                   </div>
 
                   <div className="space-y-3">
-                    <Label htmlFor="product-name">Nome do seu Produto (Opcional)</Label>
-                    <Input
-                      id="product-name"
-                      placeholder="Ex: WHEY PROTEIN ULTRA, Perfume Essence..."
-                      value={productName}
-                      onChange={(e) => setProductName(e.target.value)}
-                      className="text-lg h-12"
-                      disabled={isGenerating}
-                      onKeyDown={(e) => e.key === "Enter" && !isGenerating && handleGenerate()}
-                    />
-                  </div>
-
-                  <div className="space-y-3">
-                    <Label htmlFor="product-upload">Upload do Produto *</Label>
-                    <p className="text-xs text-muted-foreground">
-                      Faça upload da imagem do seu produto para que ele apareça exatamente como você enviou na geração final.
+                    <Label htmlFor="product-upload" className="text-base font-semibold">
+                      Suba seu produto aqui
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                      Faça upload da imagem do seu produto para ver como ficaria na simulação com essa influencer
                     </p>
                     {productImage ? (
                       <div className="border-2 border-primary rounded-lg p-4 space-y-3">
