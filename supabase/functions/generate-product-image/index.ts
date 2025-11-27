@@ -25,7 +25,7 @@ serve(async (req) => {
     console.log('Generating image with template:', templateId, 'product:', productName);
 
     // Generate a new image based on the custom prompt (which already includes all customizations)
-    const generationPrompt = customPrompt || `Crie uma fotografia comercial profissional de alta qualidade mostrando uma influencer segurando um produto. A imagem deve ser ultra-realista, estilo comercial/editorial, com iluminação cinematográfica e composição profissional. 1024x1024.`;
+    const generationPrompt = customPrompt || `FOTOGRAFIA COMERCIAL PROFISSIONAL: Influencer SEGURANDO OBRIGATORIAMENTE um produto nas mãos de forma destacada e visível. CRÍTICO: O produto DEVE estar claramente nas mãos, sendo segurado com ambas as mãos na altura do peito/cintura, rótulo/frente voltado para a câmera. O produto ocupa 20-25% do enquadramento e está em foco nítido junto com o rosto da influencer. Composição: Close médio, iluminação comercial profissional com spotlight no produto, fundo desfocado elegante. Ultra-realista, alta qualidade editorial. 1024x1024.`;
 
     console.log('Using prompt:', generationPrompt.substring(0, 200) + '...');
 
