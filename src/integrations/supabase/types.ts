@@ -274,6 +274,35 @@ export type Database = {
         }
         Relationships: []
       }
+      image_likes: {
+        Row: {
+          created_at: string | null
+          id: string
+          image_id: string
+          user_fingerprint: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          image_id: string
+          user_fingerprint: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          image_id?: string
+          user_fingerprint?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "image_likes_image_id_fkey"
+            columns: ["image_id"]
+            isOneToOne: false
+            referencedRelation: "generated_images"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       influencer_approvals: {
         Row: {
           authenticity_score: number | null

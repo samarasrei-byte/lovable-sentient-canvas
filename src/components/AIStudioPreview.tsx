@@ -106,12 +106,24 @@ export const AIStudioPreview = () => {
     setIsGenerating(true);
     try {
       const customPrompt = selectedTemplate.prompt.replace("{PRODUCT}", productName);
+      
+      // Convert product image to base64 if available
+      let productImageBase64 = null;
+      if (productImage) {
+        productImageBase64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(productImage);
+        });
+      }
 
       const { data, error } = await supabase.functions.invoke("generate-product-image", {
         body: { 
           prompt: customPrompt,
           productName,
-          templateId: selectedTemplate.id
+          templateId: selectedTemplate.id,
+          productImageBase64
         }
       });
 
@@ -423,22 +435,55 @@ export const AIStudioPreview = () => {
 
                   <div className="space-y-3">
                     <Label htmlFor="product-upload">Upload do Produto (Opcional)</Label>
-                    <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleProductUpload}
-                        className="hidden"
-                        id="product-upload"
-                        disabled={isGenerating}
-                      />
-                      <label htmlFor="product-upload" className="cursor-pointer">
-                        <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-                        <p className="text-sm text-muted-foreground">
-                          {productImage ? productImage.name : "Clique para fazer upload (máx 5MB)"}
-                        </p>
-                      </label>
-                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Faça upload da imagem do seu produto para que ele apareça exatamente como você enviou na geração final.
+                    </p>
+                    {productImage ? (
+                      <div className="border-2 border-primary rounded-lg p-4 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted flex items-center justify-center">
+                              <img 
+                                src={URL.createObjectURL(productImage)} 
+                                alt="Preview do produto"
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium">{productImage.name}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {(productImage.size / 1024 / 1024).toFixed(2)} MB
+                              </p>
+                            </div>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setProductImage(null)}
+                            disabled={isGenerating}
+                          >
+                            Remover
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleProductUpload}
+                          className="hidden"
+                          id="product-upload"
+                          disabled={isGenerating}
+                        />
+                        <label htmlFor="product-upload" className="cursor-pointer">
+                          <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                          <p className="text-sm text-muted-foreground">
+                            Clique para fazer upload (máx 5MB)
+                          </p>
+                        </label>
+                      </div>
+                    )}
                   </div>
 
                   <Button
