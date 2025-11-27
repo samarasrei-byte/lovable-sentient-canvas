@@ -11,10 +11,22 @@ import { Sparkles, ArrowRight, Wand2, Lock, Download, Upload, Loader2 } from "lu
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import templateFitness from "@/assets/template-fitness.png";
 import templateBeauty from "@/assets/template-beauty.png";
 import templatePerfume from "@/assets/template-perfume.png";
+import influencerGaming from "@/assets/influencer-gaming.jpg";
+import influencerGastro from "@/assets/influencer-gastro.jpg";
+import influencerMusic from "@/assets/influencer-music.jpg";
 
 const templates = [
+  {
+    id: "fitness",
+    name: "Fitness Influencer",
+    description: "Academia premium • Whey & Suplementos • Estilo atlético",
+    image: templateFitness,
+    category: "fitness",
+    prompt: "Fotografia hiper-realista de uma influenciadora fitness jovem em close médio (torso e rosto), segurando um grande pote de suplemento com o rótulo '{PRODUCT}' visível e centralizado. Mulher {HAIR_COLOR}, {HAIR_STYLE}, {EYE_COLOR}, pele {SKIN_TONE} com textura de pele realista e sardas sutis, sorriso confiante, olhar direto para a câmera, altura {HEIGHT}. Corpo tonificado e braços definidos, usando top esportivo cinza escuro e legging combinando. Ambiente: academia premium bem iluminada com equipamentos desfocados no fundo, janelas grandes à direita proporcionando luz natural difusa + luzes artificiais de teto criando highlights musculares. Iluminação cinematográfica com key light suave do lado direito e rim light sutil para definir contorno. Ultra-realista, comercial, 1024x1024. {CUSTOM_DESCRIPTION}"
+  },
   {
     id: "beauty",
     name: "Beauty Store",
@@ -30,6 +42,30 @@ const templates = [
     image: templatePerfume,
     category: "perfume",
     prompt: "Fotografia editoral comercial hiper-realista de uma vendedora em boutique de perfumes segurando um frasco de perfume transparente com tampa e caixa de apresentação sobre o balcão com o rótulo '{PRODUCT}'. Mulher {HAIR_COLOR}, {HAIR_STYLE}, {EYE_COLOR}, pele {SKIN_TONE}, sobrancelhas definidas, sorriso caloroso e olhar para a câmera, altura {HEIGHT}. Usa uniforme preto elegante com bordado discreto em dourado no lado do peito. Posição: mão direita segurando o frasco elevado em frente ao peito, mão esquerda aberta em gesto de apresentação, bancada de mármore levemente refletiva à frente com caixas expositoras desfocadas ao fundo. Iluminação: luz quente de boutique, pontos de destaque sobre o produto, iluminação ambiente aconchegante, bokeh elegante nas prateleiras. Composição: frontal, simetria leve, foco nítido no rosto e no frasco, textura de pele natural. 1024x1024. {CUSTOM_DESCRIPTION}"
+  },
+  {
+    id: "gaming",
+    name: "Gaming Streamer",
+    description: "Setup gamer • Periféricos & Energy Drinks • Vibe tech",
+    image: influencerGaming,
+    category: "gaming",
+    prompt: "Fotografia hiper-realista de uma streamer gamer jovem em seu setup, segurando/apresentando produto '{PRODUCT}' em destaque. Mulher {HAIR_COLOR}, {HAIR_STYLE}, {EYE_COLOR}, pele {SKIN_TONE}, expressão confiante e carismática, olhar direto para a câmera, altura {HEIGHT}. Veste roupa casual gamer moderna (hoodie ou camiseta gamer style). Ambiente: setup gamer premium com LED RGB colorido ao fundo (roxo, azul, rosa neon), monitor desfocado com luzes, headset gamer pendurado, teclado mecânico RGB visível. Iluminação: RGB colorido lateral criando atmosfera cyberpunk, ring light frontal suave para iluminar rosto, efeito de luz neon nas bordas. Composição: close-up dinâmico, produto bem visível, estética jovem e tech, ultra-realista, comercial, 1024x1024. {CUSTOM_DESCRIPTION}"
+  },
+  {
+    id: "gastro",
+    name: "Food & Gastronomy",
+    description: "Culinária gourmet • Ingredientes & Temperos • Chef style",
+    image: influencerGastro,
+    category: "gastronomy",
+    prompt: "Fotografia comercial hiper-realista de uma chef/influenciadora gastronômica apresentando produto culinário '{PRODUCT}' em uma cozinha profissional. Mulher {HAIR_COLOR}, {HAIR_STYLE}, {EYE_COLOR}, pele {SKIN_TONE}, sorriso acolhedor e expressão apaixonada por gastronomia, olhar direto para a câmera, altura {HEIGHT}. Veste avental de chef ou roupa de cozinha estilosa, pode ter utensílios de cozinha ao redor. Ambiente: cozinha gourmet moderna com bancada de mármore, ingredientes frescos desfocados ao fundo, panelas de inox brilhando, ambiente clean e profissional. Iluminação: luz natural suave de janela lateral + luz de cozinha clean, highlighting no produto e no rosto. Composição: close-up elegante, produto em destaque, atmosfera warm e convidativa, textura de pele natural, ultra-realista, comercial, 1024x1024. {CUSTOM_DESCRIPTION}"
+  },
+  {
+    id: "music",
+    name: "Music & Lifestyle",
+    description: "Estúdio musical • Audio & Tech • Vibe artístico",
+    image: influencerMusic,
+    category: "music",
+    prompt: "Fotografia editorial hiper-realista de uma artista/influenciadora musical apresentando produto '{PRODUCT}' em ambiente de estúdio. Mulher {HAIR_COLOR}, {HAIR_STYLE}, {EYE_COLOR}, pele {SKIN_TONE}, expressão artística e autêntica, olhar carismático para a câmera, altura {HEIGHT}. Veste roupa estilosa e moderna (streetwear, urban chic). Ambiente: estúdio de gravação ou espaço musical com instrumentos desfocados ao fundo (microfone profissional, teclados, violão), luzes quentes e atmosfera criativa, textura de madeira ou tijolinho exposto. Iluminação: luz cinematográfica lateral dramática, golden hour tone, rim light para destacar contorno, atmosfera artística e intimista. Composição: close-up envolvente, produto integrado naturalmente na cena, vibe autêntica e cool, ultra-realista, comercial, 1024x1024. {CUSTOM_DESCRIPTION}"
   }
 ];
 
@@ -215,7 +251,7 @@ export const AIStudioPreview = () => {
         </div>
 
         {/* Templates Grid */}
-        <div className="grid md:grid-cols-2 gap-8 mb-12 max-w-4xl mx-auto">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
           {templates.map((template) => (
             <Card
               key={template.id}
