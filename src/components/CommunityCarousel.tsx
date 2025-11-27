@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Heart, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
+import { Heart, Sparkles, ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 
@@ -21,11 +21,33 @@ export const CommunityCarousel = () => {
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [likedImages, setLikedImages] = useState<Set<string>>(new Set());
+  const [favoritedImages, setFavoritedImages] = useState<Set<string>>(new Set());
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
     fetchShowcaseImages();
     loadLikedImages();
+    checkUser();
   }, []);
+
+  const checkUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    setUser(user);
+    if (user) {
+      loadFavorites(user.id);
+    }
+  };
+
+  const loadFavorites = async (userId: string) => {
+    const { data, error } = await supabase
+      .from('image_favorites')
+      .select('image_id')
+      .eq('user_id', userId);
+    
+    if (!error && data) {
+      setFavoritedImages(new Set(data.map(f => f.image_id)));
+    }
+  };
 
   const loadLikedImages = () => {
     const liked = localStorage.getItem('arcana_liked_images');
@@ -45,13 +67,18 @@ export const CommunityCarousel = () => {
 
       if (error) throw error;
       
-      // Filter out unwanted images and shuffle for variety
+      // Filter out unwanted images and remove exact duplicates by URL
       const filteredData = (data || []).filter(img => 
         img.product_name !== "Forte"
       );
       
+      // Remove duplicates based on image_url
+      const uniqueImages = filteredData.filter((img, index, self) =>
+        index === self.findIndex(t => t.image_url === img.image_url)
+      );
+      
       // Shuffle array to mix different templates
-      const shuffled = filteredData.sort(() => Math.random() - 0.5);
+      const shuffled = uniqueImages.sort(() => Math.random() - 0.5);
       
       // Get diverse selection by ensuring no consecutive duplicates of same template
       const diverseSelection: ShowcaseImage[] = [];
@@ -80,6 +107,49 @@ export const CommunityCarousel = () => {
       console.error('Error fetching showcase images:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleFavorite = async (imageId: string) => {
+    if (!user) {
+      toast.error("Faça login para favoritar imagens!");
+      return;
+    }
+
+    const isFavorited = favoritedImages.has(imageId);
+
+    try {
+      if (isFavorited) {
+        const { error } = await supabase
+          .from('image_favorites')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('image_id', imageId);
+
+        if (error) throw error;
+
+        const newFavorites = new Set(favoritedImages);
+        newFavorites.delete(imageId);
+        setFavoritedImages(newFavorites);
+        toast.success("Removido dos favoritos");
+      } else {
+        const { error } = await supabase
+          .from('image_favorites')
+          .insert({
+            user_id: user.id,
+            image_id: imageId
+          });
+
+        if (error) throw error;
+
+        const newFavorites = new Set(favoritedImages);
+        newFavorites.add(imageId);
+        setFavoritedImages(newFavorites);
+        toast.success("Adicionado aos favoritos! ⭐");
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+      toast.error("Erro ao atualizar favoritos");
     }
   };
 
@@ -217,19 +287,33 @@ export const CommunityCarousel = () => {
                       </div>
                       
                       <div className="p-3 flex items-center justify-between">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleLike(image.id)}
-                          className={`flex items-center gap-2 ${
-                            likedImages.has(image.id) ? 'text-red-500' : 'text-muted-foreground'
-                          } hover:text-red-500 transition-colors`}
-                        >
-                          <Heart 
-                            className={`h-4 w-4 ${likedImages.has(image.id) ? 'fill-current' : ''}`}
-                          />
-                          <span className="text-sm font-medium">{image.likes_count || 0}</span>
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleLike(image.id)}
+                            className={`flex items-center gap-2 ${
+                              likedImages.has(image.id) ? 'text-red-500' : 'text-muted-foreground'
+                            } hover:text-red-500 transition-colors`}
+                          >
+                            <Heart 
+                              className={`h-4 w-4 ${likedImages.has(image.id) ? 'fill-current' : ''}`}
+                            />
+                            <span className="text-sm font-medium">{image.likes_count || 0}</span>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleFavorite(image.id)}
+                            className={`${
+                              favoritedImages.has(image.id) ? 'text-yellow-500' : 'text-muted-foreground'
+                            } hover:text-yellow-500 transition-colors`}
+                          >
+                            <Star 
+                              className={`h-4 w-4 ${favoritedImages.has(image.id) ? 'fill-current' : ''}`}
+                            />
+                          </Button>
+                        </div>
                         <span className="text-xs text-muted-foreground">
                           {new Date(image.created_at).toLocaleDateString('pt-BR')}
                         </span>
