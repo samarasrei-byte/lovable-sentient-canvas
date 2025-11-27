@@ -20,6 +20,7 @@ import {
 
 const brandMenuItems = [
   { path: "/app/dashboard", icon: Home, label: "Dashboard" },
+  { path: "/app/ai-studio", icon: Sparkles, label: "Criar com IA" },
   { path: "/app/talentos", icon: Users, label: "Talentos" },
   { path: "/app/campanhas", icon: Target, label: "Campanhas" },
   { path: "/app/contratos", icon: FileText, label: "Contratos" },
@@ -37,6 +38,7 @@ const brandMenuItems = [
 
 const influencerMenuItems = [
   { path: "/app/dashboard", icon: Home, label: "Dashboard" },
+  { path: "/app/ai-studio", icon: Sparkles, label: "Criar com IA" },
   { path: "/app/influencer/analytics", icon: Brain, label: "Analytics" },
   { path: "/app/influencer/contratos", icon: FileText, label: "Contratos" },
   { path: "/app/influencer/pagamentos", icon: Wallet, label: "Pagamentos" },
