@@ -1,9 +1,8 @@
 import { Hero } from "@/components/Hero";
 import { AIStudioPreview } from "@/components/AIStudioPreview";
 import { PublicShowcase } from "@/components/PublicShowcase";
-import { AvatarGenerator } from "@/components/AvatarGenerator";
-import { OnboardingQuiz } from "@/components/OnboardingQuiz";
 import { TalentShowcase } from "@/components/TalentShowcase";
+import { OnboardingQuiz } from "@/components/OnboardingQuiz";
 import { MarketplaceGrid } from "@/components/MarketplaceGrid";
 import { HowItWorks } from "@/components/HowItWorks";
 import { LiveShop } from "@/components/LiveShop";
@@ -22,7 +21,6 @@ const Index = () => {
       <AIStudioPreview />
       <PublicShowcase />
       <TalentShowcase />
-      <AvatarGenerator />
       <MarketplaceGrid />
       <MarketplaceOverview />
       <OnboardingQuiz />
