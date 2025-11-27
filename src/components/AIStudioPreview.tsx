@@ -400,11 +400,46 @@ export const AIStudioPreview = () => {
 
           {selectedTemplate && (
             <div className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
-                {/* Preview Side */}
-                <div className="space-y-4">
-                  <Label className="text-base font-semibold">Preview da Geração</Label>
-                  <div className="relative aspect-square rounded-lg overflow-hidden bg-muted">
+              {/* Before/After Preview Section */}
+              <div className="grid md:grid-cols-2 gap-4">
+                {/* ANTES - Template Original */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-base font-bold flex items-center gap-2">
+                      <div className="p-1.5 rounded-lg bg-muted">
+                        <Wand2 className="w-4 h-4" />
+                      </div>
+                      Template Original
+                    </Label>
+                    <Badge variant="outline" className="text-xs">ANTES</Badge>
+                  </div>
+                  <div className="relative aspect-square rounded-xl overflow-hidden border-2 border-border shadow-lg">
+                    <img
+                      src={selectedTemplate.image}
+                      alt={selectedTemplate.name}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+                    <div className="absolute bottom-4 left-4 right-4">
+                      <Badge className="bg-background/90 backdrop-blur-sm text-foreground border">
+                        {selectedTemplate.category}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+
+                {/* DEPOIS - Preview Personalizado */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-base font-bold flex items-center gap-2">
+                      <div className="p-1.5 rounded-lg bg-primary/10">
+                        <Sparkles className="w-4 h-4 text-primary" />
+                      </div>
+                      {generatedImage ? "Sua Criação" : "Preview ao Vivo"}
+                    </Label>
+                    <Badge className="text-xs bg-primary/10 text-primary border-primary/20">DEPOIS</Badge>
+                  </div>
+                  <div className="relative aspect-square rounded-xl overflow-hidden border-2 border-primary/50 shadow-lg bg-muted">
                     {isGenerating ? (
                       <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-secondary/10">
                         <div className="text-center space-y-4">
@@ -449,16 +484,38 @@ export const AIStudioPreview = () => {
                         </div>
                       </div>
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <div className="text-center text-muted-foreground space-y-3">
-                          <img
-                            src={selectedTemplate.image}
-                            alt={selectedTemplate.name}
-                            className="w-full h-full object-cover opacity-30 absolute inset-0"
-                          />
-                          <div className="relative z-10 bg-background/80 backdrop-blur-sm p-6 rounded-lg mx-4">
-                            <Wand2 className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                            <p>Sua imagem gerada aparecerá aqui</p>
+                      <div className="relative w-full h-full">
+                        <img
+                          src={selectedTemplate.image}
+                          alt={selectedTemplate.name}
+                          className="w-full h-full object-cover opacity-40 blur-sm"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-purple-500/10 to-pink-500/20" />
+                        
+                        {/* Live Configuration Badges */}
+                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6">
+                          <div className="bg-background/95 backdrop-blur-sm border-2 border-primary/50 rounded-2xl p-6 space-y-3 max-w-[90%] shadow-2xl">
+                            <div className="flex items-center gap-2 justify-center">
+                              <Sparkles className="w-5 h-5 text-primary animate-pulse" />
+                              <p className="font-bold text-sm">Configurações Atuais</p>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                              <Badge variant="secondary" className="text-xs justify-center py-1.5">
+                                {hairColor.split(' ')[1]}
+                              </Badge>
+                              <Badge variant="secondary" className="text-xs justify-center py-1.5">
+                                {hairStyle.split(' ')[1]} {hairStyle.split(' ')[2]}
+                              </Badge>
+                              <Badge variant="secondary" className="text-xs justify-center py-1.5">
+                                {eyeColor.split(' ')[1]}
+                              </Badge>
+                              <Badge variant="secondary" className="text-xs justify-center py-1.5">
+                                {skinTone.split(' ')[1]}
+                              </Badge>
+                            </div>
+                            <p className="text-[10px] text-muted-foreground text-center">
+                              Clique em "Gerar" para criar a imagem final
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -466,60 +523,62 @@ export const AIStudioPreview = () => {
                   </div>
 
                   {generatedImage && (
-                    <div className="p-4 bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 rounded-lg space-y-2">
+                    <div className="p-3 bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
                       <div className="flex items-start gap-2">
-                        <Lock className="w-4 h-4 mt-0.5 text-yellow-600" />
+                        <Lock className="w-3.5 h-3.5 mt-0.5 text-yellow-600 flex-shrink-0" />
                         <div className="space-y-1 flex-1">
-                          <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-200">
+                          <p className="text-xs font-semibold text-yellow-800 dark:text-yellow-200">
                             Marca d'água ARCANA
                           </p>
-                          <p className="text-xs text-yellow-700 dark:text-yellow-300">
-                            Esta imagem contém marca d'água e não pode ser baixada ou copiada. Cadastre-se gratuitamente para gerar sem marca d'água e ter acesso completo!
+                          <p className="text-[10px] text-yellow-700 dark:text-yellow-300">
+                            Cadastre-se para gerar sem marca d'água!
                           </p>
                         </div>
                       </div>
                     </div>
                   )}
                 </div>
+              </div>
 
-                {/* Input Side */}
-                <div className="space-y-6">
-                  <Card className="border-2 border-primary/20 bg-gradient-to-br from-background to-muted/30">
-                    <div className="p-5 space-y-2">
-                      <div className="flex items-center gap-2 text-primary">
-                        <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
-                        <p className="text-sm font-semibold uppercase tracking-wide">Template Selecionado</p>
-                      </div>
-                      <p className="text-2xl font-bold">{selectedTemplate.name}</p>
-                      <p className="text-sm text-muted-foreground">{selectedTemplate.description}</p>
+              {/* Configuration Section */}
+              <div className="space-y-6">
+                <Card className="border-2 border-primary/20 bg-gradient-to-br from-background to-muted/30">
+                  <div className="p-5 space-y-2">
+                    <div className="flex items-center gap-2 text-primary">
+                      <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+                      <p className="text-sm font-semibold uppercase tracking-wide">Personalize sua Criação</p>
                     </div>
-                  </Card>
+                    <p className="text-xs text-muted-foreground">
+                      Ajuste as características e veja o preview atualizar ao vivo
+                    </p>
+                  </div>
+                </Card>
 
-                  {/* Personalization Form */}
-                  <Card className="border-2 border-primary/20 shadow-lg">
-                    <div className="border-b bg-muted/30 p-5">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-primary/10">
-                          <Wand2 className="w-5 h-5 text-primary" />
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-bold">Personalize a Modelo</h3>
-                          <p className="text-xs text-muted-foreground">
-                            Configure cada característica
-                          </p>
-                        </div>
+                {/* Personalization Form */}
+                <Card className="border-2 border-primary/20 shadow-lg">
+                  <div className="border-b bg-muted/30 p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-lg bg-primary/10">
+                        <User className="w-4 h-4 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-bold">Características da Modelo</h3>
+                        <p className="text-xs text-muted-foreground">
+                          Configure cada detalhe
+                        </p>
                       </div>
                     </div>
-                    <div className="p-5 space-y-5">
-                      <div className="grid grid-cols-2 gap-4">
+                  </div>
+                  <div className="p-4 space-y-4">
+                    <div className="grid grid-cols-2 gap-3">
                       {/* Hair Color */}
                       <div className="space-y-2">
-                        <Label htmlFor="hair-color" className="text-sm font-medium flex items-center gap-2">
-                          <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                          Cor do Cabelo
+                        <Label htmlFor="hair-color" className="text-xs font-medium flex items-center gap-1.5">
+                          <div className="w-1 h-1 rounded-full bg-primary"></div>
+                          Cabelo
                         </Label>
                         <Select value={hairColor} onValueChange={setHairColor}>
-                          <SelectTrigger id="hair-color">
+                          <SelectTrigger id="hair-color" className="h-9 text-sm">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -534,12 +593,12 @@ export const AIStudioPreview = () => {
 
                       {/* Eye Color */}
                       <div className="space-y-2">
-                        <Label htmlFor="eye-color" className="text-sm font-medium flex items-center gap-2">
-                          <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                          Cor dos Olhos
+                        <Label htmlFor="eye-color" className="text-xs font-medium flex items-center gap-1.5">
+                          <div className="w-1 h-1 rounded-full bg-primary"></div>
+                          Olhos
                         </Label>
                         <Select value={eyeColor} onValueChange={setEyeColor}>
-                          <SelectTrigger id="eye-color">
+                          <SelectTrigger id="eye-color" className="h-9 text-sm">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -554,12 +613,12 @@ export const AIStudioPreview = () => {
 
                       {/* Skin Tone */}
                       <div className="space-y-2">
-                        <Label htmlFor="skin-tone" className="text-sm font-medium flex items-center gap-2">
-                          <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                          Tom de Pele
+                        <Label htmlFor="skin-tone" className="text-xs font-medium flex items-center gap-1.5">
+                          <div className="w-1 h-1 rounded-full bg-primary"></div>
+                          Pele
                         </Label>
                         <Select value={skinTone} onValueChange={setSkinTone}>
-                          <SelectTrigger id="skin-tone">
+                          <SelectTrigger id="skin-tone" className="h-9 text-sm">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -574,12 +633,12 @@ export const AIStudioPreview = () => {
 
                       {/* Height */}
                       <div className="space-y-2">
-                        <Label htmlFor="height" className="text-sm font-medium flex items-center gap-2">
-                          <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                        <Label htmlFor="height" className="text-xs font-medium flex items-center gap-1.5">
+                          <div className="w-1 h-1 rounded-full bg-primary"></div>
                           Altura
                         </Label>
                         <Select value={height} onValueChange={setHeight}>
-                          <SelectTrigger id="height">
+                          <SelectTrigger id="height" className="h-9 text-sm">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -591,13 +650,13 @@ export const AIStudioPreview = () => {
                       </div>
 
                       {/* Hair Style - Full Width */}
-                      <div className="space-y-2 md:col-span-2">
-                        <Label htmlFor="hair-style" className="text-sm font-medium flex items-center gap-2">
-                          <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                      <div className="space-y-2 col-span-2">
+                        <Label htmlFor="hair-style" className="text-xs font-medium flex items-center gap-1.5">
+                          <div className="w-1 h-1 rounded-full bg-primary"></div>
                           Estilo do Cabelo
                         </Label>
                         <Select value={hairStyle} onValueChange={setHairStyle}>
-                          <SelectTrigger id="hair-style">
+                          <SelectTrigger id="hair-style" className="h-9 text-sm">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -616,107 +675,107 @@ export const AIStudioPreview = () => {
 
                     {/* Custom Description */}
                     <Card className="border-2 border-dashed border-primary/20 bg-primary/5">
-                      <div className="p-4 space-y-3">
+                      <div className="p-3 space-y-2">
                         <div className="flex items-start gap-2">
-                          <div className="p-1.5 rounded-lg bg-primary/10 mt-0.5">
-                            <Sparkles className="w-4 h-4 text-primary" />
+                          <div className="p-1 rounded-lg bg-primary/10 mt-0.5">
+                            <Sparkles className="w-3 h-3 text-primary" />
                           </div>
                           <div className="flex-1 space-y-2">
-                            <Label htmlFor="custom-desc" className="text-sm font-medium">
-                              Descrição Personalizada (Opcional)
+                            <Label htmlFor="custom-desc" className="text-xs font-medium">
+                              Descrição Personalizada
                             </Label>
                             <Textarea
                               id="custom-desc"
-                              placeholder="Ex: Gostaria que ela fosse mais jovem, com sorriso largo, usando óculos..."
+                              placeholder="Ex: Mais jovem, sorriso largo, óculos..."
                               value={customDescription}
                               onChange={(e) => setCustomDescription(e.target.value)}
-                              className="min-h-[80px] text-sm bg-background/50 border-primary/20"
+                              className="min-h-[60px] text-xs bg-background/50 border-primary/20"
                               disabled={isGenerating}
                             />
-                            <p className="text-xs text-muted-foreground">
-                              Descreva características adicionais que gostaria de ver na modelo
+                            <p className="text-[10px] text-muted-foreground">
+                              Características extras (opcional)
                             </p>
                           </div>
                         </div>
                       </div>
                     </Card>
-                     </div>
-                  </Card>
+                  </div>
+                </Card>
 
-                  <Card className="border-2 border-dashed border-primary/30 bg-primary/5">
-                    <div className="p-5 space-y-4">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-primary/10">
-                          <Upload className="w-5 h-5 text-primary" />
-                        </div>
-                        <div>
-                          <h4 className="text-base font-bold">Suba seu produto aqui</h4>
-                          <p className="text-xs text-muted-foreground">
-                            Adicione a imagem para simulação
-                          </p>
-                        </div>
+                <Card className="border-2 border-dashed border-primary/30 bg-primary/5">
+                  <div className="p-4 space-y-3">
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 rounded-lg bg-primary/10">
+                        <Upload className="w-4 h-4 text-primary" />
                       </div>
-                      {productImage ? (
-                        <div className="border-2 border-primary/50 rounded-xl p-4 bg-background/50 backdrop-blur-sm">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted flex items-center justify-center border-2 border-border">
-                                <img 
-                                  src={URL.createObjectURL(productImage)} 
-                                  alt="Preview do produto"
-                                  className="w-full h-full object-cover"
-                                />
-                              </div>
-                              <div>
-                                <p className="text-sm font-semibold truncate max-w-[180px]">{productImage.name}</p>
-                                <p className="text-xs text-muted-foreground">
-                                  {(productImage.size / 1024 / 1024).toFixed(2)} MB
-                                </p>
-                              </div>
+                      <div>
+                        <h4 className="text-sm font-bold">Upload do Produto</h4>
+                        <p className="text-[10px] text-muted-foreground">
+                          Adicione a imagem do seu produto
+                        </p>
+                      </div>
+                    </div>
+                    {productImage ? (
+                      <div className="border-2 border-primary/50 rounded-lg p-3 bg-background/50 backdrop-blur-sm">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="w-12 h-12 rounded-lg overflow-hidden bg-muted flex items-center justify-center border border-border">
+                              <img 
+                                src={URL.createObjectURL(productImage)} 
+                                alt="Preview do produto"
+                                className="w-full h-full object-cover"
+                              />
                             </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setProductImage(null)}
-                              disabled={isGenerating}
-                              className="hover:bg-destructive/10 hover:text-destructive"
-                            >
-                              Remover
-                            </Button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="border-2 border-dashed border-primary/30 rounded-xl p-8 text-center hover:border-primary hover:bg-primary/5 transition-all group cursor-pointer">
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleProductUpload}
-                            className="hidden"
-                            id="product-upload"
-                            disabled={isGenerating}
-                          />
-                          <label htmlFor="product-upload" className="cursor-pointer space-y-3 block">
-                            <div className="w-16 h-16 mx-auto bg-gradient-to-br from-primary/20 to-purple-500/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                              <Upload className="w-8 h-8 text-primary" />
-                            </div>
-                            <div>
-                              <p className="text-sm font-semibold">Clique para fazer upload</p>
-                              <p className="text-xs text-muted-foreground">
-                                PNG, JPG ou WEBP (máx. 5MB)
+                            <div className="min-w-0">
+                              <p className="text-xs font-semibold truncate max-w-[140px]">{productImage.name}</p>
+                              <p className="text-[10px] text-muted-foreground">
+                                {(productImage.size / 1024 / 1024).toFixed(2)} MB
                               </p>
                             </div>
-                          </label>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setProductImage(null)}
+                            disabled={isGenerating}
+                            className="h-7 w-7 p-0 hover:bg-destructive/10 hover:text-destructive"
+                          >
+                            ×
+                          </Button>
                         </div>
-                      )}
-                    </div>
-                  </Card>
+                      </div>
+                    ) : (
+                      <div className="border-2 border-dashed border-primary/30 rounded-lg p-6 text-center hover:border-primary hover:bg-primary/5 transition-all group cursor-pointer">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleProductUpload}
+                          className="hidden"
+                          id="product-upload"
+                          disabled={isGenerating}
+                        />
+                        <label htmlFor="product-upload" className="cursor-pointer space-y-2 block">
+                          <div className="w-12 h-12 mx-auto bg-gradient-to-br from-primary/20 to-purple-500/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <Upload className="w-6 h-6 text-primary" />
+                          </div>
+                          <div>
+                            <p className="text-xs font-semibold">Clique para upload</p>
+                            <p className="text-[10px] text-muted-foreground">
+                              PNG, JPG (máx. 5MB)
+                            </p>
+                          </div>
+                        </label>
+                      </div>
+                    )}
+                  </div>
+                </Card>
 
-                  <Button
-                    onClick={handleGenerate}
-                    disabled={!productImage || isGenerating}
-                    className="w-full h-14 text-base font-bold gap-2 shadow-lg hover:shadow-xl transition-all bg-gradient-to-r from-primary via-purple-500 to-pink-500 hover:opacity-90"
-                    size="lg"
-                  >
+                <Button
+                  onClick={handleGenerate}
+                  disabled={!productImage || isGenerating}
+                  className="w-full h-12 text-sm font-bold gap-2 shadow-lg hover:shadow-xl transition-all bg-gradient-to-r from-primary via-purple-500 to-pink-500 hover:opacity-90"
+                  size="lg"
+                >
                     {isGenerating ? (
                       <>
                         <Loader2 className="w-5 h-5 animate-spin" />
@@ -728,48 +787,47 @@ export const AIStudioPreview = () => {
                         Gerar Imagem Agora
                       </>
                     )}
-                  </Button>
+                </Button>
 
-                  {generatedImage && (
-                    <div className="space-y-3 pt-4 border-t">
-                      <div className="space-y-2">
-                        <p className="text-sm font-semibold">🎨 Gostou do resultado?</p>
-                        <p className="text-sm text-muted-foreground">
-                          Crie sua conta gratuitamente e tenha acesso a:
-                        </p>
-                        <ul className="text-sm text-muted-foreground space-y-1 ml-4">
-                          <li>• ✨ Imagens <strong>SEM marca d'água</strong></li>
-                          <li>• 🎬 Download em alta qualidade</li>
-                          <li>• 🎨 Personalização completa (cabelo, olhos, pele)</li>
-                          <li>• 🎥 Criação de vídeos com IA (Veo 3)</li>
-                          <li>• 📁 Galeria de todas suas criações</li>
-                        </ul>
-                      </div>
-
-                      <Button
-                        onClick={handleCreateAccount}
-                        className="w-full h-12 text-base gap-2"
-                        size="lg"
-                      >
-                        <Sparkles className="w-5 h-5" />
-                        Criar Conta Grátis
-                      </Button>
-
-                      <Button
-                        onClick={() => {
-                          toast.error("Faça login para baixar sem marca d'água!");
-                          setTimeout(() => handleCreateAccount(), 1500);
-                        }}
-                        className="w-full gap-2"
-                        variant="outline"
-                        disabled
-                      >
-                        <Download className="w-4 h-4" />
-                        Baixar sem Marca d'água (Requer Cadastro)
-                      </Button>
+                {generatedImage && (
+                  <div className="space-y-3 pt-4 border-t">
+                    <div className="space-y-2">
+                      <p className="text-sm font-semibold">🎨 Gostou do resultado?</p>
+                      <p className="text-sm text-muted-foreground">
+                        Crie sua conta gratuitamente e tenha acesso a:
+                      </p>
+                      <ul className="text-sm text-muted-foreground space-y-1 ml-4">
+                        <li>• ✨ Imagens <strong>SEM marca d'água</strong></li>
+                        <li>• 🎬 Download em alta qualidade</li>
+                        <li>• 🎨 Personalização completa (cabelo, olhos, pele)</li>
+                        <li>• 🎥 Criação de vídeos com IA (Veo 3)</li>
+                        <li>• 📁 Galeria de todas suas criações</li>
+                      </ul>
                     </div>
-                  )}
-                </div>
+
+                    <Button
+                      onClick={handleCreateAccount}
+                      className="w-full h-12 text-base gap-2"
+                      size="lg"
+                    >
+                      <Sparkles className="w-5 h-5" />
+                      Criar Conta Grátis
+                    </Button>
+
+                    <Button
+                      onClick={() => {
+                        toast.error("Faça login para baixar sem marca d'água!");
+                        setTimeout(() => handleCreateAccount(), 1500);
+                      }}
+                      className="w-full gap-2"
+                      variant="outline"
+                      disabled
+                    >
+                      <Download className="w-4 h-4" />
+                      Baixar sem Marca d'água (Requer Cadastro)
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
           )}
