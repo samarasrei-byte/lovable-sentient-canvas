@@ -40,17 +40,42 @@ export const CommunityCarousel = () => {
         .from('generated_images')
         .select('*')
         .eq('is_public', true)
-        .order('likes_count', { ascending: false })
-        .limit(10);
+        .order('created_at', { ascending: false })
+        .limit(50);
 
       if (error) throw error;
       
-      // Filter out the specific unwanted image (product name "Forte")
+      // Filter out unwanted images and shuffle for variety
       const filteredData = (data || []).filter(img => 
         img.product_name !== "Forte"
-      ).slice(0, 9);
+      );
       
-      setImages(filteredData);
+      // Shuffle array to mix different templates
+      const shuffled = filteredData.sort(() => Math.random() - 0.5);
+      
+      // Get diverse selection by ensuring no consecutive duplicates of same template
+      const diverseSelection: ShowcaseImage[] = [];
+      const usedTemplates = new Set<string>();
+      
+      for (const img of shuffled) {
+        if (diverseSelection.length >= 12) break;
+        
+        // Prioritize different templates
+        if (!usedTemplates.has(img.template_name) || diverseSelection.length > 6) {
+          diverseSelection.push(img);
+          usedTemplates.add(img.template_name);
+        }
+      }
+      
+      // Fill remaining slots if needed
+      for (const img of shuffled) {
+        if (diverseSelection.length >= 12) break;
+        if (!diverseSelection.includes(img)) {
+          diverseSelection.push(img);
+        }
+      }
+      
+      setImages(diverseSelection);
     } catch (error) {
       console.error('Error fetching showcase images:', error);
     } finally {
