@@ -241,6 +241,39 @@ export type Database = {
           },
         ]
       }
+      generated_images: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string
+          is_public: boolean | null
+          likes_count: number | null
+          product_name: string
+          template_name: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url: string
+          is_public?: boolean | null
+          likes_count?: number | null
+          product_name: string
+          template_name: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string
+          is_public?: boolean | null
+          likes_count?: number | null
+          product_name?: string
+          template_name?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       influencer_approvals: {
         Row: {
           authenticity_score: number | null
