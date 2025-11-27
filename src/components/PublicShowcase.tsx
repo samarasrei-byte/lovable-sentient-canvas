@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Heart, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Heart, Sparkles, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 
 interface ShowcaseImage {
   id: string;
@@ -17,18 +19,29 @@ interface ShowcaseImage {
 export const PublicShowcase = () => {
   const [images, setImages] = useState<ShowcaseImage[]>([]);
   const [loading, setLoading] = useState(true);
+  const [likedImages, setLikedImages] = useState<Set<string>>(new Set());
+  const [sortBy, setSortBy] = useState<'recent' | 'popular'>('recent');
 
   useEffect(() => {
     fetchShowcaseImages();
-  }, []);
+    loadLikedImages();
+  }, [sortBy]);
+
+  const loadLikedImages = () => {
+    const liked = localStorage.getItem('arcana_liked_images');
+    if (liked) {
+      setLikedImages(new Set(JSON.parse(liked)));
+    }
+  };
 
   const fetchShowcaseImages = async () => {
     try {
+      const orderBy = sortBy === 'recent' ? 'created_at' : 'likes_count';
       const { data, error } = await supabase
         .from('generated_images')
         .select('*')
         .eq('is_public', true)
-        .order('created_at', { ascending: false })
+        .order(orderBy, { ascending: false })
         .limit(12);
 
       if (error) throw error;
@@ -38,6 +51,62 @@ export const PublicShowcase = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleLike = async (imageId: string) => {
+    if (likedImages.has(imageId)) {
+      toast.info("Você já curtiu esta imagem!");
+      return;
+    }
+
+    try {
+      const fingerprint = getFingerprint();
+      
+      const { error: likeError } = await supabase
+        .from('image_likes')
+        .insert({
+          image_id: imageId,
+          user_fingerprint: fingerprint
+        });
+
+      if (likeError) {
+        if (likeError.code === '23505') {
+          toast.info("Você já curtiu esta imagem!");
+          return;
+        }
+        throw likeError;
+      }
+
+      const { error: updateError } = await supabase
+        .from('generated_images')
+        .update({ likes_count: images.find(img => img.id === imageId)!.likes_count + 1 })
+        .eq('id', imageId);
+
+      if (updateError) throw updateError;
+
+      const newLiked = new Set(likedImages);
+      newLiked.add(imageId);
+      setLikedImages(newLiked);
+      localStorage.setItem('arcana_liked_images', JSON.stringify([...newLiked]));
+
+      setImages(images.map(img => 
+        img.id === imageId ? { ...img, likes_count: img.likes_count + 1 } : img
+      ));
+
+      toast.success("Curtiu! ❤️");
+    } catch (error) {
+      console.error('Error liking image:', error);
+      toast.error("Erro ao curtir. Tente novamente.");
+    }
+  };
+
+  const getFingerprint = () => {
+    let fingerprint = localStorage.getItem('arcana_fingerprint');
+    if (!fingerprint) {
+      fingerprint = `fp_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+      localStorage.setItem('arcana_fingerprint', fingerprint);
+    }
+    return fingerprint;
   };
 
   if (loading) {
@@ -84,10 +153,31 @@ export const PublicShowcase = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
-            className="text-xl text-muted-foreground max-w-2xl mx-auto"
+            className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8"
           >
             Veja o que outros criadores estão produzindo com nosso AI Studio
           </motion.p>
+
+          <div className="flex items-center justify-center gap-2">
+            <Button
+              variant={sortBy === 'recent' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setSortBy('recent')}
+              className="gap-2"
+            >
+              <Sparkles className="h-4 w-4" />
+              Mais Recentes
+            </Button>
+            <Button
+              variant={sortBy === 'popular' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setSortBy('popular')}
+              className="gap-2"
+            >
+              <TrendingUp className="h-4 w-4" />
+              Mais Curtidas
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -119,10 +209,19 @@ export const PublicShowcase = () => {
                 </div>
                 
                 <div className="p-4 flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Heart className="h-4 w-4" />
-                    <span className="text-sm">{image.likes_count || 0}</span>
-                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleLike(image.id)}
+                    className={`flex items-center gap-2 ${
+                      likedImages.has(image.id) ? 'text-red-500' : 'text-muted-foreground'
+                    } hover:text-red-500 transition-colors`}
+                  >
+                    <Heart 
+                      className={`h-4 w-4 ${likedImages.has(image.id) ? 'fill-current' : ''}`}
+                    />
+                    <span className="text-sm font-medium">{image.likes_count || 0}</span>
+                  </Button>
                   <span className="text-xs text-muted-foreground">
                     {new Date(image.created_at).toLocaleDateString('pt-BR')}
                   </span>
