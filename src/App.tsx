@@ -22,6 +22,7 @@ import Pagamentos from "./pages/app/Pagamentos";
 import Monitoramento from "./pages/app/Monitoramento";
 import IAInsights from "./pages/app/IAInsights";
 import AvatarStudio from "./pages/app/AvatarStudio";
+import AIStudio from "./pages/app/AIStudio";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminInfluencers from "./pages/admin/Influencers";
 import AdminBrands from "./pages/admin/Brands";
@@ -77,6 +78,7 @@ const App = () => (
             <Route path="monitoramento" element={<Monitoramento />} />
             <Route path="ia-insights" element={<IAInsights />} />
             <Route path="avatar-studio" element={<AvatarStudio />} />
+            <Route path="ai-studio" element={<AIStudio />} />
             <Route path="liveshop" element={<LiveShop />} />
             <Route path="consultoria" element={<Consultoria />} />
             <Route path="planos" element={<Planos />} />
