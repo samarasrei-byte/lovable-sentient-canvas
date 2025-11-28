@@ -1,9 +1,20 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Bot, Users, Palette, Star, TrendingUp, Eye, Heart, MessageCircle, Instagram, Youtube, ArrowUpRight, Video } from "lucide-react";
+import { Search, Bot, Users, Palette, Star, TrendingUp, Eye, Heart, MessageCircle, Instagram, Youtube, ArrowUpRight, Video, SlidersHorizontal } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
+import { Label } from "@/components/ui/label";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import influencerTech from "@/assets/influencer-tech.jpg";
 import influencerFashion from "@/assets/influencer-fashion.jpg";
 import influencerFitness from "@/assets/influencer-fitness.jpg";
@@ -14,6 +25,11 @@ import influencerWellness from "@/assets/influencer-wellness.jpg";
 export default function TalentosAprimorado() {
   const navigate = useNavigate();
   const [filter, setFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [engagementRange, setEngagementRange] = useState([0, 20]);
+  const [priceRange, setPriceRange] = useState([0, 100000]);
+  const [sortBy, setSortBy] = useState("relevance");
   
   const talents = [
     { 
@@ -21,7 +37,9 @@ export default function TalentosAprimorado() {
       name: "Rafael Costa",
       category: "Tecnologia & IA", 
       followers: "2.5M", 
-      engagement: "12.4%", 
+      engagement: "12.4%",
+      engagementValue: 12.4,
+      price: 15000,
       type: "influencer", 
       verified: true,
       image: influencerTech,
@@ -38,7 +56,9 @@ export default function TalentosAprimorado() {
       name: "Camila Rodrigues",
       category: "Moda & Lifestyle", 
       followers: "4.8M", 
-      engagement: "15.2%", 
+      engagement: "15.2%",
+      engagementValue: 15.2,
+      price: 25000,
       type: "influencer", 
       verified: true,
       image: influencerFashion,
@@ -55,7 +75,9 @@ export default function TalentosAprimorado() {
       name: "Bruno Almeida",
       category: "Fitness & Saúde", 
       followers: "3.2M", 
-      engagement: "10.8%", 
+      engagement: "10.8%",
+      engagementValue: 10.8,
+      price: 18000,
       type: "influencer", 
       verified: true,
       image: influencerFitness,
@@ -72,7 +94,9 @@ export default function TalentosAprimorado() {
       name: "João Silva",
       category: "Negócios & Startups", 
       followers: "1.9M", 
-      engagement: "9.5%", 
+      engagement: "9.5%",
+      engagementValue: 9.5,
+      price: 12000,
       type: "influencer", 
       verified: true,
       image: influencerBusiness,
@@ -89,7 +113,9 @@ export default function TalentosAprimorado() {
       name: "Ana Beatriz",
       category: "Arte Digital & NFT", 
       followers: "2.1M", 
-      engagement: "14.2%", 
+      engagement: "14.2%",
+      engagementValue: 14.2,
+      price: 20000,
       type: "artist", 
       verified: true,
       image: influencerArt,
@@ -106,7 +132,9 @@ export default function TalentosAprimorado() {
       name: "Maria Santos",
       category: "Bem-estar & Mindfulness", 
       followers: "3.5M", 
-      engagement: "11.8%", 
+      engagement: "11.8%",
+      engagementValue: 11.8,
+      price: 16000,
       type: "influencer", 
       verified: true,
       image: influencerWellness,
@@ -120,7 +148,78 @@ export default function TalentosAprimorado() {
     }
   ];
 
-  const filteredTalents = filter === "all" ? talents : talents.filter(t => t.type === filter);
+  const categories = [
+    "all",
+    "Tecnologia & IA",
+    "Moda & Lifestyle",
+    "Fitness & Saúde",
+    "Negócios & Startups",
+    "Arte Digital & NFT",
+    "Bem-estar & Mindfulness"
+  ];
+
+  // Advanced filtering and sorting
+  const filteredTalents = useMemo(() => {
+    let result = [...talents];
+
+    // Type filter
+    if (filter !== "all") {
+      result = result.filter(t => t.type === filter);
+    }
+
+    // Search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(t => 
+        t.name.toLowerCase().includes(query) ||
+        t.category.toLowerCase().includes(query)
+      );
+    }
+
+    // Category filter
+    if (categoryFilter !== "all") {
+      result = result.filter(t => t.category === categoryFilter);
+    }
+
+    // Engagement filter
+    result = result.filter(t => 
+      t.engagementValue >= engagementRange[0] && 
+      t.engagementValue <= engagementRange[1]
+    );
+
+    // Price filter
+    result = result.filter(t => 
+      t.price >= priceRange[0] && 
+      t.price <= priceRange[1]
+    );
+
+    // Sorting
+    switch (sortBy) {
+      case "followers-desc":
+        result.sort((a, b) => parseFloat(b.followers) - parseFloat(a.followers));
+        break;
+      case "followers-asc":
+        result.sort((a, b) => parseFloat(a.followers) - parseFloat(b.followers));
+        break;
+      case "engagement-desc":
+        result.sort((a, b) => b.engagementValue - a.engagementValue);
+        break;
+      case "engagement-asc":
+        result.sort((a, b) => a.engagementValue - b.engagementValue);
+        break;
+      case "price-desc":
+        result.sort((a, b) => b.price - a.price);
+        break;
+      case "price-asc":
+        result.sort((a, b) => a.price - b.price);
+        break;
+      default:
+        // relevance - keep original order
+        break;
+    }
+
+    return result;
+  }, [talents, filter, searchQuery, categoryFilter, engagementRange, priceRange, sortBy]);
 
   const getTypeInfo = (type: string) => {
     switch(type) {
@@ -151,15 +250,127 @@ export default function TalentosAprimorado() {
       </div>
 
       {/* Search and Filters */}
-      <div className="flex flex-col md:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-          <Input className="pl-10 bg-card/50 border-border/50" placeholder="Buscar talentos..." />
+      <div className="space-y-4">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+            <Input 
+              className="pl-10 bg-card/50 border-border/50" 
+              placeholder="Buscar por nome ou categoria..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          
+          <div className="flex gap-2">
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Ordenar por" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="relevance">Relevância</SelectItem>
+                <SelectItem value="followers-desc">Mais Seguidores</SelectItem>
+                <SelectItem value="followers-asc">Menos Seguidores</SelectItem>
+                <SelectItem value="engagement-desc">Maior Engajamento</SelectItem>
+                <SelectItem value="engagement-asc">Menor Engajamento</SelectItem>
+                <SelectItem value="price-desc">Maior Preço</SelectItem>
+                <SelectItem value="price-asc">Menor Preço</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline">
+                  <SlidersHorizontal className="w-4 h-4 mr-2" />
+                  Filtros Avançados
+                </Button>
+              </SheetTrigger>
+              <SheetContent>
+                <SheetHeader>
+                  <SheetTitle>Filtros Avançados</SheetTitle>
+                  <SheetDescription>
+                    Refine sua busca por talentos específicos
+                  </SheetDescription>
+                </SheetHeader>
+                
+                <div className="space-y-6 mt-6">
+                  {/* Category Filter */}
+                  <div className="space-y-2">
+                    <Label>Categoria</Label>
+                    <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione uma categoria" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Todas as Categorias</SelectItem>
+                        {categories.filter(c => c !== "all").map(category => (
+                          <SelectItem key={category} value={category}>
+                            {category}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Engagement Range */}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <Label>Engajamento</Label>
+                      <span className="text-sm text-muted-foreground">
+                        {engagementRange[0]}% - {engagementRange[1]}%
+                      </span>
+                    </div>
+                    <Slider
+                      min={0}
+                      max={20}
+                      step={0.5}
+                      value={engagementRange}
+                      onValueChange={setEngagementRange}
+                      className="w-full"
+                    />
+                  </div>
+
+                  {/* Price Range */}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <Label>Faixa de Preço</Label>
+                      <span className="text-sm text-muted-foreground">
+                        R$ {priceRange[0].toLocaleString()} - R$ {priceRange[1].toLocaleString()}
+                      </span>
+                    </div>
+                    <Slider
+                      min={0}
+                      max={100000}
+                      step={1000}
+                      value={priceRange}
+                      onValueChange={setPriceRange}
+                      className="w-full"
+                    />
+                  </div>
+
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => {
+                      setCategoryFilter("all");
+                      setEngagementRange([0, 20]);
+                      setPriceRange([0, 100000]);
+                    }}
+                  >
+                    Limpar Filtros
+                  </Button>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
-        <div className="flex gap-2">
+
+        {/* Type Filters */}
+        <div className="flex gap-2 flex-wrap">
           <Button
             variant={filter === "all" ? "default" : "outline"}
             onClick={() => setFilter("all")}
+            size="sm"
             className={filter === "all" ? "bg-gradient-to-r from-primary to-secondary" : ""}
           >
             Todos
@@ -167,6 +378,7 @@ export default function TalentosAprimorado() {
           <Button
             variant={filter === "avatar" ? "default" : "outline"}
             onClick={() => setFilter("avatar")}
+            size="sm"
             className={filter === "avatar" ? "bg-primary" : ""}
           >
             <Bot className="w-4 h-4 mr-2" />
@@ -175,6 +387,7 @@ export default function TalentosAprimorado() {
           <Button
             variant={filter === "influencer" ? "default" : "outline"}
             onClick={() => setFilter("influencer")}
+            size="sm"
             className={filter === "influencer" ? "bg-secondary" : ""}
           >
             <Users className="w-4 h-4 mr-2" />
@@ -183,11 +396,17 @@ export default function TalentosAprimorado() {
           <Button
             variant={filter === "artist" ? "default" : "outline"}
             onClick={() => setFilter("artist")}
+            size="sm"
             className={filter === "artist" ? "bg-artist" : ""}
           >
             <Palette className="w-4 h-4 mr-2" />
             Artistas
           </Button>
+        </div>
+
+        {/* Results count */}
+        <div className="text-sm text-muted-foreground">
+          {filteredTalents.length} {filteredTalents.length === 1 ? 'talento encontrado' : 'talentos encontrados'}
         </div>
       </div>
 
