@@ -50,6 +50,14 @@ serve(async (req) => {
     if (!response.ok) {
       const errorText = await response.text();
       console.error('AI Gateway error:', response.status, errorText);
+      
+      // Tratamento específico de erros
+      if (response.status === 402) {
+        throw new Error('Payment required: Not enough credits. Please add credits to your Lovable account.');
+      } else if (response.status === 429) {
+        throw new Error('Rate limit exceeded: Too many requests. Please wait a moment before trying again.');
+      }
+      
       throw new Error(`AI Gateway error: ${response.status} - ${errorText}`);
     }
 

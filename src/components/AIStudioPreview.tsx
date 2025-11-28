@@ -175,7 +175,32 @@ export const AIStudioPreview = () => {
         }
       });
 
-      if (error) throw error;
+      // Tratamento específico de erros
+      if (error) {
+        const errorMessage = error.message || JSON.stringify(error);
+        
+        // Erro de falta de créditos (402)
+        if (errorMessage.includes('402') || errorMessage.includes('Payment required') || errorMessage.includes('Not enough credits')) {
+          toast.error("Créditos insuficientes", {
+            description: "Você não possui créditos suficientes para gerar imagens. Por favor, adicione créditos à sua conta.",
+            duration: 6000,
+          });
+          setIsGenerating(false);
+          return;
+        }
+        
+        // Erro de rate limit (429)
+        if (errorMessage.includes('429') || errorMessage.includes('Rate limit') || errorMessage.includes('Too many requests')) {
+          toast.error("Limite de requisições excedido", {
+            description: "Você está fazendo muitas requisições. Por favor, aguarde alguns instantes antes de tentar novamente.",
+            duration: 6000,
+          });
+          setIsGenerating(false);
+          return;
+        }
+        
+        throw error;
+      }
 
       if (data?.image) {
         setGeneratedImage(data.image);
@@ -202,9 +227,12 @@ export const AIStudioPreview = () => {
         toast.success("Imagem gerada! Cadastre-se para remover a marca d'água 🎨");
         setShowImageEditor(true);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error generating image:", error);
-      toast.error("Erro ao gerar imagem. Tente novamente.");
+      toast.error("Erro ao gerar imagem", {
+        description: error.message || "Ocorreu um erro inesperado. Por favor, tente novamente.",
+        duration: 5000,
+      });
     } finally {
       setIsGenerating(false);
     }
