@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Building2, User, Bell, Shield, Palette, Globe, CreditCard, Sparkles } from "lucide-react";
+import { Building2, User, Bell, Shield, Palette, CreditCard, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Perfil() {
@@ -35,7 +35,7 @@ export default function Perfil() {
         </div>
 
         <Tabs defaultValue="company" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
+          <TabsList className="grid w-full grid-cols-6 lg:w-auto lg:inline-grid">
             <TabsTrigger value="company" className="gap-2">
               <Building2 className="w-4 h-4" />
               Empresa
@@ -43,6 +43,10 @@ export default function Perfil() {
             <TabsTrigger value="profile" className="gap-2">
               <User className="w-4 h-4" />
               Perfil
+            </TabsTrigger>
+            <TabsTrigger value="plans" className="gap-2">
+              <CreditCard className="w-4 h-4" />
+              Planos
             </TabsTrigger>
             <TabsTrigger value="notifications" className="gap-2">
               <Bell className="w-4 h-4" />
@@ -122,6 +126,102 @@ export default function Perfil() {
                 <Button onClick={handleSaveCompany} className="w-full md:w-auto">
                   Salvar Alterações
                 </Button>
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* Plans Settings */}
+          <TabsContent value="plans" className="space-y-6">
+            <div className="bg-card border border-border/50 rounded-2xl p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                  <CreditCard className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold">Planos e Assinatura</h2>
+                  <p className="text-sm text-muted-foreground">Gerencie seu plano e faturamento</p>
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                <div className="p-6 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/20">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <h3 className="text-xl font-bold mb-1">Plano Professional</h3>
+                      <p className="text-sm text-muted-foreground">Acesso completo a todas as funcionalidades</p>
+                    </div>
+                    <div className="px-4 py-2 rounded-lg bg-primary/20 border border-primary/30">
+                      <span className="text-sm font-semibold text-primary">Ativo</span>
+                    </div>
+                  </div>
+                  
+                  <div className="grid md:grid-cols-3 gap-4 mb-6">
+                    <div className="p-4 rounded-lg bg-background/50">
+                      <p className="text-sm text-muted-foreground mb-1">Valor Mensal</p>
+                      <p className="text-2xl font-bold">R$ 299,00</p>
+                    </div>
+                    <div className="p-4 rounded-lg bg-background/50">
+                      <p className="text-sm text-muted-foreground mb-1">Próxima Cobrança</p>
+                      <p className="text-lg font-semibold">15/02/2025</p>
+                    </div>
+                    <div className="p-4 rounded-lg bg-background/50">
+                      <p className="text-sm text-muted-foreground mb-1">Método de Pagamento</p>
+                      <p className="text-lg font-semibold">•••• 4242</p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-3">
+                    <Button variant="outline">Atualizar Pagamento</Button>
+                    <Button variant="outline">Histórico de Faturas</Button>
+                    <Button variant="outline" className="text-destructive hover:text-destructive">Cancelar Plano</Button>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">Recursos Incluídos</h3>
+                  <div className="grid md:grid-cols-2 gap-3">
+                    {[
+                      "Criadores Ilimitados",
+                      "Campanhas Ilimitadas",
+                      "IA Studio Completo",
+                      "Avatar Studio Premium",
+                      "Live Shop Integrado",
+                      "Analytics Avançado",
+                      "Suporte Prioritário",
+                      "White Label Básico"
+                    ].map((feature) => (
+                      <div key={feature} className="flex items-center gap-2 p-3 rounded-lg border border-border/50">
+                        <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center">
+                          <Sparkles className="w-3 h-3 text-primary" />
+                        </div>
+                        <span className="text-sm">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-6 border-t border-border/50">
+                  <h3 className="text-lg font-semibold mb-4">Outros Planos Disponíveis</h3>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="p-6 rounded-xl border border-border/50 hover:border-primary/50 transition-colors">
+                      <h4 className="text-lg font-bold mb-2">Plano Starter</h4>
+                      <p className="text-3xl font-bold mb-1">R$ 99</p>
+                      <p className="text-sm text-muted-foreground mb-4">por mês</p>
+                      <p className="text-sm mb-4">Ideal para começar com influencer marketing</p>
+                      <Button variant="outline" className="w-full">Ver Detalhes</Button>
+                    </div>
+                    <div className="p-6 rounded-xl border-2 border-primary/50 bg-primary/5">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-lg font-bold">Plano Enterprise</h4>
+                        <span className="text-xs px-2 py-1 rounded-full bg-primary/20 text-primary">Popular</span>
+                      </div>
+                      <p className="text-3xl font-bold mb-1">R$ 799</p>
+                      <p className="text-sm text-muted-foreground mb-4">por mês</p>
+                      <p className="text-sm mb-4">Para agências e grandes empresas</p>
+                      <Button className="w-full">Fazer Upgrade</Button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </TabsContent>

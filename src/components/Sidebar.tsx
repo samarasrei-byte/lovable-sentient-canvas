@@ -31,8 +31,6 @@ const brandMenuItems = [
   { path: "/app/liveshop", icon: Video, label: "Live Shop" },
   { path: "/app/consultoria", icon: Sparkles, label: "Consultoria IA" },
   { path: "/app/chat", icon: MessageCircle, label: "Chat" },
-  { path: "/app/whitelabel", icon: Zap, label: "White-Label" },
-  { path: "/app/planos", icon: CreditCard, label: "Planos" },
   { path: "/app/perfil", icon: Settings, label: "Perfil" },
 ];
 
