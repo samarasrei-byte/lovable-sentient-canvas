@@ -408,7 +408,7 @@ export const AIStudioPreview = () => {
           </div>
 
           <p className="text-sm text-muted-foreground">
-            ⚡ Simulação grátis • Geração real com cadastro • Veo 3 powered
+            ⚡ Simulação grátis • Geração real com cadastro • IA de última geração
           </p>
         </div>
 
@@ -953,7 +953,7 @@ export const AIStudioPreview = () => {
                         <li>• ✨ Imagens <strong>SEM marca d'água</strong></li>
                         <li>• 🎬 Download em alta qualidade</li>
                         <li>• 🎨 Personalização completa (cabelo, olhos, pele)</li>
-                        <li>• 🎥 Criação de vídeos com IA (Veo 3)</li>
+                        <li>• 🎥 Criação de vídeos com IA</li>
                         <li>• 📁 Galeria de todas suas criações</li>
                       </ul>
                     </div>

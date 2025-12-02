@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { 
   Home, 
   Users, 
@@ -14,8 +15,10 @@ import {
   Activity, 
   UserCircle,
   MessageCircle,
-  BarChart3
+  BarChart3,
+  LogOut
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const brandMenuItems = [
   { path: "/app/dashboard", icon: Home, label: "Dashboard" },
@@ -47,6 +50,7 @@ const influencerMenuItems = [
 
 export const Sidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [userRole, setUserRole] = useState<string>("brand");
 
   useEffect(() => {
@@ -70,10 +74,21 @@ export const Sidebar = () => {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast.success("Logout realizado com sucesso!");
+      navigate("/login");
+    } catch (error) {
+      console.error("Error logging out:", error);
+      toast.error("Erro ao fazer logout");
+    }
+  };
+
   const menuItems = userRole === "influencer" ? influencerMenuItems : brandMenuItems;
 
   return (
-    <aside className="w-60 border-r border-border/30 bg-card/40 backdrop-blur-xl p-5">
+    <aside className="w-60 border-r border-border/30 bg-card/40 backdrop-blur-xl p-5 flex flex-col">
       <Link to="/" className="flex items-center gap-2.5 mb-10 group px-2">
         <div className="relative">
           <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-secondary rounded-lg opacity-40 group-hover:opacity-70 blur-sm transition-all duration-300" />
@@ -86,7 +101,7 @@ export const Sidebar = () => {
         </span>
       </Link>
 
-      <nav className="space-y-1">
+      <nav className="space-y-1 flex-1">
         {menuItems.map((item) => {
           const isActive = location.pathname === item.path;
           return (
@@ -105,6 +120,17 @@ export const Sidebar = () => {
           );
         })}
       </nav>
+
+      <div className="pt-4 border-t border-border/30 mt-4">
+        <Button
+          variant="ghost"
+          onClick={handleLogout}
+          className="w-full justify-start gap-3 px-3 py-2.5 text-muted-foreground/80 hover:text-destructive hover:bg-destructive/10"
+        >
+          <LogOut className="w-4 h-4" />
+          <span className="text-xs font-medium tracking-wide">Sair</span>
+        </Button>
+      </div>
     </aside>
   );
 };
