@@ -34,7 +34,6 @@ import AdminLogs from "./pages/admin/Logs";
 import AdminSettings from "./pages/admin/Settings";
 import Chat from "./pages/app/Chat";
 import WhiteLabelDashboard from "./pages/app/WhiteLabelDashboard";
-import WhiteLabel from "./pages/app/WhiteLabel";
 import Analytics from "./pages/app/Analytics";
 import InfluencerContratos from "./pages/app/influencer/Contratos";
 import InfluencerPagamentos from "./pages/app/influencer/Pagamentos";
@@ -95,9 +94,6 @@ const App = () => (
             
             {/* Agency Routes */}
             <Route path="agency/dashboard" element={<AgencyDashboard />} />
-            
-            {/* White-Label Routes */}
-            <Route path="whitelabel" element={<WhiteLabel />} />
           </Route>
 
           {/* White Label Agency Routes */}

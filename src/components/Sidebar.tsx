@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { 
   Home, 
   Users, 
-  Video, 
   CreditCard, 
   Sparkles, 
   Settings, 
@@ -12,9 +11,6 @@ import {
   Target, 
   FileText, 
   Wallet, 
-  Activity, 
-  Brain, 
-  UserCircle,
   MessageCircle,
   BarChart3
 } from "lucide-react";
@@ -27,11 +23,6 @@ const brandMenuItems = [
   { path: "/app/analytics", icon: BarChart3, label: "Analytics" },
   { path: "/app/contratos", icon: FileText, label: "Contratos" },
   { path: "/app/pagamentos", icon: Wallet, label: "Pagamentos" },
-  { path: "/app/monitoramento", icon: Activity, label: "Monitoramento" },
-  { path: "/app/ia-insights", icon: Brain, label: "IA Insights" },
-  { path: "/app/avatar-studio", icon: UserCircle, label: "Avatar Studio" },
-  { path: "/app/liveshop", icon: Video, label: "Live Shop" },
-  { path: "/app/consultoria", icon: Sparkles, label: "Consultoria IA" },
   { path: "/app/chat", icon: MessageCircle, label: "Chat" },
   { path: "/app/perfil", icon: Settings, label: "Perfil" },
 ];
@@ -39,12 +30,9 @@ const brandMenuItems = [
 const influencerMenuItems = [
   { path: "/app/dashboard", icon: Home, label: "Dashboard" },
   { path: "/app/ai-studio", icon: Sparkles, label: "Criar com IA" },
-  { path: "/app/influencer/analytics", icon: Brain, label: "Analytics" },
+  { path: "/app/influencer/analytics", icon: BarChart3, label: "Analytics" },
   { path: "/app/influencer/contratos", icon: FileText, label: "Contratos" },
   { path: "/app/influencer/pagamentos", icon: Wallet, label: "Pagamentos" },
-  { path: "/app/influencer/monitoramento", icon: Activity, label: "Monitoramento" },
-  { path: "/app/avatar-studio", icon: UserCircle, label: "Avatar Studio" },
-  { path: "/app/consultoria", icon: Sparkles, label: "Consultoria IA" },
   { path: "/app/chat", icon: MessageCircle, label: "Chat" },
   { path: "/app/perfil", icon: Settings, label: "Perfil" },
 ];
