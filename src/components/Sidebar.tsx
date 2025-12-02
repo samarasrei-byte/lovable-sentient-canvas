@@ -4,13 +4,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { 
   Home, 
   Users, 
-  CreditCard, 
+  Video, 
   Sparkles, 
   Settings, 
   Zap, 
   Target, 
   FileText, 
   Wallet, 
+  Activity, 
+  UserCircle,
   MessageCircle,
   BarChart3
 } from "lucide-react";
@@ -23,6 +25,9 @@ const brandMenuItems = [
   { path: "/app/analytics", icon: BarChart3, label: "Analytics" },
   { path: "/app/contratos", icon: FileText, label: "Contratos" },
   { path: "/app/pagamentos", icon: Wallet, label: "Pagamentos" },
+  { path: "/app/monitoramento", icon: Activity, label: "Monitoramento" },
+  { path: "/app/avatar-studio", icon: UserCircle, label: "Avatar Studio" },
+  { path: "/app/liveshop", icon: Video, label: "Live Shop" },
   { path: "/app/chat", icon: MessageCircle, label: "Chat" },
   { path: "/app/perfil", icon: Settings, label: "Perfil" },
 ];
@@ -33,6 +38,9 @@ const influencerMenuItems = [
   { path: "/app/influencer/analytics", icon: BarChart3, label: "Analytics" },
   { path: "/app/influencer/contratos", icon: FileText, label: "Contratos" },
   { path: "/app/influencer/pagamentos", icon: Wallet, label: "Pagamentos" },
+  { path: "/app/influencer/monitoramento", icon: Activity, label: "Monitoramento" },
+  { path: "/app/avatar-studio", icon: UserCircle, label: "Avatar Studio" },
+  { path: "/app/liveshop", icon: Video, label: "Live Shop" },
   { path: "/app/chat", icon: MessageCircle, label: "Chat" },
   { path: "/app/perfil", icon: Settings, label: "Perfil" },
 ];
