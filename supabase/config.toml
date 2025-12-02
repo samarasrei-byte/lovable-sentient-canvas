@@ -2,3 +2,12 @@ project_id = "nvmvyjajmasaksyffemu"
 
 [functions.consultoria-ai]
 verify_jwt = false
+
+[functions.generate-product-image]
+verify_jwt = false
+
+[functions.generate-product-video]
+verify_jwt = false
+
+[functions.send-notification]
+verify_jwt = false

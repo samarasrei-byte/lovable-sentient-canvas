@@ -35,6 +35,7 @@ import AdminSettings from "./pages/admin/Settings";
 import Chat from "./pages/app/Chat";
 import WhiteLabelDashboard from "./pages/app/WhiteLabelDashboard";
 import WhiteLabel from "./pages/app/WhiteLabel";
+import Analytics from "./pages/app/Analytics";
 import InfluencerContratos from "./pages/app/influencer/Contratos";
 import InfluencerPagamentos from "./pages/app/influencer/Pagamentos";
 import InfluencerMonitoramento from "./pages/app/influencer/Monitoramento";
@@ -84,6 +85,7 @@ const App = () => (
             <Route path="planos" element={<Planos />} />
             <Route path="perfil" element={<PerfilRouter />} />
             <Route path="chat" element={<Chat />} />
+            <Route path="analytics" element={<Analytics />} />
             
             {/* Influencer Routes */}
             <Route path="influencer/contratos" element={<InfluencerContratos />} />
