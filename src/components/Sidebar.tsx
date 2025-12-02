@@ -15,7 +15,8 @@ import {
   Activity, 
   Brain, 
   UserCircle,
-  MessageCircle
+  MessageCircle,
+  BarChart3
 } from "lucide-react";
 
 const brandMenuItems = [
@@ -23,6 +24,7 @@ const brandMenuItems = [
   { path: "/app/ai-studio", icon: Sparkles, label: "Criar com IA" },
   { path: "/app/talentos", icon: Users, label: "Talentos" },
   { path: "/app/campanhas", icon: Target, label: "Campanhas" },
+  { path: "/app/analytics", icon: BarChart3, label: "Analytics" },
   { path: "/app/contratos", icon: FileText, label: "Contratos" },
   { path: "/app/pagamentos", icon: Wallet, label: "Pagamentos" },
   { path: "/app/monitoramento", icon: Activity, label: "Monitoramento" },
