@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +9,6 @@ import { useToast } from "@/hooks/use-toast";
 import {
   MessageCircle,
   Send,
-  User,
   Shield,
   AlertTriangle,
   Loader2,
@@ -32,6 +31,12 @@ interface Contract {
   amount: number;
 }
 
+interface TypingUser {
+  user_id: string;
+  name: string;
+  is_typing: boolean;
+}
+
 export default function Chat() {
   const { toast } = useToast();
   const [contracts, setContracts] = useState<Contract[]>([]);
@@ -41,16 +46,75 @@ export default function Chat() {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [userRole, setUserRole] = useState<string>("");
+  const [userId, setUserId] = useState<string>("");
+  const [userName, setUserName] = useState<string>("");
+  const [otherUserTyping, setOtherUserTyping] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const presenceChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
   useEffect(() => {
     loadUserAndContracts();
   }, []);
 
+  // Setup presence channel for typing indicator
   useEffect(() => {
-    if (selectedContract) {
-      loadMessages(selectedContract);
-      const channel = supabase
+    if (selectedContract && userId) {
+      // Clean up previous channel
+      if (presenceChannelRef.current) {
+        supabase.removeChannel(presenceChannelRef.current);
+      }
+
+      const channelName = `typing:${selectedContract}`;
+      const presenceChannel = supabase.channel(channelName, {
+        config: {
+          presence: {
+            key: userId,
+          },
+        },
+      });
+
+      presenceChannel
+        .on('presence', { event: 'sync' }, () => {
+          const state = presenceChannel.presenceState();
+          // Check if any other user is typing
+          let typingUserName: string | null = null;
+          
+          Object.entries(state).forEach(([key, value]) => {
+            if (key !== userId && Array.isArray(value) && value.length > 0) {
+              const presence = value[0] as any;
+              if (presence.is_typing) {
+                typingUserName = presence.name || 'Alguém';
+              }
+            }
+          });
+          
+          setOtherUserTyping(typingUserName);
+        })
+        .on('presence', { event: 'join' }, ({ key, newPresences }) => {
+          console.log('User joined:', key, newPresences);
+        })
+        .on('presence', { event: 'leave' }, ({ key }) => {
+          console.log('User left:', key);
+          if (key !== userId) {
+            setOtherUserTyping(null);
+          }
+        })
+        .subscribe(async (status) => {
+          if (status === 'SUBSCRIBED') {
+            await presenceChannel.track({
+              user_id: userId,
+              name: userName,
+              is_typing: false,
+              online_at: new Date().toISOString(),
+            });
+          }
+        });
+
+      presenceChannelRef.current = presenceChannel;
+
+      // Also set up message subscription
+      const messageChannel = supabase
         .channel(`messages:${selectedContract}`)
         .on(
           'postgres_changes',
@@ -66,11 +130,17 @@ export default function Chat() {
         )
         .subscribe();
 
+      loadMessages(selectedContract);
+
       return () => {
-        supabase.removeChannel(channel);
+        supabase.removeChannel(messageChannel);
+        if (presenceChannelRef.current) {
+          supabase.removeChannel(presenceChannelRef.current);
+          presenceChannelRef.current = null;
+        }
       };
     }
-  }, [selectedContract]);
+  }, [selectedContract, userId, userName]);
 
   useEffect(() => {
     scrollToBottom();
@@ -80,17 +150,58 @@ export default function Chat() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Update typing status
+  const updateTypingStatus = useCallback(async (isTyping: boolean) => {
+    if (presenceChannelRef.current) {
+      await presenceChannelRef.current.track({
+        user_id: userId,
+        name: userName,
+        is_typing: isTyping,
+        online_at: new Date().toISOString(),
+      });
+    }
+  }, [userId, userName]);
+
+  // Handle input change with typing indicator
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewMessage(e.target.value);
+    
+    // Update typing status
+    updateTypingStatus(true);
+
+    // Clear previous timeout
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    // Set timeout to stop typing indicator after 2 seconds of no input
+    typingTimeoutRef.current = setTimeout(() => {
+      updateTypingStatus(false);
+    }, 2000);
+  };
+
   const loadUserAndContracts = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
+
+      setUserId(user.id);
+
+      // Get user profile for name
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("id", user.id)
+        .maybeSingle();
+      
+      setUserName(profile?.full_name || "Usuário");
 
       // Check user role
       const { data: roleData } = await supabase
         .from("user_roles")
         .select("role")
         .eq("user_id", user.id)
-        .single();
+        .maybeSingle();
 
       setUserRole(roleData?.role || "brand");
 
@@ -100,7 +211,7 @@ export default function Chat() {
           .from("influencers")
           .select("id")
           .eq("user_id", user.id)
-          .single();
+          .maybeSingle();
 
         if (influencer) {
           const { data: contractsData } = await supabase
@@ -109,22 +220,31 @@ export default function Chat() {
               id,
               amount,
               status,
-              brand_id,
-              profiles!contracts_brand_id_fkey(full_name)
+              brand_id
             `)
             .eq("influencer_id", influencer.id)
             .eq("status", "active");
 
           if (contractsData) {
-            setContracts(
-              contractsData.map((c: any) => ({
-                id: c.id,
-                influencer_name: "",
-                brand_name: c.profiles?.full_name || "Marca",
-                status: c.status,
-                amount: c.amount
-              }))
+            // Fetch brand names separately
+            const contractsWithNames = await Promise.all(
+              contractsData.map(async (c) => {
+                const { data: brandProfile } = await supabase
+                  .from("profiles")
+                  .select("full_name")
+                  .eq("id", c.brand_id)
+                  .maybeSingle();
+                
+                return {
+                  id: c.id,
+                  influencer_name: "",
+                  brand_name: brandProfile?.full_name || "Marca",
+                  status: c.status,
+                  amount: c.amount
+                };
+              })
             );
+            setContracts(contractsWithNames);
           }
         }
       } else {
@@ -178,7 +298,7 @@ export default function Chat() {
       if (error) throw error;
 
       setMessages(
-        data.map((msg) => ({
+        (data || []).map((msg) => ({
           ...msg,
           is_own: msg.sender_id === user.id
         }))
@@ -190,6 +310,12 @@ export default function Chat() {
 
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !selectedContract) return;
+
+    // Stop typing indicator
+    updateTypingStatus(false);
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
 
     setSending(true);
     try {
@@ -306,7 +432,13 @@ export default function Chat() {
                           userRole === "influencer" ? "brand_name" : "influencer_name"
                         ]}
                       </h3>
-                      <p className="text-sm text-muted-foreground">Online</p>
+                      <p className="text-sm text-muted-foreground">
+                        {otherUserTyping ? (
+                          <span className="text-primary animate-pulse">digitando...</span>
+                        ) : (
+                          "Online"
+                        )}
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -345,6 +477,20 @@ export default function Chat() {
                       </div>
                     </div>
                   ))}
+                  
+                  {/* Typing Indicator */}
+                  {otherUserTyping && (
+                    <div className="flex justify-start">
+                      <div className="bg-muted p-4 rounded-2xl">
+                        <div className="flex items-center gap-1">
+                          <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                          <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                          <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
                   <div ref={messagesEndRef} />
                 </div>
               </ScrollArea>
@@ -366,7 +512,7 @@ export default function Chat() {
                   <Input
                     placeholder="Digite sua mensagem..."
                     value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
+                    onChange={handleInputChange}
                     onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
                     disabled={sending}
                     className="flex-1"
