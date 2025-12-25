@@ -1,13 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Upload, Wand2, Video, Download, Sparkles, Edit3, Play } from "lucide-react";
+import { Upload, Wand2, Video, Download, Sparkles, Edit3, Play, History, Trash2, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import templateFitness from "@/assets/template-fitness.png";
 import templateBeauty from "@/assets/template-beauty.png";
@@ -42,6 +41,17 @@ const templates = [
   }
 ];
 
+interface VideoHistoryItem {
+  id: string;
+  product_name: string;
+  template_name: string;
+  image_url: string;
+  video_url: string | null;
+  prompt: string;
+  status: string;
+  created_at: string;
+}
+
 export default function AIStudio() {
   const navigate = useNavigate();
   const [selectedTemplate, setSelectedTemplate] = useState(templates[0]);
@@ -51,7 +61,7 @@ export default function AIStudio() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isGeneratingVideo, setIsGeneratingVideo] = useState(false);
   const [generatedVideo, setGeneratedVideo] = useState<string | null>(null);
-  const [currentStep, setCurrentStep] = useState<"template" | "customize" | "generate" | "video">("template");
+  const [currentStep, setCurrentStep] = useState<"template" | "customize" | "generate" | "video" | "history">("template");
   
   // Customization options
   const [hairColor, setHairColor] = useState("original");
@@ -59,6 +69,41 @@ export default function AIStudio() {
   const [skinTone, setSkinTone] = useState("original");
   const [hasTattoos, setHasTattoos] = useState("no");
   const [videoScript, setVideoScript] = useState("");
+  
+  // Video history
+  const [videoHistory, setVideoHistory] = useState<VideoHistoryItem[]>([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+
+  useEffect(() => {
+    if (currentStep === "history") {
+      loadVideoHistory();
+    }
+  }, [currentStep]);
+
+  const loadVideoHistory = async () => {
+    setIsLoadingHistory(true);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData?.session) {
+        toast.error("Faça login para ver seu histórico");
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("generated_videos")
+        .select("*")
+        .eq("user_id", sessionData.session.user.id)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      setVideoHistory(data || []);
+    } catch (error) {
+      console.error("Error loading video history:", error);
+      toast.error("Erro ao carregar histórico");
+    } finally {
+      setIsLoadingHistory(false);
+    }
+  };
 
   const handleProductUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -138,6 +183,22 @@ export default function AIStudio() {
 
     setIsGeneratingVideo(true);
     try {
+      // First save to database
+      const { data: videoRecord, error: insertError } = await supabase
+        .from("generated_videos")
+        .insert({
+          user_id: session.user.id,
+          product_name: productName,
+          template_name: selectedTemplate.name,
+          image_url: generatedImage,
+          prompt: videoScript,
+          status: "processing"
+        })
+        .select()
+        .single();
+
+      if (insertError) throw insertError;
+
       const { data, error } = await supabase.functions.invoke('generate-product-video', {
         body: { 
           imageUrl: generatedImage,
@@ -150,6 +211,15 @@ export default function AIStudio() {
       if (error) throw error;
 
       if (data?.videoUrl) {
+        // Update video record with the generated URL
+        await supabase
+          .from("generated_videos")
+          .update({ 
+            video_url: data.videoUrl,
+            status: "completed"
+          })
+          .eq("id", videoRecord.id);
+
         setGeneratedVideo(data.videoUrl);
         toast.success("Vídeo gerado com sucesso! 🎬");
       }
@@ -161,7 +231,7 @@ export default function AIStudio() {
     }
   };
 
-  const handleDownload = async () => {
+  const handleDownloadImage = async () => {
     const { data: sessionData } = await supabase.auth.getSession();
     const session = sessionData?.session;
     
@@ -172,11 +242,114 @@ export default function AIStudio() {
     }
 
     if (generatedImage) {
+      try {
+        const response = await fetch(generatedImage);
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `arcana-${productName}-${Date.now()}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        toast.success("Download iniciado!");
+      } catch (error) {
+        // Fallback for data URLs
+        const link = document.createElement('a');
+        link.href = generatedImage;
+        link.download = `arcana-${productName}-${Date.now()}.png`;
+        link.click();
+        toast.success("Download iniciado!");
+      }
+    }
+  };
+
+  const handleDownloadVideo = async (videoUrl?: string) => {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const session = sessionData?.session;
+    
+    if (!session) {
+      toast.error("Faça login para baixar!");
+      setTimeout(() => navigate("/login"), 1500);
+      return;
+    }
+
+    const urlToDownload = videoUrl || generatedVideo;
+    if (!urlToDownload) {
+      toast.error("Nenhum vídeo disponível para download");
+      return;
+    }
+
+    try {
+      const response = await fetch(urlToDownload);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = generatedImage;
-      link.download = `arcana-${productName}-${Date.now()}.png`;
+      link.href = url;
+      link.download = `arcana-video-${productName || 'meu-produto'}-${Date.now()}.mp4`;
+      document.body.appendChild(link);
       link.click();
-      toast.success("Download iniciado!");
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      toast.success("Download do vídeo iniciado!");
+    } catch (error) {
+      console.error("Error downloading video:", error);
+      // Fallback: open in new tab
+      window.open(urlToDownload, '_blank');
+      toast.info("Vídeo aberto em nova aba. Clique com botão direito para salvar.");
+    }
+  };
+
+  const handleDeleteVideo = async (videoId: string) => {
+    try {
+      const { error } = await supabase
+        .from("generated_videos")
+        .delete()
+        .eq("id", videoId);
+
+      if (error) throw error;
+      
+      setVideoHistory(prev => prev.filter(v => v.id !== videoId));
+      toast.success("Vídeo removido do histórico");
+    } catch (error) {
+      console.error("Error deleting video:", error);
+      toast.error("Erro ao remover vídeo");
+    }
+  };
+
+  const handleReeditVideo = (video: VideoHistoryItem) => {
+    // Find the template
+    const template = templates.find(t => t.name === video.template_name) || templates[0];
+    setSelectedTemplate(template);
+    setProductName(video.product_name);
+    setGeneratedImage(video.image_url);
+    setVideoScript(video.prompt);
+    setGeneratedVideo(video.video_url);
+    setCurrentStep("video");
+    toast.info("Vídeo carregado para edição");
+  };
+
+  const shareVideo = (platform: string, videoUrl: string) => {
+    const shareText = `Confira meu novo vídeo criado com IA no ARCANA! 🎬✨`;
+    
+    switch (platform) {
+      case 'instagram':
+        window.open('https://www.instagram.com/', '_blank');
+        toast.success("Baixe o vídeo e faça upload no Instagram!");
+        break;
+      case 'tiktok':
+        window.open('https://www.tiktok.com/upload', '_blank');
+        toast.success("Baixe o vídeo e faça upload no TikTok!");
+        break;
+      case 'youtube':
+        window.open('https://www.youtube.com/upload', '_blank');
+        toast.success("Baixe o vídeo e faça upload no YouTube!");
+        break;
+      case 'twitter':
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`, '_blank');
+        toast.success("Compartilhe no X/Twitter!");
+        break;
     }
   };
 
@@ -198,11 +371,15 @@ export default function AIStudio() {
         </div>
 
         <Tabs value={currentStep} onValueChange={(v) => setCurrentStep(v as any)} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 lg:w-2/3 mx-auto">
+          <TabsList className="grid w-full grid-cols-5 lg:w-4/5 mx-auto">
             <TabsTrigger value="template">1. Template</TabsTrigger>
             <TabsTrigger value="customize">2. Personalizar</TabsTrigger>
             <TabsTrigger value="generate">3. Gerar Imagem</TabsTrigger>
             <TabsTrigger value="video">4. Criar Vídeo</TabsTrigger>
+            <TabsTrigger value="history" className="gap-1">
+              <History className="w-3 h-3" />
+              Histórico
+            </TabsTrigger>
           </TabsList>
 
           {/* Step 1: Template Selection */}
@@ -433,7 +610,7 @@ export default function AIStudio() {
 
                     {generatedImage && (
                       <div className="space-y-3">
-                        <Button variant="outline" onClick={handleDownload} className="w-full gap-2">
+                        <Button variant="outline" onClick={handleDownloadImage} className="w-full gap-2">
                           <Download className="w-4 h-4" />
                           Baixar Imagem
                         </Button>
@@ -530,7 +707,11 @@ export default function AIStudio() {
 
                       {generatedVideo && (
                         <div className="space-y-4">
-                          <Button variant="outline" className="w-full gap-2">
+                          <Button 
+                            variant="outline" 
+                            className="w-full gap-2"
+                            onClick={() => handleDownloadVideo()}
+                          >
                             <Download className="w-4 h-4" />
                             Baixar Vídeo
                           </Button>
@@ -541,10 +722,7 @@ export default function AIStudio() {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => {
-                                  window.open(`https://www.instagram.com/`, '_blank');
-                                  toast.success("Abra o Instagram e faça upload do vídeo!");
-                                }}
+                                onClick={() => shareVideo('instagram', generatedVideo)}
                                 className="gap-2"
                               >
                                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
@@ -555,10 +733,7 @@ export default function AIStudio() {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => {
-                                  window.open(`https://www.tiktok.com/upload`, '_blank');
-                                  toast.success("Abra o TikTok e faça upload do vídeo!");
-                                }}
+                                onClick={() => shareVideo('tiktok', generatedVideo)}
                                 className="gap-2"
                               >
                                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
@@ -569,10 +744,7 @@ export default function AIStudio() {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => {
-                                  window.open(`https://www.youtube.com/upload`, '_blank');
-                                  toast.success("Abra o YouTube e faça upload do vídeo!");
-                                }}
+                                onClick={() => shareVideo('youtube', generatedVideo)}
                                 className="gap-2"
                               >
                                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
@@ -583,10 +755,7 @@ export default function AIStudio() {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => {
-                                  window.open(`https://twitter.com/intent/tweet?text=Confira%20meu%20novo%20vídeo%20criado%20com%20IA!`, '_blank');
-                                  toast.success("Compartilhe no X/Twitter!");
-                                }}
+                                onClick={() => shareVideo('twitter', generatedVideo)}
                                 className="gap-2"
                               >
                                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
@@ -608,6 +777,122 @@ export default function AIStudio() {
                   </div>
                 )}
               </Card>
+            </div>
+          </TabsContent>
+
+          {/* Step 5: Video History */}
+          <TabsContent value="history" className="space-y-6 mt-8">
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-bold mb-2">Histórico de Vídeos</h2>
+              <p className="text-muted-foreground">Veja todos os vídeos que você criou</p>
+            </div>
+
+            <div className="max-w-6xl mx-auto">
+              {isLoadingHistory ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                </div>
+              ) : videoHistory.length === 0 ? (
+                <Card className="p-12 text-center">
+                  <History className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
+                  <h3 className="text-xl font-semibold mb-2">Nenhum vídeo criado ainda</h3>
+                  <p className="text-muted-foreground mb-6">
+                    Comece criando seu primeiro vídeo com IA!
+                  </p>
+                  <Button onClick={() => setCurrentStep("template")} className="gap-2">
+                    <Sparkles className="w-4 h-4" />
+                    Criar Primeiro Vídeo
+                  </Button>
+                </Card>
+              ) : (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {videoHistory.map((video) => (
+                    <Card key={video.id} className="overflow-hidden group">
+                      <div className="relative aspect-square">
+                        {video.video_url ? (
+                          <video 
+                            src={video.video_url} 
+                            className="w-full h-full object-cover"
+                            muted
+                            loop
+                            onMouseEnter={(e) => e.currentTarget.play()}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.pause();
+                              e.currentTarget.currentTime = 0;
+                            }}
+                          />
+                        ) : (
+                          <img 
+                            src={video.image_url} 
+                            alt={video.product_name}
+                            className="w-full h-full object-cover"
+                          />
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="absolute bottom-4 left-4 right-4 flex gap-2">
+                            <Button 
+                              size="sm" 
+                              variant="secondary"
+                              className="flex-1 gap-1"
+                              onClick={() => handleReeditVideo(video)}
+                            >
+                              <Edit3 className="w-3 h-3" />
+                              Re-editar
+                            </Button>
+                            {video.video_url && (
+                              <Button 
+                                size="sm" 
+                                variant="secondary"
+                                onClick={() => handleDownloadVideo(video.video_url!)}
+                              >
+                                <Download className="w-3 h-3" />
+                              </Button>
+                            )}
+                            <Button 
+                              size="sm" 
+                              variant="destructive"
+                              onClick={() => handleDeleteVideo(video.id)}
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        </div>
+                        {video.status === "processing" && (
+                          <div className="absolute top-2 right-2">
+                            <Badge variant="secondary" className="gap-1">
+                              <div className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse" />
+                              Processando
+                            </Badge>
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-4">
+                        <h3 className="font-semibold truncate">{video.product_name}</h3>
+                        <p className="text-sm text-muted-foreground truncate">{video.template_name}</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {new Date(video.created_at).toLocaleDateString('pt-BR', {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric'
+                          })}
+                        </p>
+                        {video.video_url && (
+                          <div className="flex gap-1 mt-3">
+                            <Button 
+                              size="sm" 
+                              variant="ghost" 
+                              className="h-7 px-2"
+                              onClick={() => shareVideo('instagram', video.video_url!)}
+                            >
+                              <Share2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </div>
           </TabsContent>
         </Tabs>
