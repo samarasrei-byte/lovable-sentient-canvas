@@ -13,10 +13,17 @@ import { TrustedBrands } from "@/components/TrustedBrands";
 import { Manifesto } from "@/components/Manifesto";
 import { Footer } from "@/components/Footer";
 import { AvatarShowcase } from "@/components/AvatarShowcase";
+import { InstallPrompt } from "@/components/pwa/InstallPrompt";
+import { UpdatePrompt } from "@/components/pwa/UpdatePrompt";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground scroll-smooth">
+      {/* PWA Components */}
+      <InstallPrompt />
+      <UpdatePrompt />
+      
+      {/* Main Content */}
       <Hero />
       <AIStudioPreview />
       <TalentShowcase />
