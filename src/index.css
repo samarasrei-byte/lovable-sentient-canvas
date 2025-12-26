@@ -142,3 +142,74 @@ lovable-badge {
   position: absolute !important;
   z-index: -9999 !important;
 }
+
+/* PWA Safe Area Support */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top, 0);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+/* Touch Optimization */
+.touch-manipulation {
+  touch-action: manipulation;
+}
+
+/* Mobile-First Transitions */
+@media (prefers-reduced-motion: no-preference) {
+  .transition-mobile {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+/* Active States for Mobile */
+@media (hover: none) {
+  .active\:scale-95:active {
+    transform: scale(0.95);
+  }
+  
+  .active\:bg-muted:active {
+    background-color: hsl(var(--muted));
+  }
+}
+
+/* Prevent Text Selection on UI Elements */
+.no-select {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Smooth Scrolling */
+.scroll-smooth {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Hide scrollbar but keep functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* PWA Standalone Mode Adjustments */
+@media (display-mode: standalone) {
+  body {
+    overscroll-behavior-y: none;
+  }
+  
+  /* Prevent pull-to-refresh */
+  html {
+    overscroll-behavior-y: contain;
+  }
+}
