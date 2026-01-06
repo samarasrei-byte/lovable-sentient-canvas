@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
+import TestLogin from "./pages/qa/TestLogin";
+import QADashboard from "./pages/qa/QADashboard";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import AppLayout, { RedirectToDashboard } from "./pages/app/AppLayout";
 import { DashboardRouter } from "./components/DashboardRouter";
@@ -52,6 +54,10 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
+          
+          {/* QA Routes - Hidden from public */}
+          <Route path="/test-login" element={<TestLogin />} />
+          <Route path="/qa-dashboard" element={<QADashboard />} />
           
           {/* Admin Routes */}
           <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminLayout /></ProtectedRoute>}>
