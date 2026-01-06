@@ -14,7 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { CommunityCarousel } from "@/components/CommunityCarousel";
 import { UserGallery } from "@/components/UserGallery";
 import { ImageEditor } from "@/components/ImageEditor";
-import { motion } from "framer-motion";
+
 import templateFitness from "@/assets/template-fitness.png";
 import templateBeauty from "@/assets/template-beauty.png";
 import templatePerfume from "@/assets/template-perfume.png";
@@ -499,12 +499,9 @@ export const AIStudioPreview = () => {
                     </Label>
                     <Badge className="text-xs bg-primary/10 text-primary border-primary/20">DEPOIS</Badge>
                   </div>
-                  <motion.div 
-                    className="relative aspect-square rounded-xl overflow-hidden border-2 border-primary/50 shadow-lg bg-muted"
+                  <div 
+                    className="relative aspect-square rounded-xl overflow-hidden border-2 border-primary/50 shadow-lg bg-muted transition-all duration-500"
                     key={`${hairColor}-${hairStyle}-${eyeColor}-${skinTone}-${scenario}`}
-                    initial={{ opacity: 0.7, scale: 0.98 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5, ease: "easeOut" }}
                   >
                     {isGenerating ? (
                       <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-secondary/10">
@@ -558,86 +555,48 @@ export const AIStudioPreview = () => {
                         />
                         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-purple-500/10 to-pink-500/20" />
                         
-                        {/* Live Configuration Badges with morphing animation */}
+                        {/* Live Configuration Badges */}
                         <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6">
-                          <motion.div 
-                            className="bg-background/95 backdrop-blur-sm border-2 border-primary/50 rounded-2xl p-6 space-y-3 max-w-[90%] shadow-2xl"
-                            key={`config-${hairColor}-${hairStyle}-${eyeColor}-${skinTone}-${scenario}`}
-                            initial={{ opacity: 0, scale: 0.9, y: 10 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            transition={{ 
-                              duration: 0.4, 
-                              ease: [0.4, 0, 0.2, 1],
-                              type: "spring",
-                              stiffness: 300,
-                              damping: 30
-                            }}
-                          >
+                          <div className="bg-background/95 backdrop-blur-sm border-2 border-primary/50 rounded-2xl p-6 space-y-3 max-w-[90%] shadow-2xl animate-in fade-in duration-300">
                             <div className="flex items-center gap-2 justify-center">
                               <Sparkles className="w-5 h-5 text-primary animate-pulse" />
                               <p className="font-bold text-sm">Configurações Atuais</p>
                             </div>
                             <div className="grid grid-cols-2 gap-2">
-                              <motion.div
-                                key={hairColor}
-                                initial={{ x: -10, opacity: 0 }}
-                                animate={{ x: 0, opacity: 1 }}
-                                transition={{ duration: 0.3 }}
-                              >
+                              <div>
                                 <Badge variant="secondary" className="text-xs justify-center py-1.5 w-full">
                                   {hairColor.split(' ')[1]}
                                 </Badge>
-                              </motion.div>
-                              <motion.div
-                                key={hairStyle}
-                                initial={{ x: 10, opacity: 0 }}
-                                animate={{ x: 0, opacity: 1 }}
-                                transition={{ duration: 0.3, delay: 0.05 }}
-                              >
+                              </div>
+                              <div>
                                 <Badge variant="secondary" className="text-xs justify-center py-1.5 w-full">
                                   {hairStyle.split(' ')[1]} {hairStyle.split(' ')[2]}
                                 </Badge>
-                              </motion.div>
-                              <motion.div
-                                key={eyeColor}
-                                initial={{ x: -10, opacity: 0 }}
-                                animate={{ x: 0, opacity: 1 }}
-                                transition={{ duration: 0.3, delay: 0.1 }}
-                              >
+                              </div>
+                              <div>
                                 <Badge variant="secondary" className="text-xs justify-center py-1.5 w-full">
                                   {eyeColor.split(' ')[1]}
                                 </Badge>
-                              </motion.div>
-                              <motion.div
-                                key={skinTone}
-                                initial={{ x: 10, opacity: 0 }}
-                                animate={{ x: 0, opacity: 1 }}
-                                transition={{ duration: 0.3, delay: 0.15 }}
-                              >
+                              </div>
+                              <div>
                                 <Badge variant="secondary" className="text-xs justify-center py-1.5 w-full">
                                   {skinTone.split(' ')[1]}
                                 </Badge>
-                              </motion.div>
-                              <motion.div
-                                key={scenario}
-                                initial={{ y: 10, opacity: 0 }}
-                                animate={{ y: 0, opacity: 1 }}
-                                transition={{ duration: 0.3, delay: 0.2 }}
-                                className="col-span-2"
-                              >
+                              </div>
+                              <div className="col-span-2">
                                 <Badge variant="secondary" className="text-xs justify-center py-1.5 w-full">
                                   📍 {scenario}
                                 </Badge>
-                              </motion.div>
+                              </div>
                             </div>
                             <p className="text-[10px] text-muted-foreground text-center">
                               Clique em "Gerar" para criar a imagem final
                             </p>
-                          </motion.div>
+                          </div>
                         </div>
                       </div>
                     )}
-                  </motion.div>
+                  </div>
 
                   {generatedImage && (
                     <div className="p-3 bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
