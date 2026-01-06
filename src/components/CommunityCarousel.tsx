@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Heart, Sparkles, ChevronLeft, ChevronRight, Star } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 
 interface ShowcaseImage {
@@ -226,15 +226,10 @@ export const CommunityCarousel = () => {
     <section className="py-16 px-6 bg-gradient-to-b from-muted/30 to-background">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 mb-4"
-          >
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 mb-4">
             <Sparkles className="h-4 w-4 text-primary" />
             <span className="text-sm font-medium text-primary">Criações da Comunidade</span>
-          </motion.div>
+          </div>
           
           <h2 className="text-3xl md:text-4xl font-bold mb-3">
             Inspirações Recentes
@@ -258,15 +253,9 @@ export const CommunityCarousel = () => {
             </Button>
 
             <div className="grid md:grid-cols-3 gap-6 flex-1">
-              <AnimatePresence mode="wait">
+            <AnimatePresence mode="wait">
                 {visibleImages.map((image) => (
-                  <motion.div
-                    key={image.id}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.3 }}
-                  >
+                  <div key={image.id}>
                     <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 border-2 hover:border-primary/50">
                       <div className="relative aspect-square overflow-hidden bg-muted">
                         <img
@@ -319,7 +308,7 @@ export const CommunityCarousel = () => {
                         </span>
                       </div>
                     </Card>
-                  </motion.div>
+                  </div>
                 ))}
               </AnimatePresence>
             </div>

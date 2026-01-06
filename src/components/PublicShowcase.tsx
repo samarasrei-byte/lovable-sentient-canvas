@@ -4,7 +4,6 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Heart, Sparkles, TrendingUp } from "lucide-react";
-import { motion } from "framer-motion";
 import { toast } from "sonner";
 
 interface ShowcaseImage {
@@ -128,35 +127,18 @@ export const PublicShowcase = () => {
     <section className="py-24 px-6 bg-gradient-to-b from-background to-secondary/20">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 mb-6"
-          >
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 mb-6">
             <Sparkles className="h-4 w-4 text-primary" />
             <span className="text-sm font-medium text-primary">Galeria Pública</span>
-          </motion.div>
+          </div>
           
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="text-4xl md:text-5xl font-bold mb-4"
-          >
+          <h2 className="text-4xl md:text-5xl font-bold mb-4">
             Criações da Comunidade
-          </motion.h2>
+          </h2>
           
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8"
-          >
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
             Veja o que outros criadores estão produzindo com nosso AI Studio
-          </motion.p>
+          </p>
 
           <div className="flex items-center justify-center gap-2">
             <Button
@@ -181,14 +163,8 @@ export const PublicShowcase = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {images.map((image, index) => (
-            <motion.div
-              key={image.id}
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.05 }}
-            >
+          {images.map((image) => (
+            <div key={image.id}>
               <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 border-2 hover:border-primary/50">
                 <div className="relative aspect-square overflow-hidden bg-muted">
                   <img
@@ -227,7 +203,7 @@ export const PublicShowcase = () => {
                   </span>
                 </div>
               </Card>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

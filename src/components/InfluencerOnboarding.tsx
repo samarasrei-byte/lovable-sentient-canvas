@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -84,12 +84,7 @@ export const InfluencerOnboarding = ({ userId, onComplete }: OnboardingProps) =>
     switch (step) {
       case 1:
         return (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="space-y-6"
-          >
+          <div className="space-y-6">
             <div className="text-center space-y-2 mb-8">
               <div className="w-16 h-16 mx-auto bg-gradient-to-br from-primary to-accent rounded-2xl flex items-center justify-center mb-4 shadow-[0_0_30px_hsl(var(--primary)/0.5)]">
                 <User className="w-8 h-8 text-white" />
@@ -144,17 +139,12 @@ export const InfluencerOnboarding = ({ userId, onComplete }: OnboardingProps) =>
                 />
               </div>
             </div>
-          </motion.div>
+          </div>
         );
 
       case 2:
         return (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="space-y-6"
-          >
+          <div className="space-y-6">
             <div className="text-center space-y-2 mb-8">
               <div className="w-16 h-16 mx-auto bg-gradient-to-br from-success to-accent rounded-2xl flex items-center justify-center mb-4 shadow-[0_0_30px_hsl(var(--success)/0.5)]">
                 <TrendingUp className="w-8 h-8 text-white" />
@@ -196,17 +186,12 @@ export const InfluencerOnboarding = ({ userId, onComplete }: OnboardingProps) =>
                 </p>
               </div>
             </div>
-          </motion.div>
+          </div>
         );
 
       case 3:
         return (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="space-y-6"
-          >
+          <div className="space-y-6">
             <div className="text-center space-y-2 mb-8">
               <div className="w-16 h-16 mx-auto bg-gradient-to-br from-secondary to-primary rounded-2xl flex items-center justify-center mb-4 shadow-[0_0_30px_hsl(var(--secondary)/0.5)]">
                 <Instagram className="w-8 h-8 text-white" />
@@ -262,17 +247,12 @@ export const InfluencerOnboarding = ({ userId, onComplete }: OnboardingProps) =>
                 />
               </div>
             </div>
-          </motion.div>
+          </div>
         );
 
       case 4:
         return (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="space-y-6"
-          >
+          <div className="space-y-6">
             <div className="text-center space-y-2 mb-8">
               <div className="w-16 h-16 mx-auto bg-gradient-to-br from-accent to-destructive rounded-2xl flex items-center justify-center mb-4 shadow-[0_0_30px_hsl(var(--accent)/0.5)]">
                 <DollarSign className="w-8 h-8 text-white" />
@@ -315,7 +295,7 @@ export const InfluencerOnboarding = ({ userId, onComplete }: OnboardingProps) =>
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
         );
 
       default:
@@ -340,11 +320,7 @@ export const InfluencerOnboarding = ({ userId, onComplete }: OnboardingProps) =>
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-background to-primary/5">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-2xl"
-      >
+      <div className="w-full max-w-2xl">
         <Card className="border-border/50 bg-card/95 backdrop-blur-xl shadow-[0_8px_32px_hsl(var(--primary)/0.15)]">
           <CardHeader className="space-y-4">
             <div className="space-y-2">
@@ -397,7 +373,7 @@ export const InfluencerOnboarding = ({ userId, onComplete }: OnboardingProps) =>
             </div>
           </CardContent>
         </Card>
-      </motion.div>
+      </div>
     </div>
   );
 };
