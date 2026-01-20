@@ -188,6 +188,39 @@ export type Database = {
         }
         Relationships: []
       }
+      checkout_sessions: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          id: string
+          metadata: Json | null
+          plan_key: string
+          status: string
+          stripe_session_id: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          plan_key: string
+          status?: string
+          stripe_session_id: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          plan_key?: string
+          status?: string
+          stripe_session_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       contracts: {
         Row: {
           amount: number
@@ -240,6 +273,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      credit_transactions: {
+        Row: {
+          amount: number
+          balance_after: number
+          created_at: string
+          description: string | null
+          id: string
+          reference_id: string | null
+          reference_type: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          balance_after: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          reference_id?: string | null
+          reference_type?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          balance_after?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          reference_id?: string | null
+          reference_type?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       generated_images: {
         Row: {
@@ -605,6 +674,51 @@ export type Database = {
           },
         ]
       }
+      plan_configs: {
+        Row: {
+          created_at: string
+          credits_monthly: number
+          display_order: number
+          features: Json
+          id: string
+          is_active: boolean
+          name: string
+          plan_key: string
+          price_cents: number
+          stripe_price_id: string | null
+          stripe_product_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          credits_monthly: number
+          display_order?: number
+          features?: Json
+          id?: string
+          is_active?: boolean
+          name: string
+          plan_key: string
+          price_cents: number
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          credits_monthly?: number
+          display_order?: number
+          features?: Json
+          id?: string
+          is_active?: boolean
+          name?: string
+          plan_key?: string
+          price_cents?: number
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       platform_fees: {
         Row: {
           arcana_platform_fee: number
@@ -670,34 +784,76 @@ export type Database = {
         }
         Relationships: []
       }
-      subscriptions: {
+      stripe_customers: {
         Row: {
           created_at: string
+          email: string | null
+          id: string
+          stripe_customer_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          stripe_customer_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          stripe_customer_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          cancel_at_period_end: boolean | null
+          created_at: string
+          current_period_end: string | null
+          current_period_start: string | null
           ends_at: string | null
           id: string
           plan: Database["public"]["Enums"]["subscription_plan"]
           started_at: string
           status: string
+          stripe_customer_id: string | null
+          stripe_price_id: string | null
+          stripe_subscription_id: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          cancel_at_period_end?: boolean | null
           created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
           ends_at?: string | null
           id?: string
           plan: Database["public"]["Enums"]["subscription_plan"]
           started_at?: string
           status?: string
+          stripe_customer_id?: string | null
+          stripe_price_id?: string | null
+          stripe_subscription_id?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          cancel_at_period_end?: boolean | null
           created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
           ends_at?: string | null
           id?: string
           plan?: Database["public"]["Enums"]["subscription_plan"]
           started_at?: string
           status?: string
+          stripe_customer_id?: string | null
+          stripe_price_id?: string | null
+          stripe_subscription_id?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -779,6 +935,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_credits: {
+        Row: {
+          created_at: string
+          credits_balance: number
+          credits_used_this_month: number
+          id: string
+          last_credit_reset: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          credits_balance?: number
+          credits_used_this_month?: number
+          id?: string
+          last_credit_reset?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          credits_balance?: number
+          credits_used_this_month?: number
+          id?: string
+          last_credit_reset?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
@@ -862,6 +1048,25 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_credits: {
+        Args: {
+          p_amount: number
+          p_description?: string
+          p_type?: string
+          p_user_id: string
+        }
+        Returns: number
+      }
+      consume_credits: {
+        Args: {
+          p_amount: number
+          p_description?: string
+          p_reference_id?: string
+          p_reference_type?: string
+          p_user_id: string
+        }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -880,12 +1085,22 @@ export type Database = {
         }
         Returns: string
       }
+      reset_monthly_credits: {
+        Args: { p_new_credits: number; p_user_id: string }
+        Returns: number
+      }
     }
     Enums: {
       app_role: "brand" | "influencer" | "admin"
       contract_status: "pending_payment" | "active" | "completed" | "cancelled"
       payment_status: "pending" | "completed" | "failed" | "refunded"
-      subscription_plan: "starter" | "professional" | "enterprise"
+      subscription_plan:
+        | "starter"
+        | "professional"
+        | "enterprise"
+        | "creator"
+        | "business"
+        | "pro"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1016,7 +1231,14 @@ export const Constants = {
       app_role: ["brand", "influencer", "admin"],
       contract_status: ["pending_payment", "active", "completed", "cancelled"],
       payment_status: ["pending", "completed", "failed", "refunded"],
-      subscription_plan: ["starter", "professional", "enterprise"],
+      subscription_plan: [
+        "starter",
+        "professional",
+        "enterprise",
+        "creator",
+        "business",
+        "pro",
+      ],
     },
   },
 } as const
