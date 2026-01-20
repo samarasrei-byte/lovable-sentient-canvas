@@ -1,9 +1,8 @@
 import { HeroArcana2 } from "@/components/HeroArcana2";
 import { UnifiedMarketplace } from "@/components/UnifiedMarketplace";
+import { PlansSection } from "@/components/PlansSection";
 import { HowItWorksNew } from "@/components/HowItWorksNew";
 import { AIStudioPreview } from "@/components/AIStudioPreview";
-import { TalentShowcase } from "@/components/TalentShowcase";
-import { AvatarShowcase } from "@/components/AvatarShowcase";
 import { SuccessCases } from "@/components/SuccessCases";
 import { Testimonials } from "@/components/Testimonials";
 import { TrustedBrands } from "@/components/TrustedBrands";
@@ -22,10 +21,9 @@ const Index = () => {
       {/* Main Content - Arcana 2.0 */}
       <HeroArcana2 />
       <UnifiedMarketplace />
+      <PlansSection />
       <HowItWorksNew />
       <AIStudioPreview />
-      <TalentShowcase />
-      <AvatarShowcase />
       <SuccessCases />
       <Testimonials />
       <TrustedBrands />
