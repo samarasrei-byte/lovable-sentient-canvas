@@ -74,6 +74,162 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_stats: {
+        Row: {
+          id: string
+          stat_key: string
+          stat_value: Json
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          stat_key: string
+          stat_value?: Json
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          stat_key?: string
+          stat_value?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ai_avatars: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean | null
+          is_featured: boolean | null
+          name: string
+          personality: string | null
+          price_per_use: number | null
+          prompt: string | null
+          tags: string[] | null
+          total_uses: number | null
+          type: string
+          updated_at: string
+          voice_id: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          is_featured?: boolean | null
+          name: string
+          personality?: string | null
+          price_per_use?: number | null
+          prompt?: string | null
+          tags?: string[] | null
+          total_uses?: number | null
+          type?: string
+          updated_at?: string
+          voice_id?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          is_featured?: boolean | null
+          name?: string
+          personality?: string | null
+          price_per_use?: number | null
+          prompt?: string | null
+          tags?: string[] | null
+          total_uses?: number | null
+          type?: string
+          updated_at?: string
+          voice_id?: string | null
+        }
+        Relationships: []
+      }
+      artists: {
+        Row: {
+          audio_url: string | null
+          avatar_url: string | null
+          bio: string | null
+          category: string
+          created_at: string
+          id: string
+          instagram_handle: string | null
+          is_active: boolean | null
+          is_available: boolean | null
+          is_verified: boolean | null
+          name: string
+          portfolio_urls: string[] | null
+          price_per_hour: number | null
+          price_per_project: number | null
+          rating: number | null
+          skills: string[] | null
+          spotify_url: string | null
+          total_projects: number | null
+          updated_at: string
+          user_id: string | null
+          video_url: string | null
+          youtube_url: string | null
+        }
+        Insert: {
+          audio_url?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          category: string
+          created_at?: string
+          id?: string
+          instagram_handle?: string | null
+          is_active?: boolean | null
+          is_available?: boolean | null
+          is_verified?: boolean | null
+          name: string
+          portfolio_urls?: string[] | null
+          price_per_hour?: number | null
+          price_per_project?: number | null
+          rating?: number | null
+          skills?: string[] | null
+          spotify_url?: string | null
+          total_projects?: number | null
+          updated_at?: string
+          user_id?: string | null
+          video_url?: string | null
+          youtube_url?: string | null
+        }
+        Update: {
+          audio_url?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          category?: string
+          created_at?: string
+          id?: string
+          instagram_handle?: string | null
+          is_active?: boolean | null
+          is_available?: boolean | null
+          is_verified?: boolean | null
+          name?: string
+          portfolio_urls?: string[] | null
+          price_per_hour?: number | null
+          price_per_project?: number | null
+          rating?: number | null
+          skills?: string[] | null
+          spotify_url?: string | null
+          total_projects?: number | null
+          updated_at?: string
+          user_id?: string | null
+          video_url?: string | null
+          youtube_url?: string | null
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
@@ -550,6 +706,69 @@ export type Database = {
         }
         Relationships: []
       }
+      marketplace_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          display_order: number | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          slug: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          slug: string
+          type: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          slug?: string
+          type?: string
+        }
+        Relationships: []
+      }
+      marketplace_tags: {
+        Row: {
+          color: string | null
+          created_at: string
+          id: string
+          is_active: boolean | null
+          name: string
+          slug: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          slug: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string
@@ -587,6 +806,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      mock_payments: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          id: string
+          payment_method: string | null
+          reference_id: string | null
+          reference_type: string | null
+          status: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          amount_cents: number
+          created_at?: string
+          id?: string
+          payment_method?: string | null
+          reference_id?: string | null
+          reference_type?: string | null
+          status?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          id?: string
+          payment_method?: string | null
+          reference_id?: string | null
+          reference_type?: string | null
+          status?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       notifications: {
         Row: {
@@ -715,6 +970,45 @@ export type Database = {
           price_cents?: number
           stripe_price_id?: string | null
           stripe_product_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      plan_upgrades: {
+        Row: {
+          created_at: string
+          description: string | null
+          display_order: number | null
+          features: Json | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          price_cents: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          features?: Json | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          price_cents?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          features?: Json | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          price_cents?: number
           updated_at?: string
         }
         Relationships: []
@@ -986,6 +1280,44 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_upgrades: {
+        Row: {
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          payment_status: string | null
+          purchased_at: string
+          upgrade_id: string
+          user_id: string
+        }
+        Insert: {
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          payment_status?: string | null
+          purchased_at?: string
+          upgrade_id: string
+          user_id: string
+        }
+        Update: {
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          payment_status?: string | null
+          purchased_at?: string
+          upgrade_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_upgrades_upgrade_id_fkey"
+            columns: ["upgrade_id"]
+            isOneToOne: false
+            referencedRelation: "plan_upgrades"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       withdrawals: {
         Row: {
