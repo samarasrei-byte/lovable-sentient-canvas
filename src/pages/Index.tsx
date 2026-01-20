@@ -1,18 +1,14 @@
-import { Hero } from "@/components/Hero";
+import { HeroArcana2 } from "@/components/HeroArcana2";
+import { UnifiedMarketplace } from "@/components/UnifiedMarketplace";
+import { HowItWorksNew } from "@/components/HowItWorksNew";
 import { AIStudioPreview } from "@/components/AIStudioPreview";
 import { TalentShowcase } from "@/components/TalentShowcase";
-import { OnboardingQuiz } from "@/components/OnboardingQuiz";
-import { MarketplaceGrid } from "@/components/MarketplaceGrid";
-import { HowItWorks } from "@/components/HowItWorks";
-import { LiveShop } from "@/components/LiveShop";
-import { MarketplaceOverview } from "@/components/MarketplaceOverview";
+import { AvatarShowcase } from "@/components/AvatarShowcase";
 import { SuccessCases } from "@/components/SuccessCases";
 import { Testimonials } from "@/components/Testimonials";
-import { Pricing } from "@/components/Pricing";
 import { TrustedBrands } from "@/components/TrustedBrands";
 import { Manifesto } from "@/components/Manifesto";
 import { Footer } from "@/components/Footer";
-import { AvatarShowcase } from "@/components/AvatarShowcase";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { UpdatePrompt } from "@/components/pwa/UpdatePrompt";
 
@@ -23,19 +19,15 @@ const Index = () => {
       <InstallPrompt />
       <UpdatePrompt />
       
-      {/* Main Content */}
-      <Hero />
+      {/* Main Content - Arcana 2.0 */}
+      <HeroArcana2 />
+      <UnifiedMarketplace />
+      <HowItWorksNew />
       <AIStudioPreview />
       <TalentShowcase />
-      <MarketplaceGrid />
-      <MarketplaceOverview />
-      <OnboardingQuiz />
-      <HowItWorks />
-      <LiveShop />
       <AvatarShowcase />
       <SuccessCases />
       <Testimonials />
-      <Pricing />
       <TrustedBrands />
       <Manifesto />
       <Footer />
