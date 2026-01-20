@@ -58,7 +58,7 @@ export const HowItWorksNew = () => {
             Como Funciona
           </Badge>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
-            Crie em <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">5 passos simples</span>
+            <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Crie em 5 passos simples</span>
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             Do template à criação final em minutos. Sem conhecimento técnico necessário.

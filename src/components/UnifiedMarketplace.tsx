@@ -182,10 +182,10 @@ export const UnifiedMarketplace = () => {
             Marketplace Unificado
           </Badge>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
-            Explore e crie com <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">templates incríveis</span>
+            <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Marketplace Unificado</span>
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Produtos, fotos profissionais, influenciadores, artistas e avatares — tudo organizado para você criar.
+            Produtos, fotos profissionais, influenciadores, artistas e avatares — tudo em um único lugar.
           </p>
         </div>
 
