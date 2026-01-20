@@ -1,5 +1,6 @@
 import { HeroArcana2 } from "@/components/HeroArcana2";
 import { UnifiedMarketplace } from "@/components/UnifiedMarketplace";
+import { ProductShowcase } from "@/components/ProductShowcase";
 import { PlansSection } from "@/components/PlansSection";
 import { HowItWorksNew } from "@/components/HowItWorksNew";
 import { AIStudioPreview } from "@/components/AIStudioPreview";
@@ -21,6 +22,7 @@ const Index = () => {
       {/* Main Content - Arcana 2.0 */}
       <HeroArcana2 />
       <UnifiedMarketplace />
+      <ProductShowcase />
       <PlansSection />
       <HowItWorksNew />
       <AIStudioPreview />
