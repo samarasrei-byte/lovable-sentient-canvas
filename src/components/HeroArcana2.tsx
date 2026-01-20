@@ -35,7 +35,7 @@ const plans = [
       "Tudo do Basic",
       "Animação de imagens com IA",
       "400 créditos/mês",
-      "Acesso prioritário às features beta",
+      "Acesso a features beta",
       "Suporte prioritário",
       "Templates exclusivos",
     ],
@@ -202,7 +202,7 @@ export const HeroArcana2 = () => {
         >
           <Badge className="mb-6 px-4 py-2 bg-primary/10 border-primary/30 text-primary">
             <Sparkles className="w-3 h-3 mr-2" />
-            Plataforma de Criação Visual #1 do Brasil
+            Plataforma de Criação Visual #1 do Brasil — A próxima geração de conexões entre marcas e criadores
           </Badge>
         </motion.div>
 
@@ -227,8 +227,7 @@ export const HeroArcana2 = () => {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground mb-8 md:mb-10 font-light tracking-wide max-w-4xl mx-auto px-2 text-center"
         >
-          A ferramenta de criação visual mais completa do Brasil. 
-          Potencialize sua marca com IA generativa de última geração.
+          A ferramenta de criação visual mais completa do Brasil. Potencialize sua marca com IA generativa de última geração.
         </motion.p>
 
         {/* CTA Buttons */}

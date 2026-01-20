@@ -43,13 +43,13 @@ export const TalentShowcase = () => {
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Title */}
         <h2 className="text-4xl md:text-6xl font-bold text-center mb-6 bg-gradient-to-r from-primary via-secondary to-orange-500 bg-clip-text text-transparent">
-          Três universos, infinitas possibilidades
+          Três Universos
         </h2>
         <p className="text-xl md:text-2xl text-muted-foreground text-center mb-4 font-light">
-          Potencializar sua marca com tecnologia e criatividade.
+          Infinitas possibilidades para potencializar sua marca.
         </p>
         <p className="text-sm text-muted-foreground text-center mb-16 max-w-3xl mx-auto">
-          Avatares IA personalizados, influenciadores autênticos e artistas de elite. Disponíveis para marcas que querem inovar e impactar.
+          Avatares IA • Influenciadores Reais • Artistas
         </p>
 
         {/* Talent Cards */}
