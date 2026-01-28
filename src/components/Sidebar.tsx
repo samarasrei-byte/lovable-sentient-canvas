@@ -17,68 +17,76 @@ import {
   MessageCircle,
   BarChart3,
   LogOut,
-  Lightbulb,
-  Camera
+  Camera,
+  ChevronDown
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { cn } from "@/lib/utils";
 
-const brandMenuItems = [
-  { path: "/app/dashboard", icon: Home, label: "Dashboard" },
-  { path: "/app/meus-produtos", icon: Camera, label: "Meus Produtos", badge: "Novo" },
-  { path: "/app/insights", icon: Lightbulb, label: "Insights IA" },
-  { path: "/app/ai-studio", icon: Sparkles, label: "Criar com IA" },
-  { path: "/app/talentos", icon: Users, label: "Talentos" },
-  { path: "/app/campanhas", icon: Target, label: "Campanhas" },
-  { path: "/app/analytics", icon: BarChart3, label: "Analytics" },
-  { path: "/app/contratos", icon: FileText, label: "Contratos" },
-  { path: "/app/pagamentos", icon: Wallet, label: "Pagamentos" },
-  { path: "/app/monitoramento", icon: Activity, label: "Monitoramento" },
-  { path: "/app/avatar-studio", icon: UserCircle, label: "Avatar Studio" },
-  { path: "/app/liveshop", icon: Video, label: "Live Shop" },
-  { path: "/app/chat", icon: MessageCircle, label: "Chat" },
-  { path: "/app/perfil", icon: Settings, label: "Perfil" },
+interface MenuItem {
+  path: string;
+  icon: React.ElementType;
+  label: string;
+}
+
+interface MenuGroup {
+  label: string;
+  icon: React.ElementType;
+  items: MenuItem[];
+}
+
+const menuGroups: MenuGroup[] = [
+  {
+    label: "Principal",
+    icon: Home,
+    items: [
+      { path: "/app/dashboard", icon: Home, label: "Dashboard" },
+      { path: "/app/meus-produtos", icon: Camera, label: "Meus Produtos" },
+    ]
+  },
+  {
+    label: "Criação",
+    icon: Sparkles,
+    items: [
+      { path: "/app/ai-studio", icon: Sparkles, label: "IA Studio" },
+      { path: "/app/avatar-studio", icon: UserCircle, label: "Avatar Studio" },
+      { path: "/app/liveshop", icon: Video, label: "Live Shop" },
+    ]
+  },
+  {
+    label: "Campanhas",
+    icon: Target,
+    items: [
+      { path: "/app/talentos", icon: Users, label: "Talentos" },
+      { path: "/app/campanhas", icon: Target, label: "Campanhas" },
+      { path: "/app/analytics", icon: BarChart3, label: "Analytics" },
+    ]
+  },
+  {
+    label: "Negócios",
+    icon: Wallet,
+    items: [
+      { path: "/app/contratos", icon: FileText, label: "Contratos" },
+      { path: "/app/pagamentos", icon: Wallet, label: "Pagamentos" },
+      { path: "/app/monitoramento", icon: Activity, label: "Monitoramento" },
+    ]
+  },
 ];
 
-const influencerMenuItems = [
-  { path: "/app/dashboard", icon: Home, label: "Dashboard" },
-  { path: "/app/insights", icon: Lightbulb, label: "Insights IA", badge: "Novo" },
-  { path: "/app/ai-studio", icon: Sparkles, label: "Criar com IA" },
-  { path: "/app/influencer/analytics", icon: BarChart3, label: "Analytics" },
-  { path: "/app/influencer/contratos", icon: FileText, label: "Contratos" },
-  { path: "/app/influencer/pagamentos", icon: Wallet, label: "Pagamentos" },
-  { path: "/app/influencer/monitoramento", icon: Activity, label: "Monitoramento" },
-  { path: "/app/avatar-studio", icon: UserCircle, label: "Avatar Studio" },
-  { path: "/app/liveshop", icon: Video, label: "Live Shop" },
+const bottomItems: MenuItem[] = [
   { path: "/app/chat", icon: MessageCircle, label: "Chat" },
-  { path: "/app/perfil", icon: Settings, label: "Perfil" },
+  { path: "/app/perfil", icon: Settings, label: "Configurações" },
 ];
 
 export const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [userRole, setUserRole] = useState<string>("brand");
-
-  useEffect(() => {
-    checkUserRole();
-  }, []);
-
-  const checkUserRole = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: roleData } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id)
-        .single();
-
-      setUserRole(roleData?.role || "brand");
-    } catch (error) {
-      console.error("Error checking user role:", error);
-    }
-  };
+  const [openGroups, setOpenGroups] = useState<string[]>(["Principal", "Criação"]);
 
   const handleLogout = async () => {
     try {
@@ -91,55 +99,135 @@ export const Sidebar = () => {
     }
   };
 
-  const menuItems = userRole === "influencer" ? influencerMenuItems : brandMenuItems;
+  const toggleGroup = (label: string) => {
+    setOpenGroups(prev => 
+      prev.includes(label) 
+        ? prev.filter(g => g !== label)
+        : [...prev, label]
+    );
+  };
+
+  const isPathActive = (path: string) => location.pathname === path;
+  
+  const isGroupActive = (group: MenuGroup) => 
+    group.items.some(item => isPathActive(item.path));
+
+  // Auto-expand group containing active item
+  useEffect(() => {
+    menuGroups.forEach(group => {
+      if (isGroupActive(group) && !openGroups.includes(group.label)) {
+        setOpenGroups(prev => [...prev, group.label]);
+      }
+    });
+  }, [location.pathname]);
 
   return (
-    <aside className="w-60 border-r border-border/30 bg-card/40 backdrop-blur-xl p-5 flex flex-col">
-      <Link to="/" className="flex items-center gap-2.5 mb-10 group px-2">
+    <aside className="w-56 border-r border-border/20 bg-card/30 backdrop-blur-xl flex flex-col">
+      {/* Logo */}
+      <Link to="/" className="flex items-center gap-2 p-5 pb-4 group">
         <div className="relative">
-          <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-secondary rounded-lg opacity-40 group-hover:opacity-70 blur-sm transition-all duration-300" />
-          <div className="relative w-9 h-9 rounded-lg bg-gradient-to-br from-primary via-secondary to-primary flex items-center justify-center shadow-glow">
-            <Zap className="w-5 h-5 text-white" />
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-secondary rounded-lg opacity-30 group-hover:opacity-60 blur-sm transition-all" />
+          <div className="relative w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+            <Zap className="w-4 h-4 text-white" />
           </div>
         </div>
-        <span className="text-lg font-bold tracking-wide bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
+        <span className="text-base font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
           ARCANA
         </span>
       </Link>
 
-      <nav className="space-y-1 flex-1">
-        {menuItems.map((item) => {
-          const isActive = location.pathname === item.path;
+      {/* Navigation Groups */}
+      <nav className="flex-1 px-3 space-y-1 overflow-y-auto">
+        {menuGroups.map((group) => {
+          const isOpen = openGroups.includes(group.label);
+          const groupActive = isGroupActive(group);
+          
+          return (
+            <Collapsible
+              key={group.label}
+              open={isOpen}
+              onOpenChange={() => toggleGroup(group.label)}
+            >
+              <CollapsibleTrigger asChild>
+                <button
+                  className={cn(
+                    "w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors",
+                    groupActive 
+                      ? "text-primary bg-primary/5" 
+                      : "text-muted-foreground hover:text-foreground hover:bg-accent/30"
+                  )}
+                >
+                  <div className="flex items-center gap-2">
+                    <group.icon className="w-4 h-4" />
+                    <span>{group.label}</span>
+                  </div>
+                  <ChevronDown 
+                    className={cn(
+                      "w-3 h-3 transition-transform duration-200",
+                      isOpen && "rotate-180"
+                    )} 
+                  />
+                </button>
+              </CollapsibleTrigger>
+              
+              <CollapsibleContent className="pt-1 pl-4 space-y-0.5">
+                {group.items.map((item) => {
+                  const isActive = isPathActive(item.path);
+                  return (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      className={cn(
+                        "flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all",
+                        isActive
+                          ? "bg-primary/10 text-primary font-medium"
+                          : "text-muted-foreground/80 hover:text-foreground hover:bg-accent/30"
+                      )}
+                    >
+                      <item.icon className="w-3.5 h-3.5" />
+                      <span>{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </CollapsibleContent>
+            </Collapsible>
+          );
+        })}
+
+        {/* Divider */}
+        <div className="h-px bg-border/30 my-3" />
+
+        {/* Bottom Items */}
+        {bottomItems.map((item) => {
+          const isActive = isPathActive(item.path);
           return (
             <Link
               key={item.path}
               to={item.path}
-              className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+              className={cn(
+                "flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all",
                 isActive
-                  ? "bg-gradient-to-r from-primary/10 to-secondary/10 text-primary border border-primary/20 shadow-lg shadow-primary/10"
-                  : "text-muted-foreground/80 hover:text-foreground hover:bg-accent/50 border border-transparent"
-              }`}
-            >
-              <item.icon className={`w-4 h-4 transition-transform duration-200 ${isActive ? "scale-110" : "group-hover:scale-105"}`} />
-              <span className="text-xs font-medium tracking-wide">{item.label}</span>
-              {item.badge && (
-                <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 bg-accent/20 text-accent">
-                  {item.badge}
-                </Badge>
+                  ? "bg-primary/10 text-primary font-medium"
+                  : "text-muted-foreground/80 hover:text-foreground hover:bg-accent/30"
               )}
+            >
+              <item.icon className="w-4 h-4" />
+              <span>{item.label}</span>
             </Link>
           );
         })}
       </nav>
 
-      <div className="pt-4 border-t border-border/30 mt-4">
+      {/* Logout */}
+      <div className="p-3 border-t border-border/20">
         <Button
           variant="ghost"
+          size="sm"
           onClick={handleLogout}
-          className="w-full justify-start gap-3 px-3 py-2.5 text-muted-foreground/80 hover:text-destructive hover:bg-destructive/10"
+          className="w-full justify-start gap-2 h-9 text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/10"
         >
           <LogOut className="w-4 h-4" />
-          <span className="text-xs font-medium tracking-wide">Sair</span>
+          Sair
         </Button>
       </div>
     </aside>
