@@ -9,107 +9,89 @@ export const Testimonials = () => {
       name: "Carolina Mendes",
       role: "CMO da TechFlow",
       avatar: "CM",
-      content: "A Arcana transformou completamente nossa estratégia de influência. Conseguimos resultados 3x melhores com metade do orçamento usando avatares IA personalizados.",
+      content: "A Arcana transformou nossa estratégia de influência. Resultados 3x melhores com metade do orçamento usando avatares IA.",
       rating: 5,
-      gradient: "from-cyan-500 to-blue-600"
     },
     {
       name: "Rafael Costa",
       role: "Founder FitLife",
       avatar: "RC",
-      content: "O nível de controle e personalização é incrível. Podemos testar diferentes abordagens e medir resultados em tempo real. A IA de recomendação é sensacional.",
+      content: "O nível de controle e personalização é incrível. A IA de recomendação é sensacional.",
       rating: 5,
-      gradient: "from-orange-500 to-red-600"
     },
     {
       name: "Marina Silva",
-      role: "Diretora de Marketing Luxe Fashion",
+      role: "Diretora de Marketing",
       avatar: "MS",
-      content: "Finalmente uma plataforma que une tecnologia e criatividade. Os avatares são indistinguíveis de influencers reais e o ROI superou todas as expectativas.",
+      content: "Finalmente uma plataforma que une tecnologia e criatividade. ROI superou todas as expectativas.",
       rating: 5,
-      gradient: "from-pink-500 to-purple-600"
     },
     {
       name: "Pedro Almeida",
       role: "CEO Zen Wellness",
       avatar: "PA",
-      content: "A Arcana não é só uma ferramenta, é um parceiro estratégico. O suporte é excepcional e as funcionalidades de monitoramento são imprescindíveis.",
+      content: "A Arcana não é só uma ferramenta, é um parceiro estratégico. Suporte excepcional.",
       rating: 5,
-      gradient: "from-green-500 to-emerald-600"
     }
   ];
 
   return (
     <section className="relative py-24 px-6 overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/3 to-background" />
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-secondary/20 to-transparent" />
-      
-      {/* Floating orb */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[180px]" />
+      {/* Subtle background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-secondary/[0.02] to-transparent" />
 
-      <div className="max-w-7xl mx-auto relative z-10">
+      <div className="max-w-5xl mx-auto relative z-10">
         {/* Header */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          transition={{ duration: 0.5 }}
+          className="text-center mb-14"
         >
-          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/5 backdrop-blur-xl border border-white/10 mb-6">
-            <Star className="w-4 h-4 text-primary fill-primary" />
-            <span className="text-sm font-medium text-primary">Avaliação 5.0/5.0</span>
+          <div className="inline-flex items-center gap-2 mb-6">
+            {[...Array(5)].map((_, i) => (
+              <Star key={i} className="w-4 h-4 text-primary fill-primary" />
+            ))}
+            <span className="text-sm text-muted-foreground ml-2">5.0 de 500+ avaliações</span>
           </div>
           
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 tracking-tight">
-            O Que Dizem{" "}
-            <span className="bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
-              Nossos Clientes
-            </span>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold mb-4 tracking-tight">
+            O que nossos clientes dizem
           </h2>
-          
-          <p className="text-muted-foreground text-lg max-w-3xl mx-auto font-light">
-            Histórias reais de marcas que revolucionaram suas estratégias de influência digital.
-          </p>
         </motion.div>
 
         {/* Testimonials Grid */}
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 gap-5">
           {testimonials.map((testimonial, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-              className="relative group"
+              transition={{ duration: 0.4, delay: i * 0.1 }}
             >
-              <div className={`absolute -inset-1 bg-gradient-to-r ${testimonial.gradient} rounded-3xl opacity-0 group-hover:opacity-15 blur-xl transition duration-500`} />
-              
-              <GlassCard className="relative h-full group-hover:border-primary/30 p-6 md:p-8">
-                <Quote className="w-10 h-10 text-primary/20 mb-5" />
-                
-                <div className="flex gap-1 mb-5">
+              <GlassCard className="h-full p-6">
+                <div className="flex gap-1 mb-4">
                   {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 text-primary fill-primary" />
+                    <Star key={i} className="w-3.5 h-3.5 text-primary fill-primary" />
                   ))}
                 </div>
 
-                <p className="text-base leading-relaxed mb-6 text-foreground/90">
+                <p className="text-sm leading-relaxed mb-5 text-foreground/80">
                   "{testimonial.content}"
                 </p>
 
-                <div className="flex items-center gap-4">
-                  <Avatar className="w-12 h-12 border-2 border-white/10">
+                <div className="flex items-center gap-3">
+                  <Avatar className="w-9 h-9 border border-white/[0.08]">
                     <AvatarImage src="" />
-                    <AvatarFallback className={`bg-gradient-to-br ${testimonial.gradient} text-white text-sm font-bold`}>
+                    <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
                       {testimonial.avatar}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <div className="font-semibold text-foreground">{testimonial.name}</div>
-                    <div className="text-sm text-muted-foreground">{testimonial.role}</div>
+                    <div className="text-sm font-medium text-foreground">{testimonial.name}</div>
+                    <div className="text-xs text-muted-foreground">{testimonial.role}</div>
                   </div>
                 </div>
               </GlassCard>

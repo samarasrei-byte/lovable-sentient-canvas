@@ -111,27 +111,24 @@ export const HeroArcana2 = () => {
         </div>
       </nav>
 
-      {/* Animated Background */}
+      {/* Subtle Background */}
       <div 
         ref={backgroundRef}
-        className="absolute inset-0 w-full h-full transition-transform duration-1000 ease-out"
-        style={{
-          transform: `translate(${mousePosition.x}px, ${mousePosition.y + backgroundOffset}px)`,
-        }}
+        className="absolute inset-0 w-full h-full"
       >
         <img 
           src={heroLiquid} 
           alt="Liquid background"
-          className="w-full h-full object-cover opacity-25 scale-125"
+          className="w-full h-full object-cover opacity-15 scale-110"
           loading="eager"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/70 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/60 to-background" />
       </div>
 
-      {/* Animated Glow Orbs */}
-      <div className="absolute inset-0 pointer-events-none hidden md:block">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[100px] animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary/20 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '1s' }} />
+      {/* Subtle Glow */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/3 left-1/3 w-[500px] h-[500px] bg-primary/[0.08] rounded-full blur-[150px]" />
+        <div className="absolute bottom-1/3 right-1/3 w-[400px] h-[400px] bg-secondary/[0.06] rounded-full blur-[150px]" />
       </div>
 
       {/* Content */}
@@ -144,43 +141,46 @@ export const HeroArcana2 = () => {
       >
         {/* Headline */}
         <motion.h1 
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-6 md:mb-8 bg-gradient-to-r from-primary via-[#6366F1] to-secondary bg-clip-text text-transparent leading-tight"
+          className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold mb-6 md:mb-8 text-foreground leading-tight tracking-tight"
         >
-          A próxima geração de conexões entre marcas e criadores.
+          A próxima geração de conexões entre{" "}
+          <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            marcas e criadores
+          </span>
         </motion.h1>
 
         {/* Subheadline */}
         <motion.p 
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground mb-8 md:mb-12 font-light tracking-wide max-w-4xl mx-auto px-2"
+          className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8 md:mb-12 font-light max-w-3xl mx-auto px-2"
         >
-          Explore um marketplace inteligente que conecta marcas, influenciadores, avatares e artistas para campanhas únicas, autênticas e inesquecíveis.
+          Marketplace inteligente que conecta marcas, influenciadores, avatares e artistas para campanhas autênticas
         </motion.p>
 
         {/* CTA Buttons */}
         <motion.div 
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
           className="flex flex-col sm:flex-row items-center justify-center gap-4"
         >
           <GlassButton 
             variant="glow"
-            size="xl"
+            size="lg"
             className="w-full sm:w-auto touch-manipulation"
             onClick={() => navigate("/login")}
           >
             Explorar talentos
-            <ArrowRight className="w-5 h-5 ml-2" />
+            <ArrowRight className="w-4 h-4 ml-2" />
           </GlassButton>
           <GlassButton
             variant="outline"
-            size="xl"
+            size="lg"
             className="w-full sm:w-auto touch-manipulation"
             onClick={() => navigate("/login")}
           >
@@ -190,7 +190,7 @@ export const HeroArcana2 = () => {
       </div>
 
       {/* Bottom Fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent" />
     </section>
   );
 };

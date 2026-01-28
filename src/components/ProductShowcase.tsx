@@ -128,13 +128,8 @@ export const ProductShowcase = () => {
 
   return (
     <section className="relative py-24 px-6 overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/3 to-background" />
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-secondary/20 to-transparent" />
-      
-      {/* Floating orbs */}
-      <div className="absolute top-1/4 -right-32 w-72 h-72 bg-primary/8 rounded-full blur-[120px]" />
-      <div className="absolute bottom-1/4 -left-32 w-72 h-72 bg-secondary/8 rounded-full blur-[120px]" />
+      {/* Subtle background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-secondary/[0.02] to-transparent" />
       
       <div className="container mx-auto px-4 relative z-10">
         {/* Header */}
@@ -142,65 +137,46 @@ export const ProductShowcase = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          transition={{ duration: 0.5 }}
+          className="text-center mb-14"
         >
-          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/5 backdrop-blur-xl border border-white/10 mb-6">
-            <Sparkles className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium text-primary">Produtos Gerados por IA</span>
-          </div>
-          
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 tracking-tight">
-            <span className="bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">
-              Galeria de
-            </span>{" "}
-            <span className="bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
-              Produtos
-            </span>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold mb-4 tracking-tight">
+            Galeria de produtos
           </h2>
-          
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto font-light">
-            Clique em um template e crie sua imagem profissional em segundos com IA
+          <p className="text-muted-foreground text-lg max-w-xl mx-auto font-light">
+            Clique em um template e crie sua imagem profissional
           </p>
         </motion.div>
 
         {/* Gallery Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 mb-12">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-12">
           {showcaseItems.map((item, index) => (
             <motion.div
               key={item.id}
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
-              whileHover={{ scale: 1.03, y: -5 }}
+              transition={{ duration: 0.3, delay: index * 0.05 }}
               onClick={() => handleSelectTemplate(item)}
-              className="group relative aspect-square rounded-2xl overflow-hidden bg-card border border-border/50 shadow-lg hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 cursor-pointer"
+              className="group relative aspect-square rounded-xl overflow-hidden bg-white/[0.02] border border-white/[0.06] cursor-pointer hover:border-white/[0.12] transition-all duration-300"
             >
               <img
                 src={item.image}
                 alt={`${item.brand} - Produto gerado por IA`}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
               
               {/* Overlay on hover */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <div className="w-14 h-14 rounded-full bg-primary/90 flex items-center justify-center mb-3 transform scale-0 group-hover:scale-100 transition-transform duration-300">
-                    <Wand2 className="w-7 h-7 text-white" />
+                  <div className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center mb-2 transform scale-0 group-hover:scale-100 transition-transform duration-300">
+                    <Wand2 className="w-5 h-5 text-white" />
                   </div>
-                  <p className="text-white font-semibold">Criar com este estilo</p>
+                  <p className="text-white text-sm font-medium">Criar com este estilo</p>
                 </div>
                 <div className="absolute bottom-0 left-0 right-0 p-4">
-                  <p className="text-white font-semibold text-lg">{item.brand}</p>
-                  <p className="text-white/70 text-sm">{item.category}</p>
-                </div>
-              </div>
-              
-              {/* Sparkle effect */}
-              <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="w-8 h-8 rounded-full bg-primary/90 flex items-center justify-center">
-                  <Sparkles className="w-4 h-4 text-white" />
+                  <p className="text-white font-medium">{item.brand}</p>
+                  <p className="text-white/60 text-sm">{item.category}</p>
                 </div>
               </div>
             </motion.div>
@@ -209,36 +185,36 @@ export const ProductShowcase = () => {
 
         {/* CTA Section */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="flex flex-col md:flex-row items-center justify-center gap-6 mt-12"
+          transition={{ duration: 0.4, delay: 0.2 }}
+          className="flex items-center justify-center gap-6"
         >
-          <div className="flex items-center gap-8 p-6 rounded-2xl bg-card/50 border border-border/50 backdrop-blur-sm">
+          <div className="flex items-center gap-6 p-5 rounded-xl bg-white/[0.02] border border-white/[0.06]">
             <div className="flex flex-col items-center gap-2">
-              <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Upload className="w-7 h-7 text-primary" />
+              <div className="w-12 h-12 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+                <Upload className="w-5 h-5 text-primary" />
               </div>
-              <span className="text-sm text-muted-foreground">Sua Logo</span>
+              <span className="text-xs text-muted-foreground">Logo</span>
             </div>
             
-            <div className="text-2xl text-muted-foreground">+</div>
+            <span className="text-muted-foreground/50">+</span>
             
             <div className="flex flex-col items-center gap-2">
-              <div className="w-14 h-14 rounded-xl bg-cyan-500/10 flex items-center justify-center">
-                <ImageIcon className="w-7 h-7 text-cyan-500" />
+              <div className="w-12 h-12 rounded-lg bg-secondary/10 border border-secondary/20 flex items-center justify-center">
+                <ImageIcon className="w-5 h-5 text-secondary" />
               </div>
-              <span className="text-sm text-muted-foreground">Seu Produto</span>
+              <span className="text-xs text-muted-foreground">Produto</span>
             </div>
             
-            <div className="text-2xl text-muted-foreground">=</div>
+            <span className="text-muted-foreground/50">=</span>
             
             <div className="flex flex-col items-center gap-2">
-              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-cyan-500 flex items-center justify-center">
-                <Camera className="w-7 h-7 text-white" />
+              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary/80 to-secondary/80 flex items-center justify-center">
+                <Camera className="w-5 h-5 text-white" />
               </div>
-              <span className="text-sm text-muted-foreground">Foto Pro</span>
+              <span className="text-xs text-muted-foreground">Foto Pro</span>
             </div>
           </div>
         </motion.div>

@@ -8,64 +8,64 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Ultra Modern Dark Theme - Futuristic Arcana */
-    --background: 222 47% 8%;
-    --foreground: 210 40% 98%;
-    --card: 222 47% 10%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222 47% 10%;
-    --popover-foreground: 210 40% 98%;
+    /* Ultra Premium Dark Theme - Vercel/Linear Inspired */
+    --background: 220 20% 4%;
+    --foreground: 0 0% 95%;
+    --card: 220 20% 6%;
+    --card-foreground: 0 0% 95%;
+    --popover: 220 20% 6%;
+    --popover-foreground: 0 0% 95%;
 
-    /* Primary: Electric Purple - Ultra Vibrant */
-    --primary: 270 95% 70%;
+    /* Primary: Subtle Violet - Elegant & Modern */
+    --primary: 265 90% 65%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 270 100% 80%;
+    --primary-glow: 265 100% 70%;
 
-    /* Secondary: Neon Cyan - Sharp & Modern */
-    --secondary: 188 100% 50%;
+    /* Secondary: Soft Cyan - Clean & Tech */
+    --secondary: 185 70% 50%;
     --secondary-foreground: 0 0% 100%;
-    --secondary-glow: 188 100% 60%;
+    --secondary-glow: 185 80% 55%;
     
-    /* Artist/Creator - Vivid Orange */
-    --artist: 30 100% 60%;
+    /* Artist/Creator - Warm Amber */
+    --artist: 35 90% 55%;
     --artist-foreground: 0 0% 100%;
 
-    /* Accent: Electric Magenta */
-    --accent: 300 95% 65%;
+    /* Accent: Soft Magenta */
+    --accent: 290 70% 60%;
     --accent-foreground: 0 0% 100%;
     
-    /* Success: Neon Green */
-    --success: 153 100% 55%;
+    /* Success: Emerald */
+    --success: 160 70% 45%;
     --success-foreground: 0 0% 100%;
 
-    --muted: 217 33% 14%;
-    --muted-foreground: 215 25% 70%;
+    --muted: 220 15% 12%;
+    --muted-foreground: 220 10% 55%;
 
-    /* Destructive: Hot Pink */
-    --destructive: 340 100% 65%;
+    /* Destructive: Soft Rose */
+    --destructive: 0 70% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 217 33% 18%;
-    --input: 217 33% 15%;
-    --ring: 270 95% 70%;
+    --border: 220 15% 14%;
+    --input: 220 15% 10%;
+    --ring: 265 90% 65%;
 
-    --radius: 1.25rem;
+    --radius: 0.75rem;
     
-    /* Ultra Modern Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(270 95% 70%), hsl(300 95% 65%), hsl(188 100% 50%));
-    --gradient-secondary: linear-gradient(90deg, hsl(188 100% 50%), hsl(270 95% 70%));
-    --gradient-glow: radial-gradient(circle at center, hsl(270 95% 70% / 0.3), transparent);
-    --gradient-accent: linear-gradient(135deg, hsl(300 95% 65%), hsl(340 100% 65%));
+    /* Ultra Subtle Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(265 90% 65%), hsl(290 70% 60%));
+    --gradient-secondary: linear-gradient(90deg, hsl(185 70% 50%), hsl(265 90% 65%));
+    --gradient-glow: radial-gradient(circle at center, hsl(265 90% 65% / 0.15), transparent);
+    --gradient-accent: linear-gradient(135deg, hsl(290 70% 60%), hsl(0 70% 55%));
     
-    /* Modern Shadows */
-    --shadow-glow: 0 0 40px hsl(270 95% 70% / 0.5);
-    --shadow-glow-strong: 0 0 60px hsl(270 95% 70% / 0.7);
-    --shadow-neon: 0 0 20px hsl(188 100% 50% / 0.6);
-    --shadow-card: 0 8px 32px hsl(222 47% 4% / 0.8);
+    /* Subtle Modern Shadows */
+    --shadow-glow: 0 0 30px hsl(265 90% 65% / 0.2);
+    --shadow-glow-strong: 0 0 40px hsl(265 90% 65% / 0.3);
+    --shadow-neon: 0 0 15px hsl(185 70% 50% / 0.25);
+    --shadow-card: 0 4px 24px hsl(220 20% 2% / 0.6);
     
-    /* Animations */
-    --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    /* Premium Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   }
 
   /* Influencer Theme - Mantém roxo/rosa criativo */
