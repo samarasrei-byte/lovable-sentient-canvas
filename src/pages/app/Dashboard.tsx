@@ -39,6 +39,7 @@ import {
   Twitter
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { CampaignCTA } from "@/components/dashboard/CampaignCTA";
 import { toast } from "sonner";
 
 // Import real influencer images
@@ -122,35 +123,41 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="p-8 space-y-8 bg-background min-h-screen">
+    <div className="p-6 md:p-8 space-y-6 md:space-y-8 bg-background min-h-screen">
       {/* Header with Time Range Selector */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
+          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
             Dashboard
           </h1>
           <p className="text-muted-foreground mt-2">Análise completa e insights em tempo real</p>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 bg-card rounded-lg p-1 border">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-1 bg-card rounded-lg p-1 border">
             {["24h", "7d", "30d", "90d"].map((range) => (
               <Button
                 key={range}
                 variant={timeRange === range ? "default" : "ghost"}
                 size="sm"
                 onClick={() => setTimeRange(range)}
-                className="px-4"
+                className="px-3"
               >
                 {range}
               </Button>
             ))}
           </div>
-          <Button className="bg-gradient-to-r from-primary to-secondary hover:opacity-90">
+          <Button 
+            className="bg-gradient-to-r from-primary to-secondary hover:opacity-90"
+            onClick={() => navigate("/app/campanhas")}
+          >
             <Plus className="w-4 h-4 mr-2" />
             Nova Campanha
           </Button>
         </div>
       </div>
+
+      {/* Campaign CTA */}
+      <CampaignCTA />
 
       {/* Primary KPIs */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

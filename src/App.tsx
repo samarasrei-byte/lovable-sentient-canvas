@@ -44,6 +44,7 @@ import InfluencerAnalytics from "./pages/app/influencer/Analytics";
 import AgencyDashboard from "./pages/app/agency/Dashboard";
 import Insights from "./pages/app/Insights";
 import MeusProdutos from "./pages/app/MeusProdutos";
+import VideoCreator from "./pages/app/VideoCreator";
 
 const queryClient = new QueryClient();
 
@@ -89,6 +90,7 @@ const App = () => (
             <Route path="ia-insights" element={<IAInsights />} />
             <Route path="avatar-studio" element={<AvatarStudio />} />
             <Route path="ai-studio" element={<AIStudio />} />
+            <Route path="video-creator" element={<VideoCreator />} />
             <Route path="liveshop" element={<LiveShop />} />
             <Route path="consultoria" element={<Consultoria />} />
             <Route path="planos" element={<Planos />} />
