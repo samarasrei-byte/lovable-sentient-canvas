@@ -21,48 +21,51 @@ serve(async (req) => {
     console.log('Generating professional product image with AI');
     console.log('Template:', templateId, 'Product:', productName);
 
-    // Build the prompt based on template style
+    // Build the prompt based on template style - IMPORTANT: No brand logos, only user's product/logo
     const stylePrompts: Record<string, string> = {
-      'dominos': 'cenário de entrega premium, ambiente acolhedor de pizzaria, iluminação quente',
-      'cocacola': 'cenário lifestyle refrescante, gotas de água, gelo, ambiente descontraído',
-      'sunshine': 'cenário natural e fresco, frutas, vegetação, luz natural suave',
-      'nike': 'cenário esportivo premium, dinâmico, iluminação dramática',
-      'fashion': 'cenário de alta moda, estúdio luxuoso, iluminação editorial',
-      'mcdonalds': 'cenário fast food vibrante, cores alegres, ambiente familiar',
-      'pepsi': 'cenário bold e moderno, luzes neon, ambiente jovem e urbano',
-      'megamare': 'cenário de perfumaria luxuosa, elegante, iluminação suave e sofisticada',
+      'dominos': 'cenário de pizzaria artesanal, ambiente acolhedor com iluminação quente, mesa de madeira rústica, sem nenhum logo de marca',
+      'cocacola': 'cenário refrescante de verão, gotas de água, gelo, ambiente descontraído ao ar livre, sem nenhum logo de marca',
+      'sunshine': 'cenário natural e fresco, frutas tropicais, vegetação verde, luz natural suave, sem nenhum logo de marca',
+      'nike': 'cenário esportivo moderno, academia premium, iluminação dramática, sem nenhum logo de marca',
+      'fashion': 'cenário de estúdio de moda luxuoso, fundo neutro elegante, iluminação editorial profissional, sem nenhum logo de marca',
+      'mcdonalds': 'cenário de lanchonete americana vintage, cores alegres, ambiente familiar aconchegante, sem nenhum logo de marca',
+      'pepsi': 'cenário urbano moderno, luzes neon azuis, ambiente jovem e energético, sem nenhum logo de marca',
+      'megamare': 'cenário de perfumaria luxuosa, mármore, cristais, iluminação suave e sofisticada, sem nenhum logo de marca',
     };
 
-    const styleContext = stylePrompts[templateId] || 'cenário profissional de estúdio fotográfico';
+    const styleContext = stylePrompts[templateId] || 'cenário profissional de estúdio fotográfico premium';
 
     // Build messages array with images if provided
     const messages: any[] = [];
     const contentParts: any[] = [];
 
-    // Main prompt for image generation
-    const basePrompt = customPrompt || `FOTOGRAFIA COMERCIAL ULTRA PROFISSIONAL para ${productName}:
+    // Main prompt - CRITICAL: Emphasize using ONLY user's product/logo, NO external brand elements
+    const basePrompt = customPrompt || `FOTOGRAFIA COMERCIAL ULTRA PROFISSIONAL para "${productName}":
 
-CENÁRIO: ${styleContext}
+REGRAS CRÍTICAS E OBRIGATÓRIAS:
+- NÃO INCLUIR NENHUM LOGO DE MARCAS FAMOSAS (sem Domino's, Coca-Cola, Nike, McDonald's, Pepsi, etc.)
+- USAR EXCLUSIVAMENTE o produto/logo fornecido pelo usuário nas imagens anexadas
+- O produto "${productName}" deve ser o ÚNICO produto visível na imagem
+- Qualquer texto ou logo na imagem deve ser APENAS do produto "${productName}"
 
-COMPOSIÇÃO OBRIGATÓRIA:
-- Influencer digital/modelo SEGURANDO O PRODUTO nas mãos de forma natural e destacada
-- O produto "${productName}" deve estar claramente visível, na altura do peito ou cintura
-- Rótulo/frente do produto voltado para a câmera com foco nítido
-- Produto ocupa 20-25% do enquadramento, bem integrado à cena
+CENÁRIO E AMBIENTE:
+${styleContext}
+
+COMPOSIÇÃO DA IMAGEM:
+- Modelo/influencer digital segurando o produto "${productName}" de forma natural e destacada
+- Produto posicionado na altura do peito, claramente visível e em foco
+- O rótulo/logo do produto "${productName}" deve estar voltado para a câmera
+- Produto ocupa 25-30% do enquadramento
 
 ESTILO VISUAL:
-- Iluminação comercial profissional com spotlight no produto
-- Fundo complementar ao estilo ${templateStyle || templateId}
-- Qualidade editorial, ultra-realista
+- Iluminação comercial profissional com destaque no produto
+- Qualidade editorial ultra-realista 4K
 - Cores vibrantes e contraste profissional
 - Composição harmoniosa entre modelo e produto
 
-DETALHES TÉCNICOS:
-- Resolução alta, nitidez profissional
-- Proporção 1:1 (quadrada)
-- Estilo de marca premium
+IMPORTANTE: Se uma imagem de logo foi fornecida, incorpore esse logo de forma visível no produto ou no cenário. NÃO use nenhum outro logo ou marca.
 
-Crie uma foto publicitária impactante que destaque o produto de forma natural e atraente.`;
+Crie uma foto publicitária premium que destaque APENAS o produto "${productName}".`;
 
     contentParts.push({
       type: "text",
