@@ -12,7 +12,9 @@ import {
   Heart,
   Eye,
   ArrowRight,
-  Users
+  Users,
+  TrendingUp,
+  CheckCircle2
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -26,6 +28,10 @@ import influencerArt from "@/assets/influencer-art.jpg";
 import influencerMusic from "@/assets/influencer-music.jpg";
 import influencerGaming from "@/assets/influencer-gaming.jpg";
 import influencerWellness from "@/assets/influencer-wellness.jpg";
+import influencerGastro from "@/assets/influencer-gastro.jpg";
+import influencerEducation from "@/assets/influencer-education.jpg";
+import influencerBusiness from "@/assets/influencer-business.jpg";
+import influencerEntrepreneur from "@/assets/influencer-entrepreneur.jpg";
 
 const categories = [
   { id: "all", label: "Todos", icon: Users },
@@ -35,7 +41,7 @@ const categories = [
 ];
 
 const marketplaceItems = [
-  // Influencers
+  // Real Influencers
   {
     id: 1,
     type: "influencers",
@@ -65,7 +71,7 @@ const marketplaceItems = [
   {
     id: 3,
     type: "influencers",
-    name: "Julia Fernandes",
+    name: "Juliana Fernandes",
     category: "Fitness & Saúde",
     image: influencerFitness,
     tags: ["Fitness", "Wellness", "800K+"],
@@ -86,6 +92,58 @@ const marketplaceItems = [
     engagement: "4.5%",
     likes: 567,
     views: 2800,
+    isReal: true,
+  },
+  {
+    id: 11,
+    type: "influencers",
+    name: "Carolina Mendes",
+    category: "Gastronomia",
+    image: influencerGastro,
+    tags: ["Food", "Receitas", "950K+"],
+    followers: "950K",
+    engagement: "7.3%",
+    likes: 834,
+    views: 4800,
+    isReal: true,
+  },
+  {
+    id: 12,
+    type: "influencers",
+    name: "Thiago Santos",
+    category: "Educação & Cursos",
+    image: influencerEducation,
+    tags: ["Educação", "Cursos", "680K+"],
+    followers: "680K",
+    engagement: "8.9%",
+    likes: 912,
+    views: 5200,
+    isReal: true,
+  },
+  {
+    id: 13,
+    type: "influencers",
+    name: "Amanda Ribeiro",
+    category: "Negócios & Empreendedorismo",
+    image: influencerBusiness,
+    tags: ["Business", "Finanças", "1.8M+"],
+    followers: "1.8M",
+    engagement: "5.4%",
+    likes: 1023,
+    views: 6100,
+    isReal: true,
+  },
+  {
+    id: 14,
+    type: "influencers",
+    name: "Felipe Oliveira",
+    category: "Lifestyle & Bem-estar",
+    image: influencerEntrepreneur,
+    tags: ["Lifestyle", "Wellness", "720K+"],
+    followers: "720K",
+    engagement: "6.7%",
+    likes: 645,
+    views: 3400,
     isReal: true,
   },
   // Artists
@@ -170,6 +228,12 @@ const marketplaceItems = [
   },
 ];
 
+const stats = [
+  { value: "500+", label: "Marcas Ativas", icon: CheckCircle2 },
+  { value: "2M+", label: "Campanhas Geradas", icon: TrendingUp },
+  { value: "98%", label: "Satisfação", icon: Star },
+];
+
 export const UnifiedMarketplace = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("all");
@@ -217,9 +281,31 @@ export const UnifiedMarketplace = () => {
             </span>
           </h2>
           
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto font-light">
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto font-light mb-8">
             Influenciadores, artistas e avatares — conecte sua marca com os melhores criadores.
           </p>
+
+          {/* Stats Bar - Social Proof */}
+          <div className="flex flex-wrap justify-center gap-6 md:gap-10">
+            {stats.map((stat, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="flex items-center gap-3"
+              >
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <stat.icon className="w-5 h-5 text-primary" />
+                </div>
+                <div className="text-left">
+                  <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+                  <p className="text-xs text-muted-foreground">{stat.label}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </motion.div>
 
         {/* Search - Glassmorphism */}
@@ -274,15 +360,15 @@ export const UnifiedMarketplace = () => {
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       
-                      {/* Badge */}
+                      {/* Badge - DARKER for visibility */}
                       <div className="absolute top-3 left-3">
                         {item.isReal && (
-                          <Badge className="bg-success text-white text-[10px] px-2.5 py-1 font-semibold shadow-lg">
-                            Real
+                          <Badge className="bg-emerald-600 text-white text-[10px] px-2.5 py-1 font-bold shadow-lg border-0">
+                            REAL
                           </Badge>
                         )}
                         {item.isAI && (
-                          <Badge className="bg-primary text-white text-[10px] px-2.5 py-1 font-semibold shadow-lg">
+                          <Badge className="bg-violet-600 text-white text-[10px] px-2.5 py-1 font-bold shadow-lg border-0">
                             IA
                           </Badge>
                         )}

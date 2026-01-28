@@ -40,13 +40,13 @@ export const HeroArcana2 = () => {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden w-full">
       {/* Navigation */}
-      <nav className="absolute top-0 left-0 right-0 z-50 px-6 md:px-8 py-4 md:py-6 safe-area-top w-full">
+      <nav className="absolute top-0 left-0 right-0 z-50 px-4 md:px-8 py-3 md:py-6 safe-area-top w-full">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           {/* Logo */}
-          <div className="relative group">
-            <div className="relative flex items-center gap-2 px-3 md:px-4 py-2 bg-background/80 backdrop-blur-sm rounded-lg border border-secondary/30">
+          <div className="relative group flex-shrink-0">
+            <div className="relative flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 bg-background/80 backdrop-blur-sm rounded-lg border border-secondary/30">
               <Zap className="w-4 h-4 md:w-5 md:h-5 text-secondary" />
-              <span className="text-xl md:text-2xl font-bold text-secondary">
+              <span className="text-lg md:text-2xl font-bold text-secondary">
                 ARCANA
               </span>
             </div>
