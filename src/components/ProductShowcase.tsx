@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Upload, Image as ImageIcon, Camera, X, Loader2, Wand2, Download } from "lucide-react";
+import { Sparkles, Upload, Image as ImageIcon, Camera, X, Loader2, Wand2, Download, Sliders } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { ImageEditorModal } from "./ImageEditorModal";
 
 // Import showcase images
 import productDominos from "@/assets/showcase/product-dominos.png";
@@ -52,6 +53,7 @@ export const ProductShowcase = () => {
   const [productPreview, setProductPreview] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [showEditor, setShowEditor] = useState(false);
 
   const handleSelectTemplate = (template: ShowcaseItem) => {
     setSelectedTemplate(template);
@@ -396,21 +398,27 @@ export const ProductShowcase = () => {
                   />
                 </div>
 
-                <div className="flex gap-3">
+                <div className="grid grid-cols-3 gap-2">
                   <Button
                     variant="outline"
-                    className="flex-1"
                     onClick={() => setGeneratedImage(null)}
                   >
                     <Wand2 className="h-4 w-4 mr-2" />
-                    Gerar Novamente
+                    Refazer
                   </Button>
                   <Button
-                    className="flex-1 bg-gradient-to-r from-primary to-cyan-500"
+                    variant="secondary"
+                    onClick={() => setShowEditor(true)}
+                  >
+                    <Sliders className="h-4 w-4 mr-2" />
+                    Editar
+                  </Button>
+                  <Button
+                    className="bg-gradient-to-r from-primary to-cyan-500"
                     onClick={handleDownload}
                   >
                     <Download className="h-4 w-4 mr-2" />
-                    Baixar Imagem
+                    Baixar
                   </Button>
                 </div>
 
@@ -422,6 +430,14 @@ export const ProductShowcase = () => {
           </AnimatePresence>
         </DialogContent>
       </Dialog>
+
+      {/* Image Editor Modal */}
+      <ImageEditorModal
+        open={showEditor}
+        onOpenChange={setShowEditor}
+        imageUrl={generatedImage || ""}
+        productName={productName}
+      />
     </section>
   );
 };
