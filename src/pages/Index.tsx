@@ -7,7 +7,6 @@ import { AIStudioPreview } from "@/components/AIStudioPreview";
 import { SuccessCases } from "@/components/SuccessCases";
 import { Testimonials } from "@/components/Testimonials";
 import { TrustedBrands } from "@/components/TrustedBrands";
-import { Manifesto } from "@/components/Manifesto";
 import { Footer } from "@/components/Footer";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { UpdatePrompt } from "@/components/pwa/UpdatePrompt";
@@ -29,7 +28,6 @@ const Index = () => {
       <SuccessCases />
       <Testimonials />
       <TrustedBrands />
-      <Manifesto />
       <Footer />
     </div>
   );
