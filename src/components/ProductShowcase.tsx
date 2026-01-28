@@ -127,9 +127,14 @@ export const ProductShowcase = () => {
   };
 
   return (
-    <section className="py-24 bg-gradient-to-b from-background via-background/95 to-background relative overflow-hidden">
-      {/* Background effects */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent" />
+    <section className="relative py-24 px-6 overflow-hidden">
+      {/* Background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/3 to-background" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-secondary/20 to-transparent" />
+      
+      {/* Floating orbs */}
+      <div className="absolute top-1/4 -right-32 w-72 h-72 bg-primary/8 rounded-full blur-[120px]" />
+      <div className="absolute bottom-1/4 -left-32 w-72 h-72 bg-secondary/8 rounded-full blur-[120px]" />
       
       <div className="container mx-auto px-4 relative z-10">
         {/* Header */}
@@ -140,21 +145,21 @@ export const ProductShowcase = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6">
+          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/5 backdrop-blur-xl border border-white/10 mb-6">
             <Sparkles className="w-4 h-4 text-primary" />
             <span className="text-sm font-medium text-primary">Produtos Gerados por IA</span>
           </div>
           
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 tracking-tight">
             <span className="bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">
               Galeria de
             </span>{" "}
-            <span className="bg-gradient-to-r from-primary via-cyan-400 to-primary bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
               Produtos
             </span>
           </h2>
           
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto font-light">
             Clique em um template e crie sua imagem profissional em segundos com IA
           </p>
         </motion.div>

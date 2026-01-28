@@ -1,22 +1,37 @@
-import { Badge } from "@/components/ui/badge";
 import { Sparkles } from "lucide-react";
+import { motion } from "framer-motion";
 
 export const TrustedBrands = () => {
   return (
-    <section className="py-24 px-6 relative overflow-hidden bg-card/30">
-      <div className="max-w-5xl mx-auto relative z-10 text-center">
-        <Badge className="mb-6 px-4 py-2 bg-primary/10 border-primary/30 text-primary">
-          <Sparkles className="w-3 h-3 mr-2" />
-          Marcas que confiam
-        </Badge>
-        <h2 className="text-3xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-          Empoderamos marcas que acreditam na nova economia criativa
+    <section className="relative py-20 px-6 overflow-hidden">
+      {/* Background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background to-background/50" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/15 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-secondary/15 to-transparent" />
+
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+        className="max-w-5xl mx-auto relative z-10 text-center"
+      >
+        <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/5 backdrop-blur-xl border border-white/10 mb-6">
+          <Sparkles className="w-4 h-4 text-primary" />
+          <span className="text-sm font-medium text-primary">Marcas que confiam</span>
+        </div>
+        
+        <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 tracking-tight">
+          Empoderamos marcas que acreditam na{" "}
+          <span className="bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
+            nova economia criativa
+          </span>
         </h2>
         
-        <p className="text-xl text-muted-foreground font-light">
+        <p className="text-muted-foreground text-lg font-light max-w-2xl mx-auto">
           Junte-se às marcas que estão moldando o futuro da conexão entre tecnologia e humanidade.
         </p>
-      </div>
+      </motion.div>
     </section>
   );
 };

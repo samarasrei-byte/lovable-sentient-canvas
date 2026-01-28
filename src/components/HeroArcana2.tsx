@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Button } from "@/components/ui/button";
+import { GlassButton } from "@/components/ui/glass-button";
 import { Zap, Menu, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import heroLiquid from "@/assets/hero-liquid.jpg";
@@ -7,6 +7,7 @@ import { useParallax } from "@/hooks/use-parallax";
 import { InstallButton } from "@/components/pwa/InstallButton";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
 
 export const HeroArcana2 = () => {
   const navigate = useNavigate();
@@ -37,9 +38,9 @@ export const HeroArcana2 = () => {
   ];
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden w-full">
       {/* Navigation */}
-      <nav className="absolute top-0 left-0 right-0 z-50 px-4 md:px-6 py-4 md:py-6 safe-area-top">
+      <nav className="absolute top-0 left-0 right-0 z-50 px-6 md:px-8 py-4 md:py-6 safe-area-top w-full">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           {/* Logo */}
           <div className="relative group">
@@ -113,7 +114,7 @@ export const HeroArcana2 = () => {
       {/* Animated Background */}
       <div 
         ref={backgroundRef}
-        className="absolute inset-0 transition-transform duration-1000 ease-out"
+        className="absolute inset-0 w-full h-full transition-transform duration-1000 ease-out"
         style={{
           transform: `translate(${mousePosition.x}px, ${mousePosition.y + backgroundOffset}px)`,
         }}
@@ -121,10 +122,10 @@ export const HeroArcana2 = () => {
         <img 
           src={heroLiquid} 
           alt="Liquid background"
-          className="w-full h-full object-cover opacity-30 scale-110"
+          className="w-full h-full object-cover opacity-25 scale-125"
           loading="eager"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/60 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/70 to-background" />
       </div>
 
       {/* Animated Glow Orbs */}
@@ -168,22 +169,23 @@ export const HeroArcana2 = () => {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="flex flex-col sm:flex-row items-center justify-center gap-4"
         >
-          <Button 
-            size="lg"
-            className="w-full sm:w-auto text-base md:text-lg px-8 md:px-12 py-5 md:py-6 rounded-full bg-gradient-to-r from-primary to-secondary hover:scale-105 transition-transform duration-300 shadow-2xl shadow-primary/50 touch-manipulation"
+          <GlassButton 
+            variant="glow"
+            size="xl"
+            className="w-full sm:w-auto touch-manipulation"
             onClick={() => navigate("/login")}
           >
             Explorar talentos
             <ArrowRight className="w-5 h-5 ml-2" />
-          </Button>
-          <Button
-            size="lg"
+          </GlassButton>
+          <GlassButton
             variant="outline"
-            className="w-full sm:w-auto text-base md:text-lg px-8 md:px-12 py-5 md:py-6 rounded-full border-primary/30 hover:bg-primary/10 touch-manipulation"
+            size="xl"
+            className="w-full sm:w-auto touch-manipulation"
             onClick={() => navigate("/login")}
           >
             Criar conta grátis
-          </Button>
+          </GlassButton>
         </motion.div>
       </div>
 
