@@ -106,6 +106,42 @@ const talents: Talent[] = [
     specialty: "Startups",
     type: "influencer"
   },
+  {
+    id: 13,
+    name: "Lucas Oliveira",
+    segment: "Música",
+    followers: "5.2M",
+    image: influencerMusic,
+    specialty: "Produção Musical",
+    type: "influencer"
+  },
+  {
+    id: 14,
+    name: "Gabriela Lima",
+    segment: "Gaming",
+    followers: "4.1M",
+    image: influencerGaming,
+    specialty: "E-sports & Streaming",
+    type: "influencer"
+  },
+  {
+    id: 15,
+    name: "Carlos Eduardo",
+    segment: "Educação",
+    followers: "1.7M",
+    image: influencerEducation,
+    specialty: "Ensino Digital",
+    type: "influencer"
+  },
+  {
+    id: 16,
+    name: "Fernanda Mendes",
+    segment: "Empreendedorismo",
+    followers: "2.3M",
+    image: influencerEntrepreneur,
+    specialty: "Business & Startups",
+    type: "influencer"
+  },
   // Artistas
   {
     id: 9,
@@ -147,20 +183,20 @@ const talents: Talent[] = [
 
 const typeConfig = {
   avatar: {
-    label: "Avatar IA",
+    label: "IA",
     color: "hsl(var(--primary))",
     bgColor: "bg-primary/10",
     borderColor: "border-primary/30 hover:border-primary",
     icon: Bot,
-    badgeClass: "bg-primary/20 text-primary border-primary/30"
+    badgeClass: "bg-primary text-primary-foreground border-primary shadow-lg"
   },
   influencer: {
-    label: "Influenciador",
+    label: "Real",
     color: "hsl(var(--secondary))",
     bgColor: "bg-secondary/10",
     borderColor: "border-secondary/30 hover:border-secondary",
     icon: Users,
-    badgeClass: "bg-secondary/20 text-secondary border-secondary/30"
+    badgeClass: "bg-secondary text-secondary-foreground border-secondary shadow-lg"
   },
   artist: {
     label: "Artista",
@@ -168,7 +204,7 @@ const typeConfig = {
     bgColor: "bg-orange-500/10",
     borderColor: "border-orange-500/30 hover:border-orange-500",
     icon: Palette,
-    badgeClass: "bg-orange-500/20 text-orange-500 border-orange-500/30"
+    badgeClass: "bg-orange-500 text-white border-orange-500 shadow-lg"
   }
 };
 
