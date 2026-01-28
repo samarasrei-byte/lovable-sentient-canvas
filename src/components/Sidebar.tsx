@@ -18,7 +18,9 @@ import {
   BarChart3,
   LogOut,
   Camera,
-  ChevronDown
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,6 +28,12 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 interface MenuItem {
@@ -86,6 +94,7 @@ const bottomItems: MenuItem[] = [
 export const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [openGroups, setOpenGroups] = useState<string[]>(["Principal", "Criação"]);
 
   const handleLogout = async () => {
@@ -100,6 +109,7 @@ export const Sidebar = () => {
   };
 
   const toggleGroup = (label: string) => {
+    if (isCollapsed) return;
     setOpenGroups(prev => 
       prev.includes(label) 
         ? prev.filter(g => g !== label)
@@ -114,122 +124,262 @@ export const Sidebar = () => {
 
   // Auto-expand group containing active item
   useEffect(() => {
+    if (isCollapsed) return;
     menuGroups.forEach(group => {
       if (isGroupActive(group) && !openGroups.includes(group.label)) {
         setOpenGroups(prev => [...prev, group.label]);
       }
     });
-  }, [location.pathname]);
+  }, [location.pathname, isCollapsed]);
+
+  const IconWrapper = ({ children, className }: { children: React.ReactNode; className?: string }) => (
+    <div className={cn(
+      "transition-all duration-200 group-hover:scale-110 group-hover:rotate-3",
+      className
+    )}>
+      {children}
+    </div>
+  );
+
+  const CollapsedMenuItem = ({ item, isActive }: { item: MenuItem; isActive: boolean }) => (
+    <Tooltip delayDuration={0}>
+      <TooltipTrigger asChild>
+        <Link
+          to={item.path}
+          className={cn(
+            "group flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200",
+            isActive
+              ? "bg-primary/15 text-primary shadow-lg shadow-primary/20"
+              : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+          )}
+        >
+          <IconWrapper>
+            <item.icon className="w-5 h-5" />
+          </IconWrapper>
+        </Link>
+      </TooltipTrigger>
+      <TooltipContent side="right" className="font-medium">
+        {item.label}
+      </TooltipContent>
+    </Tooltip>
+  );
 
   return (
-    <aside className="w-56 border-r border-border/20 bg-card/30 backdrop-blur-xl flex flex-col">
-      {/* Logo */}
-      <Link to="/" className="flex items-center gap-2 p-5 pb-4 group">
-        <div className="relative">
-          <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-secondary rounded-lg opacity-30 group-hover:opacity-60 blur-sm transition-all" />
-          <div className="relative w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-            <Zap className="w-4 h-4 text-white" />
-          </div>
+    <TooltipProvider>
+      <aside 
+        className={cn(
+          "border-r border-border/20 bg-card/30 backdrop-blur-xl flex flex-col transition-all duration-300 ease-in-out",
+          isCollapsed ? "w-[72px]" : "w-56"
+        )}
+      >
+        {/* Logo */}
+        <div className={cn(
+          "flex items-center p-4 pb-3",
+          isCollapsed ? "justify-center" : "gap-2"
+        )}>
+          <Link to="/" className="group flex items-center gap-2">
+            <div className="relative">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-secondary rounded-lg opacity-30 group-hover:opacity-60 blur-sm transition-all" />
+              <div className="relative w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                <Zap className="w-4 h-4 text-white transition-transform duration-200 group-hover:scale-110" />
+              </div>
+            </div>
+            {!isCollapsed && (
+              <span className="text-base font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                ARCANA
+              </span>
+            )}
+          </Link>
         </div>
-        <span className="text-base font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-          ARCANA
-        </span>
-      </Link>
 
-      {/* Navigation Groups */}
-      <nav className="flex-1 px-3 space-y-1 overflow-y-auto">
-        {menuGroups.map((group) => {
-          const isOpen = openGroups.includes(group.label);
-          const groupActive = isGroupActive(group);
-          
-          return (
-            <Collapsible
-              key={group.label}
-              open={isOpen}
-              onOpenChange={() => toggleGroup(group.label)}
-            >
-              <CollapsibleTrigger asChild>
-                <button
-                  className={cn(
-                    "w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors",
-                    groupActive 
-                      ? "text-primary bg-primary/5" 
-                      : "text-muted-foreground hover:text-foreground hover:bg-accent/30"
-                  )}
-                >
-                  <div className="flex items-center gap-2">
-                    <group.icon className="w-4 h-4" />
-                    <span>{group.label}</span>
-                  </div>
-                  <ChevronDown 
+        {/* Collapse Toggle */}
+        <div className={cn("px-3 mb-2", isCollapsed && "px-2")}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className={cn(
+              "h-8 text-muted-foreground hover:text-foreground transition-all",
+              isCollapsed ? "w-full justify-center px-0" : "w-full justify-between px-2"
+            )}
+          >
+            {!isCollapsed && <span className="text-xs">Recolher</span>}
+            {isCollapsed ? (
+              <ChevronRight className="w-4 h-4" />
+            ) : (
+              <ChevronLeft className="w-4 h-4" />
+            )}
+          </Button>
+        </div>
+
+        {/* Navigation Groups */}
+        <nav className={cn(
+          "flex-1 space-y-1 overflow-y-auto",
+          isCollapsed ? "px-2" : "px-3"
+        )}>
+          {isCollapsed ? (
+            // Collapsed view - show only icons
+            <div className="space-y-2">
+              {menuGroups.map((group) => (
+                <div key={group.label} className="space-y-1">
+                  <Tooltip delayDuration={0}>
+                    <TooltipTrigger asChild>
+                      <div className={cn(
+                        "flex items-center justify-center w-10 h-8 rounded-lg text-xs font-medium",
+                        isGroupActive(group) ? "text-primary" : "text-muted-foreground/60"
+                      )}>
+                        <group.icon className="w-4 h-4" />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="right">
+                      {group.label}
+                    </TooltipContent>
+                  </Tooltip>
+                  {group.items.map((item) => (
+                    <CollapsedMenuItem 
+                      key={item.path} 
+                      item={item} 
+                      isActive={isPathActive(item.path)} 
+                    />
+                  ))}
+                </div>
+              ))}
+
+              <div className="h-px bg-border/30 my-3" />
+
+              {bottomItems.map((item) => (
+                <CollapsedMenuItem 
+                  key={item.path} 
+                  item={item} 
+                  isActive={isPathActive(item.path)} 
+                />
+              ))}
+            </div>
+          ) : (
+            // Expanded view
+            <>
+              {menuGroups.map((group) => {
+                const isOpen = openGroups.includes(group.label);
+                const groupActive = isGroupActive(group);
+                
+                return (
+                  <Collapsible
+                    key={group.label}
+                    open={isOpen}
+                    onOpenChange={() => toggleGroup(group.label)}
+                  >
+                    <CollapsibleTrigger asChild>
+                      <button
+                        className={cn(
+                          "group w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200",
+                          groupActive 
+                            ? "text-primary bg-primary/5" 
+                            : "text-muted-foreground hover:text-foreground hover:bg-accent/30"
+                        )}
+                      >
+                        <div className="flex items-center gap-2">
+                          <IconWrapper>
+                            <group.icon className="w-4 h-4" />
+                          </IconWrapper>
+                          <span>{group.label}</span>
+                        </div>
+                        <ChevronDown 
+                          className={cn(
+                            "w-3 h-3 transition-transform duration-200",
+                            isOpen && "rotate-180"
+                          )} 
+                        />
+                      </button>
+                    </CollapsibleTrigger>
+                    
+                    <CollapsibleContent className="pt-1 pl-4 space-y-0.5 animate-accordion-down">
+                      {group.items.map((item) => {
+                        const isActive = isPathActive(item.path);
+                        return (
+                          <Link
+                            key={item.path}
+                            to={item.path}
+                            className={cn(
+                              "group flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all duration-200",
+                              isActive
+                                ? "bg-primary/10 text-primary font-medium shadow-sm"
+                                : "text-muted-foreground/80 hover:text-foreground hover:bg-accent/30"
+                            )}
+                          >
+                            <IconWrapper>
+                              <item.icon className="w-3.5 h-3.5" />
+                            </IconWrapper>
+                            <span>{item.label}</span>
+                          </Link>
+                        );
+                      })}
+                    </CollapsibleContent>
+                  </Collapsible>
+                );
+              })}
+
+              <div className="h-px bg-border/30 my-3" />
+
+              {bottomItems.map((item) => {
+                const isActive = isPathActive(item.path);
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
                     className={cn(
-                      "w-3 h-3 transition-transform duration-200",
-                      isOpen && "rotate-180"
-                    )} 
-                  />
-                </button>
-              </CollapsibleTrigger>
-              
-              <CollapsibleContent className="pt-1 pl-4 space-y-0.5">
-                {group.items.map((item) => {
-                  const isActive = isPathActive(item.path);
-                  return (
-                    <Link
-                      key={item.path}
-                      to={item.path}
-                      className={cn(
-                        "flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all",
-                        isActive
-                          ? "bg-primary/10 text-primary font-medium"
-                          : "text-muted-foreground/80 hover:text-foreground hover:bg-accent/30"
-                      )}
-                    >
-                      <item.icon className="w-3.5 h-3.5" />
-                      <span>{item.label}</span>
-                    </Link>
-                  );
-                })}
-              </CollapsibleContent>
-            </Collapsible>
-          );
-        })}
+                      "group flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all duration-200",
+                      isActive
+                        ? "bg-primary/10 text-primary font-medium"
+                        : "text-muted-foreground/80 hover:text-foreground hover:bg-accent/30"
+                    )}
+                  >
+                    <IconWrapper>
+                      <item.icon className="w-4 h-4" />
+                    </IconWrapper>
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
+            </>
+          )}
+        </nav>
 
-        {/* Divider */}
-        <div className="h-px bg-border/30 my-3" />
-
-        {/* Bottom Items */}
-        {bottomItems.map((item) => {
-          const isActive = isPathActive(item.path);
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={cn(
-                "flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all",
-                isActive
-                  ? "bg-primary/10 text-primary font-medium"
-                  : "text-muted-foreground/80 hover:text-foreground hover:bg-accent/30"
-              )}
+        {/* Logout */}
+        <div className={cn(
+          "border-t border-border/20",
+          isCollapsed ? "p-2" : "p-3"
+        )}>
+          {isCollapsed ? (
+            <Tooltip delayDuration={0}>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleLogout}
+                  className="w-10 h-10 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                >
+                  <LogOut className="w-4 h-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                Sair
+              </TooltipContent>
+            </Tooltip>
+          ) : (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLogout}
+              className="w-full justify-start gap-2 h-9 text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/10 group"
             >
-              <item.icon className="w-4 h-4" />
-              <span>{item.label}</span>
-            </Link>
-          );
-        })}
-      </nav>
-
-      {/* Logout */}
-      <div className="p-3 border-t border-border/20">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleLogout}
-          className="w-full justify-start gap-2 h-9 text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-        >
-          <LogOut className="w-4 h-4" />
-          Sair
-        </Button>
-      </div>
-    </aside>
+              <IconWrapper>
+                <LogOut className="w-4 h-4" />
+              </IconWrapper>
+              Sair
+            </Button>
+          )}
+        </div>
+      </aside>
+    </TooltipProvider>
   );
 };
