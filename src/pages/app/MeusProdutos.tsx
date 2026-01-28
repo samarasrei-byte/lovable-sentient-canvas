@@ -154,14 +154,34 @@ const MeusProdutos = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Usuário não autenticado");
 
-      // Simulate AI generation (in production, this would call an AI API)
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Call the real AI generation edge function
+      const { data, error: functionError } = await supabase.functions.invoke('generate-product-image', {
+        body: {
+          productName,
+          templateId: selectedTemplate.id,
+          templateStyle: selectedTemplate.style,
+          productImageBase64: productPreview || null,
+          logoImageBase64: logoPreview || null,
+        }
+      });
 
-      // For demo, use the template image as the result
-      const generatedImageUrl = selectedTemplate.image;
+      if (functionError) {
+        console.error("Function error:", functionError);
+        throw new Error(functionError.message || "Erro ao chamar IA");
+      }
+
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+
+      const generatedImageUrl = data?.image;
+      
+      if (!generatedImageUrl) {
+        throw new Error("Nenhuma imagem foi gerada");
+      }
 
       // Save to database
-      const { error } = await supabase.from("generated_images").insert({
+      const { error: dbError } = await supabase.from("generated_images").insert({
         user_id: user.id,
         template_name: selectedTemplate.id,
         product_name: productName,
@@ -169,11 +189,11 @@ const MeusProdutos = () => {
         is_public: false
       });
 
-      if (error) throw error;
+      if (dbError) throw dbError;
 
       toast({
-        title: "Produto gerado com sucesso!",
-        description: "Sua imagem está pronta na galeria."
+        title: "Produto gerado com sucesso! ✨",
+        description: "Sua imagem profissional está pronta na galeria."
       });
 
       setShowUploadDialog(false);
@@ -184,8 +204,8 @@ const MeusProdutos = () => {
       console.error("Error generating:", error);
       toast({
         variant: "destructive",
-        title: "Erro ao gerar",
-        description: "Tente novamente mais tarde."
+        title: "Erro ao gerar imagem",
+        description: error instanceof Error ? error.message : "Tente novamente mais tarde."
       });
     } finally {
       setIsGenerating(false);
