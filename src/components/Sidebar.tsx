@@ -17,14 +17,16 @@ import {
   MessageCircle,
   BarChart3,
   LogOut,
-  Lightbulb
+  Lightbulb,
+  Camera
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 const brandMenuItems = [
   { path: "/app/dashboard", icon: Home, label: "Dashboard" },
-  { path: "/app/insights", icon: Lightbulb, label: "Insights IA", badge: "Novo" },
+  { path: "/app/meus-produtos", icon: Camera, label: "Meus Produtos", badge: "Novo" },
+  { path: "/app/insights", icon: Lightbulb, label: "Insights IA" },
   { path: "/app/ai-studio", icon: Sparkles, label: "Criar com IA" },
   { path: "/app/talentos", icon: Users, label: "Talentos" },
   { path: "/app/campanhas", icon: Target, label: "Campanhas" },
