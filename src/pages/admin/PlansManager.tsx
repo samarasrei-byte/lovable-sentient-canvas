@@ -37,7 +37,7 @@ interface PlanConfig {
   name: string;
   price_cents: number;
   credits_monthly: number;
-  features: unknown;
+  features: string[];
   is_active: boolean;
   display_order: number;
 }
@@ -47,7 +47,7 @@ interface PlanUpgrade {
   name: string;
   description: string;
   price_cents: number;
-  features: unknown;
+  features: string[];
   icon: string;
   is_active: boolean;
   display_order: number;
@@ -84,8 +84,14 @@ const PlansManager = () => {
       supabase.from("plan_upgrades").select("*").order("display_order"),
     ]);
 
-    setPlans(plansRes.data || []);
-    setUpgrades(upgradesRes.data || []);
+    setPlans((plansRes.data || []).map(p => ({
+      ...p,
+      features: Array.isArray(p.features) ? p.features as string[] : []
+    })));
+    setUpgrades((upgradesRes.data || []).map(u => ({
+      ...u,
+      features: Array.isArray(u.features) ? u.features as string[] : []
+    })));
     setLoading(false);
   };
 
@@ -180,7 +186,7 @@ const PlansManager = () => {
     }
   };
 
-  const handleToggleActive = async (table: string, id: string, currentState: boolean) => {
+  const handleToggleActive = async (table: "plan_configs" | "plan_upgrades", id: string, currentState: boolean) => {
     const { error } = await supabase
       .from(table)
       .update({ is_active: !currentState })
@@ -192,7 +198,7 @@ const PlansManager = () => {
     }
   };
 
-  const handleDelete = async (table: string, id: string) => {
+  const handleDelete = async (table: "plan_configs" | "plan_upgrades", id: string) => {
     if (!confirm("Tem certeza que deseja excluir?")) return;
 
     const { error } = await supabase.from(table).delete().eq("id", id);

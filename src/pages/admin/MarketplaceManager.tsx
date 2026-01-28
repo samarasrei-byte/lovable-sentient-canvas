@@ -209,7 +209,7 @@ const MarketplaceManager = () => {
     }
   };
 
-  const handleToggleActive = async (table: string, id: string, currentState: boolean) => {
+  const handleToggleActive = async (table: "artists" | "ai_avatars" | "marketplace_categories" | "marketplace_tags", id: string, currentState: boolean) => {
     const { error } = await supabase
       .from(table)
       .update({ is_active: !currentState })
@@ -221,7 +221,7 @@ const MarketplaceManager = () => {
     }
   };
 
-  const handleDelete = async (table: string, id: string) => {
+  const handleDelete = async (table: "artists" | "ai_avatars" | "marketplace_categories" | "marketplace_tags", id: string) => {
     if (!confirm("Tem certeza que deseja excluir?")) return;
 
     const { error } = await supabase.from(table).delete().eq("id", id);
