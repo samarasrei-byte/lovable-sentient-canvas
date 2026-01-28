@@ -150,12 +150,12 @@ export const UserGallery = ({ onReuse }: UserGalleryProps) => {
                   <div className="flex gap-2">
                     <Button
                       size="sm"
-                      variant="secondary"
-                      className="flex-1 gap-2"
-                      onClick={() => onReuse?.(image)}
+                      variant="outline"
+                      className="flex-1 gap-2 opacity-60 cursor-not-allowed"
+                      disabled
                     >
                       <Edit className="h-3 w-3" />
-                      Reutilizar
+                      Em Breve
                     </Button>
                     <Button
                       size="sm"
