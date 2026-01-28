@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { GlassButton } from "@/components/ui/glass-button";
+import { GlassCard, GlassCardContent } from "@/components/ui/glass-card";
 import { 
   Search, 
   Star, 
@@ -184,45 +184,71 @@ export const UnifiedMarketplace = () => {
   });
 
   return (
-    <section id="marketplace" className="py-16 md:py-24 px-4 md:px-6 bg-gradient-to-b from-background to-muted/20">
-      <div className="max-w-7xl mx-auto">
+    <section id="marketplace" className="relative py-24 px-6 overflow-hidden">
+      {/* Ultra-modern background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-primary/3 to-background" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-secondary/30 to-transparent" />
+      
+      {/* Floating orbs */}
+      <div className="absolute top-1/4 -left-32 w-64 h-64 bg-primary/10 rounded-full blur-[100px] animate-pulse" />
+      <div className="absolute bottom-1/4 -right-32 w-64 h-64 bg-secondary/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '1s' }} />
+
+      <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
-        <div className="text-center mb-10">
-          <Badge className="mb-4 px-4 py-2 bg-primary/10 border-primary/30 text-primary">
-            <Users className="w-3 h-3 mr-2" />
-            Marketplace de Talentos
-          </Badge>
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3">
-            <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              Encontre o talento perfeito
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-12"
+        >
+          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/5 backdrop-blur-xl border border-white/10 mb-6">
+            <Users className="w-4 h-4 text-primary" />
+            <span className="text-sm font-medium text-primary">Marketplace de Talentos</span>
+          </div>
+          
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 tracking-tight">
+            <span className="bg-gradient-to-r from-foreground via-foreground to-foreground/60 bg-clip-text text-transparent">
+              Encontre o talento
+            </span>{" "}
+            <span className="bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
+              perfeito
             </span>
           </h2>
-          <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto">
+          
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto font-light">
             Influenciadores, artistas e avatares — conecte sua marca com os melhores criadores.
           </p>
-        </div>
+        </motion.div>
 
-        {/* Search */}
-        <div className="max-w-md mx-auto mb-8">
+        {/* Search - Glassmorphism */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="max-w-lg mx-auto mb-10"
+        >
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             <Input
               placeholder="Buscar talentos..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 py-5 rounded-full bg-card/50 border-border/50 focus:border-primary text-sm"
+              className="pl-14 py-6 rounded-full bg-white/5 backdrop-blur-xl border-white/10 focus:border-primary/50 focus:bg-white/10 transition-all text-base"
             />
           </div>
-        </div>
+        </motion.div>
 
-        {/* Category Tabs */}
+        {/* Category Tabs - Glassmorphism */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="flex justify-center gap-2 bg-transparent h-auto mb-8">
+          <TabsList className="flex justify-center gap-2 bg-transparent h-auto mb-10 flex-wrap">
             {categories.map((cat) => (
               <TabsTrigger
                 key={cat.id}
                 value={cat.id}
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-full px-4 py-2 gap-2 text-sm"
+                className="data-[state=active]:bg-white/15 data-[state=active]:backdrop-blur-xl data-[state=active]:border-primary/30 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full px-5 py-2.5 gap-2 text-sm transition-all hover:bg-white/10"
               >
                 <cat.icon className="w-4 h-4" />
                 <span className="hidden sm:inline">{cat.label}</span>
@@ -231,73 +257,73 @@ export const UnifiedMarketplace = () => {
           </TabsList>
 
           <TabsContent value={activeTab} className="mt-0">
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
               {filteredItems.map((item, index) => (
                 <motion.div
                   key={item.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.03 }}
+                  transition={{ duration: 0.4, delay: index * 0.05 }}
                 >
-                  <Card className="group overflow-hidden border-border/50 bg-card/50 backdrop-blur-sm hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10">
-                    <div className="relative aspect-square overflow-hidden">
+                  <GlassCard className="group overflow-hidden cursor-pointer">
+                    <div className="relative aspect-square overflow-hidden rounded-t-2xl">
                       <img
                         src={item.image}
                         alt={item.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       
                       {/* Badge */}
-                      <div className="absolute top-2 left-2">
+                      <div className="absolute top-3 left-3">
                         {item.isReal && (
-                          <Badge className="bg-success/90 text-success-foreground text-[10px] px-2 py-0.5">
+                          <Badge className="bg-success text-white text-[10px] px-2.5 py-1 font-semibold shadow-lg">
                             Real
                           </Badge>
                         )}
                         {item.isAI && (
-                          <Badge className="bg-primary/90 text-primary-foreground text-[10px] px-2 py-0.5">
+                          <Badge className="bg-primary text-white text-[10px] px-2.5 py-1 font-semibold shadow-lg">
                             IA
                           </Badge>
                         )}
                       </div>
 
                       {/* Stats on Hover */}
-                      <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <div className="flex items-center gap-2 text-white text-[10px]">
-                          <span className="flex items-center gap-1">
+                      <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+                        <div className="flex items-center gap-3 text-white text-xs">
+                          <span className="flex items-center gap-1 bg-black/30 backdrop-blur-sm px-2 py-1 rounded-full">
                             <Heart className="w-3 h-3" /> {item.likes}
                           </span>
-                          <span className="flex items-center gap-1">
+                          <span className="flex items-center gap-1 bg-black/30 backdrop-blur-sm px-2 py-1 rounded-full">
                             <Eye className="w-3 h-3" /> {item.views}
                           </span>
                         </div>
                       </div>
                     </div>
 
-                    <CardContent className="p-3">
+                    <GlassCardContent className="p-4">
                       <h3 className="font-semibold text-foreground text-sm truncate group-hover:text-primary transition-colors">
                         {item.name}
                       </h3>
-                      <p className="text-xs text-muted-foreground truncate mb-2">{item.category}</p>
+                      <p className="text-xs text-muted-foreground truncate mb-3">{item.category}</p>
                       
-                      <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-2">
-                        <span>{item.followers} seguidores</span>
-                        <span className="text-success">{item.engagement} eng.</span>
+                      <div className="flex items-center justify-between text-[11px] text-muted-foreground mb-3">
+                        <span className="font-medium">{item.followers} seguidores</span>
+                        <span className="text-success font-semibold">{item.engagement} eng.</span>
                       </div>
 
-                      <div className="flex flex-wrap gap-1">
+                      <div className="flex flex-wrap gap-1.5">
                         {item.tags.slice(0, 2).map((tag) => (
                           <span
                             key={tag}
-                            className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground"
+                            className="text-[10px] px-2 py-1 rounded-full bg-white/5 border border-white/10 text-muted-foreground"
                           >
                             {tag}
                           </span>
                         ))}
                       </div>
-                    </CardContent>
-                  </Card>
+                    </GlassCardContent>
+                  </GlassCard>
                 </motion.div>
               ))}
             </div>
@@ -305,16 +331,22 @@ export const UnifiedMarketplace = () => {
         </Tabs>
 
         {/* CTA */}
-        <div className="text-center mt-10">
-          <Button 
-            size="lg" 
-            className="rounded-full px-8 bg-gradient-to-r from-primary to-secondary hover:scale-105 transition-transform"
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="text-center mt-14"
+        >
+          <GlassButton 
+            variant="glow"
+            size="lg"
             onClick={() => navigate("/login")}
           >
             Ver todos os talentos
             <ArrowRight className="w-5 h-5 ml-2" />
-          </Button>
-        </div>
+          </GlassButton>
+        </motion.div>
       </div>
     </section>
   );

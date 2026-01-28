@@ -1,6 +1,7 @@
 import { Star, Quote } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { GlassCard } from "@/components/ui/glass-card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { motion } from "framer-motion";
 
 export const Testimonials = () => {
   const testimonials = [
@@ -40,58 +41,79 @@ export const Testimonials = () => {
 
   return (
     <section className="relative py-24 px-6 overflow-hidden">
-      {/* Background effects */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/5 to-background" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/10 rounded-full blur-[150px] animate-pulse" />
+      {/* Background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/3 to-background" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-secondary/20 to-transparent" />
+      
+      {/* Floating orb */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[180px]" />
 
       <div className="max-w-7xl mx-auto relative z-10">
-        {/* Title */}
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-primary/20 to-secondary/20 border border-primary/30 mb-8">
-            <Star className="w-5 h-5 text-primary fill-primary" />
-            <span className="text-sm font-bold text-primary">Avaliação 5.0/5.0</span>
+        {/* Header */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
+        >
+          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/5 backdrop-blur-xl border border-white/10 mb-6">
+            <Star className="w-4 h-4 text-primary fill-primary" />
+            <span className="text-sm font-medium text-primary">Avaliação 5.0/5.0</span>
           </div>
-          <h2 className="text-5xl md:text-7xl font-black mb-6 bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
-            O Que Dizem Nossos Clientes
+          
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 tracking-tight">
+            O Que Dizem{" "}
+            <span className="bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
+              Nossos Clientes
+            </span>
           </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          
+          <p className="text-muted-foreground text-lg max-w-3xl mx-auto font-light">
             Histórias reais de marcas que revolucionaram suas estratégias de influência digital.
           </p>
-        </div>
+        </motion.div>
 
         {/* Testimonials Grid */}
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid md:grid-cols-2 gap-6">
           {testimonials.map((testimonial, i) => (
-            <div key={i} className="relative group">
-              <div className={`absolute -inset-1 bg-gradient-to-r ${testimonial.gradient} rounded-3xl opacity-0 group-hover:opacity-20 blur-xl transition duration-500`} />
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+              className="relative group"
+            >
+              <div className={`absolute -inset-1 bg-gradient-to-r ${testimonial.gradient} rounded-3xl opacity-0 group-hover:opacity-15 blur-xl transition duration-500`} />
               
-              <Card className="relative bg-card/70 backdrop-blur-xl border-border/50 group-hover:border-primary/50 rounded-3xl p-8 transition-all h-full">
-                <Quote className="w-12 h-12 text-primary/20 mb-6" />
+              <GlassCard className="relative h-full group-hover:border-primary/30 p-6 md:p-8">
+                <Quote className="w-10 h-10 text-primary/20 mb-5" />
                 
-                <div className="flex gap-1 mb-6">
+                <div className="flex gap-1 mb-5">
                   {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 text-primary fill-primary" />
+                    <Star key={i} className="w-4 h-4 text-primary fill-primary" />
                   ))}
                 </div>
 
-                <p className="text-lg leading-relaxed mb-8 text-foreground/90">
+                <p className="text-base leading-relaxed mb-6 text-foreground/90">
                   "{testimonial.content}"
                 </p>
 
                 <div className="flex items-center gap-4">
-                  <Avatar className="w-14 h-14">
+                  <Avatar className="w-12 h-12 border-2 border-white/10">
                     <AvatarImage src="" />
-                    <AvatarFallback className={`bg-gradient-to-br ${testimonial.gradient} text-white text-lg font-bold`}>
+                    <AvatarFallback className={`bg-gradient-to-br ${testimonial.gradient} text-white text-sm font-bold`}>
                       {testimonial.avatar}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <div className="font-bold text-foreground">{testimonial.name}</div>
+                    <div className="font-semibold text-foreground">{testimonial.name}</div>
                     <div className="text-sm text-muted-foreground">{testimonial.role}</div>
                   </div>
                 </div>
-              </Card>
-            </div>
+              </GlassCard>
+            </motion.div>
           ))}
         </div>
       </div>
