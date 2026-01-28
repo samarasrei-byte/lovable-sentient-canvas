@@ -42,6 +42,7 @@ import InfluencerPagamentos from "./pages/app/influencer/Pagamentos";
 import InfluencerMonitoramento from "./pages/app/influencer/Monitoramento";
 import InfluencerAnalytics from "./pages/app/influencer/Analytics";
 import AgencyDashboard from "./pages/app/agency/Dashboard";
+import Insights from "./pages/app/Insights";
 
 const queryClient = new QueryClient();
 
@@ -76,6 +77,7 @@ const App = () => (
           <Route path="/app" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
             <Route index element={<RedirectToDashboard />} />
             <Route path="dashboard" element={<DashboardRouter />} />
+            <Route path="insights" element={<Insights />} />
             <Route path="talentos" element={<Talentos />} />
             <Route path="talentos/:id" element={<PerfilTalento />} />
             <Route path="campanhas" element={<Campanhas />} />

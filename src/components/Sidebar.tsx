@@ -16,12 +16,15 @@ import {
   UserCircle,
   MessageCircle,
   BarChart3,
-  LogOut
+  LogOut,
+  Lightbulb
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 const brandMenuItems = [
   { path: "/app/dashboard", icon: Home, label: "Dashboard" },
+  { path: "/app/insights", icon: Lightbulb, label: "Insights IA", badge: "Novo" },
   { path: "/app/ai-studio", icon: Sparkles, label: "Criar com IA" },
   { path: "/app/talentos", icon: Users, label: "Talentos" },
   { path: "/app/campanhas", icon: Target, label: "Campanhas" },
@@ -37,6 +40,7 @@ const brandMenuItems = [
 
 const influencerMenuItems = [
   { path: "/app/dashboard", icon: Home, label: "Dashboard" },
+  { path: "/app/insights", icon: Lightbulb, label: "Insights IA", badge: "Novo" },
   { path: "/app/ai-studio", icon: Sparkles, label: "Criar com IA" },
   { path: "/app/influencer/analytics", icon: BarChart3, label: "Analytics" },
   { path: "/app/influencer/contratos", icon: FileText, label: "Contratos" },
@@ -116,6 +120,11 @@ export const Sidebar = () => {
             >
               <item.icon className={`w-4 h-4 transition-transform duration-200 ${isActive ? "scale-110" : "group-hover:scale-105"}`} />
               <span className="text-xs font-medium tracking-wide">{item.label}</span>
+              {item.badge && (
+                <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 bg-accent/20 text-accent">
+                  {item.badge}
+                </Badge>
+              )}
             </Link>
           );
         })}
