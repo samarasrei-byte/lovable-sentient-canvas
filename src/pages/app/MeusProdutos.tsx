@@ -21,7 +21,8 @@ import {
   Check,
   Wand2,
   ArrowRight,
-  Eye
+  Eye,
+  Sliders
 } from "lucide-react";
 import {
   Dialog,
@@ -30,6 +31,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { ImageEditorModal } from "@/components/ImageEditorModal";
 
 // Import showcase templates
 import productDominos from "@/assets/showcase/product-dominos.png";
@@ -80,6 +82,8 @@ const MeusProdutos = () => {
   const [userProducts, setUserProducts] = useState<UserProduct[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [activeTab, setActiveTab] = useState<"templates" | "meus">("templates");
+  const [showEditor, setShowEditor] = useState(false);
+  const [editingImage, setEditingImage] = useState<{ url: string; name: string } | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -406,6 +410,17 @@ const MeusProdutos = () => {
                   {/* Overlay with actions */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <div className="absolute top-3 right-3 flex gap-2">
+                      <Button 
+                        size="icon" 
+                        variant="secondary" 
+                        className="h-8 w-8"
+                        onClick={() => {
+                          setEditingImage({ url: product.image_url, name: product.product_name });
+                          setShowEditor(true);
+                        }}
+                      >
+                        <Sliders className="h-4 w-4" />
+                      </Button>
                       <Button size="icon" variant="secondary" className="h-8 w-8">
                         <Download className="h-4 w-4" />
                       </Button>
@@ -578,6 +593,14 @@ const MeusProdutos = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Image Editor Modal */}
+      <ImageEditorModal
+        open={showEditor}
+        onOpenChange={setShowEditor}
+        imageUrl={editingImage?.url || ""}
+        productName={editingImage?.name}
+      />
     </div>
   );
 };
