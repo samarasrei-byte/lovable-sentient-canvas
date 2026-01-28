@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import { GlassCard, GlassCardContent } from "@/components/ui/glass-card";
 import { 
   MousePointer2, 
@@ -6,132 +5,99 @@ import {
   Sliders, 
   Sparkles, 
   Download,
-  ArrowRight,
-  Zap
 } from "lucide-react";
 import { motion } from "framer-motion";
 
 const steps = [
   {
-    number: "01",
-    title: "Escolha o template",
-    description: "Navegue pelo marketplace e selecione o template perfeito",
+    number: "1",
+    title: "Escolha o Template",
+    description: "Selecione o estilo de influencer que combina com seu produto",
     icon: MousePointer2,
-    gradient: "from-primary to-primary/50",
   },
   {
-    number: "02",
-    title: "Envie sua foto",
-    description: "Faça upload do seu produto ou foto para personalização",
-    icon: Upload,
-    gradient: "from-secondary to-secondary/50",
-  },
-  {
-    number: "03",
+    number: "2",
     title: "Personalize",
-    description: "Ajuste cores, logo, cenários conforme sua marca",
+    description: "Ajuste características da modelo e adicione seu produto",
     icon: Sliders,
-    gradient: "from-accent to-accent/50",
   },
   {
-    number: "04",
-    title: "Gere com IA",
-    description: "Nossa IA gera até 4 variações incríveis em segundos",
+    number: "3",
+    title: "Gere & Baixe",
+    description: "Crie imagens e vídeos profissionais instantaneamente",
     icon: Sparkles,
-    gradient: "from-success to-success/50",
-  },
-  {
-    number: "05",
-    title: "Baixe ou anime",
-    description: "Salve em alta qualidade ou anime no Plano PRO",
-    icon: Download,
-    gradient: "from-artist to-artist/50",
   },
 ];
 
 export const HowItWorksNew = () => {
   return (
     <section id="como-funciona" className="relative py-24 px-6 overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-primary/3 to-background" />
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
-      
-      {/* Floating orbs */}
-      <div className="absolute top-1/2 -left-48 w-96 h-96 bg-secondary/5 rounded-full blur-[150px]" />
-      <div className="absolute top-1/2 -right-48 w-96 h-96 bg-primary/5 rounded-full blur-[150px]" />
+      {/* Ultra subtle background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-muted/30 to-transparent" />
 
-      <div className="max-w-7xl mx-auto relative z-10">
+      <div className="max-w-5xl mx-auto relative z-10">
         {/* Header */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.5 }}
           className="text-center mb-16"
         >
-          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/5 backdrop-blur-xl border border-white/10 mb-6">
-            <Zap className="w-4 h-4 text-secondary" />
-            <span className="text-sm font-medium text-secondary">Como Funciona</span>
-          </div>
-          
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 tracking-tight">
-            Crie em{" "}
-            <span className="bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
-              5 passos simples
-            </span>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold mb-4 tracking-tight">
+            Como funciona?
           </h2>
-          
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto font-light">
-            Do template à criação final em minutos. Sem conhecimento técnico necessário.
+          <p className="text-muted-foreground text-lg max-w-xl mx-auto font-light">
+            Do template à criação final em minutos
           </p>
         </motion.div>
 
-        {/* Steps */}
-        <div className="relative">
-          {/* Connection Line - Desktop */}
-          <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent -translate-y-1/2" />
-
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+        {/* Steps - Clean Linear Style */}
+        <GlassCard className="p-8 md:p-12">
+          <div className="grid md:grid-cols-3 gap-8 md:gap-12">
             {steps.map((step, index) => (
               <motion.div
                 key={step.number}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
+                transition={{ duration: 0.4, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className="relative"
+                className="relative text-center md:text-left"
               >
-                <GlassCard className="h-full group hover:border-primary/30">
-                  <GlassCardContent className="p-6 text-center">
-                    {/* Step Number Badge */}
-                    <div className="relative inline-flex mb-5">
-                      <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${step.gradient} flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:shadow-xl transition-all duration-300`}>
-                        <step.icon className="w-7 h-7 text-white" />
-                      </div>
-                      <span className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-background/90 backdrop-blur-sm border border-white/20 flex items-center justify-center text-xs font-bold text-primary shadow-lg">
-                        {step.number}
-                      </span>
-                    </div>
+                {/* Step Number */}
+                <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-5">
+                  {step.number}
+                </div>
 
-                    <h3 className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors">
-                      {step.title}
-                    </h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {step.description}
-                    </p>
-                  </GlassCardContent>
-                </GlassCard>
+                <h3 className="text-lg font-medium mb-2 text-foreground">
+                  {step.title}
+                </h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {step.description}
+                </p>
 
-                {/* Arrow - Mobile/Tablet */}
+                {/* Connection Line - Desktop Only */}
                 {index < steps.length - 1 && (
-                  <div className="flex justify-center my-4 lg:hidden">
-                    <ArrowRight className="w-5 h-5 text-primary/40 rotate-90 md:rotate-0" />
-                  </div>
+                  <div className="hidden md:block absolute top-5 left-[calc(100%+1rem)] w-[calc(100%-2rem)] h-px bg-gradient-to-r from-border to-transparent" />
                 )}
               </motion.div>
             ))}
           </div>
-        </div>
+        </GlassCard>
+
+        {/* CTA - Ultra Subtle */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="text-center mt-10"
+        >
+          <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+            <Sparkles className="w-4 h-4 text-primary" />
+            <span>Simulação grátis • Geração real com cadastro • IA de última geração</span>
+          </div>
+        </motion.div>
       </div>
     </section>
   );
