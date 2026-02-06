@@ -38,12 +38,12 @@ export const FinalCTA = () => {
             Apenas <span className="text-primary font-bold">R$21</span> por geração.
           </p>
           
-          {/* CTA Button - Futuristic Glass */}
+          {/* CTA Button - Futuristic Holographic */}
           <a href="#prompts">
             <GlassButton 
-              variant="glow" 
+              variant="aurora" 
               size="xl" 
-              className="text-lg px-12 py-8 mb-8 shadow-[0_0_50px_hsl(var(--primary)/0.5)] hover:shadow-[0_0_80px_hsl(var(--primary)/0.7)] transition-all duration-500 backdrop-blur-xl border border-primary/40"
+              className="text-lg px-12 py-8 mb-8 transition-all duration-500"
             >
               <Sparkles className="w-6 h-6 mr-3 animate-pulse" />
               Ver prompts por R$21
