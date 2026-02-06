@@ -11,21 +11,27 @@ import { motion } from "framer-motion";
 const steps = [
   {
     number: "1",
-    title: "Escolha o Template",
-    description: "Selecione o estilo de influencer que combina com seu produto",
+    title: "Escolha o Prompt",
+    description: "Navegue pelo marketplace e escolha o estilo que combina com você",
     icon: MousePointer2,
   },
   {
     number: "2",
-    title: "Personalize",
-    description: "Ajuste características da modelo e adicione seu produto",
-    icon: Sliders,
+    title: "Envie sua Foto",
+    description: "Faça upload da sua foto e preencha os dados necessários",
+    icon: Upload,
   },
   {
     number: "3",
-    title: "Gere & Baixe",
-    description: "Crie imagens e vídeos profissionais instantaneamente",
-    icon: Sparkles,
+    title: "Pague via PIX",
+    description: "Pagamento instantâneo e seguro via QR Code ou código PIX",
+    icon: Sliders,
+  },
+  {
+    number: "4",
+    title: "Baixe sua Arte",
+    description: "Receba sua imagem gerada por IA em segundos",
+    icon: Download,
   },
 ];
 
@@ -48,13 +54,13 @@ export const HowItWorksNew = () => {
             Como funciona?
           </h2>
           <p className="text-muted-foreground text-lg max-w-xl mx-auto font-light">
-            Do template à criação final em minutos
+            4 passos simples para transformar sua imagem
           </p>
         </motion.div>
 
         {/* Steps - Clean Linear Style */}
         <GlassCard className="p-8 md:p-12">
-          <div className="grid md:grid-cols-3 gap-8 md:gap-12">
+          <div className="grid md:grid-cols-4 gap-8 md:gap-12">
             {steps.map((step, index) => (
               <motion.div
                 key={step.number}
@@ -95,7 +101,7 @@ export const HowItWorksNew = () => {
         >
           <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
             <Sparkles className="w-4 h-4 text-primary" />
-            <span>Simulação grátis • Geração real com cadastro • IA de última geração</span>
+            <span>R$21 por prompt • Pagamento instantâneo via PIX • IA de última geração</span>
           </div>
         </motion.div>
       </div>
