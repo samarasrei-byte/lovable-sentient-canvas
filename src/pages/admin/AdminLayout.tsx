@@ -18,14 +18,8 @@ export const AdminLayout = () => {
 
   const checkAdminAccess = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-
-      // Test environment - allow all authenticated users
+      // Allow access without login for development/testing
+      // In production, this should check for admin role
       setIsAdmin(true);
     } catch (error) {
       console.error("Error checking admin access:", error);

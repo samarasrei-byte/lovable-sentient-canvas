@@ -90,7 +90,7 @@ export const PromptMarketplace = () => {
   };
 
   return (
-    <section id="prompts-marketplace" className="relative py-24 px-6 overflow-hidden">
+    <section id="prompts" className="relative py-24 px-6 overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/[0.03] to-transparent" />
 
@@ -105,13 +105,14 @@ export const PromptMarketplace = () => {
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6">
             <Sparkles className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium text-primary">MARKETPLACE DE PROMPTS</span>
+            <span className="text-sm font-medium text-primary">PROMPTS HYPADOS</span>
           </div>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 tracking-tight">
-            ✨ Encontre o talento perfeito
+            🔥 Os prompts mais baratos da internet
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto font-light">
-            Recrie sua imagem com os prompts mais hypados usados por artistas e creators.
+            Transforme sua imagem com a mesma estética usada pelos <span className="text-primary font-medium">creators mais hypados</span>. 
+            Resultados profissionais por apenas <span className="text-secondary font-bold">R$21</span>.
           </p>
         </motion.div>
 
