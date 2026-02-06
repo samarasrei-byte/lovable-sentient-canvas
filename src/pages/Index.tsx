@@ -1,8 +1,12 @@
 import { HeroArcana2 } from "@/components/HeroArcana2";
+import { SocialProofBanner } from "@/components/landing/SocialProofBanner";
 import { PromptMarketplace } from "@/components/PromptMarketplace";
+import { ValueProposition } from "@/components/landing/ValueProposition";
 import { InfluencerMarketplaceComingSoon } from "@/components/InfluencerMarketplaceComingSoon";
+import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
 import { HowItWorksNew } from "@/components/HowItWorksNew";
 import { FAQSection } from "@/components/FAQSection";
+import { FinalCTA } from "@/components/landing/FinalCTA";
 import { Footer } from "@/components/Footer";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { UpdatePrompt } from "@/components/pwa/UpdatePrompt";
@@ -14,11 +18,20 @@ const Index = () => {
       <InstallPrompt />
       <UpdatePrompt />
       
-      {/* Main Content - Prompt Marketplace Focus */}
+      {/* Hero Section */}
       <HeroArcana2 />
+      
+      {/* Social Proof Stats */}
+      <SocialProofBanner />
       
       {/* Active Prompt Marketplace */}
       <PromptMarketplace />
+      
+      {/* Value Proposition */}
+      <ValueProposition />
+      
+      {/* Testimonials */}
+      <TestimonialsSection />
       
       {/* Influencer Marketplace - Coming Soon */}
       <InfluencerMarketplaceComingSoon />
@@ -28,6 +41,9 @@ const Index = () => {
       
       {/* FAQ */}
       <FAQSection />
+      
+      {/* Final CTA */}
+      <FinalCTA />
       
       {/* Footer */}
       <Footer />
