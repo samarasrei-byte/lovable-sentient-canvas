@@ -305,7 +305,7 @@ const PromptsManager = () => {
 
   const processFile = useCallback(async (file: File, skipCrop = false) => {
     // Validate file type
-    if (!file.type.startsWith('image/')) {
+    if (!file.type.startsWith("image/")) {
       toast.error("Por favor, selecione uma imagem válida");
       return;
     }
@@ -326,40 +326,62 @@ const PromptsManager = () => {
     setUploading(true);
 
     try {
-      // Create local preview
-      const localPreview = URL.createObjectURL(file);
-      setImagePreview(localPreview);
+      // Create local preview (não revogar aqui; revogamos ao substituir/remover)
+      const nextPreview = URL.createObjectURL(file);
+      setImagePreview((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return nextPreview;
+      });
 
-      // Generate unique filename
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${crypto.randomUUID()}.${fileExt}`;
+      // Generate unique filename (with safe fallbacks)
+      const extFromName = file.name.includes(".") ? file.name.split(".").pop() : null;
+      const extFromType = file.type.includes("/") ? file.type.split("/")[1] : null;
+      const fileExt = (extFromName || extFromType || "jpg").replace("jpeg", "jpg");
+
+      const uuid =
+        typeof crypto !== "undefined" && "randomUUID" in crypto
+          ? crypto.randomUUID()
+          : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+      const fileName = `${uuid}.${fileExt}`;
       const filePath = `prompts/${fileName}`;
 
-      // Upload to Supabase Storage
+      // Upload to Storage
       const { error: uploadError } = await supabase.storage
-        .from('prompt-images')
+        .from("prompt-images")
         .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false
+          cacheControl: "3600",
+          upsert: false,
         });
 
       if (uploadError) throw uploadError;
 
       // Get public URL
       const { data: urlData } = supabase.storage
-        .from('prompt-images')
+        .from("prompt-images")
         .getPublicUrl(filePath);
 
-      setEditingPrompt(prev => prev ? {
-        ...prev,
-        example_image_url: urlData.publicUrl
-      } : null);
+      setEditingPrompt((prev) =>
+        prev
+          ? {
+              ...prev,
+              example_image_url: urlData.publicUrl,
+            }
+          : null
+      );
 
       toast.success("✅ Imagem enviada com sucesso!");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Upload error:", error);
-      toast.error("Erro ao enviar imagem. Tente novamente.");
-      setImagePreview(null);
+      const msg =
+        typeof error?.message === "string" && error.message
+          ? error.message
+          : "Erro ao enviar imagem. Tente novamente.";
+      toast.error(msg);
+      setImagePreview((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return null;
+      });
     } finally {
       setUploading(false);
     }
@@ -428,13 +450,20 @@ const PromptsManager = () => {
   }, [isDialogOpen, handlePaste]);
 
   const handleRemoveImage = () => {
-    setImagePreview(null);
-    setEditingPrompt(prev => prev ? {
-      ...prev,
-      example_image_url: null
-    } : null);
+    setImagePreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
+    setEditingPrompt((prev) =>
+      prev
+        ? {
+            ...prev,
+            example_image_url: null,
+          }
+        : null
+    );
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = "";
     }
   };
 
