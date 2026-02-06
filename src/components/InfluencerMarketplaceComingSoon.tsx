@@ -174,14 +174,16 @@ export const InfluencerMarketplaceComingSoon = () => {
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 tracking-tight">
             Em breve —{" "}
             <span className="bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
-              Os prompts mais baratos da internet
+              Marketplace de Talentos
             </span>
           </h2>
           <p className="text-muted-foreground text-lg max-w-3xl mx-auto font-light leading-relaxed">
-            Conecte-se com os <span className="text-primary font-medium">creators mais hypados</span> do Brasil.
-            <span className="text-secondary font-medium"> Campanhas exclusivas</span>,
-            <span className="text-primary font-medium"> parcerias reais</span> e
-            <span className="text-secondary font-medium"> resultados extraordinários</span>.
+            Contrate <span className="text-primary font-medium">Avatares IA</span>,{" "}
+            <span className="text-secondary font-medium">Artistas</span> ou{" "}
+            <span className="text-primary font-medium">Influenciadores reais</span> para sua marca.
+            <span className="block mt-2 text-muted-foreground/80">
+              Campanhas exclusivas, parcerias autênticas e resultados extraordinários.
+            </span>
           </p>
         </motion.div>
 
