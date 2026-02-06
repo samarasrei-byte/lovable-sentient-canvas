@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { GlassButton } from "@/components/ui/glass-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -611,10 +612,10 @@ const PromptsManager = () => {
           <h1 className="text-2xl font-bold">Gerenciar Prompts</h1>
           <p className="text-muted-foreground">Anexe a foto + cole o prompt e a IA preenche o resto</p>
         </div>
-        <Button onClick={openNewPrompt}>
+        <GlassButton variant="neon" onClick={openNewPrompt}>
           <Plus className="w-4 h-4 mr-2" />
           Novo Prompt
-        </Button>
+        </GlassButton>
       </div>
 
       {/* Dialog com Preview em Tempo Real */}

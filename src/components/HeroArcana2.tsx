@@ -193,9 +193,9 @@ export const HeroArcana2 = () => {
           <div className="flex flex-col sm:flex-row items-center gap-4">
             <a href="#prompts">
               <GlassButton 
-                variant="glow"
+                variant="holographic"
                 size="xl"
-                className="touch-manipulation text-lg px-10 py-7 shadow-[0_0_40px_hsl(var(--primary)/0.4)] hover:shadow-[0_0_60px_hsl(var(--primary)/0.6)] transition-all duration-500"
+                className="touch-manipulation text-lg px-10 py-7 transition-all duration-500"
               >
                 <Zap className="w-5 h-5 mr-2" />
                 Ver prompts por R$21
@@ -204,9 +204,9 @@ export const HeroArcana2 = () => {
             </a>
             <a href="#influencers">
               <GlassButton 
-                variant="outline"
+                variant="neon"
                 size="lg"
-                className="touch-manipulation backdrop-blur-xl border-primary/30 hover:border-primary/60 hover:bg-primary/10 transition-all duration-500"
+                className="touch-manipulation transition-all duration-500"
               >
                 <span className="text-xs px-2 py-0.5 rounded-full bg-secondary/30 text-secondary font-bold mr-2">BREVE</span>
                 Influencers
