@@ -30,6 +30,10 @@ interface Prompt {
   price_cents: number;
   required_fields: string[];
   prompt_template?: string;
+  negative_prompt?: string | null;
+  ai_model?: string;
+  min_photos?: number;
+  example_image_url?: string | null;
 }
 
 interface PromptPurchaseFlowProps {
@@ -45,6 +49,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
     name: '',
     instagram: '',
     email: '',
+    description: '',
     photo: null as File | null,
     photoPreview: ''
   });
@@ -161,8 +166,11 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
         body: {
           purchaseId,
           promptTemplate: prompt.prompt_template,
+          negativePrompt: prompt.negative_prompt,
+          aiModel: prompt.ai_model,
           userName: formData.name,
           userInstagram: formData.instagram,
+          userDescription: formData.description,
           // In production, upload photo to storage first
         }
       });
@@ -344,7 +352,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                 {/* Instagram */}
                 {prompt.required_fields.includes('instagram') && (
                   <div className="space-y-2">
-                    <Label className="text-sm">Instagram (opcional)</Label>
+                    <Label className="text-sm">@Instagram</Label>
                     <div className="relative">
                       <AtSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <Input
@@ -354,6 +362,19 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                         className="pl-10 bg-white/5 border-white/10"
                       />
                     </div>
+                  </div>
+                )}
+
+                {/* Description */}
+                {prompt.required_fields.includes('description') && (
+                  <div className="space-y-2">
+                    <Label className="text-sm">Descrição adicional</Label>
+                    <textarea
+                      value={formData.description}
+                      onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                      placeholder="Descreva o que você quer na imagem..."
+                      className="w-full min-h-[80px] px-3 py-2 text-sm rounded-md bg-white/5 border border-white/10 focus:border-primary/50 focus:outline-none resize-none"
+                    />
                   </div>
                 )}
 

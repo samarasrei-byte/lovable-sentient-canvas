@@ -144,10 +144,10 @@ export const HeroArcana2 = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold mb-6 md:mb-8 text-foreground leading-tight tracking-tight"
+          className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 md:mb-8 text-foreground leading-tight tracking-tight"
         >
           Encontre o{" "}
-          <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
             talento perfeito
           </span>
         </motion.h1>
@@ -159,7 +159,7 @@ export const HeroArcana2 = () => {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8 md:mb-12 font-light max-w-3xl mx-auto px-2"
         >
-          Recrie sua imagem com os prompts mais hypados usados por artistas e creators.
+          Recrie sua imagem com a estética usada pelos creators mais hypados.
         </motion.p>
 
         {/* Social Proof */}
@@ -169,19 +169,19 @@ export const HeroArcana2 = () => {
           transition={{ duration: 0.6, delay: 0.25 }}
           className="flex flex-wrap items-center justify-center gap-4 md:gap-8 mb-8 md:mb-12"
         >
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground px-4 py-2 rounded-full bg-card/50 border border-border">
             <span className="text-lg">🔥</span>
-            <span className="font-medium text-foreground">1.000.000.000+</span>
+            <span className="font-bold text-foreground">1.000.000.000+</span>
             <span>views</span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground px-4 py-2 rounded-full bg-card/50 border border-border">
             <span className="text-lg">🎨</span>
             <span>Artistas & Creators</span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <span className="text-lg">⭐</span>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground px-4 py-2 rounded-full bg-card/50 border border-border">
+            <span className="text-lg">👑</span>
             <span>Influencers</span>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">(em breve)</span>
+            <span className="text-xs px-2 py-0.5 rounded-full bg-primary/20 text-primary font-medium">(em breve)</span>
           </div>
         </motion.div>
 
