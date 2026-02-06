@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { GlassButton } from "@/components/ui/glass-button";
 import { Zap, Menu, ArrowRight } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import heroLiquid from "@/assets/hero-liquid.jpg";
 import { useParallax } from "@/hooks/use-parallax";
 import { InstallButton } from "@/components/pwa/InstallButton";
@@ -10,7 +9,6 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 
 export const HeroArcana2 = () => {
-  const navigate = useNavigate();
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -32,9 +30,9 @@ export const HeroArcana2 = () => {
   }, []);
 
   const navLinks = [
-    { href: "#marketplace", label: "Marketplace" },
+    { href: "#prompts", label: "Prompts" },
+    { href: "#influencers", label: "Influencers" },
     { href: "#como-funciona", label: "Como Funciona" },
-    { href: "#planos", label: "Planos" },
   ];
 
   return (
@@ -44,9 +42,9 @@ export const HeroArcana2 = () => {
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           {/* Logo */}
           <div className="relative group flex-shrink-0">
-            <div className="relative flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 bg-background/80 backdrop-blur-sm rounded-lg border border-secondary/30">
-              <Zap className="w-4 h-4 md:w-5 md:h-5 text-secondary" />
-              <span className="text-lg md:text-2xl font-bold text-secondary">
+            <div className="relative flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 bg-background/80 backdrop-blur-sm rounded-lg border border-primary/30">
+              <Zap className="w-4 h-4 md:w-5 md:h-5 text-primary" />
+              <span className="text-lg md:text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                 ARCANA
               </span>
             </div>
@@ -58,19 +56,12 @@ export const HeroArcana2 = () => {
               <a
                 key={link.href}
                 href={link.href}
-                className="text-sm font-medium text-foreground/80 hover:text-foreground transition-colors"
+                className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
               >
                 {link.label}
               </a>
             ))}
             <InstallButton />
-            <Button 
-              variant="outline" 
-              className="border-primary/20 hover:bg-primary/10"
-              onClick={() => navigate("/login")}
-            >
-              Entrar
-            </Button>
           </div>
 
           {/* Mobile Navigation */}
@@ -89,21 +80,11 @@ export const HeroArcana2 = () => {
                       key={link.href}
                       href={link.href}
                       onClick={() => setMobileMenuOpen(false)}
-                      className="text-lg font-medium text-foreground/80 hover:text-foreground transition-colors py-2"
+                      className="text-lg font-medium text-foreground/80 hover:text-primary transition-colors py-2"
                     >
                       {link.label}
                     </a>
                   ))}
-                  <hr className="border-border/50" />
-                  <Button 
-                    className="w-full"
-                    onClick={() => {
-                      navigate("/login");
-                      setMobileMenuOpen(false);
-                    }}
-                  >
-                    Entrar
-                  </Button>
                 </div>
               </SheetContent>
             </Sheet>
@@ -139,16 +120,29 @@ export const HeroArcana2 = () => {
           transform: `translateY(${-contentOffset}px)`,
         }}
       >
+        {/* Badge */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.05 }}
+          className="mb-6"
+        >
+          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30 text-sm font-medium text-primary">
+            <span className="animate-pulse">🔥</span>
+            Os prompts mais hypados e baratos da internet
+          </span>
+        </motion.div>
+
         {/* Headline */}
         <motion.h1 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 md:mb-8 text-foreground leading-tight tracking-tight"
+          className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-6 md:mb-8 text-foreground leading-tight tracking-tight"
         >
-          Encontre o{" "}
+          O marketplace dos{" "}
           <span className="bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
-            talento perfeito
+            influenciadores
           </span>
         </motion.h1>
 
@@ -157,9 +151,11 @@ export const HeroArcana2 = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8 md:mb-12 font-light max-w-3xl mx-auto px-2"
+          className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8 md:mb-10 font-light max-w-3xl mx-auto px-2"
         >
-          Recrie sua imagem com a estética usada pelos creators mais hypados.
+          Conecte-se com os <span className="text-primary font-medium">creators mais hypados</span> do Brasil. 
+          Enquanto o marketplace de influenciadores está chegando, 
+          aproveite os <span className="text-secondary font-medium">prompts exclusivos por apenas R$21</span>.
         </motion.p>
 
         {/* Social Proof */}
@@ -167,48 +163,45 @@ export const HeroArcana2 = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.25 }}
-          className="flex flex-wrap items-center justify-center gap-4 md:gap-8 mb-8 md:mb-12"
+          className="flex flex-wrap items-center justify-center gap-3 md:gap-6 mb-8 md:mb-10"
         >
-          <div className="flex items-center gap-2 text-sm text-muted-foreground px-4 py-2 rounded-full bg-card/50 border border-border">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground px-4 py-2.5 rounded-full bg-card/50 border border-primary/20 backdrop-blur-sm">
             <span className="text-lg">🔥</span>
-            <span className="font-bold text-foreground">1.000.000.000+</span>
+            <span className="font-bold text-foreground">1B+</span>
             <span>views</span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground px-4 py-2 rounded-full bg-card/50 border border-border">
-            <span className="text-lg">🎨</span>
-            <span>Artistas & Creators</span>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground px-4 py-2.5 rounded-full bg-card/50 border border-primary/20 backdrop-blur-sm">
+            <span className="text-lg">💎</span>
+            <span className="font-bold text-foreground">R$21</span>
+            <span>por prompt</span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground px-4 py-2 rounded-full bg-card/50 border border-border">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground px-4 py-2.5 rounded-full bg-gradient-to-r from-primary/20 to-secondary/20 border border-primary/30 backdrop-blur-sm">
             <span className="text-lg">👑</span>
-            <span>Influencers</span>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-primary/20 text-primary font-medium">(em breve)</span>
+            <span className="font-medium text-foreground">Influencers</span>
+            <span className="text-xs px-2 py-0.5 rounded-full bg-secondary/30 text-secondary font-bold animate-pulse">EM BREVE</span>
           </div>
         </motion.div>
 
-        {/* CTA Buttons */}
+        {/* CTA Button */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-4"
+          className="flex flex-col items-center gap-3"
         >
-          <GlassButton 
-            variant="glow"
-            size="lg"
-            className="w-full sm:w-auto touch-manipulation"
-            onClick={() => navigate("/login")}
-          >
-            Explorar talentos
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </GlassButton>
-          <GlassButton
-            variant="outline"
-            size="lg"
-            className="w-full sm:w-auto touch-manipulation"
-            onClick={() => navigate("/login")}
-          >
-            Criar conta grátis
-          </GlassButton>
+          <a href="#prompts">
+            <GlassButton 
+              variant="glow"
+              size="lg"
+              className="touch-manipulation text-lg px-8 py-6"
+            >
+              Ver prompts disponíveis
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </GlassButton>
+          </a>
+          <p className="text-sm text-muted-foreground">
+            Sem cadastro • Pagamento via PIX • Resultado instantâneo
+          </p>
         </motion.div>
       </div>
 
