@@ -8,60 +8,60 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Ultra Premium Dark Theme - Vercel/Linear Inspired */
-    --background: 220 20% 4%;
-    --foreground: 0 0% 95%;
-    --card: 220 20% 6%;
-    --card-foreground: 0 0% 95%;
-    --popover: 220 20% 6%;
-    --popover-foreground: 0 0% 95%;
+    /* ARCANA Premium Purple Theme - Vivid & Futuristic */
+    --background: 270 35% 6%;
+    --foreground: 0 0% 96%;
+    --card: 270 30% 8%;
+    --card-foreground: 0 0% 96%;
+    --popover: 270 30% 8%;
+    --popover-foreground: 0 0% 96%;
 
-    /* Primary: Subtle Violet - Elegant & Modern */
-    --primary: 265 90% 65%;
+    /* Primary: Vivid Purple - Bold & Creative */
+    --primary: 270 90% 60%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 265 100% 70%;
+    --primary-glow: 270 100% 65%;
 
-    /* Secondary: Soft Cyan - Clean & Tech */
-    --secondary: 185 70% 50%;
+    /* Secondary: Electric Violet - Futuristic */
+    --secondary: 280 85% 55%;
     --secondary-foreground: 0 0% 100%;
-    --secondary-glow: 185 80% 55%;
+    --secondary-glow: 280 90% 60%;
     
-    /* Artist/Creator - Warm Amber */
-    --artist: 35 90% 55%;
+    /* Artist/Creator - Hot Pink */
+    --artist: 330 90% 60%;
     --artist-foreground: 0 0% 100%;
 
-    /* Accent: Soft Magenta */
-    --accent: 290 70% 60%;
+    /* Accent: Magenta - High Impact */
+    --accent: 295 80% 55%;
     --accent-foreground: 0 0% 100%;
     
-    /* Success: Emerald */
-    --success: 160 70% 45%;
+    /* Success: Neon Teal */
+    --success: 165 80% 45%;
     --success-foreground: 0 0% 100%;
 
-    --muted: 220 15% 12%;
-    --muted-foreground: 220 10% 55%;
+    --muted: 270 20% 14%;
+    --muted-foreground: 270 15% 55%;
 
-    /* Destructive: Soft Rose */
-    --destructive: 0 70% 55%;
+    /* Destructive: Coral Red */
+    --destructive: 0 75% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 15% 14%;
-    --input: 220 15% 10%;
-    --ring: 265 90% 65%;
+    --border: 270 20% 16%;
+    --input: 270 20% 12%;
+    --ring: 270 90% 60%;
 
     --radius: 0.75rem;
     
-    /* Ultra Subtle Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(265 90% 65%), hsl(290 70% 60%));
-    --gradient-secondary: linear-gradient(90deg, hsl(185 70% 50%), hsl(265 90% 65%));
-    --gradient-glow: radial-gradient(circle at center, hsl(265 90% 65% / 0.15), transparent);
-    --gradient-accent: linear-gradient(135deg, hsl(290 70% 60%), hsl(0 70% 55%));
+    /* Bold Purple Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(270 90% 60%), hsl(295 80% 55%));
+    --gradient-secondary: linear-gradient(90deg, hsl(280 85% 55%), hsl(330 90% 60%));
+    --gradient-glow: radial-gradient(circle at center, hsl(270 90% 60% / 0.20), transparent);
+    --gradient-accent: linear-gradient(135deg, hsl(295 80% 55%), hsl(330 90% 60%));
     
-    /* Subtle Modern Shadows */
-    --shadow-glow: 0 0 30px hsl(265 90% 65% / 0.2);
-    --shadow-glow-strong: 0 0 40px hsl(265 90% 65% / 0.3);
-    --shadow-neon: 0 0 15px hsl(185 70% 50% / 0.25);
-    --shadow-card: 0 4px 24px hsl(220 20% 2% / 0.6);
+    /* Bold Purple Shadows */
+    --shadow-glow: 0 0 40px hsl(270 90% 60% / 0.25);
+    --shadow-glow-strong: 0 0 60px hsl(270 90% 60% / 0.35);
+    --shadow-neon: 0 0 20px hsl(295 80% 55% / 0.30);
+    --shadow-card: 0 4px 24px hsl(270 35% 2% / 0.7);
     
     /* Premium Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);

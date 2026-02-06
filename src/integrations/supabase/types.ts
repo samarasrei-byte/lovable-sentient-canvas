@@ -1142,6 +1142,7 @@ export type Database = {
       }
       prompts: {
         Row: {
+          ai_model: string | null
           category: string
           created_at: string
           description: string | null
@@ -1151,7 +1152,9 @@ export type Database = {
           influencer_avatar_url: string | null
           influencer_name: string | null
           is_influencer_prompt: boolean
+          min_photos: number | null
           name: string
+          negative_prompt: string | null
           price_cents: number
           prompt_template: string
           required_fields: Json
@@ -1159,6 +1162,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          ai_model?: string | null
           category: string
           created_at?: string
           description?: string | null
@@ -1168,7 +1172,9 @@ export type Database = {
           influencer_avatar_url?: string | null
           influencer_name?: string | null
           is_influencer_prompt?: boolean
+          min_photos?: number | null
           name: string
+          negative_prompt?: string | null
           price_cents?: number
           prompt_template: string
           required_fields?: Json
@@ -1176,6 +1182,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          ai_model?: string | null
           category?: string
           created_at?: string
           description?: string | null
@@ -1185,7 +1192,9 @@ export type Database = {
           influencer_avatar_url?: string | null
           influencer_name?: string | null
           is_influencer_prompt?: boolean
+          min_photos?: number | null
           name?: string
+          negative_prompt?: string | null
           price_cents?: number
           prompt_template?: string
           required_fields?: Json

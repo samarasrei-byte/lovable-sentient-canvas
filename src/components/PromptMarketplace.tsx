@@ -19,6 +19,10 @@ interface Prompt {
   required_fields: string[];
   is_influencer_prompt: boolean;
   influencer_name: string | null;
+  prompt_template?: string;
+  negative_prompt?: string | null;
+  ai_model?: string;
+  min_photos?: number;
 }
 
 // Sample images for prompts (fallback)
@@ -88,7 +92,7 @@ export const PromptMarketplace = () => {
   return (
     <section id="prompts-marketplace" className="relative py-24 px-6 overflow-hidden">
       {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/[0.02] to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/[0.03] to-transparent" />
 
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
@@ -101,9 +105,9 @@ export const PromptMarketplace = () => {
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6">
             <Sparkles className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium text-primary">Marketplace de Prompts</span>
+            <span className="text-sm font-medium text-primary">MARKETPLACE DE PROMPTS</span>
           </div>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold mb-4 tracking-tight">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 tracking-tight">
             ✨ Encontre o talento perfeito
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto font-light">
@@ -133,32 +137,38 @@ export const PromptMarketplace = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: index * 0.05 }}
                 >
-                  <GlassCard className="group overflow-hidden cursor-pointer hover:border-primary/30 transition-all duration-300">
+                  <GlassCard className="group overflow-hidden cursor-pointer hover:border-primary/40 transition-all duration-300 hover:shadow-[0_0_30px_hsl(var(--primary)/0.2)]">
                     <div className="relative aspect-square overflow-hidden rounded-t-xl">
-                      <img
-                        src={prompt.example_image_url || sampleImages[index % sampleImages.length]}
-                        alt={prompt.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                      {prompt.example_image_url ? (
+                        <img
+                          src={prompt.example_image_url}
+                          alt={prompt.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                          <Sparkles className="w-12 h-12 text-primary/50" />
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                       
                       {/* Hype Badge */}
                       <div className="absolute top-3 left-3">
-                        <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-[10px] px-2 py-0.5 font-medium border-0 shadow-lg">
+                        <Badge className="bg-gradient-to-r from-primary to-accent text-white text-[10px] px-2 py-0.5 font-bold border-0 shadow-lg">
                           {prompt.hype_text || '🔥 Trending'}
                         </Badge>
                       </div>
 
                       {/* Category Icon */}
                       <div className="absolute top-3 right-3">
-                        <div className="w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center border border-white/10">
                           <IconComponent className="w-4 h-4 text-white" />
                         </div>
                       </div>
 
                       {/* Price Tag */}
                       <div className="absolute bottom-3 right-3">
-                        <Badge className="bg-primary text-primary-foreground text-sm px-3 py-1 font-bold border-0">
+                        <Badge className="bg-primary text-primary-foreground text-sm px-3 py-1 font-bold border-0 shadow-lg">
                           {formatPrice(prompt.price_cents)}
                         </Badge>
                       </div>
