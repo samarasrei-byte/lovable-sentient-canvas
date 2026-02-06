@@ -1,6 +1,6 @@
 import { HeroArcana2 } from "@/components/HeroArcana2";
 import { SocialProofBanner } from "@/components/landing/SocialProofBanner";
-import { PromptMarketplace } from "@/components/PromptMarketplace";
+import { PromptCarousel } from "@/components/PromptCarousel";
 import { ValueProposition } from "@/components/landing/ValueProposition";
 import { InfluencerMarketplaceComingSoon } from "@/components/InfluencerMarketplaceComingSoon";
 import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
@@ -24,8 +24,8 @@ const Index = () => {
       {/* Social Proof Stats */}
       <SocialProofBanner />
       
-      {/* Active Prompt Marketplace */}
-      <PromptMarketplace />
+      {/* Active Prompt Carousel - Large View */}
+      <PromptCarousel />
       
       {/* Value Proposition */}
       <ValueProposition />
