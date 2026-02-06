@@ -146,9 +146,9 @@ export const HeroArcana2 = () => {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold mb-6 md:mb-8 text-foreground leading-tight tracking-tight"
         >
-          A próxima geração de conexões entre{" "}
+          Encontre o{" "}
           <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            marcas e criadores
+            talento perfeito
           </span>
         </motion.h1>
 
@@ -159,8 +159,31 @@ export const HeroArcana2 = () => {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8 md:mb-12 font-light max-w-3xl mx-auto px-2"
         >
-          Marketplace inteligente que conecta marcas, influenciadores, avatares e artistas para campanhas autênticas
+          Recrie sua imagem com os prompts mais hypados usados por artistas e creators.
         </motion.p>
+
+        {/* Social Proof */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.25 }}
+          className="flex flex-wrap items-center justify-center gap-4 md:gap-8 mb-8 md:mb-12"
+        >
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span className="text-lg">🔥</span>
+            <span className="font-medium text-foreground">1.000.000.000+</span>
+            <span>views</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span className="text-lg">🎨</span>
+            <span>Artistas & Creators</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span className="text-lg">⭐</span>
+            <span>Influencers</span>
+            <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">(em breve)</span>
+          </div>
+        </motion.div>
 
         {/* CTA Buttons */}
         <motion.div 

@@ -1,14 +1,8 @@
 import { HeroArcana2 } from "@/components/HeroArcana2";
-import { SocialProofStats } from "@/components/SocialProofStats";
-import { UnifiedMarketplace } from "@/components/UnifiedMarketplace";
-import { ProductShowcase } from "@/components/ProductShowcase";
-import { PlansSection } from "@/components/PlansSection";
+import { PromptMarketplace } from "@/components/PromptMarketplace";
+import { InfluencerMarketplaceComingSoon } from "@/components/InfluencerMarketplaceComingSoon";
 import { HowItWorksNew } from "@/components/HowItWorksNew";
-import { AIStudioPreview } from "@/components/AIStudioPreview";
-import { SuccessCases } from "@/components/SuccessCases";
-import { Testimonials } from "@/components/Testimonials";
 import { FAQSection } from "@/components/FAQSection";
-import { TrustedBrands } from "@/components/TrustedBrands";
 import { Footer } from "@/components/Footer";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { UpdatePrompt } from "@/components/pwa/UpdatePrompt";
@@ -20,18 +14,22 @@ const Index = () => {
       <InstallPrompt />
       <UpdatePrompt />
       
-      {/* Main Content - High Conversion Landing */}
+      {/* Main Content - Prompt Marketplace Focus */}
       <HeroArcana2 />
-      <SocialProofStats />
-      <UnifiedMarketplace />
-      <ProductShowcase />
-      <PlansSection />
+      
+      {/* Active Prompt Marketplace */}
+      <PromptMarketplace />
+      
+      {/* Influencer Marketplace - Coming Soon */}
+      <InfluencerMarketplaceComingSoon />
+      
+      {/* How It Works */}
       <HowItWorksNew />
-      <AIStudioPreview />
-      <SuccessCases />
-      <Testimonials />
+      
+      {/* FAQ */}
       <FAQSection />
-      <TrustedBrands />
+      
+      {/* Footer */}
       <Footer />
     </div>
   );

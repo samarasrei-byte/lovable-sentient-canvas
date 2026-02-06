@@ -1078,6 +1078,122 @@ export type Database = {
         }
         Relationships: []
       }
+      prompt_purchases: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          custom_fields: Json | null
+          generated_image_url: string | null
+          generation_status: string
+          id: string
+          payment_id: string | null
+          payment_method: string | null
+          payment_status: string
+          prompt_id: string
+          updated_at: string
+          user_email: string | null
+          user_instagram: string | null
+          user_name: string | null
+          user_photo_url: string | null
+        }
+        Insert: {
+          amount_cents: number
+          created_at?: string
+          custom_fields?: Json | null
+          generated_image_url?: string | null
+          generation_status?: string
+          id?: string
+          payment_id?: string | null
+          payment_method?: string | null
+          payment_status?: string
+          prompt_id: string
+          updated_at?: string
+          user_email?: string | null
+          user_instagram?: string | null
+          user_name?: string | null
+          user_photo_url?: string | null
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          custom_fields?: Json | null
+          generated_image_url?: string | null
+          generation_status?: string
+          id?: string
+          payment_id?: string | null
+          payment_method?: string | null
+          payment_status?: string
+          prompt_id?: string
+          updated_at?: string
+          user_email?: string | null
+          user_instagram?: string | null
+          user_name?: string | null
+          user_photo_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prompt_purchases_prompt_id_fkey"
+            columns: ["prompt_id"]
+            isOneToOne: false
+            referencedRelation: "prompts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prompts: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          example_image_url: string | null
+          hype_text: string | null
+          id: string
+          influencer_avatar_url: string | null
+          influencer_name: string | null
+          is_influencer_prompt: boolean
+          name: string
+          price_cents: number
+          prompt_template: string
+          required_fields: Json
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          example_image_url?: string | null
+          hype_text?: string | null
+          id?: string
+          influencer_avatar_url?: string | null
+          influencer_name?: string | null
+          is_influencer_prompt?: boolean
+          name: string
+          price_cents?: number
+          prompt_template: string
+          required_fields?: Json
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          example_image_url?: string | null
+          hype_text?: string | null
+          id?: string
+          influencer_avatar_url?: string | null
+          influencer_name?: string | null
+          is_influencer_prompt?: boolean
+          name?: string
+          price_cents?: number
+          prompt_template?: string
+          required_fields?: Json
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       stripe_customers: {
         Row: {
           created_at: string

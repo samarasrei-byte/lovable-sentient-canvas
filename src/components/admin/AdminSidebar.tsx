@@ -11,7 +11,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Palette,
-  LifeBuoy
+  LifeBuoy,
+  Sparkles
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ import { Separator } from "@/components/ui/separator";
 
 const adminMenuItems = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard, end: true },
+  { title: "Prompts", url: "/admin/prompts", icon: Sparkles },
   { title: "Influenciadores", url: "/admin/influencers", icon: Users },
   { title: "Marcas", url: "/admin/brands", icon: Building2 },
   { title: "Campanhas", url: "/admin/campaigns", icon: Megaphone },
