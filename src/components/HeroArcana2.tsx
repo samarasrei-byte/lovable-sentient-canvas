@@ -140,10 +140,11 @@ export const HeroArcana2 = () => {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-6 md:mb-8 text-foreground leading-tight tracking-tight"
         >
-          O marketplace dos{" "}
+          Os prompts{" "}
           <span className="bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
-            influenciadores
-          </span>
+            mais baratos
+          </span>{" "}
+          da internet
         </motion.h1>
 
         {/* Subheadline */}
@@ -182,23 +183,36 @@ export const HeroArcana2 = () => {
           </div>
         </motion.div>
 
-        {/* CTA Button */}
+        {/* CTA Buttons - Futuristic Glass Style */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="flex flex-col items-center gap-3"
+          className="flex flex-col items-center gap-4"
         >
-          <a href="#prompts">
-            <GlassButton 
-              variant="glow"
-              size="lg"
-              className="touch-manipulation text-lg px-8 py-6"
-            >
-              Ver prompts disponíveis
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </GlassButton>
-          </a>
+          <div className="flex flex-col sm:flex-row items-center gap-4">
+            <a href="#prompts">
+              <GlassButton 
+                variant="glow"
+                size="xl"
+                className="touch-manipulation text-lg px-10 py-7 shadow-[0_0_40px_hsl(var(--primary)/0.4)] hover:shadow-[0_0_60px_hsl(var(--primary)/0.6)] transition-all duration-500"
+              >
+                <Zap className="w-5 h-5 mr-2" />
+                Ver prompts por R$21
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </GlassButton>
+            </a>
+            <a href="#influencers">
+              <GlassButton 
+                variant="outline"
+                size="lg"
+                className="touch-manipulation backdrop-blur-xl border-primary/30 hover:border-primary/60 hover:bg-primary/10 transition-all duration-500"
+              >
+                <span className="text-xs px-2 py-0.5 rounded-full bg-secondary/30 text-secondary font-bold mr-2">BREVE</span>
+                Influencers
+              </GlassButton>
+            </a>
+          </div>
           <p className="text-sm text-muted-foreground">
             Sem cadastro • Pagamento via PIX • Resultado instantâneo
           </p>

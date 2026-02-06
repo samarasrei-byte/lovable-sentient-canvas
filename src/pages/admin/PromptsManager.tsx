@@ -401,6 +401,32 @@ const PromptsManager = () => {
     }
   }, [processFile]);
 
+  // Clipboard paste handler (Ctrl+V)
+  const handlePaste = useCallback((e: ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.startsWith('image/')) {
+        e.preventDefault();
+        const file = items[i].getAsFile();
+        if (file) {
+          toast.info("📋 Imagem detectada do clipboard!");
+          processFile(file);
+        }
+        break;
+      }
+    }
+  }, [processFile]);
+
+  // Add paste listener when dialog is open
+  useEffect(() => {
+    if (isDialogOpen) {
+      document.addEventListener('paste', handlePaste);
+      return () => document.removeEventListener('paste', handlePaste);
+    }
+  }, [isDialogOpen, handlePaste]);
+
   const handleRemoveImage = () => {
     setImagePreview(null);
     setEditingPrompt(prev => prev ? {
