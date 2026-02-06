@@ -5,8 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import { Checkbox } from "@/components/ui/checkbox";
 import { 
   Table, 
   TableBody, 
@@ -35,14 +33,9 @@ import {
   Trash2, 
   Sparkles,
   Image,
-  User,
-  AtSign,
-  FileText,
   Loader2,
-  Upload,
-  AlertCircle,
-  Camera,
-  MessageSquare
+  Wand2,
+  Eye
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -66,34 +59,57 @@ interface Prompt {
   created_at: string;
 }
 
-const defaultPrompt: Partial<Prompt> = {
-  name: "",
-  description: "",
-  category: "",
-  hype_text: "",
-  example_image_url: "",
-  prompt_template: "",
-  price_cents: 2100,
-  status: "active",
-  is_influencer_prompt: false,
-  influencer_name: "",
-  required_fields: ["photo", "name"],
-  negative_prompt: "",
-  ai_model: "gemini-2.5-flash-image",
-  min_photos: 1,
+// Auto-detect categories and settings from prompt text
+const analyzePrompt = (promptText: string): Partial<Prompt> => {
+  const lowerPrompt = promptText.toLowerCase();
+  
+  // Detect category
+  let category = "Geral";
+  if (lowerPrompt.includes("cyberpunk") || lowerPrompt.includes("neon") || lowerPrompt.includes("futuristic")) category = "Cyberpunk";
+  else if (lowerPrompt.includes("anime") || lowerPrompt.includes("manga")) category = "Anime";
+  else if (lowerPrompt.includes("fashion") || lowerPrompt.includes("vogue") || lowerPrompt.includes("editorial")) category = "Fashion";
+  else if (lowerPrompt.includes("instagram") || lowerPrompt.includes("influencer") || lowerPrompt.includes("social")) category = "Social Media";
+  else if (lowerPrompt.includes("vintage") || lowerPrompt.includes("retro")) category = "Vintage";
+  else if (lowerPrompt.includes("fitness") || lowerPrompt.includes("gym") || lowerPrompt.includes("athletic")) category = "Fitness";
+  else if (lowerPrompt.includes("art") || lowerPrompt.includes("painting") || lowerPrompt.includes("artistic")) category = "Arte";
+  else if (lowerPrompt.includes("professional") || lowerPrompt.includes("business") || lowerPrompt.includes("corporate")) category = "Profissional";
+  
+  // Detect required fields from variables in prompt
+  const requiredFields: string[] = ["photo"]; // Always require photo
+  if (promptText.includes("{name}") || promptText.includes("[NOME]") || lowerPrompt.includes("name")) requiredFields.push("name");
+  if (promptText.includes("{instagram}") || promptText.includes("[INSTAGRAM]") || lowerPrompt.includes("@")) requiredFields.push("instagram");
+  if (promptText.includes("{description}") || promptText.includes("[DESCRIÇÃO]")) requiredFields.push("description");
+  
+  // Generate name from first few words or key concept
+  let name = "";
+  const concepts = ["cyberpunk", "anime", "fashion", "vintage", "neon", "instagram", "viral", "portrait", "avatar", "profile"];
+  for (const concept of concepts) {
+    if (lowerPrompt.includes(concept)) {
+      name = concept.charAt(0).toUpperCase() + concept.slice(1) + " Style";
+      break;
+    }
+  }
+  if (!name) name = "Custom Prompt";
+  
+  // Generate hype text
+  const hypeTexts = ["🔥 +500k gerações", "⚡ Trending", "💎 Premium", "🚀 Viral", "✨ Top Creator"];
+  const hypeText = hypeTexts[Math.floor(Math.random() * hypeTexts.length)];
+  
+  // Generate description
+  const description = `Transforme sua foto com estilo ${category.toLowerCase()}. Resultado profissional em segundos.`;
+  
+  return {
+    name,
+    category,
+    description,
+    hype_text: hypeText,
+    required_fields: requiredFields,
+    price_cents: 2100,
+    status: "active",
+    ai_model: "gemini-2.5-flash-image",
+    min_photos: 1,
+  };
 };
-
-const fieldOptions = [
-  { id: "photo", label: "Exige upload de foto", icon: Camera, description: "Usuário deve enviar foto" },
-  { id: "name", label: "Exige nome da pessoa", icon: User, description: "Nome para personalização" },
-  { id: "instagram", label: "Exige @Instagram", icon: AtSign, description: "Handle do Instagram" },
-  { id: "description", label: "Exige descrição adicional", icon: MessageSquare, description: "Campo de texto livre" },
-];
-
-const aiModels = [
-  { id: "gemini-2.5-flash-image", name: "Gemini Flash (Rápido)", description: "Geração rápida, boa qualidade" },
-  { id: "gemini-3-pro-image-preview", name: "Gemini Pro (Qualidade)", description: "Melhor qualidade, mais lento" },
-];
 
 const PromptsManager = () => {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
@@ -101,6 +117,7 @@ const PromptsManager = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingPrompt, setEditingPrompt] = useState<Partial<Prompt> | null>(null);
   const [saving, setSaving] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   useEffect(() => {
     fetchPrompts();
@@ -129,37 +146,54 @@ const PromptsManager = () => {
     }
   };
 
-  const canPublish = () => {
-    if (!editingPrompt) return false;
-    return !!(editingPrompt.example_image_url && editingPrompt.example_image_url.trim());
+  const handlePromptChange = (promptText: string) => {
+    if (!editingPrompt) return;
+    
+    // Auto-analyze when prompt is long enough
+    if (promptText.length > 50 && !editingPrompt.id) {
+      const analyzed = analyzePrompt(promptText);
+      setEditingPrompt({
+        ...editingPrompt,
+        prompt_template: promptText,
+        ...(!editingPrompt.name && { name: analyzed.name }),
+        ...(!editingPrompt.category && { category: analyzed.category }),
+        ...(!editingPrompt.description && { description: analyzed.description }),
+        ...(!editingPrompt.hype_text && { hype_text: analyzed.hype_text }),
+        required_fields: analyzed.required_fields,
+      });
+    } else {
+      setEditingPrompt({ ...editingPrompt, prompt_template: promptText });
+    }
   };
 
   const handleSave = async () => {
-    if (!editingPrompt?.name || !editingPrompt?.category || !editingPrompt?.prompt_template) {
-      toast.error("Preencha todos os campos obrigatórios");
+    if (!editingPrompt?.prompt_template) {
+      toast.error("Cole o prompt primeiro");
       return;
     }
 
-    // Validate example image for active prompts
-    if (editingPrompt.status === "active" && !editingPrompt.example_image_url?.trim()) {
-      toast.error("⚠️ Foto de exemplo é OBRIGATÓRIA para publicar o prompt");
+    if (!editingPrompt?.example_image_url?.trim()) {
+      toast.error("⚠️ Foto de exemplo é OBRIGATÓRIA");
       return;
     }
 
+    // Auto-fill missing fields
+    const analyzed = analyzePrompt(editingPrompt.prompt_template);
+    
     setSaving(true);
     try {
       const promptData = {
-        name: editingPrompt.name,
-        description: editingPrompt.description,
-        category: editingPrompt.category,
-        hype_text: editingPrompt.hype_text,
-        example_image_url: editingPrompt.example_image_url || null,
+        name: editingPrompt.name || analyzed.name || "Novo Prompt",
+        description: editingPrompt.description || analyzed.description || "",
+        category: editingPrompt.category || analyzed.category || "Geral",
+        hype_text: editingPrompt.hype_text || analyzed.hype_text || "🔥 Novo",
+        example_image_url: editingPrompt.example_image_url,
         prompt_template: editingPrompt.prompt_template,
         price_cents: editingPrompt.price_cents || 2100,
         status: editingPrompt.status || "active",
-        is_influencer_prompt: editingPrompt.is_influencer_prompt || false,
-        influencer_name: editingPrompt.influencer_name || null,
-        required_fields: editingPrompt.required_fields || ["photo", "name"],
+        is_influencer_prompt: false,
+        influencer_name: null,
+        required_fields: editingPrompt.required_fields || analyzed.required_fields || ["photo", "name"],
         negative_prompt: editingPrompt.negative_prompt || null,
         ai_model: editingPrompt.ai_model || "gemini-2.5-flash-image",
         min_photos: editingPrompt.min_photos || 1,
@@ -177,11 +211,12 @@ const PromptsManager = () => {
           .from("prompts")
           .insert(promptData);
         if (error) throw error;
-        toast.success("Prompt criado!");
+        toast.success("Prompt criado com sucesso!");
       }
 
       setIsDialogOpen(false);
       setEditingPrompt(null);
+      setShowAdvanced(false);
       fetchPrompts();
     } catch (error) {
       console.error("Error saving prompt:", error);
@@ -208,15 +243,6 @@ const PromptsManager = () => {
     }
   };
 
-  const toggleField = (field: string) => {
-    if (!editingPrompt) return;
-    const fields = editingPrompt.required_fields || [];
-    const newFields = fields.includes(field)
-      ? fields.filter(f => f !== field)
-      : [...fields, field];
-    setEditingPrompt({ ...editingPrompt, required_fields: newFields });
-  };
-
   const formatPrice = (cents: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -227,14 +253,28 @@ const PromptsManager = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'active':
-        return <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Ativo</Badge>;
+        return <Badge className="bg-primary/20 text-primary border-primary/30">Ativo</Badge>;
       case 'coming_soon':
-        return <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">Em Breve</Badge>;
+        return <Badge className="bg-secondary/20 text-secondary border-secondary/30">Em Breve</Badge>;
       case 'inactive':
-        return <Badge className="bg-red-500/20 text-red-400 border-red-500/30">Inativo</Badge>;
+        return <Badge variant="outline">Inativo</Badge>;
       default:
         return <Badge>{status}</Badge>;
     }
+  };
+
+  const openNewPrompt = () => {
+    setEditingPrompt({
+      prompt_template: "",
+      example_image_url: "",
+      price_cents: 2100,
+      status: "active",
+      required_fields: ["photo", "name"],
+      ai_model: "gemini-2.5-flash-image",
+      min_photos: 1,
+    });
+    setShowAdvanced(false);
+    setIsDialogOpen(true);
   };
 
   return (
@@ -242,63 +282,119 @@ const PromptsManager = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Gerenciar Prompts</h1>
-          <p className="text-muted-foreground">Configure os prompts do marketplace com foto de exemplo obrigatória</p>
+          <p className="text-muted-foreground">Cole o prompt + foto e a IA preenche o resto</p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={() => setEditingPrompt(defaultPrompt)}>
-              <Plus className="w-4 h-4 mr-2" />
-              Novo Prompt
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-primary" />
-                {editingPrompt?.id ? "Editar Prompt" : "Novo Prompt"}
-              </DialogTitle>
-            </DialogHeader>
-            
-            {editingPrompt && (
-              <div className="space-y-6 py-4">
-                {/* Basic Info */}
-                <div className="space-y-4">
-                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Informações Básicas</h3>
+        <Button onClick={openNewPrompt}>
+          <Plus className="w-4 h-4 mr-2" />
+          Novo Prompt
+        </Button>
+      </div>
+
+      {/* Dialog Simplificado */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Wand2 className="w-5 h-5 text-primary" />
+              {editingPrompt?.id ? "Editar Prompt" : "Novo Prompt — Modo Rápido"}
+            </DialogTitle>
+          </DialogHeader>
+          
+          {editingPrompt && (
+            <div className="space-y-6 py-4">
+              {/* Step 1: Foto de Exemplo */}
+              <div className="space-y-3 p-4 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5">
+                <div className="flex items-center gap-2">
+                  <Image className="w-5 h-5 text-primary" />
+                  <Label className="text-base font-semibold">1. Foto de Exemplo *</Label>
+                </div>
+                <Input
+                  value={editingPrompt.example_image_url || ""}
+                  onChange={(e) => setEditingPrompt({ ...editingPrompt, example_image_url: e.target.value })}
+                  placeholder="Cole a URL da imagem de exemplo aqui..."
+                  className="text-base"
+                />
+                {editingPrompt.example_image_url && (
+                  <img 
+                    src={editingPrompt.example_image_url} 
+                    alt="Preview" 
+                    className="w-24 h-24 object-cover rounded-lg border border-primary/30"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                    }}
+                  />
+                )}
+              </div>
+
+              {/* Step 2: Prompt */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-secondary" />
+                  <Label className="text-base font-semibold">2. Cole o Prompt *</Label>
+                </div>
+                <Textarea
+                  value={editingPrompt.prompt_template || ""}
+                  onChange={(e) => handlePromptChange(e.target.value)}
+                  placeholder="Cole aqui o prompt completo... A IA vai identificar categoria, nome e campos automaticamente."
+                  className="min-h-[200px] font-mono text-sm"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Use variáveis como <code className="bg-muted px-1 rounded">{"{name}"}</code> ou <code className="bg-muted px-1 rounded">[NOME]</code> para personalização
+                </p>
+              </div>
+
+              {/* Auto-detected info */}
+              {editingPrompt.prompt_template && editingPrompt.prompt_template.length > 50 && (
+                <div className="p-4 rounded-lg bg-card border border-border">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-sm font-medium text-muted-foreground">✨ Detectado automaticamente:</span>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => setShowAdvanced(!showAdvanced)}
+                    >
+                      <Eye className="w-4 h-4 mr-1" />
+                      {showAdvanced ? "Ocultar" : "Editar"}
+                    </Button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Badge variant="outline">{editingPrompt.name || "Nome..."}</Badge>
+                    <Badge variant="outline">{editingPrompt.category || "Categoria..."}</Badge>
+                    <Badge variant="outline">{editingPrompt.hype_text || "Hype..."}</Badge>
+                    <Badge className="bg-primary/20 text-primary border-primary/30">
+                      {formatPrice(editingPrompt.price_cents || 2100)}
+                    </Badge>
+                  </div>
+                </div>
+              )}
+
+              {/* Advanced options (hidden by default) */}
+              {showAdvanced && (
+                <div className="space-y-4 p-4 rounded-lg bg-muted/30 border border-border">
+                  <h4 className="text-sm font-semibold text-muted-foreground">Editar campos</h4>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Nome *</Label>
+                      <Label>Nome</Label>
                       <Input
                         value={editingPrompt.name || ""}
                         onChange={(e) => setEditingPrompt({ ...editingPrompt, name: e.target.value })}
-                        placeholder="Ex: Cyberpunk Avatar"
+                        placeholder="Nome do prompt"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>Categoria *</Label>
+                      <Label>Categoria</Label>
                       <Input
                         value={editingPrompt.category || ""}
                         onChange={(e) => setEditingPrompt({ ...editingPrompt, category: e.target.value })}
-                        placeholder="Ex: Cyberpunk, Fashion, Anime"
+                        placeholder="Cyberpunk, Fashion, etc"
                       />
                     </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Descrição</Label>
-                    <Textarea
-                      value={editingPrompt.description || ""}
-                      onChange={(e) => setEditingPrompt({ ...editingPrompt, description: e.target.value })}
-                      placeholder="Descrição curta do prompt para o marketplace"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Texto de Hype</Label>
+                      <Label>Hype Text</Label>
                       <Input
                         value={editingPrompt.hype_text || ""}
                         onChange={(e) => setEditingPrompt({ ...editingPrompt, hype_text: e.target.value })}
-                        placeholder="Ex: 🔥 +500k gerações"
+                        placeholder="🔥 Trending"
                       />
                     </div>
                     <div className="space-y-2">
@@ -311,219 +407,51 @@ const PromptsManager = () => {
                       />
                     </div>
                   </div>
-                </div>
-
-                {/* Example Image - REQUIRED */}
-                <div className="space-y-4 p-4 rounded-lg border border-primary/30 bg-primary/5">
-                  <div className="flex items-center gap-2">
-                    <Image className="w-5 h-5 text-primary" />
-                    <h3 className="text-sm font-semibold text-primary">Foto de Exemplo (OBRIGATÓRIA)</h3>
-                  </div>
-                  
-                  {!editingPrompt.example_image_url && (
-                    <div className="flex items-center gap-2 text-amber-500 text-sm">
-                      <AlertCircle className="w-4 h-4" />
-                      <span>Sem foto de exemplo, o prompt NÃO pode ser publicado como Ativo</span>
-                    </div>
-                  )}
-
                   <div className="space-y-2">
-                    <Label>URL da Imagem de Exemplo *</Label>
-                    <Input
-                      value={editingPrompt.example_image_url || ""}
-                      onChange={(e) => setEditingPrompt({ ...editingPrompt, example_image_url: e.target.value })}
-                      placeholder="https://exemplo.com/imagem.jpg"
-                      className={!editingPrompt.example_image_url ? "border-amber-500/50" : "border-green-500/50"}
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Esta imagem será exibida no card do marketplace e representa o resultado esperado.
-                    </p>
-                  </div>
-
-                  {editingPrompt.example_image_url && (
-                    <div className="mt-3">
-                      <p className="text-xs text-muted-foreground mb-2">Preview:</p>
-                      <img 
-                        src={editingPrompt.example_image_url} 
-                        alt="Preview" 
-                        className="w-32 h-32 object-cover rounded-lg border border-border"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23333' width='100' height='100'/%3E%3Ctext fill='%23fff' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3EErro%3C/text%3E%3C/svg%3E";
-                        }}
-                      />
-                    </div>
-                  )}
-                </div>
-
-                {/* Prompt Template */}
-                <div className="space-y-4">
-                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Template do Prompt</h3>
-                  
-                  <div className="space-y-2">
-                    <Label>Prompt Base *</Label>
+                    <Label>Descrição</Label>
                     <Textarea
-                      value={editingPrompt.prompt_template || ""}
-                      onChange={(e) => setEditingPrompt({ ...editingPrompt, prompt_template: e.target.value })}
-                      placeholder="A hyper-realistic portrait of {name} in cyberpunk style... Use variáveis como {name}, {instagram}"
-                      className="min-h-[150px] font-mono text-sm"
+                      value={editingPrompt.description || ""}
+                      onChange={(e) => setEditingPrompt({ ...editingPrompt, description: e.target.value })}
+                      placeholder="Descrição para o marketplace"
+                      className="min-h-[60px]"
                     />
-                    <p className="text-xs text-muted-foreground">
-                      Use variáveis: <code className="bg-muted px-1 rounded">{"{name}"}</code>, <code className="bg-muted px-1 rounded">{"{instagram}"}</code>, <code className="bg-muted px-1 rounded">{"{description}"}</code>
-                    </p>
                   </div>
-
                   <div className="space-y-2">
-                    <Label>Prompt Negativo (Opcional)</Label>
-                    <Textarea
-                      value={editingPrompt.negative_prompt || ""}
-                      onChange={(e) => setEditingPrompt({ ...editingPrompt, negative_prompt: e.target.value })}
-                      placeholder="blurry, low quality, distorted face, extra limbs..."
-                      className="min-h-[80px] font-mono text-sm"
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      O que a IA deve EVITAR na geração.
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Modelo de IA</Label>
-                      <Select
-                        value={editingPrompt.ai_model || "gemini-2.5-flash-image"}
-                        onValueChange={(value) => setEditingPrompt({ ...editingPrompt, ai_model: value })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {aiModels.map((model) => (
-                            <SelectItem key={model.id} value={model.id}>
-                              <div className="flex flex-col">
-                                <span>{model.name}</span>
-                                <span className="text-xs text-muted-foreground">{model.description}</span>
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Status</Label>
-                      <Select
-                        value={editingPrompt.status || "active"}
-                        onValueChange={(value) => setEditingPrompt({ ...editingPrompt, status: value })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="active">Ativo</SelectItem>
-                          <SelectItem value="coming_soon">Em Breve</SelectItem>
-                          <SelectItem value="inactive">Inativo</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Required Fields */}
-                <div className="space-y-4">
-                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Especificações do Usuário</h3>
-                  <p className="text-xs text-muted-foreground">
-                    Marque quais campos o usuário deve preencher para gerar a imagem:
-                  </p>
-                  
-                  <div className="grid grid-cols-2 gap-3">
-                    {fieldOptions.map((field) => (
-                      <label
-                        key={field.id}
-                        className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
-                          editingPrompt.required_fields?.includes(field.id)
-                            ? "border-primary bg-primary/10"
-                            : "border-border hover:border-muted-foreground/50"
-                        }`}
-                      >
-                        <Checkbox
-                          checked={editingPrompt.required_fields?.includes(field.id)}
-                          onCheckedChange={() => toggleField(field.id)}
-                        />
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <field.icon className="w-4 h-4 text-muted-foreground" />
-                            <span className="text-sm font-medium">{field.label}</span>
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-1">{field.description}</p>
-                        </div>
-                      </label>
-                    ))}
-                  </div>
-
-                  {editingPrompt.required_fields?.includes("photo") && (
-                    <div className="space-y-2 pl-4 border-l-2 border-primary/30">
-                      <Label>Quantidade mínima de fotos</Label>
-                      <Input
-                        type="number"
-                        min="1"
-                        max="5"
-                        value={editingPrompt.min_photos || 1}
-                        onChange={(e) => setEditingPrompt({ ...editingPrompt, min_photos: parseInt(e.target.value) || 1 })}
-                        className="w-24"
-                      />
-                    </div>
-                  )}
-                </div>
-
-                {/* Influencer Section */}
-                <div className="space-y-4 p-4 rounded-lg border border-violet-500/30 bg-violet-500/5">
-                  <div className="flex items-center gap-3">
-                    <Switch
-                      checked={editingPrompt.is_influencer_prompt || false}
-                      onCheckedChange={(checked) => setEditingPrompt({ ...editingPrompt, is_influencer_prompt: checked })}
-                    />
-                    <Label className="font-medium">Prompt de Influencer</Label>
-                  </div>
-
-                  {editingPrompt.is_influencer_prompt && (
-                    <div className="space-y-2">
-                      <Label>Nome do Influencer</Label>
-                      <Input
-                        value={editingPrompt.influencer_name || ""}
-                        onChange={(e) => setEditingPrompt({ ...editingPrompt, influencer_name: e.target.value })}
-                        placeholder="@usuario"
-                      />
-                    </div>
-                  )}
-                </div>
-
-                {/* Actions */}
-                <div className="flex items-center justify-between pt-4 border-t">
-                  <div className="text-sm text-muted-foreground">
-                    {editingPrompt.status === "active" && !canPublish() && (
-                      <span className="text-amber-500 flex items-center gap-1">
-                        <AlertCircle className="w-4 h-4" />
-                        Adicione foto de exemplo para publicar
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex gap-3">
-                    <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                      Cancelar
-                    </Button>
-                    <Button 
-                      onClick={handleSave} 
-                      disabled={saving || (editingPrompt.status === "active" && !canPublish())}
+                    <Label>Status</Label>
+                    <Select
+                      value={editingPrompt.status || "active"}
+                      onValueChange={(value) => setEditingPrompt({ ...editingPrompt, status: value })}
                     >
-                      {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                      {editingPrompt.id ? "Salvar" : "Criar"}
-                    </Button>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="active">Ativo</SelectItem>
+                        <SelectItem value="coming_soon">Em Breve</SelectItem>
+                        <SelectItem value="inactive">Inativo</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
-      </div>
+              )}
 
+              {/* Action Buttons */}
+              <div className="flex justify-end gap-3 pt-4 border-t">
+                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                  Cancelar
+                </Button>
+                <Button onClick={handleSave} disabled={saving}>
+                  {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  {editingPrompt.id ? "Salvar" : "Criar Prompt"}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Table */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -536,16 +464,23 @@ const PromptsManager = () => {
             <div className="flex items-center justify-center py-8">
               <Loader2 className="w-6 h-6 animate-spin" />
             </div>
+          ) : prompts.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <Sparkles className="w-12 h-12 mx-auto mb-4 opacity-50" />
+              <p>Nenhum prompt cadastrado</p>
+              <Button className="mt-4" onClick={openNewPrompt}>
+                Criar primeiro prompt
+              </Button>
+            </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-16">Foto</TableHead>
+                  <TableHead>Preview</TableHead>
                   <TableHead>Nome</TableHead>
                   <TableHead>Categoria</TableHead>
                   <TableHead>Preço</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Campos</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
@@ -557,56 +492,48 @@ const PromptsManager = () => {
                         <img 
                           src={prompt.example_image_url} 
                           alt={prompt.name}
-                          className="w-12 h-12 object-cover rounded-lg border border-border"
+                          className="w-12 h-12 object-cover rounded-lg"
                         />
                       ) : (
-                        <div className="w-12 h-12 rounded-lg border border-amber-500/50 bg-amber-500/10 flex items-center justify-center">
-                          <AlertCircle className="w-5 h-5 text-amber-500" />
+                        <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center">
+                          <Image className="w-5 h-5 text-muted-foreground" />
                         </div>
                       )}
                     </TableCell>
-                    <TableCell className="font-medium">
-                      <div>
-                        {prompt.name}
-                        {prompt.is_influencer_prompt && (
-                          <Badge variant="outline" className="ml-2 text-xs text-violet-400 border-violet-400/30">
-                            Influencer
-                          </Badge>
-                        )}
-                      </div>
-                      <p className="text-xs text-muted-foreground">{prompt.hype_text}</p>
-                    </TableCell>
-                    <TableCell>{prompt.category}</TableCell>
-                    <TableCell>{formatPrice(prompt.price_cents)}</TableCell>
-                    <TableCell>{getStatusBadge(prompt.status)}</TableCell>
                     <TableCell>
-                      <div className="flex gap-1 flex-wrap">
-                        {prompt.required_fields?.map((f) => (
-                          <Badge key={f} variant="outline" className="text-xs">
-                            {f}
-                          </Badge>
-                        ))}
+                      <div>
+                        <p className="font-medium">{prompt.name}</p>
+                        <p className="text-xs text-muted-foreground truncate max-w-[200px]">
+                          {prompt.hype_text}
+                        </p>
                       </div>
                     </TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{prompt.category}</Badge>
+                    </TableCell>
+                    <TableCell className="font-medium text-primary">
+                      {formatPrice(prompt.price_cents)}
+                    </TableCell>
+                    <TableCell>{getStatusBadge(prompt.status)}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
                           onClick={() => {
                             setEditingPrompt(prompt);
+                            setShowAdvanced(true);
                             setIsDialogOpen(true);
                           }}
                         >
-                          <Pencil className="w-3 h-3" />
+                          <Pencil className="w-4 h-4" />
                         </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="text-red-500 hover:text-red-600"
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
                           onClick={() => handleDelete(prompt.id)}
                         >
-                          <Trash2 className="w-3 h-3" />
+                          <Trash2 className="w-4 h-4 text-destructive" />
                         </Button>
                       </div>
                     </TableCell>
