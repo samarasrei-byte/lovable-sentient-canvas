@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,11 +37,13 @@ import {
   Eye,
   Upload,
   X,
-  Zap
+  Zap,
+  Crop
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+import { ImageCropModal } from "@/components/admin/ImageCropModal";
 
 interface Prompt {
   id: string;
@@ -269,6 +271,9 @@ const PromptsManager = () => {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [cropModalOpen, setCropModalOpen] = useState(false);
+  const [fileToCrop, setFileToCrop] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -298,10 +303,7 @@ const PromptsManager = () => {
     }
   };
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
+  const processFile = useCallback(async (file: File, skipCrop = false) => {
     // Validate file type
     if (!file.type.startsWith('image/')) {
       toast.error("Por favor, selecione uma imagem válida");
@@ -311,6 +313,13 @@ const PromptsManager = () => {
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast.error("Imagem muito grande. Máximo 5MB");
+      return;
+    }
+
+    // If not skipping crop, open crop modal
+    if (!skipCrop) {
+      setFileToCrop(file);
+      setCropModalOpen(true);
       return;
     }
 
@@ -354,7 +363,43 @@ const PromptsManager = () => {
     } finally {
       setUploading(false);
     }
+  }, []);
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    processFile(file);
   };
+
+  const handleCropComplete = useCallback((croppedFile: File) => {
+    setCropModalOpen(false);
+    setFileToCrop(null);
+    processFile(croppedFile, true); // Skip crop since already cropped
+  }, [processFile]);
+
+  // Drag and drop handlers
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      processFile(files[0]);
+    }
+  }, [processFile]);
 
   const handleRemoveImage = () => {
     setImagePreview(null);
@@ -552,16 +597,28 @@ const PromptsManager = () => {
                     className="hidden"
                   />
 
-                  {/* Upload area */}
+                  {/* Upload area with drag & drop */}
                   {!displayImage ? (
                     <div 
                       onClick={() => fileInputRef.current?.click()}
-                      className="flex flex-col items-center justify-center gap-3 p-8 border-2 border-dashed border-muted-foreground/30 rounded-lg cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-all"
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
+                      className={`flex flex-col items-center justify-center gap-3 p-8 border-2 border-dashed rounded-lg cursor-pointer transition-all ${
+                        isDragOver 
+                          ? 'border-primary bg-primary/10 scale-[1.02]' 
+                          : 'border-muted-foreground/30 hover:border-primary/50 hover:bg-primary/5'
+                      }`}
                     >
                       {uploading ? (
                         <>
                           <Loader2 className="w-10 h-10 text-primary animate-spin" />
                           <p className="text-sm text-muted-foreground">Enviando imagem...</p>
+                        </>
+                      ) : isDragOver ? (
+                        <>
+                          <Upload className="w-10 h-10 text-primary animate-bounce" />
+                          <p className="text-sm text-primary font-medium">Solte a imagem aqui!</p>
                         </>
                       ) : (
                         <>
@@ -590,13 +647,27 @@ const PromptsManager = () => {
                           <X className="w-4 h-4" />
                         </Button>
                       </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => fileInputRef.current?.click()}
-                      >
-                        Trocar imagem
-                      </Button>
+                      <div className="flex flex-col gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => fileInputRef.current?.click()}
+                        >
+                          Trocar imagem
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="gap-1 text-xs"
+                          onClick={() => {
+                            // Re-crop from existing URL - would need original file
+                            toast.info("Para recortar, troque a imagem e use o recorte no upload");
+                          }}
+                        >
+                          <Crop className="w-3 h-3" />
+                          Recortar
+                        </Button>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -831,6 +902,19 @@ const PromptsManager = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Image Crop Modal */}
+      {fileToCrop && (
+        <ImageCropModal
+          open={cropModalOpen}
+          onOpenChange={(open) => {
+            setCropModalOpen(open);
+            if (!open) setFileToCrop(null);
+          }}
+          imageFile={fileToCrop}
+          onCropComplete={handleCropComplete}
+        />
+      )}
     </div>
   );
 };
