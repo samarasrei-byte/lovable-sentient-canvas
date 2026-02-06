@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,7 +18,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Select,
@@ -35,7 +34,9 @@ import {
   Image,
   Loader2,
   Wand2,
-  Eye
+  Eye,
+  Upload,
+  X
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -75,7 +76,7 @@ const analyzePrompt = (promptText: string): Partial<Prompt> => {
   else if (lowerPrompt.includes("professional") || lowerPrompt.includes("business") || lowerPrompt.includes("corporate")) category = "Profissional";
   
   // Detect required fields from variables in prompt
-  const requiredFields: string[] = ["photo"]; // Always require photo
+  const requiredFields: string[] = ["photo"];
   if (promptText.includes("{name}") || promptText.includes("[NOME]") || lowerPrompt.includes("name")) requiredFields.push("name");
   if (promptText.includes("{instagram}") || promptText.includes("[INSTAGRAM]") || lowerPrompt.includes("@")) requiredFields.push("instagram");
   if (promptText.includes("{description}") || promptText.includes("[DESCRIÇÃO]")) requiredFields.push("description");
@@ -118,6 +119,9 @@ const PromptsManager = () => {
   const [editingPrompt, setEditingPrompt] = useState<Partial<Prompt> | null>(null);
   const [saving, setSaving] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchPrompts();
@@ -143,6 +147,75 @@ const PromptsManager = () => {
       toast.error("Erro ao carregar prompts");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error("Por favor, selecione uma imagem válida");
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Imagem muito grande. Máximo 5MB");
+      return;
+    }
+
+    setUploading(true);
+
+    try {
+      // Create local preview
+      const localPreview = URL.createObjectURL(file);
+      setImagePreview(localPreview);
+
+      // Generate unique filename
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${crypto.randomUUID()}.${fileExt}`;
+      const filePath = `prompts/${fileName}`;
+
+      // Upload to Supabase Storage
+      const { error: uploadError } = await supabase.storage
+        .from('prompt-images')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from('prompt-images')
+        .getPublicUrl(filePath);
+
+      setEditingPrompt(prev => prev ? {
+        ...prev,
+        example_image_url: urlData.publicUrl
+      } : null);
+
+      toast.success("✅ Imagem enviada com sucesso!");
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast.error("Erro ao enviar imagem. Tente novamente.");
+      setImagePreview(null);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setImagePreview(null);
+    setEditingPrompt(prev => prev ? {
+      ...prev,
+      example_image_url: null
+    } : null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
@@ -217,6 +290,7 @@ const PromptsManager = () => {
       setIsDialogOpen(false);
       setEditingPrompt(null);
       setShowAdvanced(false);
+      setImagePreview(null);
       fetchPrompts();
     } catch (error) {
       console.error("Error saving prompt:", error);
@@ -274,15 +348,25 @@ const PromptsManager = () => {
       min_photos: 1,
     });
     setShowAdvanced(false);
+    setImagePreview(null);
     setIsDialogOpen(true);
   };
+
+  const openEditPrompt = (prompt: Prompt) => {
+    setEditingPrompt(prompt);
+    setShowAdvanced(true);
+    setImagePreview(prompt.example_image_url);
+    setIsDialogOpen(true);
+  };
+
+  const displayImage = imagePreview || editingPrompt?.example_image_url;
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Gerenciar Prompts</h1>
-          <p className="text-muted-foreground">Cole o prompt + foto e a IA preenche o resto</p>
+          <p className="text-muted-foreground">Anexe a foto + cole o prompt e a IA preenche o resto</p>
         </div>
         <Button onClick={openNewPrompt}>
           <Plus className="w-4 h-4 mr-2" />
@@ -302,27 +386,67 @@ const PromptsManager = () => {
           
           {editingPrompt && (
             <div className="space-y-6 py-4">
-              {/* Step 1: Foto de Exemplo */}
+              {/* Step 1: Foto de Exemplo - UPLOAD */}
               <div className="space-y-3 p-4 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5">
                 <div className="flex items-center gap-2">
                   <Image className="w-5 h-5 text-primary" />
-                  <Label className="text-base font-semibold">1. Foto de Exemplo *</Label>
+                  <Label className="text-base font-semibold">1. Anexar Foto de Exemplo *</Label>
                 </div>
-                <Input
-                  value={editingPrompt.example_image_url || ""}
-                  onChange={(e) => setEditingPrompt({ ...editingPrompt, example_image_url: e.target.value })}
-                  placeholder="Cole a URL da imagem de exemplo aqui..."
-                  className="text-base"
+                
+                {/* Hidden file input */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileUpload}
+                  className="hidden"
                 />
-                {editingPrompt.example_image_url && (
-                  <img 
-                    src={editingPrompt.example_image_url} 
-                    alt="Preview" 
-                    className="w-24 h-24 object-cover rounded-lg border border-primary/30"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = 'none';
-                    }}
-                  />
+
+                {/* Upload area */}
+                {!displayImage ? (
+                  <div 
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex flex-col items-center justify-center gap-3 p-8 border-2 border-dashed border-muted-foreground/30 rounded-lg cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-all"
+                  >
+                    {uploading ? (
+                      <>
+                        <Loader2 className="w-10 h-10 text-primary animate-spin" />
+                        <p className="text-sm text-muted-foreground">Enviando imagem...</p>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-10 h-10 text-muted-foreground" />
+                        <p className="text-sm text-muted-foreground text-center">
+                          <span className="font-medium text-primary">Clique para anexar</span> ou arraste a imagem
+                        </p>
+                        <p className="text-xs text-muted-foreground">PNG, JPG até 5MB</p>
+                      </>
+                    )}
+                  </div>
+                ) : (
+                  <div className="relative inline-block">
+                    <img 
+                      src={displayImage} 
+                      alt="Preview" 
+                      className="w-32 h-32 object-cover rounded-lg border-2 border-primary/30"
+                    />
+                    <Button
+                      variant="destructive"
+                      size="icon"
+                      className="absolute -top-2 -right-2 w-6 h-6 rounded-full"
+                      onClick={handleRemoveImage}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="mt-2"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      Trocar imagem
+                    </Button>
+                  </div>
                 )}
               </div>
 
@@ -440,7 +564,7 @@ const PromptsManager = () => {
                 <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Cancelar
                 </Button>
-                <Button onClick={handleSave} disabled={saving}>
+                <Button onClick={handleSave} disabled={saving || uploading}>
                   {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                   <Sparkles className="w-4 h-4 mr-2" />
                   {editingPrompt.id ? "Salvar" : "Criar Prompt"}
@@ -520,11 +644,7 @@ const PromptsManager = () => {
                         <Button 
                           variant="ghost" 
                           size="icon"
-                          onClick={() => {
-                            setEditingPrompt(prompt);
-                            setShowAdvanced(true);
-                            setIsDialogOpen(true);
-                          }}
+                          onClick={() => openEditPrompt(prompt)}
                         >
                           <Pencil className="w-4 h-4" />
                         </Button>
