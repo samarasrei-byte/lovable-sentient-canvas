@@ -423,31 +423,26 @@ const PromptsManager = () => {
     }
   }, [processFile]);
 
-  // Clipboard paste handler (Ctrl+V)
-  const handlePaste = useCallback((e: ClipboardEvent) => {
-    const items = e.clipboardData?.items;
-    if (!items) return;
+  // Clipboard paste handler (Ctrl+V) — anexado diretamente no modal/zona de upload
+  const handlePaste = useCallback(
+    (e: any) => {
+      const items = e?.clipboardData?.items;
+      if (!items) return;
 
-    for (let i = 0; i < items.length; i++) {
-      if (items[i].type.startsWith('image/')) {
-        e.preventDefault();
-        const file = items[i].getAsFile();
-        if (file) {
-          toast.info("📋 Imagem detectada do clipboard!");
-          processFile(file);
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type?.startsWith("image/")) {
+          e.preventDefault?.();
+          const file = items[i].getAsFile?.();
+          if (file) {
+            toast.info("📋 Imagem detectada do clipboard!");
+            processFile(file);
+          }
+          break;
         }
-        break;
       }
-    }
-  }, [processFile]);
-
-  // Add paste listener when dialog is open
-  useEffect(() => {
-    if (isDialogOpen) {
-      document.addEventListener('paste', handlePaste);
-      return () => document.removeEventListener('paste', handlePaste);
-    }
-  }, [isDialogOpen, handlePaste]);
+    },
+    [processFile]
+  );
 
   const handleRemoveImage = () => {
     setImagePreview((prev) => {
@@ -624,7 +619,10 @@ const PromptsManager = () => {
 
       {/* Dialog com Preview em Tempo Real */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+        <DialogContent
+          className="max-w-5xl max-h-[90vh] overflow-y-auto"
+          onPaste={handlePaste}
+        >
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Wand2 className="w-5 h-5 text-primary" />
@@ -655,11 +653,14 @@ const PromptsManager = () => {
                   {/* Upload area with drag & drop */}
                   {!displayImage ? (
                     <div 
+                      tabIndex={0}
+                      role="button"
                       onClick={() => fileInputRef.current?.click()}
+                      onPaste={handlePaste}
                       onDragOver={handleDragOver}
                       onDragLeave={handleDragLeave}
                       onDrop={handleDrop}
-                      className={`flex flex-col items-center justify-center gap-3 p-8 border-2 border-dashed rounded-lg cursor-pointer transition-all ${
+                      className={`flex flex-col items-center justify-center gap-3 p-8 border-2 border-dashed rounded-lg cursor-pointer transition-all outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 ${
                         isDragOver 
                           ? 'border-primary bg-primary/10 scale-[1.02]' 
                           : 'border-muted-foreground/30 hover:border-primary/50 hover:bg-primary/5'
