@@ -174,7 +174,7 @@ export const InfluencerMarketplaceComingSoon = () => {
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 tracking-tight">
             Em breve —{" "}
             <span className="bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
-              O marketplace dos influenciadores
+              Os prompts mais baratos da internet
             </span>
           </h2>
           <p className="text-muted-foreground text-lg max-w-3xl mx-auto font-light leading-relaxed">
