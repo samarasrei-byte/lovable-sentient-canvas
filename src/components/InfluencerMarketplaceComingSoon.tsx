@@ -106,16 +106,16 @@ export const InfluencerMarketplaceComingSoon = () => {
           </div>
           
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 tracking-tight">
-            Conecte-se com os{" "}
+            Em breve —{" "}
             <span className="bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
-              creators mais hypados
+              O marketplace dos influenciadores
             </span>
           </h2>
           <p className="text-muted-foreground text-lg max-w-3xl mx-auto font-light leading-relaxed">
-            O maior marketplace de influenciadores do Brasil está chegando.
-            <span className="text-primary font-medium"> Campanhas exclusivas</span>,
-            <span className="text-secondary font-medium"> parcerias reais</span> e
-            <span className="text-accent font-medium"> resultados extraordinários</span>.
+            Conecte-se com os <span className="text-primary font-medium">creators mais hypados</span> do Brasil.
+            <span className="text-secondary font-medium"> Campanhas exclusivas</span>,
+            <span className="text-primary font-medium"> parcerias reais</span> e
+            <span className="text-secondary font-medium"> resultados extraordinários</span>.
           </p>
         </motion.div>
 
