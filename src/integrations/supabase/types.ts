@@ -929,6 +929,128 @@ export type Database = {
           },
         ]
       }
+      photo_generations: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          custom_fields: Json | null
+          generated_images: string[] | null
+          generation_error: string | null
+          generation_status: string
+          id: string
+          payment_id: string | null
+          payment_method: string | null
+          payment_status: string
+          service_id: string | null
+          theme: string | null
+          updated_at: string
+          uploaded_photos: string[] | null
+          user_email: string | null
+          user_id: string | null
+          user_name: string | null
+          user_phone: string | null
+        }
+        Insert: {
+          amount_cents: number
+          created_at?: string
+          custom_fields?: Json | null
+          generated_images?: string[] | null
+          generation_error?: string | null
+          generation_status?: string
+          id?: string
+          payment_id?: string | null
+          payment_method?: string | null
+          payment_status?: string
+          service_id?: string | null
+          theme?: string | null
+          updated_at?: string
+          uploaded_photos?: string[] | null
+          user_email?: string | null
+          user_id?: string | null
+          user_name?: string | null
+          user_phone?: string | null
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          custom_fields?: Json | null
+          generated_images?: string[] | null
+          generation_error?: string | null
+          generation_status?: string
+          id?: string
+          payment_id?: string | null
+          payment_method?: string | null
+          payment_status?: string
+          service_id?: string | null
+          theme?: string | null
+          updated_at?: string
+          uploaded_photos?: string[] | null
+          user_email?: string | null
+          user_id?: string | null
+          user_name?: string | null
+          user_phone?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "photo_generations_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "photo_services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      photo_services: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          display_order: number | null
+          example_images: string[] | null
+          features: Json | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          price_cents: number
+          slug: string
+          themes: Json | null
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          example_images?: string[] | null
+          features?: Json | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          price_cents?: number
+          slug: string
+          themes?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          example_images?: string[] | null
+          features?: Json | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          price_cents?: number
+          slug?: string
+          themes?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       plan_configs: {
         Row: {
           created_at: string

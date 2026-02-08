@@ -8,60 +8,63 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* ARCANA Premium Purple Theme - Vivid & Futuristic */
-    --background: 270 35% 6%;
-    --foreground: 0 0% 96%;
-    --card: 270 30% 8%;
-    --card-foreground: 0 0% 96%;
-    --popover: 270 30% 8%;
-    --popover-foreground: 0 0% 96%;
+    /* ARCANA Cyberpunk Elegante Theme */
+    --background: 0 0% 4%; /* #0A0A0A - Preto Profundo */
+    --foreground: 0 0% 100%; /* Branco Puro */
+    --card: 0 0% 6%;
+    --card-foreground: 0 0% 100%;
+    --popover: 0 0% 6%;
+    --popover-foreground: 0 0% 100%;
 
-    /* Primary: Vivid Purple - Bold & Creative */
-    --primary: 270 90% 60%;
+    /* Primary: Roxo Neon - #8A2BE2 */
+    --primary: 271 76% 53%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 270 100% 65%;
+    --primary-glow: 271 85% 60%;
 
-    /* Secondary: Electric Violet - Futuristic */
-    --secondary: 280 85% 55%;
-    --secondary-foreground: 0 0% 100%;
-    --secondary-glow: 280 90% 60%;
+    /* Secondary: Ciano Elétrico - #00FFFF */
+    --secondary: 180 100% 50%;
+    --secondary-foreground: 0 0% 0%;
+    --secondary-glow: 180 100% 60%;
     
     /* Artist/Creator - Hot Pink */
     --artist: 330 90% 60%;
     --artist-foreground: 0 0% 100%;
 
-    /* Accent: Magenta - High Impact */
-    --accent: 295 80% 55%;
-    --accent-foreground: 0 0% 100%;
+    /* Accent: Magenta Neon */
+    --accent: 300 100% 60%;
+    --accent-foreground: 0 0% 0%;
     
-    /* Success: Neon Teal */
-    --success: 165 80% 45%;
-    --success-foreground: 0 0% 100%;
+    /* Success: Neon Green */
+    --success: 145 80% 50%;
+    --success-foreground: 0 0% 0%;
 
-    --muted: 270 20% 14%;
-    --muted-foreground: 270 15% 55%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 55%;
 
-    /* Destructive: Coral Red */
-    --destructive: 0 75% 55%;
+    /* Destructive: Neon Red */
+    --destructive: 0 85% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 270 20% 16%;
-    --input: 270 20% 12%;
-    --ring: 270 90% 60%;
+    --border: 0 0% 15%;
+    --input: 0 0% 10%;
+    --ring: 271 76% 53%;
 
     --radius: 0.75rem;
     
-    /* Bold Purple Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(270 90% 60%), hsl(295 80% 55%));
-    --gradient-secondary: linear-gradient(90deg, hsl(280 85% 55%), hsl(330 90% 60%));
-    --gradient-glow: radial-gradient(circle at center, hsl(270 90% 60% / 0.20), transparent);
-    --gradient-accent: linear-gradient(135deg, hsl(295 80% 55%), hsl(330 90% 60%));
+    /* Cyberpunk Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(271 76% 53%), hsl(300 100% 60%));
+    --gradient-secondary: linear-gradient(90deg, hsl(180 100% 50%), hsl(271 76% 53%));
+    --gradient-glow: radial-gradient(circle at center, hsl(271 76% 53% / 0.25), transparent);
+    --gradient-accent: linear-gradient(135deg, hsl(300 100% 60%), hsl(330 90% 60%));
+    --gradient-neon: linear-gradient(135deg, hsl(271 76% 53%), hsl(180 100% 50%));
     
-    /* Bold Purple Shadows */
-    --shadow-glow: 0 0 40px hsl(270 90% 60% / 0.25);
-    --shadow-glow-strong: 0 0 60px hsl(270 90% 60% / 0.35);
-    --shadow-neon: 0 0 20px hsl(295 80% 55% / 0.30);
-    --shadow-card: 0 4px 24px hsl(270 35% 2% / 0.7);
+    /* Neon Shadows */
+    --shadow-glow: 0 0 40px hsl(271 76% 53% / 0.30);
+    --shadow-glow-strong: 0 0 60px hsl(271 76% 53% / 0.45);
+    --shadow-neon: 0 0 20px hsl(180 100% 50% / 0.35);
+    --shadow-neon-purple: 0 0 30px hsl(271 76% 53% / 0.4);
+    --shadow-neon-cyan: 0 0 30px hsl(180 100% 50% / 0.4);
+    --shadow-card: 0 4px 24px hsl(0 0% 0% / 0.8);
     
     /* Premium Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
