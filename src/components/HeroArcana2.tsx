@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { GlassButton } from "@/components/ui/glass-button";
+import { Badge } from "@/components/ui/badge";
 import { Zap, Menu, ArrowRight } from "lucide-react";
 import heroLiquid from "@/assets/hero-liquid.jpg";
 import { useParallax } from "@/hooks/use-parallax";
@@ -127,9 +128,9 @@ export const HeroArcana2 = () => {
           transition={{ duration: 0.6, delay: 0.05 }}
           className="mb-6"
         >
-          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30 text-sm font-medium text-primary">
-            <span className="animate-pulse">🔥</span>
-            Os prompts mais hypados e baratos da internet
+          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary/20 to-secondary/20 border border-secondary/30 text-sm font-medium text-secondary shadow-[0_0_20px_hsl(var(--secondary)/0.15)]">
+            <span className="animate-pulse">⚡</span>
+            Seu universo visual. Crie, transforme, domine.
           </span>
         </motion.div>
 
@@ -140,11 +141,13 @@ export const HeroArcana2 = () => {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-6 md:mb-8 text-foreground leading-tight tracking-tight"
         >
-          Os prompts{" "}
-          <span className="bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
-            mais baratos
-          </span>{" "}
-          da internet
+          <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent drop-shadow-[0_0_30px_hsl(var(--secondary)/0.3)]">
+            ARCANA
+          </span>
+          : Seu Universo{" "}
+          <span className="bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
+            Visual
+          </span>
         </motion.h1>
 
         {/* Subheadline */}
@@ -154,9 +157,9 @@ export const HeroArcana2 = () => {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8 md:mb-10 font-light max-w-3xl mx-auto px-2"
         >
-          Conecte-se com os <span className="text-primary font-medium">creators mais hypados</span> do Brasil. 
-          Enquanto o marketplace de influenciadores está chegando, 
-          aproveite os <span className="text-secondary font-medium">prompts exclusivos por apenas R$21</span>.
+          O marketplace de IA onde sua imaginação encontra a realidade. 
+          De <span className="text-secondary font-medium">memórias eternas</span> a{" "}
+          <span className="text-primary font-medium">portfólios de elite</span>—sua imagem, nossa arte.
         </motion.p>
 
         {/* Social Proof */}
@@ -166,24 +169,24 @@ export const HeroArcana2 = () => {
           transition={{ duration: 0.6, delay: 0.25 }}
           className="flex flex-wrap items-center justify-center gap-3 md:gap-6 mb-8 md:mb-10"
         >
-          <div className="flex items-center gap-2 text-sm text-muted-foreground px-4 py-2.5 rounded-full bg-card/50 border border-primary/20 backdrop-blur-sm">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground px-4 py-2.5 rounded-full bg-card/50 border border-secondary/30 backdrop-blur-sm shadow-[0_0_15px_hsl(var(--secondary)/0.1)]">
             <span className="text-lg">🔥</span>
-            <span className="font-bold text-foreground">1B+</span>
-            <span>views</span>
+            <span className="font-bold text-foreground">+10.000</span>
+            <span>clientes satisfeitos</span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground px-4 py-2.5 rounded-full bg-card/50 border border-primary/20 backdrop-blur-sm">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground px-4 py-2.5 rounded-full bg-card/50 border border-primary/30 backdrop-blur-sm shadow-[0_0_15px_hsl(var(--primary)/0.1)]">
             <span className="text-lg">💎</span>
             <span className="font-bold text-foreground">R$21</span>
             <span>por prompt</span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground px-4 py-2.5 rounded-full bg-gradient-to-r from-primary/20 to-secondary/20 border border-primary/30 backdrop-blur-sm">
-            <span className="text-lg">👑</span>
-            <span className="font-medium text-foreground">Influencers</span>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-secondary/30 text-secondary font-bold animate-pulse">EM BREVE</span>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground px-4 py-2.5 rounded-full bg-gradient-to-r from-secondary/10 to-primary/10 border border-secondary/30 backdrop-blur-sm">
+            <span className="text-lg">📸</span>
+            <span className="font-medium text-foreground">Fotos IA</span>
+            <Badge className="text-[10px] px-1.5 py-0.5 bg-secondary/30 text-secondary border-0 animate-pulse">NOVO</Badge>
           </div>
         </motion.div>
 
-        {/* CTA Buttons - Futuristic Glass Style */}
+        {/* CTA Buttons - Cyberpunk Neon Style */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -195,21 +198,21 @@ export const HeroArcana2 = () => {
               <GlassButton 
                 variant="holographic"
                 size="xl"
-                className="touch-manipulation text-lg px-10 py-7 transition-all duration-500"
+                className="touch-manipulation text-lg px-10 py-7 transition-all duration-500 shadow-[0_0_30px_hsl(var(--primary)/0.3)]"
               >
                 <Zap className="w-5 h-5 mr-2" />
-                Ver prompts por R$21
+                Explorar Marketplace
                 <ArrowRight className="w-5 h-5 ml-2" />
               </GlassButton>
             </a>
-            <a href="#influencers">
+            <a href="#photo-services">
               <GlassButton 
                 variant="neon"
                 size="lg"
                 className="touch-manipulation transition-all duration-500"
               >
-                <span className="text-xs px-2 py-0.5 rounded-full bg-secondary/30 text-secondary font-bold mr-2">BREVE</span>
-                Influencers
+                <span className="text-xs px-2 py-0.5 rounded-full bg-secondary/30 text-secondary font-bold mr-2">NOVO</span>
+                Gerar Foto IA
               </GlassButton>
             </a>
           </div>

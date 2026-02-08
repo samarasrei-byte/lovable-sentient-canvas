@@ -67,6 +67,17 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        // Cyberpunk specific colors
+        neon: {
+          purple: "hsl(271 76% 53%)",
+          cyan: "hsl(180 100% 50%)",
+          pink: "hsl(330 90% 60%)",
+          green: "hsl(145 80% 50%)",
+        },
+      },
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        display: ['Rajdhani', 'Inter', 'system-ui', 'sans-serif'],
       },
       borderRadius: {
         lg: "var(--radius)",
