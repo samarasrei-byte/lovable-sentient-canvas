@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { GlassCard, GlassCardContent } from "@/components/ui/glass-card";
-import { Star, Lock, Bell, Users, Crown, TrendingUp, Heart } from "lucide-react";
+import { Star, Users, Crown, TrendingUp, Heart, Sparkles, Bot, Palette } from "lucide-react";
 import { motion } from "framer-motion";
 import { GlassButton } from "@/components/ui/glass-button";
 import { toast } from "sonner";
@@ -29,6 +29,7 @@ const influencers = [
     followers: "2.3M",
     engagement: "8.2%",
     verified: true,
+    type: "influencer" as const,
   },
   {
     id: 2,
@@ -38,6 +39,7 @@ const influencers = [
     followers: "1.5M",
     engagement: "6.8%",
     verified: true,
+    type: "influencer" as const,
   },
   {
     id: 3,
@@ -47,6 +49,7 @@ const influencers = [
     followers: "890K",
     engagement: "9.1%",
     verified: true,
+    type: "influencer" as const,
   },
   {
     id: 4,
@@ -56,6 +59,7 @@ const influencers = [
     followers: "1.2M",
     engagement: "7.5%",
     verified: true,
+    type: "influencer" as const,
   },
   {
     id: 5,
@@ -65,6 +69,7 @@ const influencers = [
     followers: "320K",
     engagement: "12.3%",
     verified: false,
+    type: "artist" as const,
   },
   {
     id: 6,
@@ -74,6 +79,7 @@ const influencers = [
     followers: "980K",
     engagement: "11.2%",
     verified: true,
+    type: "influencer" as const,
   },
   {
     id: 7,
@@ -83,6 +89,7 @@ const influencers = [
     followers: "450K",
     engagement: "14.5%",
     verified: true,
+    type: "artist" as const,
   },
   {
     id: 8,
@@ -92,6 +99,7 @@ const influencers = [
     followers: "780K",
     engagement: "5.8%",
     verified: true,
+    type: "influencer" as const,
   },
   {
     id: 9,
@@ -101,6 +109,7 @@ const influencers = [
     followers: "650K",
     engagement: "8.9%",
     verified: true,
+    type: "influencer" as const,
   },
   {
     id: 10,
@@ -110,6 +119,7 @@ const influencers = [
     followers: "1.1M",
     engagement: "7.2%",
     verified: true,
+    type: "influencer" as const,
   },
   {
     id: 11,
@@ -119,6 +129,7 @@ const influencers = [
     followers: "520K",
     engagement: "10.4%",
     verified: false,
+    type: "influencer" as const,
   },
   {
     id: 12,
@@ -128,26 +139,52 @@ const influencers = [
     followers: "380K",
     engagement: "15.1%",
     verified: true,
+    type: "influencer" as const,
+  },
+];
+
+const pillars = [
+  {
+    icon: Bot,
+    label: "Avatares IA",
+    description: "Influenciadores digitais sob medida",
+    color: "text-primary",
+  },
+  {
+    icon: Users,
+    label: "Influenciadores Reais",
+    description: "Vozes autênticas com comunidades",
+    color: "text-secondary",
+  },
+  {
+    icon: Palette,
+    label: "Artistas",
+    description: "Colaborações criativas premium",
+    color: "text-accent",
   },
 ];
 
 export const InfluencerMarketplaceComingSoon = () => {
-  const [notified, setNotified] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
-  const handleNotify = () => {
-    setNotified(true);
-    toast.success("Você será notificado quando o marketplace de influencers estiver disponível!");
+  const categories = ["all", ...new Set(influencers.map((i) => i.category))];
+
+  const filtered =
+    selectedCategory === "all"
+      ? influencers
+      : influencers.filter((i) => i.category === selectedCategory);
+
+  const handleContract = (name: string) => {
+    toast.success(`Solicitação enviada para ${name}! Entraremos em contato.`);
   };
 
   return (
     <section id="influencers" className="relative py-24 px-6 overflow-hidden">
-      {/* Background with gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-primary/[0.05] via-transparent to-primary/[0.05]" />
-      
-      {/* Glow Effects */}
+      {/* Background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-primary/[0.08] via-transparent to-secondary/[0.08]" />
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-primary/10 rounded-full blur-[150px]" />
-        <div className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] bg-secondary/10 rounded-full blur-[150px]" />
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/15 rounded-full blur-[180px]" />
+        <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-secondary/15 rounded-full blur-[180px]" />
       </div>
 
       <div className="max-w-7xl mx-auto relative z-10">
@@ -157,39 +194,84 @@ export const InfluencerMarketplaceComingSoon = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-12"
+          className="text-center mb-16"
         >
-          {/* Coming Soon Banner */}
-          <div className="inline-flex flex-wrap items-center justify-center gap-3 mb-8">
-            <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-primary/20 to-secondary/20 border border-primary/30">
-              <Crown className="w-5 h-5 text-primary" />
-              <span className="text-base font-semibold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">MARKETPLACE DE INFLUENCERS</span>
-            </div>
-            <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-primary/20 border border-primary/40 animate-pulse">
-              <Lock className="w-4 h-4 text-primary" />
-              <span className="text-sm font-bold text-primary">EM BREVE</span>
-            </div>
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-primary/20 to-secondary/20 border border-primary/30 mb-6">
+            <Crown className="w-5 h-5 text-primary" />
+            <span className="text-base font-semibold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              MARKETPLACE DE TALENTOS
+            </span>
+            <Sparkles className="w-4 h-4 text-secondary" />
           </div>
-          
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 tracking-tight">
-            Em breve —{" "}
+
+          <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-6 tracking-tight">
+            Três Universos,{" "}
             <span className="bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
-              Marketplace de Talentos
+              Infinitas Possibilidades
             </span>
           </h2>
-          <p className="text-muted-foreground text-lg max-w-3xl mx-auto font-light leading-relaxed">
-            Contrate <span className="text-primary font-medium">Avatares IA</span>,{" "}
+          <p className="text-muted-foreground text-lg md:text-xl max-w-3xl mx-auto font-light leading-relaxed">
+            Contrate{" "}
+            <span className="text-primary font-medium">Avatares IA</span>,{" "}
             <span className="text-secondary font-medium">Artistas</span> ou{" "}
-            <span className="text-primary font-medium">Influenciadores reais</span> para sua marca.
-            <span className="block mt-2 text-muted-foreground/80">
-              Campanhas exclusivas, parcerias autênticas e resultados extraordinários.
-            </span>
+            <span className="text-primary font-medium">
+              Influenciadores reais
+            </span>{" "}
+            para potencializar sua marca com campanhas exclusivas.
           </p>
         </motion.div>
 
-        {/* Influencer Grid - Locked - Now 12 influencers */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 opacity-70">
-          {influencers.map((influencer, index) => (
+        {/* Three Pillars */}
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.4 }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-14"
+        >
+          {pillars.map((pillar, i) => {
+            const Icon = pillar.icon;
+            return (
+              <GlassCard
+                key={i}
+                className="group p-6 text-center hover:scale-[1.02] transition-transform duration-300 cursor-pointer"
+              >
+                <GlassCardContent className="p-0 flex flex-col items-center gap-3">
+                  <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                    <Icon className={`w-7 h-7 ${pillar.color}`} />
+                  </div>
+                  <h3 className="text-lg font-semibold text-foreground">
+                    {pillar.label}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    {pillar.description}
+                  </p>
+                </GlassCardContent>
+              </GlassCard>
+            );
+          })}
+        </motion.div>
+
+        {/* Category Filter */}
+        <div className="flex flex-wrap items-center justify-center gap-2 mb-8">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setSelectedCategory(cat)}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
+                selectedCategory === cat
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted/50 text-muted-foreground hover:bg-muted"
+              }`}
+            >
+              {cat === "all" ? "Todos" : cat}
+            </button>
+          ))}
+        </div>
+
+        {/* Influencer Grid — UNLOCKED */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          {filtered.map((influencer, index) => (
             <motion.div
               key={influencer.id}
               initial={{ opacity: 0, y: 15 }}
@@ -197,35 +279,48 @@ export const InfluencerMarketplaceComingSoon = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.3, delay: index * 0.03 }}
             >
-              <GlassCard className="group overflow-hidden cursor-not-allowed relative">
-                {/* Locked Overlay */}
-                <div className="absolute inset-0 z-10 bg-black/50 backdrop-blur-[1px] flex items-center justify-center">
-                  <Lock className="w-6 h-6 text-white/50" />
-                </div>
-
+              <GlassCard className="group overflow-hidden cursor-pointer relative hover:scale-[1.03] transition-transform duration-300">
                 <div className="relative aspect-square overflow-hidden rounded-t-xl">
                   <img
                     src={influencer.image}
                     alt={influencer.name}
-                    className="w-full h-full object-cover grayscale-[50%]"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                  
-                  {/* Coming Soon Badge */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+
+                  {/* Type Badge */}
                   <div className="absolute top-2 left-2">
-                    <Badge className="bg-primary/90 text-primary-foreground text-[9px] px-1.5 py-0.5 font-medium border-0">
-                      EM BREVE
+                    <Badge
+                      className={`text-[9px] px-1.5 py-0.5 font-medium border-0 ${
+                        influencer.type === "artist"
+                          ? "bg-accent/90 text-accent-foreground"
+                          : "bg-primary/90 text-primary-foreground"
+                      }`}
+                    >
+                      {influencer.type === "artist"
+                        ? "ARTISTA"
+                        : "INFLUENCER"}
                     </Badge>
                   </div>
 
                   {/* Verified Badge */}
                   {influencer.verified && (
                     <div className="absolute top-2 right-2">
-                      <div className="w-4 h-4 rounded-full bg-primary flex items-center justify-center">
-                        <Star className="w-2.5 h-2.5 text-primary-foreground fill-current" />
+                      <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                        <Star className="w-3 h-3 text-primary-foreground fill-current" />
                       </div>
                     </div>
                   )}
+
+                  {/* Hover CTA */}
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                    <button
+                      onClick={() => handleContract(influencer.name)}
+                      className="px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors"
+                    >
+                      Contratar
+                    </button>
+                  </div>
                 </div>
 
                 <GlassCardContent className="p-2.5">
@@ -251,17 +346,17 @@ export const InfluencerMarketplaceComingSoon = () => {
           ))}
         </div>
 
-        {/* Stats Preview */}
+        {/* Stats */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.4, delay: 0.2 }}
-          className="flex flex-wrap items-center justify-center gap-8 md:gap-12 mt-12 mb-10"
+          className="flex flex-wrap items-center justify-center gap-8 md:gap-12 mt-14 mb-10"
         >
           <div className="text-center">
             <p className="text-3xl md:text-4xl font-bold text-primary">500+</p>
-            <p className="text-sm text-muted-foreground">Influencers verificados</p>
+            <p className="text-sm text-muted-foreground">Talentos verificados</p>
           </div>
           <div className="text-center">
             <p className="text-3xl md:text-4xl font-bold text-secondary">50M+</p>
@@ -277,7 +372,7 @@ export const InfluencerMarketplaceComingSoon = () => {
           </div>
         </motion.div>
 
-        {/* Notify CTA */}
+        {/* CTA */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -285,27 +380,12 @@ export const InfluencerMarketplaceComingSoon = () => {
           transition={{ duration: 0.4, delay: 0.3 }}
           className="text-center"
         >
-          <GlassButton
-            onClick={handleNotify}
-            disabled={notified}
-            variant="glow"
-            size="lg"
-            className="px-8"
-          >
-            {notified ? (
-              <>
-                <Heart className="w-5 h-5 mr-2 text-primary fill-current" />
-                Você será notificado!
-              </>
-            ) : (
-              <>
-                <Bell className="w-5 h-5 mr-2" />
-                Quero ser notificado quando lançar
-              </>
-            )}
+          <GlassButton variant="glow" size="lg" className="px-8">
+            <Heart className="w-5 h-5 mr-2" />
+            Explorar todos os talentos
           </GlassButton>
           <p className="text-sm text-muted-foreground mt-3">
-            Seja o primeiro a saber quando o marketplace de influencers estiver disponível
+            Avatares IA • Influenciadores Reais • Artistas — tudo em um só lugar
           </p>
         </motion.div>
       </div>

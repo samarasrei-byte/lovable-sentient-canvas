@@ -25,6 +25,9 @@ const Index = () => {
       {/* Social Proof Stats */}
       <SocialProofBanner />
       
+      {/* Marketplace de Talentos — Destaque Principal */}
+      <InfluencerMarketplaceComingSoon />
+      
       {/* Prompt Marketplace - Galeria de Elite */}
       <PromptMarketplace />
       
@@ -36,9 +39,6 @@ const Index = () => {
       
       {/* Testimonials */}
       <TestimonialsSection />
-      
-      {/* Influencer Marketplace - Coming Soon */}
-      <InfluencerMarketplaceComingSoon />
       
       {/* How It Works */}
       <HowItWorksNew />
