@@ -7,6 +7,7 @@ import { InfluencerMarketplaceComingSoon } from "@/components/InfluencerMarketpl
 import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
 import { HowItWorksNew } from "@/components/HowItWorksNew";
 import { FAQSection } from "@/components/FAQSection";
+import { PlansSection } from "@/components/PlansSection";
 import { FinalCTA } from "@/components/landing/FinalCTA";
 import { Footer } from "@/components/Footer";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
@@ -39,6 +40,9 @@ const Index = () => {
       
       {/* Testimonials */}
       <TestimonialsSection />
+      
+      {/* Planos */}
+      <PlansSection />
       
       {/* How It Works */}
       <HowItWorksNew />
