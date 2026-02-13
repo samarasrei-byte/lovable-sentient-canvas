@@ -13,9 +13,8 @@ const plans = [
       "Criar imagens de produtos",
       "Criar fotos profissionais",
       "Usar templates prontos",
-      "Criar com influenciadores",
-      "Criar com avatares e artistas",
       "120 créditos/mês",
+      "Suporte por email",
     ],
     popular: false,
   },
@@ -32,6 +31,39 @@ const plans = [
       "Templates exclusivos",
     ],
     popular: true,
+  },
+  {
+    name: "Business",
+    price: "1.200",
+    description: "Para marcas e agências",
+    features: [
+      "Tudo do Pro",
+      "Geração ilimitada de imagens IA",
+      "Avatares IA personalizados",
+      "Campanhas com influenciadores reais",
+      "2.000 créditos/mês",
+      "Consultoria estratégica mensal",
+      "API de integração",
+      "Gerente de conta dedicado",
+    ],
+    popular: false,
+  },
+  {
+    name: "Enterprise",
+    price: "2.000",
+    description: "Solução completa white-label",
+    features: [
+      "Tudo do Business",
+      "Créditos ilimitados",
+      "White-label completo",
+      "Avatares e artistas exclusivos",
+      "IA treinada com sua marca",
+      "Live Shop integrado",
+      "SLA 99.9% garantido",
+      "Suporte 24/7 dedicado",
+      "Onboarding personalizado",
+    ],
+    popular: false,
   },
 ];
 
@@ -61,7 +93,7 @@ export const PlansSection = () => {
         </motion.div>
 
         {/* Plans Grid */}
-        <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 max-w-6xl mx-auto">
           {plans.map((plan, index) => (
             <motion.div
               key={plan.name}
