@@ -9,45 +9,45 @@ All colors MUST be HSL.
 @layer base {
   :root {
     /* ARCANA Cyberpunk Elegante Theme */
-    --background: 0 0% 4%; /* #0A0A0A - Preto Profundo */
-    --foreground: 0 0% 100%; /* Branco Puro */
-    --card: 0 0% 6%;
-    --card-foreground: 0 0% 100%;
-    --popover: 0 0% 6%;
-    --popover-foreground: 0 0% 100%;
+    --background: 240 6% 10%; /* #18181B - Cinza escuro elegante */
+    --foreground: 0 0% 96%;
+    --card: 240 5% 13%;
+    --card-foreground: 0 0% 96%;
+    --popover: 240 5% 13%;
+    --popover-foreground: 0 0% 96%;
 
-    /* Primary: Roxo Neon - #8A2BE2 */
-    --primary: 271 76% 53%;
+    /* Primary: Roxo refinado */
+    --primary: 271 65% 56%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 271 85% 60%;
+    --primary-glow: 271 70% 62%;
 
-    /* Secondary: Ciano Elétrico - #00FFFF */
-    --secondary: 180 100% 50%;
+    /* Secondary: Ciano suave */
+    --secondary: 185 60% 50%;
     --secondary-foreground: 0 0% 0%;
-    --secondary-glow: 180 100% 60%;
+    --secondary-glow: 185 65% 58%;
     
-    /* Artist/Creator - Hot Pink */
-    --artist: 330 90% 60%;
+    /* Artist/Creator */
+    --artist: 330 60% 58%;
     --artist-foreground: 0 0% 100%;
 
-    /* Accent: Magenta Neon */
-    --accent: 300 100% 60%;
-    --accent-foreground: 0 0% 0%;
+    /* Accent: Roxo claro */
+    --accent: 280 50% 58%;
+    --accent-foreground: 0 0% 100%;
     
-    /* Success: Neon Green */
-    --success: 145 80% 50%;
+    /* Success */
+    --success: 152 55% 48%;
     --success-foreground: 0 0% 0%;
 
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 55%;
+    --muted: 240 4% 16%;
+    --muted-foreground: 240 4% 55%;
 
-    /* Destructive: Neon Red */
-    --destructive: 0 85% 55%;
+    /* Destructive */
+    --destructive: 0 65% 52%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 15%;
-    --input: 0 0% 10%;
-    --ring: 271 76% 53%;
+    --border: 240 4% 20%;
+    --input: 240 5% 14%;
+    --ring: 271 65% 56%;
 
     --radius: 0.75rem;
     
