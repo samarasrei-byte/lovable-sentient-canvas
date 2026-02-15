@@ -148,8 +148,7 @@ export const HeroArcana2 = () => {
           e{" "}
           <span className="bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
             fotos com IA
-          </span>{" "}
-          por R$21
+          </span>
         </motion.h1>
 
         {/* Subheadline */}
