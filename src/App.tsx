@@ -35,6 +35,9 @@ import AdminSupport from "./pages/admin/Support";
 import AdminLogs from "./pages/admin/Logs";
 import AdminSettings from "./pages/admin/Settings";
 import PromptsManager from "./pages/admin/PromptsManager";
+import AdminUsers from "./pages/admin/Users";
+import MarketplaceManager from "./pages/admin/MarketplaceManager";
+import FinancialDashboard from "./pages/admin/FinancialDashboard";
 import Chat from "./pages/app/Chat";
 import WhiteLabelDashboard from "./pages/app/WhiteLabelDashboard";
 import Analytics from "./pages/app/Analytics";
@@ -66,11 +69,14 @@ const App = () => (
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
+            <Route path="users" element={<AdminUsers />} />
             <Route path="prompts" element={<PromptsManager />} />
+            <Route path="marketplace" element={<MarketplaceManager />} />
             <Route path="influencers" element={<AdminInfluencers />} />
             <Route path="brands" element={<AdminBrands />} />
             <Route path="campaigns" element={<AdminCampaigns />} />
             <Route path="financial" element={<AdminFinancial />} />
+            <Route path="financial-dashboard" element={<FinancialDashboard />} />
             <Route path="whitelabel" element={<AdminWhiteLabel />} />
             <Route path="support" element={<AdminSupport />} />
             <Route path="logs" element={<AdminLogs />} />
