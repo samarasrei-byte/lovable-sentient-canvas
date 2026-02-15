@@ -651,57 +651,162 @@ export type Database = {
       }
       influencers: {
         Row: {
+          audience_age_range: string | null
+          audience_female_pct: number | null
+          audience_male_pct: number | null
+          avatar_url: string | null
+          avg_comments: number | null
+          avg_likes: number | null
+          avg_response_time_hours: number | null
+          avg_shares: number | null
+          avg_views: number | null
           ban_reason: string | null
           banned_at: string | null
           bio: string | null
           category: string
+          city: string | null
+          completion_rate: number | null
+          content_type: string | null
+          country: string | null
+          cpe: number | null
+          cpm: number | null
           created_at: string
           engagement_rate: number
           followers_count: number
           id: string
           instagram_handle: string | null
+          is_available: boolean | null
           is_banned: boolean
+          is_verified: boolean | null
+          languages: string[] | null
+          location: string | null
+          media_kit_url: string | null
+          monthly_reach: number | null
+          niche: string | null
+          notes: string | null
+          platforms: string[] | null
+          price_per_live: number | null
           price_per_post: number
+          price_per_reel: number | null
+          price_per_story: number | null
+          price_per_video: number | null
+          rating: number | null
+          secondary_niche: string | null
           stage_name: string
+          state: string | null
+          tier: string | null
           tiktok_handle: string | null
+          total_campaigns: number | null
           updated_at: string
           user_id: string
+          views_count: number | null
+          website_url: string | null
           youtube_handle: string | null
         }
         Insert: {
+          audience_age_range?: string | null
+          audience_female_pct?: number | null
+          audience_male_pct?: number | null
+          avatar_url?: string | null
+          avg_comments?: number | null
+          avg_likes?: number | null
+          avg_response_time_hours?: number | null
+          avg_shares?: number | null
+          avg_views?: number | null
           ban_reason?: string | null
           banned_at?: string | null
           bio?: string | null
           category: string
+          city?: string | null
+          completion_rate?: number | null
+          content_type?: string | null
+          country?: string | null
+          cpe?: number | null
+          cpm?: number | null
           created_at?: string
           engagement_rate?: number
           followers_count?: number
           id?: string
           instagram_handle?: string | null
+          is_available?: boolean | null
           is_banned?: boolean
+          is_verified?: boolean | null
+          languages?: string[] | null
+          location?: string | null
+          media_kit_url?: string | null
+          monthly_reach?: number | null
+          niche?: string | null
+          notes?: string | null
+          platforms?: string[] | null
+          price_per_live?: number | null
           price_per_post: number
+          price_per_reel?: number | null
+          price_per_story?: number | null
+          price_per_video?: number | null
+          rating?: number | null
+          secondary_niche?: string | null
           stage_name: string
+          state?: string | null
+          tier?: string | null
           tiktok_handle?: string | null
+          total_campaigns?: number | null
           updated_at?: string
           user_id: string
+          views_count?: number | null
+          website_url?: string | null
           youtube_handle?: string | null
         }
         Update: {
+          audience_age_range?: string | null
+          audience_female_pct?: number | null
+          audience_male_pct?: number | null
+          avatar_url?: string | null
+          avg_comments?: number | null
+          avg_likes?: number | null
+          avg_response_time_hours?: number | null
+          avg_shares?: number | null
+          avg_views?: number | null
           ban_reason?: string | null
           banned_at?: string | null
           bio?: string | null
           category?: string
+          city?: string | null
+          completion_rate?: number | null
+          content_type?: string | null
+          country?: string | null
+          cpe?: number | null
+          cpm?: number | null
           created_at?: string
           engagement_rate?: number
           followers_count?: number
           id?: string
           instagram_handle?: string | null
+          is_available?: boolean | null
           is_banned?: boolean
+          is_verified?: boolean | null
+          languages?: string[] | null
+          location?: string | null
+          media_kit_url?: string | null
+          monthly_reach?: number | null
+          niche?: string | null
+          notes?: string | null
+          platforms?: string[] | null
+          price_per_live?: number | null
           price_per_post?: number
+          price_per_reel?: number | null
+          price_per_story?: number | null
+          price_per_video?: number | null
+          rating?: number | null
+          secondary_niche?: string | null
           stage_name?: string
+          state?: string | null
+          tier?: string | null
           tiktok_handle?: string | null
+          total_campaigns?: number | null
           updated_at?: string
           user_id?: string
+          views_count?: number | null
+          website_url?: string | null
           youtube_handle?: string | null
         }
         Relationships: []
