@@ -17,8 +17,8 @@ const AdminFinancial = () => {
       type: "payment",
       brand: "TechBrand",
       influencer: "Rafael Costa",
-      amount: 5000,
-      arcanaFee: 500,
+      amount: 800,
+      arcanaFee: 80,
       status: "completed",
       date: "2024-01-28"
     },
@@ -26,8 +26,8 @@ const AdminFinancial = () => {
       id: 2,
       type: "withdrawal",
       influencer: "Camila Rodrigues",
-      amount: 3500,
-      fee: 175,
+      amount: 450,
+      fee: 22,
       status: "pending",
       date: "2024-01-29"
     },
@@ -36,8 +36,8 @@ const AdminFinancial = () => {
       type: "payment",
       brand: "FashionCo",
       influencer: "Lucas Silva",
-      amount: 8000,
-      arcanaFee: 800,
+      amount: 1200,
+      arcanaFee: 120,
       status: "completed",
       date: "2024-01-27"
     }
@@ -72,10 +72,10 @@ const AdminFinancial = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Faturamento Total</p>
-              <p className="text-3xl font-bold">R$ 125K</p>
+              <p className="text-3xl font-bold">R$ 4.2K</p>
               <p className="text-xs text-success flex items-center gap-1 mt-1">
                 <TrendingUp className="w-3 h-3" />
-                +18% vs mês anterior
+                +8% vs mês anterior
               </p>
             </div>
             <DollarSign className="h-8 w-8 text-primary" />
@@ -86,7 +86,7 @@ const AdminFinancial = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Taxas Arcana (10%)</p>
-              <p className="text-3xl font-bold text-success">R$ 12.5K</p>
+              <p className="text-3xl font-bold text-success">R$ 420</p>
               <p className="text-xs text-muted-foreground mt-1">
                 Este mês
               </p>
@@ -99,9 +99,9 @@ const AdminFinancial = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Saques Pendentes</p>
-              <p className="text-3xl font-bold text-accent">R$ 8.2K</p>
+              <p className="text-3xl font-bold text-accent">R$ 850</p>
               <p className="text-xs text-muted-foreground mt-1">
-                4 solicitações
+                2 solicitações
               </p>
             </div>
             <Clock className="h-8 w-8 text-accent" />
@@ -112,9 +112,9 @@ const AdminFinancial = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Processadas Hoje</p>
-              <p className="text-3xl font-bold text-primary">R$ 15.8K</p>
+              <p className="text-3xl font-bold text-primary">R$ 1.2K</p>
               <p className="text-xs text-muted-foreground mt-1">
-                12 transações
+                3 transações
               </p>
             </div>
             <CheckCircle className="h-8 w-8 text-primary" />
@@ -126,11 +126,11 @@ const AdminFinancial = () => {
       <Card className="p-6">
         <h2 className="text-xl font-bold mb-6">Receita nos Últimos 6 Meses</h2>
         <div className="h-64 flex items-end justify-between gap-4">
-          {[45, 62, 58, 78, 95, 125].map((value, idx) => (
+          {[0.8, 1.2, 1.5, 2.1, 3.0, 4.2].map((value, idx) => (
             <div key={idx} className="flex-1 flex flex-col items-center gap-2">
               <div 
                 className="w-full bg-gradient-to-t from-primary to-secondary rounded-t-lg transition-all hover:opacity-80"
-                style={{ height: `${(value / 125) * 100}%` }}
+                style={{ height: `${(value / 4.2) * 100}%` }}
               />
               <span className="text-xs text-muted-foreground">
                 {['Ago', 'Set', 'Out', 'Nov', 'Dez', 'Jan'][idx]}

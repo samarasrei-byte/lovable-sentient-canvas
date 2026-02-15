@@ -22,12 +22,12 @@ const AdminCampaigns = () => {
       id: 1,
       name: "Lançamento Produto X - TechBrand",
       brand: "TechBrand",
-      influencers: 12,
-      budget: 25000,
-      spent: 18500,
+      influencers: 3,
+      budget: 2000,
+      spent: 1400,
       status: "active",
-      reach: 2500000,
-      engagement: 125000,
+      reach: 18000,
+      engagement: 1200,
       startDate: "2024-01-15",
       endDate: "2024-02-15"
     },
@@ -35,12 +35,12 @@ const AdminCampaigns = () => {
       id: 2,
       name: "Campanha Verão - FashionCo",
       brand: "FashionCo",
-      influencers: 25,
-      budget: 50000,
-      spent: 32000,
+      influencers: 5,
+      budget: 3500,
+      spent: 2100,
       status: "active",
-      reach: 4200000,
-      engagement: 280000,
+      reach: 32000,
+      engagement: 2800,
       startDate: "2024-01-20",
       endDate: "2024-03-31"
     },
@@ -48,12 +48,12 @@ const AdminCampaigns = () => {
       id: 3,
       name: "Black Friday - RetailPro",
       brand: "RetailPro",
-      influencers: 18,
-      budget: 35000,
-      spent: 35000,
+      influencers: 2,
+      budget: 1500,
+      spent: 1500,
       status: "completed",
-      reach: 3800000,
-      engagement: 310000,
+      reach: 12000,
+      engagement: 950,
       startDate: "2023-11-01",
       endDate: "2023-11-30"
     }
@@ -122,7 +122,7 @@ const AdminCampaigns = () => {
             <div>
               <p className="text-sm text-muted-foreground">Budget Total</p>
               <p className="text-3xl font-bold text-primary">
-                R$ {(campaigns.reduce((sum, c) => sum + c.budget, 0) / 1000).toFixed(0)}K
+                R$ {(campaigns.reduce((sum, c) => sum + c.budget, 0)).toLocaleString()}
               </p>
             </div>
             <TrendingUp className="h-8 w-8 text-primary" />
@@ -133,7 +133,7 @@ const AdminCampaigns = () => {
             <div>
               <p className="text-sm text-muted-foreground">Alcance Total</p>
               <p className="text-3xl font-bold text-accent">
-                {(campaigns.reduce((sum, c) => sum + c.reach, 0) / 1000000).toFixed(1)}M
+                {(campaigns.reduce((sum, c) => sum + c.reach, 0) / 1000).toFixed(1)}K
               </p>
             </div>
             <Eye className="h-8 w-8 text-accent" />
@@ -172,7 +172,7 @@ const AdminCampaigns = () => {
                   <div className="flex items-center justify-between text-sm mb-2">
                     <span className="text-muted-foreground">Budget Utilizado</span>
                     <span className="font-semibold">
-                      R$ {(campaign.spent / 1000).toFixed(1)}K / R$ {(campaign.budget / 1000).toFixed(0)}K
+                      R$ {campaign.spent.toLocaleString()} / R$ {campaign.budget.toLocaleString()}
                     </span>
                   </div>
                   <div className="w-full bg-muted rounded-full h-2">
@@ -187,11 +187,11 @@ const AdminCampaigns = () => {
                 <div className="grid grid-cols-4 gap-4 pt-4 border-t border-border/30">
                   <div>
                     <p className="text-xs text-muted-foreground mb-1">Alcance</p>
-                    <p className="text-lg font-bold">{(campaign.reach / 1000000).toFixed(1)}M</p>
+                    <p className="text-lg font-bold">{(campaign.reach / 1000).toFixed(1)}K</p>
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground mb-1">Engajamento</p>
-                    <p className="text-lg font-bold">{(campaign.engagement / 1000).toFixed(0)}K</p>
+                    <p className="text-lg font-bold">{campaign.engagement.toLocaleString()}</p>
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground mb-1">Taxa Eng.</p>
@@ -200,7 +200,7 @@ const AdminCampaigns = () => {
                   <div>
                     <p className="text-xs text-muted-foreground mb-1">ROI</p>
                     <p className="text-lg font-bold text-success">
-                      {(Math.random() * 300 + 150).toFixed(0)}%
+                      {((campaign.engagement / campaign.spent) * 100).toFixed(0)}%
                     </p>
                   </div>
                 </div>
