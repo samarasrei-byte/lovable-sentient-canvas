@@ -141,14 +141,15 @@ export const HeroArcana2 = () => {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-6 md:mb-8 text-foreground leading-tight tracking-tight"
         >
-          Transforme sua imagem em{" "}
+          O marketplace de{" "}
           <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent drop-shadow-[0_0_30px_hsl(var(--secondary)/0.3)]">
-            obra de arte
+            influenciadores
           </span>{" "}
-          com IA por{" "}
+          e{" "}
           <span className="bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
-            R$21
-          </span>
+            fotos com IA
+          </span>{" "}
+          por R$21
         </motion.h1>
 
         {/* Subheadline */}
@@ -158,9 +159,9 @@ export const HeroArcana2 = () => {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8 md:mb-10 font-light max-w-3xl mx-auto px-2"
         >
-          Escolha um prompt, envie sua foto e receba imagens profissionais geradas por IA em minutos. 
-          <span className="text-secondary font-medium">Sem mensalidade</span>, sem enrolação — 
-          <span className="text-primary font-medium">pague só quando usar</span>.
+          Contrate influenciadores, avatares IA e artistas — ou transforme suas fotos em 
+          <span className="text-secondary font-medium">imagens profissionais com IA</span> em minutos. 
+          <span className="text-primary font-medium">Tudo em um só lugar</span>, sem mensalidade.
         </motion.p>
 
         {/* Social Proof */}
