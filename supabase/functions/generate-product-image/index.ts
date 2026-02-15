@@ -40,32 +40,45 @@ serve(async (req) => {
     const contentParts: any[] = [];
 
     // Main prompt - CRITICAL: Emphasize using ONLY user's product/logo, NO external brand elements
-    const basePrompt = customPrompt || `FOTOGRAFIA COMERCIAL ULTRA PROFISSIONAL para "${productName}":
+    const basePrompt = customPrompt || `FOTOGRAFIA PUBLICITÁRIA ULTRA-REALISTA E CINEMATOGRÁFICA para "${productName}":
 
-REGRAS CRÍTICAS E OBRIGATÓRIAS:
-- NÃO INCLUIR NENHUM LOGO DE MARCAS FAMOSAS (sem Domino's, Coca-Cola, Nike, McDonald's, Pepsi, etc.)
-- USAR EXCLUSIVAMENTE o produto/logo fornecido pelo usuário nas imagens anexadas
-- O produto "${productName}" deve ser o ÚNICO produto visível na imagem
-- Qualquer texto ou logo na imagem deve ser APENAS do produto "${productName}"
+PRESERVAÇÃO DE IDENTIDADE (REGRA ABSOLUTA):
+- Use a imagem da pessoa enviada como referência absoluta
+- Preservar 100% da identidade facial: traços, proporções, textura de pele, imperfeições naturais
+- NÃO alterar o rosto da pessoa de forma alguma
+- Textura de pele real com poros visíveis
+
+INTERAÇÃO COM O PRODUTO (OBRIGATÓRIO):
+- O produto "${productName}" DEVE estar sendo usado fisicamente pela pessoa (segurando, tocando, aplicando ou interagindo de forma real)
+- NUNCA gerar produto flutuando ou separado da pessoa
+- Mãos e contato com o produto devem estar claramente visíveis com sombras naturais
+- Produto posicionado na altura do peito/cintura, claramente visível e em foco
+- O rótulo/logo do produto "${productName}" deve estar voltado para a câmera
+
+FIGURINO INTENCIONAL:
+- A roupa da pessoa deve combinar com o produto e a cena em cor, estilo e narrativa
+- NUNCA usar figurino genérico ou aleatório
+- Tecido com detalhes reais e textura visível
 
 CENÁRIO E AMBIENTE:
 ${styleContext}
+- Ambiente coerente com o estilo do produto e da pessoa
+- Tudo deve parecer inevitável e bem integrado: pessoa, roupa, produto e cenário
 
-COMPOSIÇÃO DA IMAGEM:
-- Modelo/influencer digital segurando o produto "${productName}" de forma natural e destacada
-- Produto posicionado na altura do peito, claramente visível e em foco
-- O rótulo/logo do produto "${productName}" deve estar voltado para a câmera
-- Produto ocupa 25-30% do enquadramento
+ILUMINAÇÃO E QUALIDADE:
+- Iluminação de alto contraste, limpa e profissional
+- Sombras naturais no corpo, roupa e produto
+- Estilo visual: fotografia publicitária cinematográfica, ultra-realista, premium
+- Qualidade extrema, aparência de foto real
+- SEM CGI, SEM ilustração, SEM exageros artificiais
+- Textura de pele real, poros visíveis, tecido com detalhes reais
 
-ESTILO VISUAL:
-- Iluminação comercial profissional com destaque no produto
-- Qualidade editorial ultra-realista 4K
-- Cores vibrantes e contraste profissional
-- Composição harmoniosa entre modelo e produto
+REGRAS DE MARCA:
+- NÃO incluir logos de marcas famosas (sem Domino's, Coca-Cola, Nike, McDonald's, Pepsi, etc.)
+- Usar EXCLUSIVAMENTE o produto/logo fornecido pelo usuário
+- Se uma imagem de logo foi fornecida, incorporar de forma visível no produto
 
-IMPORTANTE: Se uma imagem de logo foi fornecida, incorpore esse logo de forma visível no produto ou no cenário. NÃO use nenhum outro logo ou marca.
-
-Crie uma foto publicitária premium que destaque APENAS o produto "${productName}".`;
+Crie uma foto publicitária premium cinematográfica que destaque "${productName}" com integração perfeita entre pessoa, roupa, produto e cenário.`;
 
     contentParts.push({
       type: "text",
