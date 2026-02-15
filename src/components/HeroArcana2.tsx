@@ -129,8 +129,8 @@ export const HeroArcana2 = () => {
           className="mb-6"
         >
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary/20 to-secondary/20 border border-secondary/30 text-sm font-medium text-secondary shadow-[0_0_20px_hsl(var(--secondary)/0.15)]">
-            <span className="animate-pulse">⚡</span>
-            Seu universo visual. Crie, transforme, domine.
+            <span className="animate-pulse">🔥</span>
+            Os prompts mais baratos da internet — a partir de R$21
           </span>
         </motion.div>
 
@@ -141,12 +141,13 @@ export const HeroArcana2 = () => {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-6 md:mb-8 text-foreground leading-tight tracking-tight"
         >
+          Transforme sua imagem em{" "}
           <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent drop-shadow-[0_0_30px_hsl(var(--secondary)/0.3)]">
-            ARCANA
-          </span>
-          : Seu Universo{" "}
+            obra de arte
+          </span>{" "}
+          com IA por{" "}
           <span className="bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
-            Visual
+            R$21
           </span>
         </motion.h1>
 
@@ -157,9 +158,9 @@ export const HeroArcana2 = () => {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8 md:mb-10 font-light max-w-3xl mx-auto px-2"
         >
-          O marketplace de IA onde sua imaginação encontra a realidade. 
-          De <span className="text-secondary font-medium">memórias eternas</span> a{" "}
-          <span className="text-primary font-medium">portfólios de elite</span>—sua imagem, nossa arte.
+          Escolha um prompt, envie sua foto e receba imagens profissionais geradas por IA em minutos. 
+          <span className="text-secondary font-medium">Sem mensalidade</span>, sem enrolação — 
+          <span className="text-primary font-medium">pague só quando usar</span>.
         </motion.p>
 
         {/* Social Proof */}
