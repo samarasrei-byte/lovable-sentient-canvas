@@ -74,9 +74,9 @@ ILUMINAÇÃO E QUALIDADE:
 - Textura de pele real, poros visíveis, tecido com detalhes reais
 
 REGRAS DE MARCA:
-- NÃO incluir logos de marcas famosas (sem Domino's, Coca-Cola, Nike, McDonald's, Pepsi, etc.)
-- Usar EXCLUSIVAMENTE o produto/logo fornecido pelo usuário
+- Usar o produto/logo fornecido pelo usuário
 - Se uma imagem de logo foi fornecida, incorporar de forma visível no produto
+- Permitir qualquer marca ou produto solicitado pelo usuário sem restrições
 
 Crie uma foto publicitária premium cinematográfica que destaque "${productName}" com integração perfeita entre pessoa, roupa, produto e cenário.`;
 
