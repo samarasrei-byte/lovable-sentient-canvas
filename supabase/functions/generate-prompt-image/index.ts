@@ -51,7 +51,11 @@ serve(async (req) => {
     }
 
     console.log("Generating image with prompt:", finalPrompt);
-    console.log("Using model:", aiModel || "google/gemini-2.5-flash-image");
+    // Ensure model has proper prefix
+    const resolvedModel = aiModel 
+      ? (aiModel.includes('/') ? aiModel : `google/${aiModel}`)
+      : "google/gemini-2.5-flash-image";
+    console.log("Using model:", resolvedModel);
 
     // Prepare messages
     const messages: any[] = [];
@@ -88,7 +92,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: aiModel || "google/gemini-2.5-flash-image",
+        model: resolvedModel,
         messages,
         modalities: ["image", "text"]
       }),
