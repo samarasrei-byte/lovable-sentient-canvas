@@ -12,7 +12,10 @@ import {
   ChevronRight,
   Palette,
   LifeBuoy,
-  Sparkles
+  Sparkles,
+  Store,
+  BarChart3,
+  UserCog
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { Button } from "@/components/ui/button";
@@ -21,11 +24,14 @@ import { Separator } from "@/components/ui/separator";
 
 const adminMenuItems = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard, end: true },
+  { title: "Usuários", url: "/admin/users", icon: UserCog },
   { title: "Prompts", url: "/admin/prompts", icon: Sparkles },
+  { title: "Marketplace", url: "/admin/marketplace", icon: Store },
   { title: "Influenciadores", url: "/admin/influencers", icon: Users },
   { title: "Marcas", url: "/admin/brands", icon: Building2 },
   { title: "Campanhas", url: "/admin/campaigns", icon: Megaphone },
   { title: "Financeiro", url: "/admin/financial", icon: DollarSign },
+  { title: "Dashboard Financeiro", url: "/admin/financial-dashboard", icon: BarChart3 },
 ];
 
 const systemMenuItems = [

@@ -58,8 +58,8 @@ export const AdminLayout = () => {
         {/* Header */}
         <header className="h-16 border-b border-border bg-card/50 backdrop-blur-sm flex items-center justify-between px-6">
           <div>
-            <h2 className="text-xl font-bold text-foreground">Arcana Oracle</h2>
-            <p className="text-xs text-muted-foreground">Super Vision Master</p>
+            <h2 className="text-xl font-bold text-foreground">Arcana Super Admin</h2>
+            <p className="text-xs text-muted-foreground">Controle Total da Plataforma</p>
           </div>
           
           <Button variant="ghost" size="sm" onClick={handleLogout}>
