@@ -77,19 +77,12 @@ export const PromptMarketplace = () => {
       result = result.filter(p => p.category === selectedCategory);
     }
     
-    // Sort
-    switch (sortBy) {
-      case 'recent':
-        // Already sorted by created_at from DB
-        break;
-      case 'popular':
-        // For now, keep same order (would need popularity metric)
-        break;
-      case 'trending':
-        // Mix it up a bit for variety
-        result = result.sort(() => Math.random() - 0.5);
-        break;
-    }
+    // Always prioritize prompts with images first
+    result.sort((a, b) => {
+      const aHasImage = a.example_image_url ? 1 : 0;
+      const bHasImage = b.example_image_url ? 1 : 0;
+      return bHasImage - aHasImage;
+    });
     
     return result;
   }, [prompts, selectedCategory, sortBy]);
