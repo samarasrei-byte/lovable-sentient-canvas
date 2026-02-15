@@ -706,6 +706,154 @@ export type Database = {
         }
         Relationships: []
       }
+      live_chat_messages: {
+        Row: {
+          created_at: string
+          id: string
+          is_bot: boolean
+          is_pinned: boolean
+          message: string
+          session_id: string
+          user_id: string | null
+          user_name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_bot?: boolean
+          is_pinned?: boolean
+          message: string
+          session_id: string
+          user_id?: string | null
+          user_name?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_bot?: boolean
+          is_pinned?: boolean
+          message?: string
+          session_id?: string
+          user_id?: string | null
+          user_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_chat_messages_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "live_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      live_products: {
+        Row: {
+          created_at: string
+          display_order: number
+          id: string
+          image_url: string | null
+          is_featured: boolean
+          name: string
+          original_price: number | null
+          price: number
+          session_id: string
+          sold_count: number
+          stock: number
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean
+          name: string
+          original_price?: number | null
+          price: number
+          session_id: string
+          sold_count?: number
+          stock?: number
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean
+          name?: string
+          original_price?: number | null
+          price?: number
+          session_id?: string
+          sold_count?: number
+          stock?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_products_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "live_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      live_sessions: {
+        Row: {
+          created_at: string
+          description: string | null
+          ended_at: string | null
+          host_id: string
+          id: string
+          likes_count: number
+          presenter_name: string | null
+          presenter_type: string
+          scheduled_at: string | null
+          share_slug: string | null
+          started_at: string | null
+          status: string
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          viewers_count: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          ended_at?: string | null
+          host_id: string
+          id?: string
+          likes_count?: number
+          presenter_name?: string | null
+          presenter_type?: string
+          scheduled_at?: string | null
+          share_slug?: string | null
+          started_at?: string | null
+          status?: string
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          viewers_count?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          ended_at?: string | null
+          host_id?: string
+          id?: string
+          likes_count?: number
+          presenter_name?: string | null
+          presenter_type?: string
+          scheduled_at?: string | null
+          share_slug?: string | null
+          started_at?: string | null
+          status?: string
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          viewers_count?: number
+        }
+        Relationships: []
+      }
       marketplace_categories: {
         Row: {
           created_at: string
