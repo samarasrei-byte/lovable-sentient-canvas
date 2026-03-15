@@ -119,10 +119,32 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    const imageUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+    console.log("AI response structure:", JSON.stringify(data?.choices?.[0]?.message, null, 2)?.substring(0, 500));
+
+    // Try multiple known response formats
+    const choice = data.choices?.[0]?.message;
+    let imageUrl = 
+      // Format 1: images array with image_url.url
+      choice?.images?.[0]?.image_url?.url ||
+      // Format 2: content array with image_url
+      (Array.isArray(choice?.content) 
+        ? choice.content.find((c: any) => c.type === "image_url")?.image_url?.url 
+        : null) ||
+      // Format 3: inline_data base64
+      (Array.isArray(choice?.content)
+        ? (() => {
+            const img = choice.content.find((c: any) => c.type === "image" || c.inline_data);
+            if (img?.inline_data) {
+              return `data:${img.inline_data.mime_type || "image/png"};base64,${img.inline_data.data}`;
+            }
+            if (img?.image?.url) return img.image.url;
+            return null;
+          })()
+        : null);
 
     if (!imageUrl) {
-      throw new Error("No image generated");
+      console.error("Full AI response:", JSON.stringify(data, null, 2)?.substring(0, 2000));
+      throw new Error("No image generated - unexpected response format");
     }
 
     // Update the purchase record with the generated image
