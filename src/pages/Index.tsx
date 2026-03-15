@@ -3,7 +3,7 @@ import { SocialProofBanner } from "@/components/landing/SocialProofBanner";
 import { PromptMarketplace } from "@/components/marketplace";
 import { PhotoServicesSection } from "@/components/photo-services";
 import { ValueProposition } from "@/components/landing/ValueProposition";
-import { InfluencerMarketplaceComingSoon } from "@/components/InfluencerMarketplaceComingSoon";
+// import { InfluencerMarketplaceComingSoon } from "@/components/InfluencerMarketplaceComingSoon";
 import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
 import { HowItWorksNew } from "@/components/HowItWorksNew";
 import { FAQSection } from "@/components/FAQSection";

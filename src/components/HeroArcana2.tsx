@@ -157,9 +157,9 @@ export const HeroArcana2 = () => {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8 md:mb-10 font-light max-w-3xl mx-auto px-2"
         >
-          Contrate influenciadores, avatares IA e artistas — ou transforme suas fotos em 
+          Transforme suas fotos em 
           <span className="text-secondary font-medium">imagens profissionais com IA</span> em minutos. 
-          <span className="text-primary font-medium">Tudo em um só lugar</span>, sem mensalidade.
+          <span className="text-primary font-medium">Rápido, fácil e sem mensalidade</span>.
         </motion.p>
 
         {/* Social Proof */}

@@ -63,7 +63,7 @@ export const TestimonialsSection = () => {
             </span>
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto font-light">
-            Milhares de influenciadores já transformaram suas imagens com o ARCANA.
+            Milhares de criadores já transformaram suas imagens com o ARCANA.
           </p>
         </motion.div>
 
