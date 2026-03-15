@@ -13,6 +13,7 @@ import {
   Gamepad2,
   Music,
   Camera,
+  Linkedin,
   X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
