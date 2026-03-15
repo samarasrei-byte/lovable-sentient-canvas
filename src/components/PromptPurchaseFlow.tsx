@@ -161,7 +161,39 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
           .eq("id", purchaseId);
       }
 
-      // Call the generate edge function
+      // Upload user photo to storage if provided
+      let uploadedPhotoUrl: string | null = null;
+      if (formData.photo) {
+        const fileExt = formData.photo.name.split('.').pop();
+        const filePath = `purchases/${purchaseId || Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+        
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('user-photos')
+          .upload(filePath, formData.photo, {
+            cacheControl: '3600',
+            upsert: false
+          });
+
+        if (uploadError) {
+          console.error("Error uploading photo:", uploadError);
+          toast.error("Erro ao enviar foto. Tentando gerar sem referência...");
+        } else {
+          const { data: urlData } = supabase.storage
+            .from('user-photos')
+            .getPublicUrl(uploadData.path);
+          uploadedPhotoUrl = urlData.publicUrl;
+        }
+
+        // Also update the purchase record with the user photo
+        if (purchaseId && uploadedPhotoUrl) {
+          await supabase
+            .from("prompt_purchases")
+            .update({ user_photo_url: uploadedPhotoUrl })
+            .eq("id", purchaseId);
+        }
+      }
+
+      // Call the generate edge function with the uploaded photo URL and example image
       const { data, error } = await supabase.functions.invoke('generate-prompt-image', {
         body: {
           purchaseId,
@@ -171,16 +203,15 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
           userName: formData.name,
           userInstagram: formData.instagram,
           userDescription: formData.description,
-          // In production, upload photo to storage first
+          userPhotoUrl: uploadedPhotoUrl,
+          exampleImageUrl: prompt.example_image_url,
         }
       });
 
       if (error) throw error;
+      if (!data?.imageUrl) throw new Error("Nenhuma imagem gerada");
 
-      // For now, use a placeholder generated image
-      const generatedUrl = data?.imageUrl || `https://images.unsplash.com/photo-${Date.now()}?w=800&h=800&fit=crop`;
-      
-      setGeneratedImage(generatedUrl);
+      setGeneratedImage(data.imageUrl);
       
       // Update purchase with generated image
       if (purchaseId) {
@@ -188,7 +219,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
           .from("prompt_purchases")
           .update({ 
             generation_status: 'completed',
-            generated_image_url: generatedUrl 
+            generated_image_url: data.imageUrl 
           })
           .eq("id", purchaseId);
       }
@@ -196,11 +227,18 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       setStep('complete');
     } catch (error) {
       console.error("Error generating image:", error);
-      // Fallback to simulated image for demo
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      const fallbackUrl = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&h=800&fit=crop";
-      setGeneratedImage(fallbackUrl);
-      setStep('complete');
+      toast.error("Erro na geração. Tente novamente.");
+      
+      // Update status to failed
+      if (purchaseId) {
+        await supabase
+          .from("prompt_purchases")
+          .update({ generation_status: 'failed' })
+          .eq("id", purchaseId);
+      }
+      
+      // Go back to form step instead of showing fake image
+      setStep('form');
     }
   };
 
