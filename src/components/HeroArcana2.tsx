@@ -140,13 +140,13 @@ export const HeroArcana2 = () => {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-6 md:mb-8 text-foreground leading-tight tracking-tight"
         >
-          O marketplace de{" "}
+          Crie{" "}
           <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent drop-shadow-[0_0_30px_hsl(var(--secondary)/0.3)]">
-            influenciadores
+            fotos profissionais
           </span>{" "}
-          e{" "}
+          com{" "}
           <span className="bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
-            fotos com IA
+            inteligência artificial
           </span>
         </motion.h1>
 
