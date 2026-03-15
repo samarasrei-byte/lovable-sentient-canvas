@@ -39,6 +39,8 @@ const getCategoryIcon = (category: string) => {
       return Sparkles;
     case 'trending':
       return TrendingUp;
+    case 'linkedin':
+      return Linkedin;
     default:
       return Flame;
   }
