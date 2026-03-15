@@ -32,7 +32,6 @@ export const HeroArcana2 = () => {
 
   const navLinks = [
     { href: "#prompts", label: "Prompts" },
-    { href: "#influencers", label: "Influencers" },
     { href: "#como-funciona", label: "Como Funciona" },
   ];
 
@@ -141,13 +140,13 @@ export const HeroArcana2 = () => {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-6 md:mb-8 text-foreground leading-tight tracking-tight"
         >
-          O marketplace de{" "}
+          Crie{" "}
           <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent drop-shadow-[0_0_30px_hsl(var(--secondary)/0.3)]">
-            influenciadores
+            fotos profissionais
           </span>{" "}
-          e{" "}
+          com{" "}
           <span className="bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
-            fotos com IA
+            inteligência artificial
           </span>
         </motion.h1>
 
@@ -158,9 +157,9 @@ export const HeroArcana2 = () => {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8 md:mb-10 font-light max-w-3xl mx-auto px-2"
         >
-          Contrate influenciadores, avatares IA e artistas — ou transforme suas fotos em 
+          Transforme suas fotos em 
           <span className="text-secondary font-medium">imagens profissionais com IA</span> em minutos. 
-          <span className="text-primary font-medium">Tudo em um só lugar</span>, sem mensalidade.
+          <span className="text-primary font-medium">Rápido, fácil e sem mensalidade</span>.
         </motion.p>
 
         {/* Social Proof */}
