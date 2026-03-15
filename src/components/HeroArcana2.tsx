@@ -32,7 +32,6 @@ export const HeroArcana2 = () => {
 
   const navLinks = [
     { href: "#prompts", label: "Prompts" },
-    { href: "#influencers", label: "Influencers" },
     { href: "#como-funciona", label: "Como Funciona" },
   ];
 
