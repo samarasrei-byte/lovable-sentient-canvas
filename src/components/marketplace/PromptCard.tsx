@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { GlassCard } from "@/components/ui/glass-card";
-import { Sparkles, Zap, Star, Flame, TrendingUp, Layers } from "lucide-react";
+import { Sparkles, Zap, Star, Flame, TrendingUp, Layers, Linkedin } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -39,6 +39,8 @@ const getCategoryIcon = (category: string) => {
       return Sparkles;
     case 'trending':
       return TrendingUp;
+    case 'linkedin':
+      return Linkedin;
     default:
       return Flame;
   }

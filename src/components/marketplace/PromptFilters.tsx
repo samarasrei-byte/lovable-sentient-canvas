@@ -13,6 +13,7 @@ import {
   Gamepad2,
   Music,
   Camera,
+  Linkedin,
   X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -40,6 +41,8 @@ const getCategoryIcon = (category: string) => {
       return Music;
     case 'photo':
       return Camera;
+    case 'linkedin':
+      return Linkedin;
     default:
       return Sparkles;
   }
