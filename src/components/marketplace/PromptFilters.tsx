@@ -41,6 +41,8 @@ const getCategoryIcon = (category: string) => {
       return Music;
     case 'photo':
       return Camera;
+    case 'linkedin':
+      return Linkedin;
     default:
       return Sparkles;
   }
