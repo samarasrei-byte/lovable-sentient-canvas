@@ -20,7 +20,8 @@ serve(async (req) => {
       userName, 
       userInstagram, 
       userDescription,
-      userPhotoUrl 
+      userPhotoUrl,
+      exampleImageUrl
     } = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -50,39 +51,50 @@ serve(async (req) => {
       finalPrompt += ` Avoid: ${negativePrompt}`;
     }
 
-    console.log("Generating image with prompt:", finalPrompt);
+    // Build context-aware system prompt
+    let imageInstructions = "";
+    if (userPhotoUrl && exampleImageUrl) {
+      imageInstructions = "IMPORTANT: The FIRST image is a STYLE REFERENCE — replicate this exact artistic style, lighting, mood, color palette, and composition. The SECOND image is the USER'S PHOTO — preserve this person's face, features, and identity with 100% fidelity. Generate a NEW image that applies the style of image 1 to the person in image 2. ";
+    } else if (userPhotoUrl) {
+      imageInstructions = "IMPORTANT: The provided image is the USER'S PHOTO. Preserve this person's facial features, proportions, and identity with 100% fidelity. Generate a new artistic image of this exact person. ";
+    } else if (exampleImageUrl) {
+      imageInstructions = "IMPORTANT: The provided image is a STYLE REFERENCE. Replicate this exact artistic style, lighting, mood, and composition in the generated image. ";
+    }
+
+    const fullPrompt = imageInstructions + finalPrompt;
+    console.log("Generating image with prompt:", fullPrompt.substring(0, 300));
+
     // Ensure model has proper prefix
     const resolvedModel = aiModel 
       ? (aiModel.includes('/') ? aiModel : `google/${aiModel}`)
       : "google/gemini-2.5-flash-image";
     console.log("Using model:", resolvedModel);
+    console.log("User photo:", userPhotoUrl ? "YES" : "NO");
+    console.log("Example image:", exampleImageUrl ? "YES" : "NO");
 
-    // Prepare messages
-    const messages: any[] = [];
-    
-    // If user photo provided, include it for reference
-    if (userPhotoUrl) {
-      messages.push({
-        role: "user",
-        content: [
-          {
-            type: "text",
-            text: finalPrompt
-          },
-          {
-            type: "image_url",
-            image_url: {
-              url: userPhotoUrl
-            }
-          }
-        ]
-      });
-    } else {
-      messages.push({
-        role: "user",
-        content: finalPrompt
+    // Build message content parts
+    const contentParts: any[] = [{ type: "text", text: fullPrompt }];
+
+    // Add example/style reference image FIRST
+    if (exampleImageUrl) {
+      contentParts.push({
+        type: "image_url",
+        image_url: { url: exampleImageUrl }
       });
     }
+
+    // Add user photo SECOND
+    if (userPhotoUrl) {
+      contentParts.push({
+        type: "image_url",
+        image_url: { url: userPhotoUrl }
+      });
+    }
+
+    const messages = [{
+      role: "user",
+      content: contentParts.length > 1 ? contentParts : fullPrompt
+    }];
 
     // Call Lovable AI Gateway for image generation
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
