@@ -96,67 +96,77 @@ serve(async (req) => {
       content: contentParts.length > 1 ? contentParts : fullPrompt
     }];
 
-    // Call Lovable AI Gateway for image generation
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: resolvedModel,
-        messages,
-        modalities: ["image", "text"]
-      }),
-    });
+    // Helper to attempt generation with a given model
+    async function tryGenerate(model: string): Promise<string | null> {
+      console.log("Attempting generation with model:", model);
+      const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model,
+          messages,
+          modalities: ["image", "text"]
+        }),
+      });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
-      
-      if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ error: "Rate limit exceeded. Please try again later." }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("AI gateway error:", response.status, errorText);
+        if (response.status === 429 || response.status === 402) {
+          throw new Error(response.status === 429 
+            ? "Rate limit exceeded. Please try again later." 
+            : "Service temporarily unavailable.");
+        }
+        return null;
       }
-      if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ error: "Service temporarily unavailable." }),
-          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      
-      throw new Error(`AI gateway error: ${response.status}`);
+
+      const data = await response.json();
+      const choice = data.choices?.[0]?.message;
+      console.log("Response finish_reason:", data.choices?.[0]?.finish_reason);
+
+      // Try multiple known response formats
+      return (
+        choice?.images?.[0]?.image_url?.url ||
+        (Array.isArray(choice?.content) 
+          ? choice.content.find((c: any) => c.type === "image_url")?.image_url?.url 
+          : null) ||
+        (Array.isArray(choice?.content)
+          ? (() => {
+              const img = choice.content.find((c: any) => c.type === "image" || c.inline_data);
+              if (img?.inline_data) return `data:${img.inline_data.mime_type || "image/png"};base64,${img.inline_data.data}`;
+              if (img?.image?.url) return img.image.url;
+              return null;
+            })()
+          : null)
+      );
     }
 
-    const data = await response.json();
-    console.log("AI response structure:", JSON.stringify(data?.choices?.[0]?.message, null, 2)?.substring(0, 500));
+    // Try with primary model, retry once, then fallback to alternative model
+    const modelsToTry = [resolvedModel, resolvedModel, "google/gemini-2.5-flash"];
+    let imageUrl: string | null = null;
 
-    // Try multiple known response formats
-    const choice = data.choices?.[0]?.message;
-    let imageUrl = 
-      // Format 1: images array with image_url.url
-      choice?.images?.[0]?.image_url?.url ||
-      // Format 2: content array with image_url
-      (Array.isArray(choice?.content) 
-        ? choice.content.find((c: any) => c.type === "image_url")?.image_url?.url 
-        : null) ||
-      // Format 3: inline_data base64
-      (Array.isArray(choice?.content)
-        ? (() => {
-            const img = choice.content.find((c: any) => c.type === "image" || c.inline_data);
-            if (img?.inline_data) {
-              return `data:${img.inline_data.mime_type || "image/png"};base64,${img.inline_data.data}`;
-            }
-            if (img?.image?.url) return img.image.url;
-            return null;
-          })()
-        : null);
+    for (const model of modelsToTry) {
+      try {
+        imageUrl = await tryGenerate(model);
+        if (imageUrl) break;
+        console.warn("No image in response, retrying with next attempt...");
+      } catch (e: any) {
+        // Re-throw rate limit / billing errors
+        if (e.message.includes("Rate limit") || e.message.includes("temporarily")) {
+          return new Response(
+            JSON.stringify({ error: e.message }),
+            { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        console.error("Attempt failed:", e.message);
+      }
+    }
 
     if (!imageUrl) {
-      console.error("Full AI response:", JSON.stringify(data, null, 2)?.substring(0, 2000));
-      throw new Error("No image generated - unexpected response format");
+      throw new Error("Image generation failed after multiple attempts. Please try again.");
     }
 
     // Update the purchase record with the generated image
