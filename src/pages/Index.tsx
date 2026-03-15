@@ -26,8 +26,8 @@ const Index = () => {
       {/* Social Proof Stats */}
       <SocialProofBanner />
       
-      {/* Marketplace de Talentos — Destaque Principal */}
-      <InfluencerMarketplaceComingSoon />
+      {/* Marketplace de Talentos — Oculto temporariamente */}
+      {/* <InfluencerMarketplaceComingSoon /> */}
       
       {/* Prompt Marketplace - Galeria de Elite */}
       <PromptMarketplace />
