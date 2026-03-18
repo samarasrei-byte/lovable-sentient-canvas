@@ -81,7 +81,6 @@ const menuGroups: MenuGroup[] = [
 ];
 
 const bottomItems: MenuItem[] = [
-  { path: "/app/chat", icon: MessageCircle, label: "Chat" },
   { path: "/app/perfil", icon: Settings, label: "Configurações" },
 ];
 
