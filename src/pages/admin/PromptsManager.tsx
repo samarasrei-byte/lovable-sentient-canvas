@@ -616,11 +616,13 @@ const PromptsManager = () => {
     }
   };
 
-  const openNewPrompt = () => {
+  const openNewPrompt = (category?: string) => {
+    const preset = category ? CATEGORY_PRESETS[category] : undefined;
     setEditingPrompt({
       prompt_template: "",
       example_image_url: "",
-      price_cents: 2100,
+      category: category || "",
+      price_cents: preset?.defaultPrice || 2100,
       status: "active",
       required_fields: ["photo", "name"],
       ai_model: "gemini-2.5-flash-image",
