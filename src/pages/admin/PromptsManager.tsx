@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { PromptFromScreenshot } from "@/components/admin/PromptFromScreenshot";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { GlassButton } from "@/components/ui/glass-button";
@@ -39,7 +40,8 @@ import {
   Upload,
   X,
   Zap,
-  Crop
+  Crop,
+  Camera
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -275,6 +277,7 @@ const PromptsManager = () => {
   const [isDragOver, setIsDragOver] = useState(false);
   const [cropModalOpen, setCropModalOpen] = useState(false);
   const [fileToCrop, setFileToCrop] = useState<File | null>(null);
+  const [screenshotModalOpen, setScreenshotModalOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -612,12 +615,17 @@ const PromptsManager = () => {
           <h1 className="text-2xl font-bold">Gerenciar Prompts</h1>
           <p className="text-muted-foreground">Anexe a foto + cole o prompt e a IA preenche o resto</p>
         </div>
-        <GlassButton variant="neon" onClick={openNewPrompt}>
-          <Plus className="w-4 h-4 mr-2" />
-          Novo Prompt
-        </GlassButton>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => setScreenshotModalOpen(true)} className="gap-2">
+            <Camera className="w-4 h-4" />
+            Print → Prompt
+          </Button>
+          <GlassButton variant="neon" onClick={openNewPrompt}>
+            <Plus className="w-4 h-4 mr-2" />
+            Novo Prompt
+          </GlassButton>
+        </div>
       </div>
-
       {/* Dialog com Preview em Tempo Real */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent
@@ -972,6 +980,13 @@ const PromptsManager = () => {
           onCropComplete={handleCropComplete}
         />
       )}
+
+      {/* Screenshot to Prompt Modal */}
+      <PromptFromScreenshot
+        open={screenshotModalOpen}
+        onClose={() => setScreenshotModalOpen(false)}
+        onPromptCreated={fetchPrompts}
+      />
     </div>
   );
 };

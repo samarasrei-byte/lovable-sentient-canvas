@@ -14,3 +14,6 @@ verify_jwt = false
 
 [functions.heygen-avatar]
 verify_jwt = false
+
+[functions.prompt-from-screenshot]
+verify_jwt = false
