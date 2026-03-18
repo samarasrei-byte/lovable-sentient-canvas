@@ -40,7 +40,8 @@ import {
   Upload,
   X,
   Zap,
-  Crop
+  Crop,
+  Camera
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
