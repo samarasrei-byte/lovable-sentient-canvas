@@ -497,7 +497,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                       </div>
                     )}
                     {paymentStatus === 'paid' && (
-                      <div className="flex items-center justify-center gap-2 text-green-500">
+                      <div className="flex items-center justify-center gap-2 text-primary">
                         <CheckCircle2 className="w-4 h-4" />
                         <span className="text-sm">Pagamento confirmado!</span>
                       </div>
