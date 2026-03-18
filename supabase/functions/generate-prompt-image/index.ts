@@ -55,12 +55,19 @@ serve(async (req) => {
     let imageInstructions = "";
     if (userPhotoUrl && exampleImageUrl) {
       imageInstructions = "CRITICAL INSTRUCTION — TWO REFERENCE IMAGES PROVIDED:\n" +
-        "IMAGE 1 (STYLE REFERENCE): Replicate this EXACT artistic style, lighting setup, mood, color palette, composition, camera angle, and overall aesthetic. This is your visual blueprint.\n" +
-        "IMAGE 2 (USER'S FACE/IDENTITY): This is the REAL person. You MUST preserve their face with 100% fidelity — exact eye shape, nose, mouth, jawline, skin tone, facial proportions, hair color and style. The generated person must be IDENTICAL to this photo. No modifications to facial features.\n" +
-        "OUTPUT: Generate a NEW image that perfectly merges the style of Image 1 with the person from Image 2. The person must look exactly like the reference photo, placed into the style/scene of Image 1. Ultra-realistic skin texture with visible pores. ";
+        "IMAGE 1 (STYLE REFERENCE ONLY — DO NOT COPY THE PERSON): This image is ONLY for style, lighting, mood, color palette, composition, camera angle, pose, clothing style, and overall aesthetic. " +
+        "⚠️ The person shown in this image is NOT the subject. DO NOT reproduce their face, features, or identity. COMPLETELY IGNORE the person's face in this image. Only use the artistic direction.\n" +
+        "IMAGE 2 (THE REAL SUBJECT — THIS IS THE PERSON TO GENERATE): This is the REAL person who MUST appear in the final image. " +
+        "You MUST preserve their face with 100% fidelity — exact eye shape, nose structure, mouth shape, jawline, skin tone and texture, facial proportions, hair color, hair texture, and hairstyle. " +
+        "The generated person must be UNMISTAKABLY IDENTICAL to this photo. Zero modifications to facial features.\n" +
+        "OUTPUT: Generate a NEW image that takes ONLY the style/scene/composition/lighting from Image 1 but places the EXACT person from Image 2 into that scene. " +
+        "The face in the output MUST match Image 2, NOT Image 1. If Image 1 shows a different person, that person must be completely replaced by the person from Image 2. " +
+        "Ultra-realistic skin texture with visible pores, natural imperfections. ";
     } else if (userPhotoUrl) {
       imageInstructions = "CRITICAL INSTRUCTION — USER REFERENCE PHOTO PROVIDED:\n" +
-        "The provided image is the USER'S REAL PHOTO. You MUST use this as the absolute primary reference for the subject's face, identity, and physical features. Preserve 100% facial fidelity — exact eye shape, nose, mouth, jawline, skin tone, hair color, facial proportions. The generated image must look like the EXACT SAME PERSON. No stylistic alterations to facial features. Ultra-realistic skin texture. ";
+        "The provided image is the USER'S REAL PHOTO. This is the SUBJECT. You MUST use this as the absolute primary reference for the subject's face, identity, and ALL physical features. " +
+        "Preserve 100% facial fidelity — exact eye shape, nose, mouth, jawline, skin tone, hair color, facial proportions. " +
+        "The generated image MUST look like the EXACT SAME PERSON. No stylistic alterations to facial features. Ultra-realistic skin texture. ";
     } else if (exampleImageUrl) {
       imageInstructions = "CRITICAL INSTRUCTION — STYLE REFERENCE IMAGE PROVIDED:\n" +
         "The provided image is a STYLE REFERENCE. Replicate this exact artistic style, lighting, mood, composition, and overall aesthetic in the generated image. ";
