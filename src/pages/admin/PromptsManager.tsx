@@ -275,6 +275,13 @@ const LivePreviewCard = ({ prompt, imageUrl }: { prompt: Partial<Prompt>; imageU
   );
 };
 
+// Category presets with default prices
+const CATEGORY_PRESETS: Record<string, { label: string; defaultPrice: number; icon: string }> = {
+  "Mêsversário & Aniversário": { label: "Mêsversário & Aniversário", defaultPrice: 5800, icon: "🎂" },
+  "Fotografia Profissional": { label: "Fotografia Profissional", defaultPrice: 7000, icon: "📸" },
+  "Geral": { label: "Geral", defaultPrice: 2100, icon: "✨" },
+};
+
 const PromptsManager = () => {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [loading, setLoading] = useState(true);
@@ -289,7 +296,22 @@ const PromptsManager = () => {
   const [fileToCrop, setFileToCrop] = useState<File | null>(null);
   const [screenshotModalOpen, setScreenshotModalOpen] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [activeCategory, setActiveCategory] = useState<string>("all");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Group prompts by category
+  const groupedPrompts = prompts.reduce((acc, prompt) => {
+    const cat = prompt.category || "Geral";
+    if (!acc[cat]) acc[cat] = [];
+    acc[cat].push(prompt);
+    return acc;
+  }, {} as Record<string, Prompt[]>);
+
+  const filteredPrompts = activeCategory === "all" 
+    ? prompts 
+    : prompts.filter(p => p.category === activeCategory);
+
+  const categories = Object.keys(groupedPrompts);
 
   useEffect(() => {
     fetchPrompts();
@@ -594,11 +616,13 @@ const PromptsManager = () => {
     }
   };
 
-  const openNewPrompt = () => {
+  const openNewPrompt = (category?: string) => {
+    const preset = category ? CATEGORY_PRESETS[category] : undefined;
     setEditingPrompt({
       prompt_template: "",
       example_image_url: "",
-      price_cents: 2100,
+      category: category || "",
+      price_cents: preset?.defaultPrice || 2100,
       status: "active",
       required_fields: ["photo", "name"],
       ai_model: "gemini-2.5-flash-image",
@@ -630,7 +654,7 @@ const PromptsManager = () => {
             <Camera className="w-4 h-4" />
             Print → Prompt
           </Button>
-          <GlassButton variant="neon" onClick={openNewPrompt}>
+          <GlassButton variant="neon" onClick={() => openNewPrompt()}>
             <Plus className="w-4 h-4 mr-2" />
             Novo Prompt
           </GlassButton>
@@ -804,11 +828,28 @@ const PromptsManager = () => {
                       </div>
                       <div className="space-y-2">
                         <Label>Categoria</Label>
-                        <Input
-                          value={editingPrompt.category || ""}
-                          onChange={(e) => setEditingPrompt({ ...editingPrompt, category: e.target.value })}
-                          placeholder="Cyberpunk, Fashion, etc"
-                        />
+                        <Select
+                          value={editingPrompt.category || "Geral"}
+                          onValueChange={(value) => {
+                            const preset = CATEGORY_PRESETS[value];
+                            setEditingPrompt({ 
+                              ...editingPrompt, 
+                              category: value,
+                              ...(preset && !editingPrompt.id ? { price_cents: preset.defaultPrice } : {})
+                            });
+                          }}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Object.entries(CATEGORY_PRESETS).map(([key, preset]) => (
+                              <SelectItem key={key} value={key}>
+                                {preset.icon} {preset.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                       <div className="space-y-2">
                         <Label>Hype Text</Label>
@@ -889,11 +930,67 @@ const PromptsManager = () => {
       </Dialog>
 
       {/* Table */}
+      {/* Category Filter Tabs */}
+      <div className="flex flex-wrap gap-2">
+        <Button
+          variant={activeCategory === "all" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setActiveCategory("all")}
+        >
+          Todos ({prompts.length})
+        </Button>
+        {Object.entries(CATEGORY_PRESETS).map(([key, preset]) => {
+          const count = groupedPrompts[key]?.length || 0;
+          return (
+            <Button
+              key={key}
+              variant={activeCategory === key ? "default" : "outline"}
+              size="sm"
+              onClick={() => setActiveCategory(key)}
+            >
+              {preset.icon} {preset.label} ({count})
+            </Button>
+          );
+        })}
+        {/* Show other categories not in presets */}
+        {categories.filter(c => !CATEGORY_PRESETS[c]).map(cat => (
+          <Button
+            key={cat}
+            variant={activeCategory === cat ? "default" : "outline"}
+            size="sm"
+            onClick={() => setActiveCategory(cat)}
+          >
+            {cat} ({groupedPrompts[cat]?.length || 0})
+          </Button>
+        ))}
+      </div>
+
+      {/* Category Cards with "Add Prompt" shortcuts */}
+      {activeCategory !== "all" && CATEGORY_PRESETS[activeCategory] && (
+        <Card className="border-primary/30 bg-primary/5">
+          <CardContent className="p-4 flex items-center justify-between">
+            <div>
+              <h3 className="font-semibold text-lg">
+                {CATEGORY_PRESETS[activeCategory].icon} {CATEGORY_PRESETS[activeCategory].label}
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Preço padrão: {formatPrice(CATEGORY_PRESETS[activeCategory].defaultPrice)} · {groupedPrompts[activeCategory]?.length || 0} prompts
+              </p>
+            </div>
+            <GlassButton variant="neon" onClick={() => openNewPrompt(activeCategory)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Novo Prompt em {CATEGORY_PRESETS[activeCategory].label}
+            </GlassButton>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Prompts Table */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-primary" />
-            Prompts ({prompts.length})
+            Prompts ({filteredPrompts.length})
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -901,12 +998,12 @@ const PromptsManager = () => {
             <div className="flex items-center justify-center py-8">
               <Loader2 className="w-6 h-6 animate-spin" />
             </div>
-          ) : prompts.length === 0 ? (
+          ) : filteredPrompts.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               <Sparkles className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p>Nenhum prompt cadastrado</p>
-              <Button className="mt-4" onClick={openNewPrompt}>
-                Criar primeiro prompt
+              <p>Nenhum prompt nesta categoria</p>
+              <Button className="mt-4" onClick={() => openNewPrompt(activeCategory !== "all" ? activeCategory : undefined)}>
+                Criar prompt
               </Button>
             </div>
           ) : (
@@ -922,7 +1019,7 @@ const PromptsManager = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {prompts.map((prompt) => (
+                {filteredPrompts.map((prompt) => (
                   <TableRow key={prompt.id}>
                     <TableCell>
                       {prompt.example_image_url ? (
@@ -946,7 +1043,9 @@ const PromptsManager = () => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline">{prompt.category}</Badge>
+                      <Badge variant="outline">
+                        {CATEGORY_PRESETS[prompt.category]?.icon || "✨"} {prompt.category}
+                      </Badge>
                     </TableCell>
                     <TableCell className="font-medium text-primary">
                       {formatPrice(prompt.price_cents)}
