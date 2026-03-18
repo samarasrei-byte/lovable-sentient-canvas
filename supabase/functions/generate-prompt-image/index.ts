@@ -29,6 +29,24 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
+    const supabaseAdmin = purchaseId
+      ? createClient(
+          Deno.env.get("SUPABASE_URL")!,
+          Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+        )
+      : null;
+
+    if (purchaseId && supabaseAdmin) {
+      await supabaseAdmin
+        .from("prompt_purchases")
+        .update({
+          payment_status: "paid",
+          generation_status: "generating",
+          ...(userPhotoUrl ? { user_photo_url: userPhotoUrl } : {}),
+        })
+        .eq("id", purchaseId);
+    }
+
     // Build the final prompt with variable substitution
     let finalPrompt = promptTemplate || "Create a stunning artistic portrait, highly detailed, cinematic lighting, 8k quality";
     
