@@ -54,7 +54,7 @@ export const ValueProposition = () => {
           transition={{ duration: 0.5 }}
           className="text-center mb-16"
         >
-          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-destructive/10 border border-destructive/20 text-sm font-bold text-destructive mb-6">
+          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/20 text-sm font-bold text-accent mb-6">
             <Flame className="w-4 h-4" />
             Por que o ARCANA domina?
           </span>
