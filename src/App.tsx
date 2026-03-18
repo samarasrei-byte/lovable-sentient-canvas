@@ -49,6 +49,7 @@ import AgencyDashboard from "./pages/app/agency/Dashboard";
 import Insights from "./pages/app/Insights";
 import MeusProdutos from "./pages/app/MeusProdutos";
 import VideoCreator from "./pages/app/VideoCreator";
+import PromptDashboard from "./pages/app/PromptDashboard";
 
 const queryClient = new QueryClient();
 
