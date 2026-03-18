@@ -32,6 +32,9 @@ const Index = () => {
       {/* Prompt Marketplace - Galeria de Elite */}
       <PromptMarketplace />
       
+      {/* Upgrade Upsell - 8 fotos/R$100 */}
+      <UpgradeUpsell />
+      
       {/* Photo Services - Upload de Fotos IA */}
       <PhotoServicesSection />
       
