@@ -1,783 +1,358 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  TrendingUp, 
-  Users, 
-  Eye, 
-  Heart, 
-  MessageCircle,
-  BarChart3,
-  Target,
-  Sparkles,
-  Video,
-  DollarSign,
-  ArrowUpRight,
-  Bot,
-  Palette,
-  ExternalLink,
-  Search,
-  Plus,
-  Calendar,
-  Clock,
-  Zap,
-  ArrowDownRight,
-  Activity,
-  TrendingDown,
-  Globe,
-  Share2,
-  MousePointerClick,
-  Repeat,
-  ShoppingCart,
-  Star,
-  Instagram,
-  Youtube,
-  Twitter
+import {
+  Sparkles, ArrowRight, Zap, TrendingUp, Star, Clock,
+  Image as ImageIcon, CreditCard, Eye, ShoppingCart,
+  Download, ChevronRight, Crown, Gift, Flame, Camera,
+  ArrowUpRight, Package, Loader2
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { CampaignCTA } from "@/components/dashboard/CampaignCTA";
+import { supabase } from "@/integrations/supabase/client";
+import { motion } from "framer-motion";
 import { toast } from "sonner";
 
-// Import real influencer images
-import influencerTech from "@/assets/influencer-tech.jpg";
-import influencerFitness from "@/assets/influencer-fitness.jpg";
-import influencerFashion from "@/assets/influencer-fashion.jpg";
-import influencerWellness from "@/assets/influencer-wellness.jpg";
-
-interface Talent {
-  id: number;
+interface Prompt {
+  id: string;
   name: string;
-  segment: string;
-  followers: string;
-  image: string;
-  specialty: string;
-  type: "avatar" | "influencer" | "artist";
+  category: string;
+  price_cents: number;
+  example_image_url: string | null;
+  hype_text: string | null;
+  description: string | null;
 }
+
+interface Purchase {
+  id: string;
+  prompt_id: string;
+  amount_cents: number;
+  generation_status: string;
+  generated_image_url: string | null;
+  created_at: string;
+  prompts?: { name: string; example_image_url: string | null };
+}
+
+const fadeUp = (delay = 0) => ({
+  initial: { opacity: 0, y: 15 },
+  animate: { opacity: 1, y: 0 },
+  transition: { delay, duration: 0.4 },
+});
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const [selectedTalents, setSelectedTalents] = useState<Talent[]>([]);
-  const [analyzingLink, setAnalyzingLink] = useState<number | null>(null);
-  const [linkUrl, setLinkUrl] = useState("");
-  const [timeRange, setTimeRange] = useState("7d");
+  const [prompts, setPrompts] = useState<Prompt[]>([]);
+  const [purchases, setPurchases] = useState<Purchase[]>([]);
+  const [credits, setCredits] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const saved = localStorage.getItem("selectedTalentsData");
-    if (saved) {
-      try {
-        const talents = JSON.parse(saved);
-        setSelectedTalents(talents);
-      } catch (e) {
-        console.error("Failed to load talents", e);
-      }
-    }
+    loadDashboardData();
   }, []);
 
-  const analyzeLink = (talentId: number) => {
-    if (!linkUrl.trim()) {
-      toast.error("Insira uma URL válida");
-      return;
-    }
-    
-    setAnalyzingLink(talentId);
-    
-    setTimeout(() => {
-      setAnalyzingLink(null);
-      toast.success("Análise concluída! Métricas atualizadas.");
-      setLinkUrl("");
-    }, 2000);
+  const loadDashboardData = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+
+    const [promptsRes, purchasesRes, creditsRes] = await Promise.all([
+      supabase.from("prompts").select("*").eq("status", "active").order("created_at", { ascending: false }).limit(12),
+      supabase.from("prompt_purchases").select("*, prompts(name, example_image_url)").order("created_at", { ascending: false }).limit(10),
+      user ? supabase.from("user_credits").select("credits_balance").eq("user_id", user.id).maybeSingle() : Promise.resolve({ data: null }),
+    ]);
+
+    if (promptsRes.data) setPrompts(promptsRes.data);
+    if (purchasesRes.data) setPurchases(purchasesRes.data as any);
+    if (creditsRes.data) setCredits((creditsRes.data as any)?.credits_balance || 0);
+    setLoading(false);
   };
 
-  const typeConfig = {
-    avatar: {
-      label: "Avatar IA",
-      icon: Bot,
-      color: "hsl(var(--primary))",
-      bgColor: "bg-primary/10",
-    },
-    influencer: {
-      label: "Influenciador",
-      icon: Users,
-      color: "hsl(var(--secondary))",
-      bgColor: "bg-secondary/10",
-    },
-    artist: {
-      label: "Artista",
-      icon: Palette,
-      color: "hsl(30, 100%, 60%)",
-      bgColor: "bg-orange-500/10",
-    }
-  };
+  const totalSpent = purchases.reduce((s, p) => s + p.amount_cents, 0);
+  const completedCount = purchases.filter(p => p.generation_status === "completed").length;
 
-  const advancedMetrics = [
-    { label: "Taxa de Conversão", value: "4.8%", change: "+1.2%", trend: "up", icon: Target },
-    { label: "Custo por Aquisição", value: "R$ 12,50", change: "-R$ 2,30", trend: "down", icon: DollarSign },
-    { label: "Valor Médio Pedido", value: "R$ 285", change: "+R$ 45", trend: "up", icon: ShoppingCart },
-    { label: "Taxa de Retenção", value: "67%", change: "+8%", trend: "up", icon: Repeat },
-    { label: "Tempo Médio Sessão", value: "4m 32s", change: "+45s", trend: "up", icon: Clock },
-    { label: "Taxa de Cliques", value: "12.3%", change: "+2.1%", trend: "up", icon: MousePointerClick },
-  ];
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
-    <div className="p-6 md:p-8 space-y-6 md:space-y-8 bg-background min-h-screen">
-      {/* Header with Time Range Selector */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
-            Dashboard
-          </h1>
-          <p className="text-muted-foreground mt-2">Análise completa e insights em tempo real</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-1 bg-card rounded-lg p-1 border">
-            {["24h", "7d", "30d", "90d"].map((range) => (
-              <Button
-                key={range}
-                variant={timeRange === range ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setTimeRange(range)}
-                className="px-3"
-              >
-                {range}
-              </Button>
-            ))}
-          </div>
-          <Button 
-            className="bg-gradient-to-r from-primary to-secondary hover:opacity-90"
-            onClick={() => navigate("/app/campanhas")}
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Nova Campanha
-          </Button>
-        </div>
-      </div>
-
-      {/* Campaign CTA */}
-      <CampaignCTA />
-
-      {/* Primary KPIs */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {[
-          { 
-            title: "Alcance Total", 
-            value: "12.5M", 
-            change: "+23%", 
-            trend: "up",
-            icon: Eye,
-            color: "text-primary",
-            bgColor: "bg-primary/10"
-          },
-          { 
-            title: "Engajamento", 
-            value: "8.2%", 
-            change: "+5.3%", 
-            trend: "up",
-            icon: Heart,
-            color: "text-secondary",
-            bgColor: "bg-secondary/10"
-          },
-          { 
-            title: "Campanhas Ativas", 
-            value: "24", 
-            change: "+12", 
-            trend: "up",
-            icon: Target,
-            color: "text-orange-500",
-            bgColor: "bg-orange-500/10"
-          },
-          { 
-            title: "ROI Médio", 
-            value: "385%", 
-            change: "+45%", 
-            trend: "up",
-            icon: TrendingUp,
-            color: "text-green-500",
-            bgColor: "bg-green-500/10"
-          },
-        ].map((metric, idx) => {
-          const Icon = metric.icon;
-          const TrendIcon = metric.trend === "up" ? ArrowUpRight : ArrowDownRight;
-          return (
-            <Card key={idx} className="border-border/50 bg-card/50 backdrop-blur relative overflow-hidden group hover:shadow-xl transition-all">
-              <div className={`absolute inset-0 ${metric.bgColor} opacity-0 group-hover:opacity-100 transition-opacity`} />
-              <CardHeader className="pb-2 relative z-10">
-                <CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-between">
-                  <span className="flex items-center gap-2">
-                    <Icon className={`w-4 h-4 ${metric.color}`} />
-                    {metric.title}
-                  </span>
-                  <Activity className="w-4 h-4 text-muted-foreground" />
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="relative z-10">
-                <div className="text-3xl font-bold mb-2">{metric.value}</div>
-                <div className="flex items-center justify-between">
-                  <p className={`text-sm flex items-center gap-1 ${metric.trend === 'up' ? 'text-green-500' : 'text-red-500'}`}>
-                    <TrendIcon className="w-3 h-3" />
-                    {metric.change}
-                  </p>
-                  <span className="text-xs text-muted-foreground">vs período anterior</span>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-
-      {/* Advanced Metrics Grid */}
-      <Card className="border-border/50 bg-card/50 backdrop-blur">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <BarChart3 className="w-5 h-5 text-primary" />
-            Métricas Avançadas
-          </CardTitle>
-          <CardDescription>KPIs detalhados de performance e conversão</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {advancedMetrics.map((metric, idx) => {
-              const Icon = metric.icon;
-              const isPositive = metric.trend === "up";
-              return (
-                <div key={idx} className="space-y-2 p-4 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
-                  <div className="flex items-center justify-between">
-                    <Icon className="w-4 h-4 text-muted-foreground" />
-                    {isPositive ? (
-                      <TrendingUp className="w-3 h-3 text-green-500" />
-                    ) : (
-                      <TrendingDown className="w-3 h-3 text-green-500" />
-                    )}
-                  </div>
-                  <div className="text-2xl font-bold">{metric.value}</div>
-                  <div className="text-xs text-muted-foreground">{metric.label}</div>
-                  <div className={`text-xs font-medium ${isPositive ? 'text-green-500' : 'text-green-500'}`}>
-                    {metric.change}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Tabs for Different Views */}
-      <Tabs defaultValue="talents" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 lg:w-[600px]">
-          <TabsTrigger value="talents">Meus Talentos</TabsTrigger>
-          <TabsTrigger value="campaigns">Campanhas</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-          <TabsTrigger value="insights">Insights IA</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="talents" className="space-y-6">
-          {selectedTalents.length > 0 ? (
-            <>
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-2xl font-bold">Meus Talentos</h2>
-                  <p className="text-muted-foreground">Influenciadores e avatares da sua conta</p>
-                </div>
-                <Button 
-                  variant="outline" 
-                  onClick={() => navigate("/")}
-                  className="gap-2"
-                >
-                  <Plus className="w-4 h-4" />
-                  Adicionar Mais
-                </Button>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {selectedTalents.map((talent) => {
-                  const config = typeConfig[talent.type];
-                  const Icon = config.icon;
-                  
-                  return (
-                    <Card key={talent.id} className="border-border/50 bg-card/50 backdrop-blur overflow-hidden hover:shadow-xl transition-all">
-                      <CardHeader>
-                        <div className="flex items-start gap-4">
-                          <div className="relative">
-                            <img 
-                              src={talent.image} 
-                              alt={talent.name}
-                              className="w-20 h-20 rounded-xl object-cover"
-                            />
-                            <Badge 
-                              className={`absolute -bottom-2 -right-2 ${config.bgColor} border-0 flex items-center gap-1`}
-                              style={{ color: config.color }}
-                            >
-                              <Icon className="w-3 h-3" />
-                              <span className="text-xs">{config.label}</span>
-                            </Badge>
-                          </div>
-                          <div className="flex-1">
-                            <CardTitle className="text-xl">{talent.name}</CardTitle>
-                            <CardDescription className="text-sm">{talent.segment}</CardDescription>
-                            <div className="flex items-center gap-4 mt-2">
-                              <span className="text-sm font-semibold flex items-center gap-1" style={{ color: config.color }}>
-                                <Users className="w-3 h-3" />
-                                {talent.followers}
-                              </span>
-                              <Badge variant="outline" className="text-xs">
-                                <Star className="w-3 h-3 mr-1 fill-yellow-500 text-yellow-500" />
-                                {(Math.random() * 2 + 3).toFixed(1)}
-                              </Badge>
-                            </div>
-                          </div>
-                        </div>
-                      </CardHeader>
-
-                      <CardContent className="space-y-4">
-                        {/* Performance Bar */}
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-muted-foreground">Performance</span>
-                            <span className="font-bold text-green-500">92%</span>
-                          </div>
-                          <Progress value={92} className="h-2" />
-                        </div>
-
-                        {/* Metrics */}
-                        <div className="grid grid-cols-3 gap-4 p-4 rounded-lg bg-muted/30">
-                          <div className="text-center">
-                            <Eye className="w-5 h-5 mx-auto mb-1 text-primary" />
-                            <div className="text-lg font-bold">
-                              {Math.floor(Math.random() * 500 + 100)}K
-                            </div>
-                            <div className="text-xs text-muted-foreground">Views</div>
-                          </div>
-                          <div className="text-center">
-                            <Heart className="w-5 h-5 mx-auto mb-1 text-secondary" />
-                            <div className="text-lg font-bold">
-                              {(Math.random() * 10 + 2).toFixed(1)}%
-                            </div>
-                            <div className="text-xs text-muted-foreground">Engage</div>
-                          </div>
-                          <div className="text-center">
-                            <Share2 className="w-5 h-5 mx-auto mb-1 text-orange-500" />
-                            <div className="text-lg font-bold">
-                              {Math.floor(Math.random() * 50 + 10)}K
-                            </div>
-                            <div className="text-xs text-muted-foreground">Shares</div>
-                          </div>
-                        </div>
-
-                        {/* Link Analysis */}
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium flex items-center gap-2">
-                            <Globe className="w-4 h-4" />
-                            Analisar Link do Influenciador
-                          </label>
-                          <div className="flex gap-2">
-                            <Input 
-                              placeholder="Cole a URL do perfil"
-                              value={analyzingLink === talent.id ? "" : linkUrl}
-                              onChange={(e) => setLinkUrl(e.target.value)}
-                              disabled={analyzingLink === talent.id}
-                              className="flex-1"
-                            />
-                            <Button 
-                              onClick={() => analyzeLink(talent.id)}
-                              disabled={analyzingLink === talent.id}
-                              className="gap-2"
-                            >
-                              {analyzingLink === talent.id ? (
-                                <>
-                                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                  Analisando
-                                </>
-                              ) : (
-                                <>
-                                  <Search className="w-4 h-4" />
-                                  Analisar
-                                </>
-                              )}
-                            </Button>
-                          </div>
-                        </div>
-
-                        {/* Social Links */}
-                        <div className="flex flex-wrap gap-2">
-                          <Button variant="outline" size="sm" className="gap-2">
-                            <ExternalLink className="w-3 h-3" />
-                            Instagram
-                          </Button>
-                          <Button variant="outline" size="sm" className="gap-2">
-                            <ExternalLink className="w-3 h-3" />
-                            TikTok
-                          </Button>
-                          <Button variant="outline" size="sm" className="gap-2">
-                            <ExternalLink className="w-3 h-3" />
-                            YouTube
-                          </Button>
-                        </div>
-
-                        <Button 
-                          className="w-full" 
-                          variant="outline"
-                          onClick={() => navigate("/app/talentos")}
-                        >
-                          <BarChart3 className="w-4 h-4 mr-2" />
-                          Ver Métricas Completas
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            </>
-          ) : (
-            <Card className="border-border/50 bg-card/50 backdrop-blur">
-              <CardContent className="py-16 text-center">
-                <Users className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-xl font-semibold mb-2">Nenhum talento selecionado</h3>
-                <p className="text-muted-foreground mb-6">
-                  Adicione influenciadores e avatares ao seu painel
-                </p>
-                <Button onClick={() => navigate("/")}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Explorar Marketplace
-                </Button>
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
-
-        <TabsContent value="campaigns" className="space-y-6">
-          <h2 className="text-2xl font-bold">Campanhas Ativas</h2>
-          
-          <div className="grid gap-4">
-            {[
-              {
-                name: "Lançamento Produto X",
-                status: "Ativa",
-                engagement: "12.5%",
-                reach: "2.3M",
-                talents: 3,
-                budget: "R$ 50.000",
-                spent: "R$ 32.500",
-                roi: "385%",
-                statusColor: "bg-green-500"
-              },
-              {
-                name: "Black Friday 2024",
-                status: "Planejamento",
-                engagement: "-",
-                reach: "-",
-                talents: 5,
-                budget: "R$ 120.000",
-                spent: "R$ 0",
-                roi: "-",
-                statusColor: "bg-yellow-500"
-              },
-              {
-                name: "Verão 2025",
-                status: "Em Análise",
-                engagement: "8.7%",
-                reach: "1.8M",
-                talents: 4,
-                budget: "R$ 75.000",
-                spent: "R$ 45.000",
-                roi: "245%",
-                statusColor: "bg-blue-500"
-              },
-            ].map((campaign, idx) => (
-              <Card key={idx} className="border-border/50 bg-card/50 backdrop-blur hover:shadow-xl transition-all">
-                <CardContent className="p-6">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className={`w-3 h-3 rounded-full ${campaign.statusColor}`} />
-                        <div>
-                          <h3 className="font-semibold text-lg">{campaign.name}</h3>
-                          <p className="text-sm text-muted-foreground">{campaign.status}</p>
-                        </div>
-                      </div>
-                      <Button variant="outline">Ver Detalhes</Button>
-                    </div>
-
-                    {campaign.spent !== "R$ 0" && (
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground">Budget: {campaign.budget}</span>
-                          <span className="font-bold">{campaign.spent} gasto</span>
-                        </div>
-                        <Progress value={(parseFloat(campaign.spent.replace(/[^\d]/g, '')) / parseFloat(campaign.budget.replace(/[^\d]/g, ''))) * 100} className="h-2" />
-                      </div>
-                    )}
-                    
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                      <div className="text-center p-3 rounded-lg bg-muted/30">
-                        <div className="text-sm text-muted-foreground mb-1">Engajamento</div>
-                        <div className="text-lg font-bold">{campaign.engagement}</div>
-                      </div>
-                      <div className="text-center p-3 rounded-lg bg-muted/30">
-                        <div className="text-sm text-muted-foreground mb-1">Alcance</div>
-                        <div className="text-lg font-bold">{campaign.reach}</div>
-                      </div>
-                      <div className="text-center p-3 rounded-lg bg-muted/30">
-                        <div className="text-sm text-muted-foreground mb-1">Talentos</div>
-                        <div className="text-lg font-bold">{campaign.talents}</div>
-                      </div>
-                      <div className="text-center p-3 rounded-lg bg-muted/30">
-                        <div className="text-sm text-muted-foreground mb-1">Budget</div>
-                        <div className="text-lg font-bold">{campaign.budget}</div>
-                      </div>
-                      <div className="text-center p-3 rounded-lg bg-muted/30">
-                        <div className="text-sm text-muted-foreground mb-1">ROI</div>
-                        <div className="text-lg font-bold text-green-500">{campaign.roi}</div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="analytics" className="space-y-6">
-          <Card className="border-border/50 bg-card/50 backdrop-blur">
-            <CardHeader>
-              <CardTitle>Analytics em Desenvolvimento</CardTitle>
-              <CardDescription>Gráficos avançados e visualizações em breve</CardDescription>
-            </CardHeader>
-            <CardContent className="h-[400px] flex items-center justify-center">
-              <div className="text-center">
-                <BarChart3 className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                <p className="text-muted-foreground">
-                  Gráficos de performance, ROI, engajamento e análises comparativas
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="insights" className="space-y-6">
-          <Card className="border-border/50 bg-card/50 backdrop-blur">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-primary" />
-                Insights Powered by IA
-              </CardTitle>
-              <CardDescription>Recomendações inteligentes para otimizar suas campanhas</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {[
-                {
-                  title: "Melhor Horário de Postagem",
-                  insight: "Seus seguidores estão mais ativos entre 19h-21h nos dias úteis",
-                  action: "Agendar posts",
-                  icon: Clock,
-                  color: "text-blue-500"
-                },
-                {
-                  title: "Conteúdo de Alto Performance",
-                  insight: "Reels curtos (15-30s) geram 3x mais engajamento que posts estáticos",
-                  action: "Ver exemplos",
-                  icon: Video,
-                  color: "text-purple-500"
-                },
-                {
-                  title: "Oportunidade de Crescimento",
-                  insight: "Público de 25-34 anos representa 45% do seu engajamento mas apenas 28% das campanhas",
-                  action: "Criar campanha",
-                  icon: TrendingUp,
-                  color: "text-green-500"
-                },
-                {
-                  title: "Colaboração Recomendada",
-                  insight: "3 influenciadores no nicho fitness com alta afinidade detectada",
-                  action: "Ver perfis",
-                  icon: Users,
-                  color: "text-orange-500"
-                }
-              ].map((insight, idx) => (
-                <Card key={idx} className="border-border/50 hover:border-primary/50 transition-all">
-                  <CardContent className="p-4">
-                    <div className="flex items-start gap-4">
-                      <div className={`w-12 h-12 rounded-lg bg-muted/50 flex items-center justify-center flex-shrink-0`}>
-                        <insight.icon className={`w-6 h-6 ${insight.color}`} />
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="font-semibold mb-1">{insight.title}</h4>
-                        <p className="text-sm text-muted-foreground mb-3">{insight.insight}</p>
-                        <Button variant="outline" size="sm">
-                          {insight.action}
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-
-      {/* Marketplace Influencers Section */}
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
+    <div className="space-y-6 max-w-7xl mx-auto">
+      {/* ===== HERO BANNER ===== */}
+      <motion.div {...fadeUp(0)} className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary/20 via-secondary/10 to-accent/10 border border-white/[0.06] p-6 md:p-8">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-[80px]" />
+        <div className="absolute bottom-0 left-1/3 w-48 h-48 bg-secondary/10 rounded-full blur-[60px]" />
+        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-bold">Talentos do Marketplace</h2>
-            <p className="text-muted-foreground">Conecte-se com influenciadores reais verificados</p>
+            <div className="flex items-center gap-2 mb-2">
+              <Badge className="bg-primary/20 text-primary border-primary/30 text-[10px] font-bold uppercase tracking-wider">
+                <Flame className="w-3 h-3 mr-1" /> Em alta
+              </Badge>
+            </div>
+            <h1 className="text-2xl md:text-3xl font-black text-foreground leading-tight">
+              Transforme fotos em{" "}
+              <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">obras de arte</span>
+            </h1>
+            <p className="text-sm text-muted-foreground mt-2 max-w-md">
+              Escolha um prompt, envie sua foto e receba uma imagem profissional gerada por IA em segundos.
+            </p>
           </div>
-          <Button variant="outline" className="gap-2" onClick={() => navigate("/")}>
-            <Users className="w-4 h-4" />
-            Ver Todos
+          <Button
+            onClick={() => navigate("/app/prompt-dashboard")}
+            className="bg-primary hover:bg-primary/90 rounded-xl gap-2 shadow-lg shadow-primary/20 text-sm font-semibold px-6"
+          >
+            <ShoppingCart className="w-4 h-4" />
+            Ver todos os prompts
+            <ArrowRight className="w-4 h-4" />
           </Button>
         </div>
+      </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
-            {
-              name: "Rafael Costa",
-              category: "Tecnologia",
-              followers: "2.5M",
-              engagement: "8.5%",
-              image: influencerTech,
-              verified: true,
-              niche: "IA & Inovação",
-              platforms: ["instagram", "youtube", "twitter"]
-            },
-            {
-              name: "Bruno Almeida",
-              category: "Fitness",
-              followers: "3.2M",
-              engagement: "9.2%",
-              image: influencerFitness,
-              verified: true,
-              niche: "Treino Funcional",
-              platforms: ["instagram", "youtube"]
-            },
-            {
-              name: "Camila Rodrigues",
-              category: "Moda",
-              followers: "4.8M",
-              engagement: "11.3%",
-              image: influencerFashion,
-              verified: true,
-              niche: "Streetwear",
-              platforms: ["instagram", "twitter"]
-            },
-            {
-              name: "Maria Santos",
-              category: "Bem-estar",
-              followers: "3.5M",
-              engagement: "10.1%",
-              image: influencerWellness,
-              verified: true,
-              niche: "Mindfulness",
-              platforms: ["instagram", "youtube"]
-            }
-          ].map((influencer, i) => (
-            <Card key={i} className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-border/50 hover:border-primary/50 overflow-hidden">
-              <div className="relative h-48 overflow-hidden">
-                <img 
-                  src={influencer.image} 
-                  alt={influencer.name}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                <div className="absolute bottom-3 left-3 right-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h4 className="text-white font-bold text-lg">{influencer.name}</h4>
-                    {influencer.verified && (
-                      <Badge variant="secondary" className="bg-primary/20 text-primary border-primary/50 text-xs">
-                        ✓
-                      </Badge>
-                    )}
-                  </div>
-                  <p className="text-white/80 text-sm">{influencer.niche}</p>
+      {/* ===== STATS ROW ===== */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {[
+          { icon: CreditCard, label: "Créditos", value: credits.toString(), sub: "disponíveis", color: "text-primary" },
+          { icon: ImageIcon, label: "Fotos Geradas", value: completedCount.toString(), sub: "concluídas", color: "text-green-400" },
+          { icon: Package, label: "Pedidos", value: purchases.length.toString(), sub: "total", color: "text-blue-400" },
+          { icon: TrendingUp, label: "Investido", value: `R$ ${(totalSpent / 100).toFixed(0)}`, sub: "em prompts", color: "text-secondary" },
+        ].map((stat, i) => (
+          <motion.div key={stat.label} {...fadeUp(0.1 + i * 0.05)}>
+            <Card className="bg-white/[0.02] border-white/[0.06] rounded-2xl p-4 hover:bg-white/[0.04] transition-all">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-white/[0.06]">
+                  <stat.icon className={`w-4 h-4 ${stat.color}`} />
+                </div>
+                <div>
+                  <p className="text-xl font-black text-foreground">{stat.value}</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{stat.label}</p>
                 </div>
               </div>
-              
-              <CardContent className="p-4 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs text-muted-foreground">Seguidores</p>
-                    <p className="font-bold text-lg">{influencer.followers}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs text-muted-foreground">Engajamento</p>
-                    <p className="font-bold text-lg text-green-500">{influencer.engagement}</p>
-                  </div>
-                </div>
-
-                <div className="flex gap-2">
-                  {influencer.platforms.map((platform) => (
-                    <div key={platform} className="p-2 rounded-lg bg-muted hover:bg-primary/10 transition-colors cursor-pointer">
-                      {platform === "instagram" && <Instagram className="w-4 h-4" />}
-                      {platform === "youtube" && <Youtube className="w-4 h-4" />}
-                      {platform === "twitter" && <Twitter className="w-4 h-4" />}
-                    </div>
-                  ))}
-                </div>
-
-                <Button className="w-full" variant="outline">
-                  Ver Perfil Completo
-                </Button>
-              </CardContent>
             </Card>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* ===== FEATURED PROMPTS — SHOP ===== */}
+      <motion.div {...fadeUp(0.3)}>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-primary" />
+            <h2 className="text-lg font-bold text-foreground">Prompts em Destaque</h2>
+            <Badge variant="outline" className="text-[9px] border-primary/30 text-primary">
+              {prompts.length} disponíveis
+            </Badge>
+          </div>
+          <button
+            onClick={() => navigate("/app/prompt-dashboard")}
+            className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors"
+          >
+            Ver todos <ChevronRight className="w-3 h-3" />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          {prompts.slice(0, 8).map((prompt, i) => (
+            <motion.div
+              key={prompt.id}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.35 + i * 0.04 }}
+            >
+              <Card
+                className="bg-white/[0.02] border-white/[0.06] rounded-2xl overflow-hidden hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 cursor-pointer group"
+                onClick={() => window.location.href = "/#prompts"}
+              >
+                {/* Image */}
+                <div className="aspect-[4/5] relative overflow-hidden bg-white/[0.04]">
+                  {prompt.example_image_url ? (
+                    <img
+                      src={prompt.example_image_url}
+                      alt={prompt.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-secondary/10">
+                      <Camera className="w-8 h-8 text-muted-foreground/20" />
+                    </div>
+                  )}
+
+                  {/* Price overlay */}
+                  <div className="absolute top-2 right-2">
+                    <Badge className="bg-black/70 backdrop-blur-md border-white/10 text-white font-bold text-xs px-2 py-0.5 shadow-xl">
+                      R$ {(prompt.price_cents / 100).toFixed(0)}
+                    </Badge>
+                  </div>
+
+                  {/* Hot badge for first 3 */}
+                  {i < 3 && (
+                    <div className="absolute top-2 left-2">
+                      <Badge className="bg-orange-500/90 text-white text-[9px] border-0 gap-0.5">
+                        <Flame className="w-2.5 h-2.5" /> Hot
+                      </Badge>
+                    </div>
+                  )}
+
+                  {/* Bottom gradient */}
+                  <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+
+                  {/* CTA overlay on hover */}
+                  <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                    <div className="bg-primary text-primary-foreground px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xl transform translate-y-2 group-hover:translate-y-0 transition-transform">
+                      <Zap className="w-3.5 h-3.5" />
+                      Gerar Agora
+                    </div>
+                  </div>
+                </div>
+
+                {/* Info */}
+                <div className="p-3">
+                  <p className="text-xs font-bold text-foreground truncate">{prompt.name}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5 truncate">
+                    {prompt.hype_text || prompt.category}
+                  </p>
+                </div>
+              </Card>
+            </motion.div>
           ))}
         </div>
-      </div>
+      </motion.div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card 
-          className="border-border/50 bg-gradient-to-br from-primary/10 to-transparent hover:shadow-xl transition-all cursor-pointer group"
-          onClick={() => navigate("/app/consultoria")}
-        >
-          <CardContent className="p-6 text-center space-y-4">
-            <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Sparkles className="w-8 h-8 text-white" />
+      {/* ===== TWO COLUMNS: Recent + Upsell ===== */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+        {/* Recent generations — 3 cols */}
+        <motion.div {...fadeUp(0.5)} className="lg:col-span-3">
+          <Card className="bg-white/[0.02] border-white/[0.06] rounded-2xl">
+            <div className="p-5 pb-3 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-primary" />
+                <h3 className="text-sm font-bold text-foreground">Suas Gerações Recentes</h3>
+              </div>
+              <button
+                onClick={() => navigate("/app/prompt-dashboard")}
+                className="text-[10px] text-muted-foreground hover:text-primary transition-colors"
+              >
+                Ver todas →
+              </button>
             </div>
-            <div>
-              <h3 className="font-bold text-xl mb-2">Consultoria IA</h3>
-              <p className="text-sm text-muted-foreground">
-                Estratégias personalizadas com IA
-              </p>
+            <div className="px-5 pb-5">
+              {purchases.length === 0 ? (
+                <div className="text-center py-10">
+                  <ImageIcon className="w-10 h-10 text-muted-foreground/20 mx-auto mb-3" />
+                  <p className="text-sm text-muted-foreground">Nenhuma geração ainda</p>
+                  <p className="text-xs text-muted-foreground/50 mt-1">Escolha um prompt acima para começar!</p>
+                  <Button
+                    onClick={() => window.location.href = "/#prompts"}
+                    variant="outline"
+                    className="mt-4 rounded-xl text-xs gap-1.5 border-primary/30 text-primary hover:bg-primary/10"
+                  >
+                    <Sparkles className="w-3 h-3" />
+                    Explorar Prompts
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {purchases.slice(0, 5).map((p, i) => (
+                    <motion.div
+                      key={p.id}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.5 + i * 0.05 }}
+                      className="flex items-center gap-3 p-2.5 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] border border-white/[0.04] transition-all group"
+                    >
+                      <div className="w-10 h-10 rounded-lg overflow-hidden bg-white/[0.06] flex-shrink-0">
+                        {(p.generated_image_url || p.prompts?.example_image_url) ? (
+                          <img src={p.generated_image_url || p.prompts?.example_image_url || ""} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center"><ImageIcon className="w-4 h-4 text-muted-foreground/30" /></div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-semibold text-foreground truncate">{p.prompts?.name || "Prompt"}</p>
+                        <p className="text-[10px] text-muted-foreground">{new Date(p.created_at).toLocaleDateString("pt-BR")}</p>
+                      </div>
+                      <Badge variant="outline" className={`text-[9px] ${
+                        p.generation_status === "completed" ? "bg-green-500/10 text-green-400 border-green-500/20" : "bg-yellow-500/10 text-yellow-400 border-yellow-500/20"
+                      }`}>
+                        {p.generation_status === "completed" ? "Pronto" : "Pendente"}
+                      </Badge>
+                      {p.generated_image_url && (
+                        <a href={p.generated_image_url} target="_blank" rel="noopener noreferrer">
+                          <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Download className="w-3 h-3" />
+                          </Button>
+                        </a>
+                      )}
+                    </motion.div>
+                  ))}
+                </div>
+              )}
             </div>
-          </CardContent>
-        </Card>
+          </Card>
+        </motion.div>
 
-        <Card 
-          className="border-border/50 bg-gradient-to-br from-secondary/10 to-transparent hover:shadow-xl transition-all cursor-pointer group"
-          onClick={() => navigate("/app/liveshop")}
-        >
-          <CardContent className="p-6 text-center space-y-4">
-            <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-r from-secondary to-primary flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Video className="w-8 h-8 text-white" />
+        {/* Upsell / Plans — 2 cols */}
+        <motion.div {...fadeUp(0.6)} className="lg:col-span-2 space-y-3">
+          {/* Upgrade CTA */}
+          <Card className="bg-gradient-to-br from-primary/15 via-secondary/10 to-accent/10 border-primary/20 rounded-2xl p-5 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/15 rounded-full blur-[50px]" />
+            <div className="relative z-10">
+              <div className="flex items-center gap-2 mb-3">
+                <Crown className="w-5 h-5 text-primary" />
+                <h3 className="text-sm font-bold text-foreground">Pacote Creator Pro</h3>
+              </div>
+              <p className="text-xs text-muted-foreground mb-4">30 gerações/mês + prioridade na fila + suporte VIP</p>
+              <div className="flex items-baseline gap-1 mb-4">
+                <span className="text-2xl font-black text-foreground">R$ 220</span>
+                <span className="text-xs text-muted-foreground">/mês</span>
+              </div>
+              <Button
+                onClick={() => navigate("/app/planos")}
+                className="w-full bg-primary hover:bg-primary/90 rounded-xl text-xs font-bold gap-1.5"
+              >
+                <Zap className="w-3.5 h-3.5" />
+                Fazer Upgrade
+              </Button>
             </div>
-            <div>
-              <h3 className="font-bold text-xl mb-2">Live Shop</h3>
-              <p className="text-sm text-muted-foreground">
-                Transmissões ao vivo com vendas
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+          </Card>
 
-        <Card 
-          className="border-border/50 bg-gradient-to-br from-orange-500/10 to-transparent hover:shadow-xl transition-all cursor-pointer group"
-          onClick={() => navigate("/app/talentos")}
-        >
-          <CardContent className="p-6 text-center space-y-4">
-            <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-r from-orange-500 to-secondary flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Users className="w-8 h-8 text-white" />
+          {/* Quick stats */}
+          <Card className="bg-white/[0.02] border-white/[0.06] rounded-2xl p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <Star className="w-4 h-4 text-secondary" />
+              <h3 className="text-sm font-bold text-foreground">Suas Métricas</h3>
             </div>
-            <div>
-              <h3 className="font-bold text-xl mb-2">Descobrir Talentos</h3>
-              <p className="text-sm text-muted-foreground">
-                Explore influenciadores e avatares
-              </p>
+            <div className="space-y-3">
+              {[
+                { label: "Taxa de conclusão", value: purchases.length > 0 ? `${Math.round((completedCount / purchases.length) * 100)}%` : "—", color: "bg-green-400" },
+                { label: "Prompt mais usado", value: purchases.length > 0 ? (purchases[0]?.prompts?.name?.slice(0, 18) || "—") : "—", color: "bg-primary" },
+                { label: "Economia vs. fotógrafo", value: totalSpent > 0 ? `R$ ${Math.round((totalSpent / 100) * 4)}` : "—", color: "bg-secondary" },
+              ].map((item) => (
+                <div key={item.label} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-1.5 h-1.5 rounded-full ${item.color}`} />
+                    <span className="text-xs text-muted-foreground">{item.label}</span>
+                  </div>
+                  <span className="text-xs font-bold text-foreground">{item.value}</span>
+                </div>
+              ))}
             </div>
-          </CardContent>
-        </Card>
+          </Card>
+
+          {/* Gift / referral */}
+          <Card className="bg-white/[0.02] border-white/[0.06] rounded-2xl p-5">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-accent/10">
+                <Gift className="w-5 h-5 text-accent" />
+              </div>
+              <div className="flex-1">
+                <p className="text-xs font-bold text-foreground">Indique e ganhe</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">Ganhe 5 créditos por cada amigo</p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-muted-foreground/40" />
+            </div>
+          </Card>
+        </motion.div>
       </div>
     </div>
   );
