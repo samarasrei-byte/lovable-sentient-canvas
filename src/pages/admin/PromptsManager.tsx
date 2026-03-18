@@ -1,4 +1,14 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { PromptFromScreenshot } from "@/components/admin/PromptFromScreenshot";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -278,6 +288,7 @@ const PromptsManager = () => {
   const [cropModalOpen, setCropModalOpen] = useState(false);
   const [fileToCrop, setFileToCrop] = useState<File | null>(null);
   const [screenshotModalOpen, setScreenshotModalOpen] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -548,8 +559,6 @@ const PromptsManager = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Tem certeza que deseja excluir este prompt?")) return;
-
     try {
       const { error } = await supabase
         .from("prompts")
@@ -557,6 +566,7 @@ const PromptsManager = () => {
         .eq("id", id);
       if (error) throw error;
       toast.success("Prompt excluído!");
+      setDeleteConfirmId(null);
       fetchPrompts();
     } catch (error) {
       console.error("Error deleting prompt:", error);
@@ -954,7 +964,7 @@ const PromptsManager = () => {
                         <Button 
                           variant="ghost" 
                           size="icon"
-                          onClick={() => handleDelete(prompt.id)}
+                          onClick={() => setDeleteConfirmId(prompt.id)}
                         >
                           <Trash2 className="w-4 h-4 text-destructive" />
                         </Button>
@@ -987,6 +997,27 @@ const PromptsManager = () => {
         onClose={() => setScreenshotModalOpen(false)}
         onPromptCreated={fetchPrompts}
       />
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteConfirmId} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir Prompt?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Essa ação não pode ser desfeita. O prompt será removido permanentemente.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => deleteConfirmId && handleDelete(deleteConfirmId)}
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
