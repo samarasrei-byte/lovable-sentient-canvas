@@ -276,6 +276,7 @@ const PromptsManager = () => {
   const [isDragOver, setIsDragOver] = useState(false);
   const [cropModalOpen, setCropModalOpen] = useState(false);
   const [fileToCrop, setFileToCrop] = useState<File | null>(null);
+  const [screenshotModalOpen, setScreenshotModalOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
