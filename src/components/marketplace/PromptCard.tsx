@@ -119,7 +119,7 @@ export const PromptCard = ({ prompt, index, onSelect, variant = 'grid' }: Prompt
           <div className="absolute top-3 left-3 right-3 flex items-start justify-between">
             {/* Hype Badge with glow */}
             <Badge className="bg-primary/90 text-primary-foreground text-[10px] px-3 py-1 font-semibold border-0 shadow-[0_0_12px_hsl(var(--primary)/0.4)] backdrop-blur-md">
-              {prompt.hype_text || '🔥 Trending'}
+              {prompt.hype_text || 'Trending'}
             </Badge>
 
             {/* Category Icon with neon border */}

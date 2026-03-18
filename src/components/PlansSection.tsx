@@ -147,10 +147,10 @@ const featureRows = [
 ] as const;
 
 const categoryLabels: Record<string, string> = {
-  core: "📸 Criação de Conteúdo",
-  growth: "🚀 Crescimento & Vendas",
-  tools: "🛠️ Ferramentas",
-  enterprise: "🏢 Enterprise",
+  core: "Criação de Conteúdo",
+  growth: "Crescimento & Vendas",
+  tools: "Ferramentas",
+  enterprise: "Enterprise",
 };
 
 export const PlansSection = () => {
@@ -158,7 +158,7 @@ export const PlansSection = () => {
   const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
 
   const renderFeatureValue = (value: boolean | string) => {
-    if (value === true) return <Check className="w-4 h-4 text-emerald-400" />;
+    if (value === true) return <Check className="w-4 h-4 text-primary" />;
     if (value === false) return <X className="w-3.5 h-3.5 text-muted-foreground/20" />;
     return <span className="text-xs font-medium text-foreground leading-tight">{value}</span>;
   };
@@ -242,7 +242,7 @@ export const PlansSection = () => {
             }`}
           >
             Anual
-            <span className="absolute -top-2.5 -right-4 px-2 py-0.5 rounded-full bg-emerald-500/90 text-white text-[10px] font-bold whitespace-nowrap">
+            <span className="absolute -top-2.5 -right-4 px-2 py-0.5 rounded-full bg-secondary/90 text-secondary-foreground text-[10px] font-bold whitespace-nowrap">
               -20%
             </span>
           </button>
@@ -272,9 +272,9 @@ export const PlansSection = () => {
               >
                 {plan.popular && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <Badge className="bg-primary text-primary-foreground text-xs font-bold px-4 py-1 border-0 shadow-lg shadow-primary/30">
-                      ⭐ MELHOR CUSTO-BENEFÍCIO
-                    </Badge>
+                     <Badge className="bg-primary text-primary-foreground text-xs font-bold px-4 py-1 border-0 shadow-lg shadow-primary/30">
+                       MELHOR CUSTO-BENEFÍCIO
+                     </Badge>
                   </div>
                 )}
 
@@ -307,7 +307,7 @@ export const PlansSection = () => {
                 </div>
 
                 {billing === "yearly" && (
-                  <p className="text-xs text-emerald-400 font-medium mb-4">
+                  <p className="text-xs text-secondary font-medium mb-4">
                     Economize R${(
                       (parseInt(plan.price.replace(".", "")) - parseInt(plan.yearlyPrice.replace(".", ""))) * 12
                     ).toLocaleString("pt-BR")}/ano
@@ -322,7 +322,7 @@ export const PlansSection = () => {
                     if (val === false) return null;
                     return (
                       <div key={row.key} className="flex items-start gap-2.5 text-sm">
-                        <Check className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                        <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
                         <span className="text-muted-foreground leading-tight">
                           <strong className="text-foreground/80">{row.label}</strong>
                           {typeof val === "string" ? `: ${val}` : ""}
@@ -399,7 +399,7 @@ export const PlansSection = () => {
                   </div>
 
                   {billing === "yearly" && (
-                    <p className="text-[10px] text-emerald-400 font-medium mt-1">
+                    <p className="text-[10px] text-secondary font-medium mt-1">
                       Economize R${(
                         (parseInt(plan.price.replace(".", "")) - parseInt(plan.yearlyPrice.replace(".", ""))) * 12
                       ).toLocaleString("pt-BR")}/ano
@@ -469,14 +469,14 @@ export const PlansSection = () => {
           transition={{ duration: 0.4, delay: 0.25 }}
           className="mt-10 p-6 rounded-2xl border border-primary/10 bg-primary/[0.03] text-center"
         >
-          <p className="text-sm text-muted-foreground mb-2">💡 Faça as contas:</p>
+          <p className="text-sm text-muted-foreground mb-2">Faça as contas:</p>
           <p className="text-base md:text-lg text-foreground font-medium">
             20 prompts avulsos (R$21 cada) = <span className="line-through text-muted-foreground">R$420/mês</span>
             {" → "}
             <strong className="text-primary">Creator Pro por R${billing === "monthly" ? "220" : "176"}/mês</strong>
             {" + fotos ilimitadas + vídeos + Live Shop"}
           </p>
-          <p className="text-xs text-emerald-400 mt-2 font-medium">
+          <p className="text-xs text-secondary mt-2 font-medium">
             Economia de {billing === "monthly" ? "47%" : "58%"} + funcionalidades extras inclusas
           </p>
         </motion.div>
@@ -504,7 +504,7 @@ export const PlansSection = () => {
           </div>
           <span className="hidden sm:block text-white/10">|</span>
           <div className="flex items-center gap-2">
-            <Shield className="w-4 h-4 text-emerald-400" />
+            <Shield className="w-4 h-4 text-primary" />
             <span>Garantia de 7 dias — cancele e receba reembolso total</span>
           </div>
           <span className="hidden sm:block text-white/10">|</span>

@@ -457,8 +457,8 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                       <QrCode className="w-24 h-24 text-white" />
                     </div>
                     {paymentStatus === 'paid' && (
-                      <div className="absolute inset-0 bg-green-500/90 rounded-xl flex items-center justify-center">
-                        <CheckCircle2 className="w-16 h-16 text-white" />
+                      <div className="absolute inset-0 bg-primary/90 rounded-xl flex items-center justify-center">
+                        <CheckCircle2 className="w-16 h-16 text-primary-foreground" />
                       </div>
                     )}
                   </div>
@@ -475,7 +475,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                       className="absolute right-2 top-1/2 -translate-y-1/2 p-2 hover:bg-white/10 rounded transition-colors"
                     >
                       {copied ? (
-                        <Check className="w-4 h-4 text-green-500" />
+                        <Check className="w-4 h-4 text-primary" />
                       ) : (
                         <Copy className="w-4 h-4 text-muted-foreground" />
                       )}
@@ -485,7 +485,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                   {/* Payment Status */}
                   <div className="mt-4 p-3 rounded-lg bg-white/5 border border-white/10">
                     {paymentStatus === 'pending' && (
-                      <div className="flex items-center justify-center gap-2 text-yellow-500">
+                      <div className="flex items-center justify-center gap-2 text-secondary">
                         <Clock className="w-4 h-4" />
                         <span className="text-sm">Aguardando pagamento...</span>
                       </div>
@@ -497,7 +497,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                       </div>
                     )}
                     {paymentStatus === 'paid' && (
-                      <div className="flex items-center justify-center gap-2 text-green-500">
+                      <div className="flex items-center justify-center gap-2 text-primary">
                         <CheckCircle2 className="w-4 h-4" />
                         <span className="text-sm">Pagamento confirmado!</span>
                       </div>
@@ -580,7 +580,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                 className="space-y-4"
               >
                 <div className="text-center mb-4">
-                  <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-2" />
+                  <CheckCircle2 className="w-12 h-12 text-primary mx-auto mb-2" />
                   <h3 className="text-lg font-medium">Imagem gerada com sucesso!</h3>
                 </div>
 

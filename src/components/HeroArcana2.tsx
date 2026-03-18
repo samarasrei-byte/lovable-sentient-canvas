@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { GlassButton } from "@/components/ui/glass-button";
 import { Badge } from "@/components/ui/badge";
-import { Zap, Menu, ArrowRight, Flame, Star, TrendingUp } from "lucide-react";
+import { Zap, Menu, ArrowRight, Flame, Star, TrendingUp, Sparkles } from "lucide-react";
 import heroLiquid from "@/assets/hero-liquid.jpg";
 import { useParallax } from "@/hooks/use-parallax";
 import { InstallButton } from "@/components/pwa/InstallButton";
@@ -124,9 +124,9 @@ export const HeroArcana2 = () => {
           transition={{ duration: 0.6, delay: 0.05 }}
           className="mb-6"
         >
-          <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-destructive/20 to-secondary/20 border border-destructive/40 text-sm font-bold text-destructive shadow-[0_0_25px_hsl(var(--destructive)/0.2)] animate-pulse">
-            <Flame className="w-4 h-4" />
-            🔥 +47.000 fotos geradas esta semana — os prompts mais virais do Brasil
+          <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-primary/20 to-secondary/20 border border-primary/40 text-sm font-bold text-primary shadow-[0_0_25px_hsl(var(--primary)/0.2)] animate-pulse">
+            <TrendingUp className="w-4 h-4" />
+            +47.000 fotos geradas esta semana — os prompts mais virais do Brasil
           </span>
         </motion.div>
 
@@ -138,7 +138,7 @@ export const HeroArcana2 = () => {
           className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black mb-6 md:mb-8 text-foreground leading-[1.1] tracking-tight"
         >
           As fotos de IA que{" "}
-          <span className="bg-gradient-to-r from-destructive via-secondary to-primary bg-clip-text text-transparent drop-shadow-[0_0_40px_hsl(var(--secondary)/0.4)]">
+          <span className="bg-gradient-to-r from-accent via-secondary to-primary bg-clip-text text-transparent drop-shadow-[0_0_40px_hsl(var(--secondary)/0.4)]">
             mais bombam
           </span>{" "}
           na internet{" "}
@@ -166,8 +166,8 @@ export const HeroArcana2 = () => {
           transition={{ duration: 0.6, delay: 0.25 }}
           className="flex flex-wrap items-center justify-center gap-3 md:gap-4 mb-8 md:mb-10"
         >
-          <div className="flex items-center gap-2 text-sm text-muted-foreground px-4 py-2.5 rounded-full bg-card/50 border border-destructive/30 backdrop-blur-sm shadow-[0_0_15px_hsl(var(--destructive)/0.1)]">
-            <TrendingUp className="w-4 h-4 text-destructive" />
+          <div className="flex items-center gap-2 text-sm text-muted-foreground px-4 py-2.5 rounded-full bg-card/50 border border-primary/30 backdrop-blur-sm shadow-[0_0_15px_hsl(var(--primary)/0.1)]">
+            <TrendingUp className="w-4 h-4 text-primary" />
             <span className="font-black text-foreground">#1</span>
             <span>em fotos IA no Brasil</span>
           </div>
@@ -177,13 +177,13 @@ export const HeroArcana2 = () => {
             <span>avaliação</span>
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground px-4 py-2.5 rounded-full bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/30 backdrop-blur-sm">
-            <span className="text-lg">⚡</span>
+            <Zap className="w-4 h-4 text-secondary" />
             <span className="font-bold text-foreground">Resultado em 60s</span>
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground px-4 py-2.5 rounded-full bg-card/50 border border-secondary/30 backdrop-blur-sm">
-            <span className="text-lg">📸</span>
+            <Sparkles className="w-4 h-4 text-primary" />
             <span className="font-medium text-foreground">LinkedIn + Lifestyle + Fashion</span>
-            <Badge className="text-[10px] px-1.5 py-0.5 bg-destructive/30 text-destructive border-0 animate-pulse font-bold">HOT</Badge>
+            <Badge className="text-[10px] px-1.5 py-0.5 bg-accent/30 text-accent border-0 animate-pulse font-bold">HOT</Badge>
           </div>
         </motion.div>
 
@@ -212,13 +212,13 @@ export const HeroArcana2 = () => {
                 size="lg"
                 className="touch-manipulation transition-all duration-500"
               >
-                <span className="text-xs px-2 py-0.5 rounded-full bg-destructive/30 text-destructive font-black mr-2 animate-pulse">🔥 NOVO</span>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-accent/30 text-accent font-black mr-2 animate-pulse">NOVO</span>
                 Gerar Minha Foto IA
               </GlassButton>
             </a>
           </div>
-          <p className="text-sm text-muted-foreground font-medium">
-            ⚡ Sem cadastro • PIX instantâneo • Download imediato
+          <p className="text-sm text-muted-foreground font-medium flex items-center justify-center gap-1">
+            <Zap className="w-3.5 h-3.5 text-secondary" /> Sem cadastro · PIX instantâneo · Download imediato
           </p>
           <p className="text-xs text-muted-foreground/60">
             Já usado por +10.000 creators, marcas e profissionais

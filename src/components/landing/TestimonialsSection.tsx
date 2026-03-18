@@ -7,7 +7,7 @@ const testimonials = [
     name: "Mariana Costa",
     handle: "@marianacosta",
     avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
-    content: "Usei o prompt de cyberpunk e a foto ficou SURREAL. Meus seguidores acharam que eu tinha contratado um fotógrafo profissional! 🔥",
+    content: "Usei o prompt de cyberpunk e a foto ficou SURREAL. Meus seguidores acharam que eu tinha contratado um fotógrafo profissional!",
     followers: "890K",
     rating: 5,
   },
