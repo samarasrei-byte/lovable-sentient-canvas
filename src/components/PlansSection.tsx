@@ -504,7 +504,7 @@ export const PlansSection = () => {
           </div>
           <span className="hidden sm:block text-white/10">|</span>
           <div className="flex items-center gap-2">
-            <Shield className="w-4 h-4 text-emerald-400" />
+            <Shield className="w-4 h-4 text-primary" />
             <span>Garantia de 7 dias — cancele e receba reembolso total</span>
           </div>
           <span className="hidden sm:block text-white/10">|</span>

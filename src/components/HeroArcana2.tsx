@@ -217,8 +217,8 @@ export const HeroArcana2 = () => {
               </GlassButton>
             </a>
           </div>
-          <p className="text-sm text-muted-foreground font-medium">
-            ⚡ Sem cadastro • PIX instantâneo • Download imediato
+          <p className="text-sm text-muted-foreground font-medium flex items-center justify-center gap-1">
+            <Zap className="w-3.5 h-3.5 text-secondary" /> Sem cadastro · PIX instantâneo · Download imediato
           </p>
           <p className="text-xs text-muted-foreground/60">
             Já usado por +10.000 creators, marcas e profissionais

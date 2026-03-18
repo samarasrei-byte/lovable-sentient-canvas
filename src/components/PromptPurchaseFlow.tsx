@@ -580,7 +580,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                 className="space-y-4"
               >
                 <div className="text-center mb-4">
-                  <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-2" />
+                  <CheckCircle2 className="w-12 h-12 text-primary mx-auto mb-2" />
                   <h3 className="text-lg font-medium">Imagem gerada com sucesso!</h3>
                 </div>
 
