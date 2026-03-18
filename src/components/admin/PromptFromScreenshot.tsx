@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Camera, Loader2, Sparkles, Wand2, Upload, CheckCircle, Image as ImageIcon, ClipboardPaste } from "lucide-react";
+import { Camera, Loader2, Sparkles, Wand2, Upload, CheckCircle, ClipboardPaste, ImagePlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -32,6 +32,7 @@ type Step = "upload" | "review" | "generating" | "done";
 export const PromptFromScreenshot = ({ open, onClose, onPromptCreated }: PromptFromScreenshotProps) => {
   const [step, setStep] = useState<Step>("upload");
   const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null);
+  const [referencePhotoPreview, setReferencePhotoPreview] = useState<string | null>(null);
   const [extractedText, setExtractedText] = useState("");
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -43,6 +44,7 @@ export const PromptFromScreenshot = ({ open, onClose, onPromptCreated }: PromptF
   const reset = () => {
     setStep("upload");
     setScreenshotPreview(null);
+    setReferencePhotoPreview(null);
     setExtractedText("");
     setGeneratedImageUrl(null);
     setLoading(false);
@@ -57,7 +59,7 @@ export const PromptFromScreenshot = ({ open, onClose, onPromptCreated }: PromptF
     onClose();
   };
 
-  const handleFileUpload = (file: File) => {
+  const handleScreenshotUpload = (file: File) => {
     if (!file.type.startsWith("image/")) {
       toast.error("Envie apenas imagens");
       return;
@@ -71,13 +73,25 @@ export const PromptFromScreenshot = ({ open, onClose, onPromptCreated }: PromptF
     reader.readAsDataURL(file);
   };
 
+  const handleReferencePhotoUpload = (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast.error("Envie apenas imagens");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setReferencePhotoPreview(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handlePaste = useCallback((e: React.ClipboardEvent) => {
     const items = e.clipboardData.items;
     for (const item of items) {
       if (item.type.startsWith("image/")) {
         e.preventDefault();
         const file = item.getAsFile();
-        if (file) handleFileUpload(file);
+        if (file) handleScreenshotUpload(file);
         return;
       }
     }
@@ -86,7 +100,7 @@ export const PromptFromScreenshot = ({ open, onClose, onPromptCreated }: PromptF
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
-    if (file) handleFileUpload(file);
+    if (file) handleScreenshotUpload(file);
   }, []);
 
   const extractPromptFromScreenshot = async (imageDataUrl: string) => {
@@ -101,11 +115,9 @@ export const PromptFromScreenshot = ({ open, onClose, onPromptCreated }: PromptF
 
       setExtractedText(data.extractedText);
       
-      // Auto-detect name from prompt
       const words = data.extractedText.split(" ").slice(0, 4).join(" ");
       setPromptName(words.length > 30 ? words.substring(0, 30) + "..." : words);
       
-      // Auto-detect category
       const lower = data.extractedText.toLowerCase();
       if (lower.includes("cyberpunk") || lower.includes("neon")) setPromptCategory("Cyberpunk");
       else if (lower.includes("anime") || lower.includes("manga")) setPromptCategory("Anime");
@@ -124,11 +136,19 @@ export const PromptFromScreenshot = ({ open, onClose, onPromptCreated }: PromptF
   };
 
   const generateImage = async () => {
+    if (!referencePhotoPreview) {
+      toast.error("Suba uma foto de referência antes de gerar");
+      return;
+    }
     setStep("generating");
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke("prompt-from-screenshot", {
-        body: { promptText: extractedText, action: "generate" }
+        body: { 
+          promptText: extractedText, 
+          referenceImageUrl: referencePhotoPreview,
+          action: "generate" 
+        }
       });
 
       if (error) throw error;
@@ -151,7 +171,6 @@ export const PromptFromScreenshot = ({ open, onClose, onPromptCreated }: PromptF
     setSaving(true);
 
     try {
-      // Upload the generated image to storage if it's base64
       let finalImageUrl = generatedImageUrl;
       if (generatedImageUrl.startsWith("data:")) {
         const base64 = generatedImageUrl.split(",")[1];
@@ -168,7 +187,6 @@ export const PromptFromScreenshot = ({ open, onClose, onPromptCreated }: PromptF
         finalImageUrl = urlData.publicUrl;
       }
 
-      // Detect required fields
       const requiredFields: string[] = ["photo"];
       if (extractedText.includes("{name}")) requiredFields.push("name");
       if (extractedText.includes("{instagram}")) requiredFields.push("instagram");
@@ -221,7 +239,7 @@ export const PromptFromScreenshot = ({ open, onClose, onPromptCreated }: PromptF
         </DialogHeader>
 
         <AnimatePresence mode="wait">
-          {/* Step 1: Upload */}
+          {/* Step 1: Upload screenshot */}
           {step === "upload" && (
             <motion.div
               key="upload"
@@ -231,7 +249,7 @@ export const PromptFromScreenshot = ({ open, onClose, onPromptCreated }: PromptF
               className="space-y-4"
             >
               <p className="text-sm text-muted-foreground">
-                Cole (Ctrl+V) ou arraste um print de prompt. A IA vai extrair o texto e gerar a imagem de exemplo automaticamente.
+                Cole (Ctrl+V) ou arraste um print de prompt. A IA vai extrair o texto automaticamente.
               </p>
               
               <div
@@ -263,14 +281,14 @@ export const PromptFromScreenshot = ({ open, onClose, onPromptCreated }: PromptF
                   className="hidden"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
-                    if (file) handleFileUpload(file);
+                    if (file) handleScreenshotUpload(file);
                   }}
                 />
               </div>
             </motion.div>
           )}
 
-          {/* Step 2: Review extracted text */}
+          {/* Step 2: Review text + upload reference photo */}
           {step === "review" && (
             <motion.div
               key="review"
@@ -283,8 +301,8 @@ export const PromptFromScreenshot = ({ open, onClose, onPromptCreated }: PromptF
                 {/* Screenshot preview */}
                 {screenshotPreview && (
                   <div className="rounded-lg overflow-hidden border border-border">
-                    <img src={screenshotPreview} alt="Screenshot" className="w-full h-40 object-cover" />
-                    <p className="text-[10px] text-center text-muted-foreground py-1">Screenshot original</p>
+                    <img src={screenshotPreview} alt="Screenshot" className="w-full h-32 object-cover" />
+                    <p className="text-[10px] text-center text-muted-foreground py-1">Print original</p>
                   </div>
                 )}
                 
@@ -329,16 +347,57 @@ export const PromptFromScreenshot = ({ open, onClose, onPromptCreated }: PromptF
                 <Textarea
                   value={extractedText}
                   onChange={(e) => setExtractedText(e.target.value)}
-                  rows={6}
+                  rows={4}
                   className="text-sm font-mono"
                 />
+              </div>
+
+              {/* Reference photo upload */}
+              <div>
+                <Label className="text-xs font-semibold">📸 Suba a foto de referência para gerar a imagem de exemplo</Label>
+                <p className="text-[11px] text-muted-foreground mb-2">
+                  Esta foto + o prompt extraído serão usados para gerar a imagem de exemplo do marketplace.
+                </p>
+                <div
+                  className="border-2 border-dashed border-accent/40 rounded-xl p-6 text-center cursor-pointer hover:border-accent/70 hover:bg-accent/5 transition-all"
+                  onClick={() => document.getElementById("reference-photo-input")?.click()}
+                >
+                  {referencePhotoPreview ? (
+                    <div className="flex items-center gap-4">
+                      <img src={referencePhotoPreview} alt="Referência" className="w-24 h-24 object-cover rounded-lg" />
+                      <div className="text-left">
+                        <p className="text-sm font-medium text-accent">Foto carregada ✓</p>
+                        <p className="text-[11px] text-muted-foreground">Clique para trocar</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-2">
+                      <ImagePlus className="w-8 h-8 text-accent/60" />
+                      <p className="text-sm">Clique para subir a foto de referência</p>
+                    </div>
+                  )}
+                  <input
+                    id="reference-photo-input"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleReferencePhotoUpload(file);
+                    }}
+                  />
+                </div>
               </div>
 
               <div className="flex gap-2">
                 <Button variant="outline" onClick={() => { reset(); }} className="flex-1">
                   Voltar
                 </Button>
-                <Button onClick={generateImage} className="flex-1 gap-2">
+                <Button 
+                  onClick={generateImage} 
+                  disabled={!referencePhotoPreview}
+                  className="flex-1 gap-2"
+                >
                   <Wand2 className="w-4 h-4" />
                   Gerar Imagem de Exemplo
                 </Button>
@@ -358,7 +417,7 @@ export const PromptFromScreenshot = ({ open, onClose, onPromptCreated }: PromptF
               <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
                 <Sparkles className="w-10 h-10 text-primary animate-pulse" />
               </div>
-              <p className="font-medium">Gerando imagem de exemplo...</p>
+              <p className="font-medium">Gerando imagem com prompt + foto de referência...</p>
               <p className="text-sm text-muted-foreground">Isso pode levar alguns segundos</p>
               <Loader2 className="w-6 h-6 animate-spin mx-auto text-primary" />
             </motion.div>
@@ -379,7 +438,6 @@ export const PromptFromScreenshot = ({ open, onClose, onPromptCreated }: PromptF
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                {/* Generated image */}
                 {generatedImageUrl && (
                   <div className="rounded-lg overflow-hidden border border-primary/30">
                     <img src={generatedImageUrl} alt="Generated" className="w-full aspect-[4/5] object-cover" />
@@ -387,7 +445,6 @@ export const PromptFromScreenshot = ({ open, onClose, onPromptCreated }: PromptF
                   </div>
                 )}
 
-                {/* Final details */}
                 <div className="space-y-3">
                   <div>
                     <Label className="text-xs">Nome</Label>
@@ -427,7 +484,7 @@ export const PromptFromScreenshot = ({ open, onClose, onPromptCreated }: PromptF
               </div>
 
               <div className="flex gap-2">
-                <Button variant="outline" onClick={generateImage} className="flex-1 gap-2">
+                <Button variant="outline" onClick={() => setStep("review")} className="flex-1 gap-2">
                   <Wand2 className="w-4 h-4" />
                   Regenerar
                 </Button>

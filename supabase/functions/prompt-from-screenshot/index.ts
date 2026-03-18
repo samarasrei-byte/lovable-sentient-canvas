@@ -12,7 +12,7 @@ serve(async (req) => {
 
   try {
     const body = await req.json();
-    const { screenshotUrl, action, promptText } = body;
+    const { screenshotUrl, action, promptText, referenceImageUrl } = body;
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -63,12 +63,16 @@ serve(async (req) => {
     }
 
     if (action === "generate") {
-      console.log("Generating image from prompt:", promptText?.substring(0, 200));
+      console.log("Generating image from prompt + reference photo...");
 
       if (!promptText) {
         throw new Error("promptText is required for generate action");
       }
+      if (!referenceImageUrl) {
+        throw new Error("referenceImageUrl is required for generate action");
+      }
 
+      // Use image editing: send the reference photo + prompt text to generate styled image
       const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -79,7 +83,16 @@ serve(async (req) => {
           model: "google/gemini-2.5-flash-image",
           messages: [{
             role: "user",
-            content: promptText + ". Ultra high resolution, professional quality, 8k."
+            content: [
+              {
+                type: "text",
+                text: promptText + ". Use this reference image as the base subject. Ultra high resolution, professional quality, 8k."
+              },
+              {
+                type: "image_url",
+                image_url: { url: referenceImageUrl }
+              }
+            ]
           }],
           modalities: ["image", "text"]
         }),
@@ -88,12 +101,19 @@ serve(async (req) => {
       if (!response.ok) {
         const errorText = await response.text();
         console.error("Image generation error:", response.status, errorText);
+        if (response.status === 429) {
+          throw new Error("Rate limit excedido. Tente novamente em alguns segundos.");
+        }
+        if (response.status === 402) {
+          throw new Error("Créditos insuficientes. Adicione créditos ao workspace.");
+        }
         throw new Error("Failed to generate image");
       }
 
       const data = await response.json();
       const choice = data.choices?.[0]?.message;
 
+      // Try multiple response formats
       const imageUrl = 
         choice?.images?.[0]?.image_url?.url ||
         (Array.isArray(choice?.content) 
@@ -109,7 +129,8 @@ serve(async (req) => {
           : null);
 
       if (!imageUrl) {
-        throw new Error("No image generated. Please try again.");
+        console.error("No image in response:", JSON.stringify(data).substring(0, 500));
+        throw new Error("Nenhuma imagem gerada. Tente novamente.");
       }
 
       return new Response(
