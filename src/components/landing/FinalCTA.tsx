@@ -1,22 +1,27 @@
-import { useRef } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, Sparkles, Shield, Zap } from "lucide-react";
 import { GlassButton } from "@/components/ui/glass-button";
-import { useParallax } from "@/hooks/use-parallax";
+import { WavyBackground } from "@/components/ui/wavy-background";
 
 export const FinalCTA = () => {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const parallaxOffset = useParallax(sectionRef, 0.12);
-
   return (
-    <section ref={sectionRef} className="relative py-32 px-6 overflow-hidden">
-      {/* Parallax orb */}
-      <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/[0.08] rounded-full blur-[180px] pointer-events-none"
-        style={{ transform: `translate(-50%, calc(-50% + ${parallaxOffset * 0.6}px))` }}
-      />
-
-      <div className="max-w-3xl mx-auto relative z-10 text-center">
+    <section className="relative overflow-hidden">
+      <WavyBackground
+        containerClassName="min-h-[70vh] py-32 px-6"
+        className="max-w-3xl mx-auto text-center"
+        colors={[
+          "hsl(var(--primary))",
+          "hsl(var(--secondary))",
+          "hsl(var(--accent))",
+          "#818cf8",
+          "#22d3ee",
+        ]}
+        waveWidth={40}
+        blur={12}
+        speed="slow"
+        waveOpacity={0.3}
+        backgroundFill="hsl(var(--background))"
+      >
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -61,7 +66,7 @@ export const FinalCTA = () => {
             </div>
           </div>
         </motion.div>
-      </div>
+      </WavyBackground>
     </section>
   );
 };
