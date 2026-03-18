@@ -1,9 +1,9 @@
 import { HeroArcana2 } from "@/components/HeroArcana2";
 import { SocialProofBanner } from "@/components/landing/SocialProofBanner";
 import { PromptMarketplace } from "@/components/marketplace";
+import { UpgradeUpsell } from "@/components/landing/UpgradeUpsell";
 import { PhotoServicesSection } from "@/components/photo-services";
 import { ValueProposition } from "@/components/landing/ValueProposition";
-// import { InfluencerMarketplaceComingSoon } from "@/components/InfluencerMarketplaceComingSoon";
 import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
 import { HowItWorksNew } from "@/components/HowItWorksNew";
 import { FAQSection } from "@/components/FAQSection";
@@ -31,6 +31,9 @@ const Index = () => {
       
       {/* Prompt Marketplace - Galeria de Elite */}
       <PromptMarketplace />
+      
+      {/* Upgrade Upsell - 8 fotos/R$100 */}
+      <UpgradeUpsell />
       
       {/* Photo Services - Upload de Fotos IA */}
       <PhotoServicesSection />

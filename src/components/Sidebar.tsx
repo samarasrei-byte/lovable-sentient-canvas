@@ -62,6 +62,7 @@ const menuGroups: MenuGroup[] = [
       { path: "/app/prompt-dashboard", icon: ShoppingBag, label: "Prompt Marketplace" },
       { path: "/app/meus-produtos", icon: Camera, label: "Minhas Criações" },
       { path: "/app/ai-studio", icon: Sparkles, label: "IA Studio" },
+      { path: "/app/planos", icon: Wallet, label: "Assinatura" },
     ]
   },
   {
