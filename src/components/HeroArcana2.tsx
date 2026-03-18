@@ -57,6 +57,12 @@ export const HeroArcana2 = () => {
               </a>
             ))}
             <InstallButton />
+            <a
+              href="/login"
+              className="ml-2 px-5 py-2 rounded-xl text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200 shadow-lg shadow-primary/20"
+            >
+              Entrar
+            </a>
           </div>
 
           <div className="flex md:hidden items-center gap-2">
@@ -79,6 +85,13 @@ export const HeroArcana2 = () => {
                       {link.label}
                     </a>
                   ))}
+                  <a
+                    href="/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="mt-4 text-center py-3 px-4 rounded-xl text-lg font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-all"
+                  >
+                    Entrar
+                  </a>
                 </div>
               </SheetContent>
             </Sheet>
