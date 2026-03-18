@@ -20,7 +20,8 @@ import {
   Camera,
   ChevronDown,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Palette
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
