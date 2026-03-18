@@ -138,7 +138,7 @@ export const HeroArcana2 = () => {
           className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black mb-6 md:mb-8 text-foreground leading-[1.1] tracking-tight"
         >
           As fotos de IA que{" "}
-          <span className="bg-gradient-to-r from-destructive via-secondary to-primary bg-clip-text text-transparent drop-shadow-[0_0_40px_hsl(var(--secondary)/0.4)]">
+          <span className="bg-gradient-to-r from-accent via-secondary to-primary bg-clip-text text-transparent drop-shadow-[0_0_40px_hsl(var(--secondary)/0.4)]">
             mais bombam
           </span>{" "}
           na internet{" "}
