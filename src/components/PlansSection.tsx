@@ -147,10 +147,10 @@ const featureRows = [
 ] as const;
 
 const categoryLabels: Record<string, string> = {
-  core: "📸 Criação de Conteúdo",
-  growth: "🚀 Crescimento & Vendas",
-  tools: "🛠️ Ferramentas",
-  enterprise: "🏢 Enterprise",
+  core: "Criação de Conteúdo",
+  growth: "Crescimento & Vendas",
+  tools: "Ferramentas",
+  enterprise: "Enterprise",
 };
 
 export const PlansSection = () => {
