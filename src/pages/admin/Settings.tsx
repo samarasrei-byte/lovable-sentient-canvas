@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Settings as SettingsIcon, 
@@ -12,7 +13,11 @@ import {
   Shield,
   Mail,
   Database,
-  Sparkles
+  Sparkles,
+  CreditCard,
+  ExternalLink,
+  CheckCircle2,
+  AlertCircle
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -56,9 +61,10 @@ const AdminSettings = () => {
 
       {/* Settings Tabs */}
       <Tabs defaultValue="general" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 lg:w-[600px]">
+        <TabsList className="grid w-full grid-cols-5 lg:w-[750px]">
           <TabsTrigger value="general">Geral</TabsTrigger>
           <TabsTrigger value="financial">Financeiro</TabsTrigger>
+          <TabsTrigger value="payments">Pagamentos</TabsTrigger>
           <TabsTrigger value="notifications">Notificações</TabsTrigger>
           <TabsTrigger value="security">Segurança</TabsTrigger>
         </TabsList>
@@ -178,6 +184,81 @@ const AdminSettings = () => {
                   </Button>
                 </div>
               </div>
+            </div>
+          </Card>
+        </TabsContent>
+
+        {/* Payments Tab - Mercado Pago */}
+        <TabsContent value="payments" className="space-y-6">
+          <Card className="p-6">
+            <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+              <CreditCard className="w-5 h-5 text-primary" />
+              Integração Mercado Pago
+            </h2>
+
+            <div className="space-y-6">
+              {/* Status */}
+              <div className="p-4 rounded-xl border border-yellow-500/20 bg-yellow-500/5">
+                <div className="flex items-center gap-2 mb-1">
+                  <AlertCircle className="w-4 h-4 text-yellow-500" />
+                  <span className="text-sm font-semibold text-yellow-500">Aguardando configuração</span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Configure suas credenciais do Mercado Pago para ativar pagamentos PIX automáticos.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="mp_access_token">Access Token (Produção)</Label>
+                <Input
+                  id="mp_access_token"
+                  type="password"
+                  placeholder="APP_USR-xxxxxxxxxxxx"
+                  className="font-mono"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Encontre em{" "}
+                  <a href="https://www.mercadopago.com.br/developers/panel/app" target="_blank" rel="noopener noreferrer" className="text-primary underline inline-flex items-center gap-1">
+                    Mercado Pago Developers <ExternalLink className="w-3 h-3" />
+                  </a>
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="mp_public_key">Public Key</Label>
+                <Input
+                  id="mp_public_key"
+                  type="text"
+                  placeholder="APP_USR-xxxxxxxxxxxx"
+                  className="font-mono"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-3 rounded-lg bg-muted/10 border border-border/20">
+                  <p className="text-xs text-muted-foreground mb-1">Método de pagamento</p>
+                  <p className="text-sm font-semibold text-foreground">PIX</p>
+                </div>
+                <div className="p-3 rounded-lg bg-muted/10 border border-border/20">
+                  <p className="text-xs text-muted-foreground mb-1">Moeda</p>
+                  <p className="text-sm font-semibold text-foreground">BRL (Real)</p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <Label>Modo Sandbox (Teste)</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Use credenciais de teste para validar a integração
+                  </p>
+                </div>
+                <Switch defaultChecked={true} />
+              </div>
+
+              <Button className="w-full bg-[#009ee3] hover:bg-[#007eb8] text-white" onClick={handleSave}>
+                <CreditCard className="w-4 h-4 mr-2" />
+                Salvar Credenciais Mercado Pago
+              </Button>
             </div>
           </Card>
         </TabsContent>
