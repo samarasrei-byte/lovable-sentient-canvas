@@ -21,9 +21,12 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  Palette
+  Palette,
+  Lock,
+  ShoppingBag
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Collapsible,
   CollapsibleContent,
@@ -41,6 +44,7 @@ interface MenuItem {
   path: string;
   icon: React.ElementType;
   label: string;
+  comingSoon?: boolean;
 }
 
 interface MenuGroup {
@@ -55,35 +59,22 @@ const menuGroups: MenuGroup[] = [
     icon: Home,
     items: [
       { path: "/app/dashboard", icon: Home, label: "Dashboard" },
-      { path: "/app/prompt-dashboard", icon: Palette, label: "Central de Prompts" },
-      { path: "/app/meus-produtos", icon: Camera, label: "Meus Produtos" },
-    ]
-  },
-  {
-    label: "Criação",
-    icon: Sparkles,
-    items: [
+      { path: "/app/prompt-dashboard", icon: Palette, label: "Marketplace" },
+      { path: "/app/meus-produtos", icon: Camera, label: "Minhas Criações" },
       { path: "/app/ai-studio", icon: Sparkles, label: "IA Studio" },
-      { path: "/app/avatar-studio", icon: UserCircle, label: "Avatar Studio" },
-      { path: "/app/liveshop", icon: Video, label: "Live Shop" },
     ]
   },
   {
-    label: "Campanhas",
-    icon: Target,
+    label: "Em Breve",
+    icon: Zap,
     items: [
-      { path: "/app/talentos", icon: Users, label: "Talentos" },
-      { path: "/app/campanhas", icon: Target, label: "Campanhas" },
-      { path: "/app/analytics", icon: BarChart3, label: "Analytics" },
-    ]
-  },
-  {
-    label: "Negócios",
-    icon: Wallet,
-    items: [
-      { path: "/app/contratos", icon: FileText, label: "Contratos" },
-      { path: "/app/pagamentos", icon: Wallet, label: "Pagamentos" },
-      { path: "/app/monitoramento", icon: Activity, label: "Monitoramento" },
+      { path: "/app/talentos", icon: Users, label: "Talentos", comingSoon: true },
+      { path: "/app/liveshop", icon: Video, label: "Live Shop", comingSoon: true },
+      { path: "/app/avatar-studio", icon: UserCircle, label: "Avatar Studio", comingSoon: true },
+      { path: "/app/campanhas", icon: Target, label: "Campanhas", comingSoon: true },
+      { path: "/app/contratos", icon: FileText, label: "Contratos", comingSoon: true },
+      { path: "/app/pagamentos", icon: Wallet, label: "Pagamentos", comingSoon: true },
+      { path: "/app/monitoramento", icon: Activity, label: "Monitoramento", comingSoon: true },
     ]
   },
 ];
@@ -97,7 +88,7 @@ export const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [openGroups, setOpenGroups] = useState<string[]>(["Principal", "Criação"]);
+  const [openGroups, setOpenGroups] = useState<string[]>(["Principal"]);
 
   const handleLogout = async () => {
     try {
@@ -124,7 +115,6 @@ export const Sidebar = () => {
   const isGroupActive = (group: MenuGroup) => 
     group.items.some(item => isPathActive(item.path));
 
-  // Auto-expand group containing active item
   useEffect(() => {
     if (isCollapsed) return;
     menuGroups.forEach(group => {
@@ -136,7 +126,7 @@ export const Sidebar = () => {
 
   const IconWrapper = ({ children, className }: { children: React.ReactNode; className?: string }) => (
     <div className={cn(
-      "transition-all duration-200 group-hover:scale-110 group-hover:rotate-3",
+      "transition-all duration-200 group-hover:scale-110",
       className
     )}>
       {children}
@@ -146,22 +136,32 @@ export const Sidebar = () => {
   const CollapsedMenuItem = ({ item, isActive }: { item: MenuItem; isActive: boolean }) => (
     <Tooltip delayDuration={0}>
       <TooltipTrigger asChild>
-        <Link
-          to={item.path}
-          className={cn(
-            "group flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200",
-            isActive
-              ? "bg-primary/15 text-primary shadow-lg shadow-primary/20"
-              : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
-          )}
-        >
-          <IconWrapper>
-            <item.icon className="w-5 h-5" />
-          </IconWrapper>
-        </Link>
+        {item.comingSoon ? (
+          <div
+            className="group flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200 text-muted-foreground/30 cursor-not-allowed relative"
+          >
+            <IconWrapper>
+              <item.icon className="w-5 h-5" />
+            </IconWrapper>
+          </div>
+        ) : (
+          <Link
+            to={item.path}
+            className={cn(
+              "group flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200",
+              isActive
+                ? "bg-primary/15 text-primary shadow-lg shadow-primary/20"
+                : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+            )}
+          >
+            <IconWrapper>
+              <item.icon className="w-5 h-5" />
+            </IconWrapper>
+          </Link>
+        )}
       </TooltipTrigger>
       <TooltipContent side="right" className="font-medium">
-        {item.label}
+        {item.label} {item.comingSoon && "· Em breve"}
       </TooltipContent>
     </Tooltip>
   );
@@ -220,7 +220,6 @@ export const Sidebar = () => {
           isCollapsed ? "px-2" : "px-3"
         )}>
           {isCollapsed ? (
-            // Collapsed view - show only icons
             <div className="space-y-2">
               {menuGroups.map((group) => (
                 <div key={group.label} className="space-y-1">
@@ -258,11 +257,11 @@ export const Sidebar = () => {
               ))}
             </div>
           ) : (
-            // Expanded view
             <>
               {menuGroups.map((group) => {
                 const isOpen = openGroups.includes(group.label);
                 const groupActive = isGroupActive(group);
+                const isComingSoonGroup = group.items.every(i => i.comingSoon);
                 
                 return (
                   <Collapsible
@@ -284,6 +283,11 @@ export const Sidebar = () => {
                             <group.icon className="w-4 h-4" />
                           </IconWrapper>
                           <span>{group.label}</span>
+                          {isComingSoonGroup && (
+                            <Badge className="text-[8px] px-1.5 py-0 h-4 bg-muted/50 text-muted-foreground border-border/30 font-normal">
+                              Em breve
+                            </Badge>
+                          )}
                         </div>
                         <ChevronDown 
                           className={cn(
@@ -297,6 +301,22 @@ export const Sidebar = () => {
                     <CollapsibleContent className="pt-1 pl-4 space-y-0.5 animate-accordion-down">
                       {group.items.map((item) => {
                         const isActive = isPathActive(item.path);
+                        
+                        if (item.comingSoon) {
+                          return (
+                            <div
+                              key={item.path}
+                              className="group flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-muted-foreground/40 cursor-not-allowed select-none"
+                            >
+                              <IconWrapper>
+                                <item.icon className="w-3.5 h-3.5" />
+                              </IconWrapper>
+                              <span>{item.label}</span>
+                              <Lock className="w-2.5 h-2.5 ml-auto opacity-40" />
+                            </div>
+                          );
+                        }
+                        
                         return (
                           <Link
                             key={item.path}
