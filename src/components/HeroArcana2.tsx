@@ -66,6 +66,12 @@ export const HeroArcana2 = () => {
           </div>
 
           <div className="flex md:hidden items-center gap-2">
+            <a
+              href="/login"
+              className="px-4 py-2 rounded-xl text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
+            >
+              Entrar
+            </a>
             <InstallButton />
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
