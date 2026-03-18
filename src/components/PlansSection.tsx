@@ -272,9 +272,9 @@ export const PlansSection = () => {
               >
                 {plan.popular && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <Badge className="bg-primary text-primary-foreground text-xs font-bold px-4 py-1 border-0 shadow-lg shadow-primary/30">
-                      ⭐ MELHOR CUSTO-BENEFÍCIO
-                    </Badge>
+                     <Badge className="bg-primary text-primary-foreground text-xs font-bold px-4 py-1 border-0 shadow-lg shadow-primary/30">
+                       MELHOR CUSTO-BENEFÍCIO
+                     </Badge>
                   </div>
                 )}
 
