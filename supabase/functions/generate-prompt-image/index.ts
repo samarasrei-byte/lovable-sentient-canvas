@@ -206,16 +206,14 @@ serve(async (req) => {
     }
 
     // Update the purchase record with the generated image
-    if (purchaseId) {
-      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-      const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-      const supabase = createClient(supabaseUrl, supabaseKey);
-
-      await supabase
+    if (purchaseId && supabaseAdmin) {
+      await supabaseAdmin
         .from("prompt_purchases")
         .update({
+          payment_status: "paid",
           generation_status: "completed",
-          generated_image_url: imageUrl
+          generated_image_url: imageUrl,
+          ...(userPhotoUrl ? { user_photo_url: userPhotoUrl } : {}),
         })
         .eq("id", purchaseId);
     }
