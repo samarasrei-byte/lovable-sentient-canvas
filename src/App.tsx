@@ -49,6 +49,7 @@ import AgencyDashboard from "./pages/app/agency/Dashboard";
 import Insights from "./pages/app/Insights";
 import MeusProdutos from "./pages/app/MeusProdutos";
 import VideoCreator from "./pages/app/VideoCreator";
+import PromptDashboard from "./pages/app/PromptDashboard";
 
 const queryClient = new QueryClient();
 
@@ -89,6 +90,7 @@ const App = () => (
             <Route path="dashboard" element={<DashboardRouter />} />
             <Route path="meus-produtos" element={<MeusProdutos />} />
             <Route path="insights" element={<Insights />} />
+            <Route path="prompt-dashboard" element={<PromptDashboard />} />
             <Route path="talentos" element={<Talentos />} />
             <Route path="talentos/:id" element={<PerfilTalento />} />
             <Route path="campanhas" element={<Campanhas />} />
