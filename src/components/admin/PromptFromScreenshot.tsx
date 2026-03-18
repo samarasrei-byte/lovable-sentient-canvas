@@ -483,6 +483,42 @@ export const PromptFromScreenshot = ({ open, onClose, onPromptCreated }: PromptF
                 </div>
               </div>
 
+              {/* Trocar foto de referência e regenerar */}
+              <div className="p-3 rounded-lg border border-dashed border-accent/40 bg-accent/5">
+                <Label className="text-xs font-semibold">📸 Trocar foto de referência e regenerar</Label>
+                <p className="text-[11px] text-muted-foreground mb-2">
+                  Suba outra foto para gerar uma nova imagem de exemplo com o mesmo prompt.
+                </p>
+                <div
+                  className="border border-dashed border-muted-foreground/30 rounded-lg p-4 text-center cursor-pointer hover:border-accent/60 hover:bg-accent/5 transition-all"
+                  onClick={() => document.getElementById("redo-reference-input")?.click()}
+                >
+                  {referencePhotoPreview ? (
+                    <div className="flex items-center gap-3 justify-center">
+                      <img src={referencePhotoPreview} alt="Ref" className="w-16 h-16 object-cover rounded-lg" />
+                      <p className="text-xs text-muted-foreground">Clique para trocar</p>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-1">
+                      <ImagePlus className="w-6 h-6 text-accent/60" />
+                      <p className="text-xs">Subir nova foto de referência</p>
+                    </div>
+                  )}
+                  <input
+                    id="redo-reference-input"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        handleReferencePhotoUpload(file);
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+
               <div className="flex gap-2">
                 <Button variant="outline" onClick={() => setStep("review")} className="flex-1 gap-2">
                   <Wand2 className="w-4 h-4" />
