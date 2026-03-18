@@ -177,13 +177,13 @@ export const HeroArcana2 = () => {
             <span>avaliação</span>
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground px-4 py-2.5 rounded-full bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/30 backdrop-blur-sm">
-            <span className="text-lg">⚡</span>
+            <Zap className="w-4 h-4 text-secondary" />
             <span className="font-bold text-foreground">Resultado em 60s</span>
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground px-4 py-2.5 rounded-full bg-card/50 border border-secondary/30 backdrop-blur-sm">
-            <span className="text-lg">📸</span>
+            <Sparkles className="w-4 h-4 text-primary" />
             <span className="font-medium text-foreground">LinkedIn + Lifestyle + Fashion</span>
-            <Badge className="text-[10px] px-1.5 py-0.5 bg-destructive/30 text-destructive border-0 animate-pulse font-bold">HOT</Badge>
+            <Badge className="text-[10px] px-1.5 py-0.5 bg-accent/30 text-accent border-0 animate-pulse font-bold">HOT</Badge>
           </div>
         </motion.div>
 
