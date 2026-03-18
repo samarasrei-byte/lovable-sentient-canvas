@@ -212,7 +212,7 @@ export const HeroArcana2 = () => {
                 size="lg"
                 className="touch-manipulation transition-all duration-500"
               >
-                <span className="text-xs px-2 py-0.5 rounded-full bg-destructive/30 text-destructive font-black mr-2 animate-pulse">🔥 NOVO</span>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-accent/30 text-accent font-black mr-2 animate-pulse">NOVO</span>
                 Gerar Minha Foto IA
               </GlassButton>
             </a>
