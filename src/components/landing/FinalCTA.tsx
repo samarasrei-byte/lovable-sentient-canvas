@@ -5,7 +5,7 @@ import { GlassButton } from "@/components/ui/glass-button";
 export const FinalCTA = () => {
   return (
     <section className="relative py-24 px-6 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-destructive/10 via-primary/5 to-background" />
+      <div className="absolute inset-0 bg-gradient-to-b from-accent/10 via-primary/5 to-background" />
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/20 rounded-full blur-[200px]" />
       </div>
