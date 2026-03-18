@@ -5,7 +5,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { GlassCard } from "@/components/ui/glass-card";
 
 const faqs = [
   {
@@ -36,52 +35,47 @@ const faqs = [
 
 export const FAQSection = () => {
   return (
-    <section className="relative py-24 px-6 overflow-hidden">
-      {/* Subtle background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-muted/20 to-transparent" />
-
-      <div className="max-w-3xl mx-auto relative z-10">
-        {/* Header */}
-        <motion.div 
+    <section className="relative py-28 px-6 overflow-hidden">
+      <div className="max-w-2xl mx-auto relative z-10">
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
           className="text-center mb-12"
         >
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold mb-4 tracking-tight">
+          <h2 className="text-3xl md:text-4xl font-bold mb-3 tracking-tight">
             Perguntas frequentes
           </h2>
-          <p className="text-muted-foreground text-lg font-light">
+          <p className="text-muted-foreground/60 text-base font-light">
             Tudo o que você precisa saber
           </p>
         </motion.div>
 
-        {/* FAQ Accordion */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          <GlassCard className="p-6">
+          <div className="rounded-2xl bg-white/[0.02] backdrop-blur-sm border border-white/[0.05] p-6">
             <Accordion type="single" collapsible className="w-full">
               {faqs.map((faq, index) => (
-                <AccordionItem 
-                  key={index} 
+                <AccordionItem
+                  key={index}
                   value={`item-${index}`}
-                  className="border-b border-white/[0.06] last:border-0"
+                  className="border-b border-white/[0.04] last:border-0"
                 >
-                  <AccordionTrigger className="text-left text-foreground hover:text-primary py-5 text-base font-medium hover:no-underline">
+                  <AccordionTrigger className="text-left text-foreground/90 hover:text-primary py-4 text-sm font-medium hover:no-underline">
                     {faq.question}
                   </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground text-sm leading-relaxed pb-5">
+                  <AccordionContent className="text-muted-foreground/70 text-sm leading-relaxed pb-4">
                     {faq.answer}
                   </AccordionContent>
                 </AccordionItem>
               ))}
             </Accordion>
-          </GlassCard>
+          </div>
         </motion.div>
       </div>
     </section>
