@@ -1,52 +1,54 @@
+import { useRef } from "react";
 import { motion } from "framer-motion";
-import { Sparkles, Clock, Shield, Zap, CreditCard, Download, Flame, TrendingUp } from "lucide-react";
-import { GlassCard, GlassCardContent } from "@/components/ui/glass-card";
+import { Clock, Shield, CreditCard, Download, TrendingUp, Sparkles } from "lucide-react";
+import { useParallax } from "@/hooks/use-parallax";
 
 const features = [
   {
-    icon: Flame,
+    icon: Sparkles,
     title: "Prompts que Viralizam",
-    description: "Os mesmos prompts que geraram +47.000 fotos virais. Testados, validados e prontos pra bombar",
-    gradient: "from-accent to-secondary",
+    description: "Testados e validados em +47.000 fotos virais",
   },
   {
     icon: Clock,
-    title: "Pronto em 60 Segundos",
-    description: "Sua foto profissional gerada em menos de 1 minuto. Enquanto outros esperam dias, você já posta",
-    gradient: "from-secondary to-primary",
+    title: "Pronto em 60s",
+    description: "Enquanto outros esperam dias, você já posta",
   },
   {
     icon: CreditCard,
     title: "Sem Mensalidade",
-    description: "Pague só quando usar. PIX instantâneo, sem cadastro, sem surpresas. A partir de R$21",
-    gradient: "from-primary to-secondary",
+    description: "Pague só quando usar. A partir de R$21",
   },
   {
     icon: Shield,
     title: "100% Suas Fotos",
-    description: "Todas as fotos geradas são 100% suas. Use como quiser, onde quiser, sem restrição nenhuma",
-    gradient: "from-secondary to-primary",
+    description: "Use como quiser, onde quiser, sem restrição",
   },
   {
     icon: TrendingUp,
     title: "Qualidade de Estúdio",
-    description: "Resultados que parecem sessões de R$2.000. LinkedIn, Instagram, TikTok — tudo coberto",
-    gradient: "from-primary to-secondary",
+    description: "Resultados que parecem sessões de R$2.000",
   },
   {
     icon: Download,
-    title: "Download HD Imediato",
-    description: "Baixe em alta resolução no mesmo instante. Pronta pra postar e colher os likes",
-    gradient: "from-secondary to-primary",
+    title: "Download HD",
+    description: "Alta resolução, pronta pra postar",
   },
 ];
 
 export const ValueProposition = () => {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const parallaxOffset = useParallax(sectionRef, 0.1);
+
   return (
-    <section className="relative py-24 px-6 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/[0.02] to-transparent" />
-      
-      <div className="max-w-7xl mx-auto relative z-10">
+    <section ref={sectionRef} className="relative py-28 px-6 overflow-hidden">
+      {/* Parallax background orb */}
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/[0.04] rounded-full blur-[150px] pointer-events-none"
+        style={{ transform: `translate(-50%, calc(-50% + ${parallaxOffset * 0.4}px))` }}
+      />
+
+      <div className="max-w-5xl mx-auto relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -54,44 +56,36 @@ export const ValueProposition = () => {
           transition={{ duration: 0.5 }}
           className="text-center mb-16"
         >
-          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/20 text-sm font-bold text-accent mb-6">
-            <Flame className="w-4 h-4" />
-            Por que o ARCANA domina?
-          </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-black mb-6 tracking-tight">
-            As fotos de IA{" "}
-            <span className="bg-gradient-to-r from-accent via-secondary to-primary bg-clip-text text-transparent">
-              mais insanas do Brasil
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 tracking-tight">
+            Por que o{" "}
+            <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              ARCANA
             </span>
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto font-light">
-            Não é mais uma ferramenta genérica. É a plataforma que creators usam pra{" "}
-            <span className="text-secondary font-bold">dominar o feed</span>.
+          <p className="text-muted-foreground text-lg max-w-xl mx-auto font-light">
+            A plataforma que creators usam pra dominar o feed.
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {features.map((feature, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
+              transition={{ duration: 0.4, delay: index * 0.06 }}
+              className="group p-6 rounded-2xl bg-white/[0.02] backdrop-blur-sm border border-white/[0.05] hover:border-primary/20 hover:bg-white/[0.04] transition-all duration-500"
             >
-              <GlassCard className="h-full hover:border-primary/30 transition-all duration-300 group">
-                <GlassCardContent className="p-6">
-                  <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br ${feature.gradient} mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                    <feature.icon className="w-6 h-6 text-white" />
-                  </div>
-                  <h3 className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors">
-                    {feature.title}
-                  </h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
-                    {feature.description}
-                  </p>
-                </GlassCardContent>
-              </GlassCard>
+              <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:border-primary/25 transition-all duration-300">
+                <feature.icon className="w-5 h-5 text-primary/80" />
+              </div>
+              <h3 className="text-base font-semibold mb-1.5 text-foreground group-hover:text-primary transition-colors duration-300">
+                {feature.title}
+              </h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {feature.description}
+              </p>
             </motion.div>
           ))}
         </div>
