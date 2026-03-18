@@ -75,6 +75,7 @@ const menuGroups: MenuGroup[] = [
       { path: "/app/contratos", icon: FileText, label: "Contratos", comingSoon: true },
       { path: "/app/pagamentos", icon: Wallet, label: "Pagamentos", comingSoon: true },
       { path: "/app/monitoramento", icon: Activity, label: "Monitoramento", comingSoon: true },
+      { path: "/app/chat", icon: MessageCircle, label: "Chat", comingSoon: true },
     ]
   },
 ];
