@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Sparkles, Loader2 } from "lucide-react";
+import { Sparkles, Loader2, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PromptCard } from "./PromptCard";
 import { PromptFilters } from "./PromptFilters";
@@ -62,22 +62,18 @@ export const PromptMarketplace = () => {
     }
   };
 
-  // Extract unique categories
   const categories = useMemo(() => {
     const cats = [...new Set(prompts.map(p => p.category))];
     return cats.sort();
   }, [prompts]);
 
-  // Filter and sort prompts
   const filteredPrompts = useMemo(() => {
     let result = [...prompts];
     
-    // Filter by category
     if (selectedCategory) {
       result = result.filter(p => p.category === selectedCategory);
     }
     
-    // Always prioritize prompts with images first
     result.sort((a, b) => {
       const aHasImage = a.example_image_url ? 1 : 0;
       const bHasImage = b.example_image_url ? 1 : 0;
@@ -113,9 +109,13 @@ export const PromptMarketplace = () => {
   }
 
   return (
-    <section id="prompts" className="relative py-16 md:py-24 px-4 md:px-6 overflow-hidden">
-      {/* Subtle Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/[0.02] to-transparent pointer-events-none" />
+    <section id="prompts" className="relative py-20 md:py-32 px-4 md:px-6 overflow-hidden">
+      {/* Background effects */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/[0.04] rounded-full blur-[120px]" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-secondary/[0.03] rounded-full blur-[120px]" />
+        <div className="absolute inset-0 bg-[linear-gradient(transparent_0%,transparent_49.5%,hsl(var(--border)/0.1)_50%,transparent_50.5%,transparent_100%)] bg-[length:100%_80px]" />
+      </div>
 
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
@@ -124,20 +124,31 @@ export const PromptMarketplace = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-10 md:mb-14"
+          className="text-center mb-12 md:mb-16"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6">
-            <Sparkles className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium text-primary">MARKETPLACE</span>
-          </div>
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }}
+            whileInView={{ scale: 1, opacity: 1 }}
+            viewport={{ once: true }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6 shadow-[0_0_20px_hsl(var(--primary)/0.15)]"
+          >
+            <Zap className="w-4 h-4 text-primary" />
+            <span className="text-sm font-semibold text-primary tracking-wider uppercase">AI Marketplace</span>
+          </motion.div>
           
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 tracking-tight">
-            Galeria de Prompts
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-5 tracking-tight font-display">
+            <span className="bg-gradient-to-r from-foreground via-foreground to-muted-foreground bg-clip-text text-transparent">
+              Galeria de
+            </span>
+            {' '}
+            <span className="bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
+              Prompts
+            </span>
           </h2>
           
           <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto font-light leading-relaxed">
-            Explore nossa coleção curada de prompts profissionais. 
-            <span className="hidden md:inline"> Transforme suas ideias em realidade com resultados de alta qualidade.</span>
+            Explore nossa coleção curada de prompts profissionais.
+            <span className="hidden md:inline"> Envie sua foto e a IA gera resultados impressionantes preservando sua identidade.</span>
           </p>
         </motion.header>
 
@@ -147,7 +158,7 @@ export const PromptMarketplace = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.4, delay: 0.1 }}
-          className="mb-8 md:mb-10"
+          className="mb-10 md:mb-12"
         >
           <PromptFilters
             categories={categories}
@@ -158,9 +169,8 @@ export const PromptMarketplace = () => {
           />
         </motion.div>
 
-        {/* Grid - Desktop: 3 columns, Mobile: Full-width vertical */}
+        {/* Grid */}
         {isMobile ? (
-          /* Mobile: Full-width cards, vertical scroll */
           <div className="space-y-6">
             {filteredPrompts.map((prompt, index) => (
               <PromptCard
@@ -173,7 +183,6 @@ export const PromptMarketplace = () => {
             ))}
           </div>
         ) : (
-          /* Desktop/Tablet: Grid layout */
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {filteredPrompts.map((prompt, index) => (
               <PromptCard
@@ -191,7 +200,7 @@ export const PromptMarketplace = () => {
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="text-center mt-10 text-muted-foreground/60 text-sm"
+          className="text-center mt-12 text-muted-foreground/60 text-sm"
         >
           {filteredPrompts.length} {filteredPrompts.length === 1 ? 'prompt' : 'prompts'} 
           {selectedCategory && ` em ${selectedCategory}`}

@@ -73,11 +73,27 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
         toast.error("Arquivo muito grande. Máximo 5MB.");
         return;
       }
-      setFormData(prev => ({
-        ...prev,
-        photo: file,
-        photoPreview: URL.createObjectURL(file)
-      }));
+      // Create optimized preview: resize to max 400px for instant render
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const maxSize = 400;
+          const scale = Math.min(maxSize / img.width, maxSize / img.height, 1);
+          canvas.width = img.width * scale;
+          canvas.height = img.height * scale;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
+          setFormData(prev => ({
+            ...prev,
+            photo: file,
+            photoPreview: canvas.toDataURL('image/jpeg', 0.85)
+          }));
+        };
+        img.src = event.target?.result as string;
+      };
+      reader.readAsDataURL(file);
     }
   };
 
