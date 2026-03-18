@@ -109,24 +109,19 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
     }
 
     try {
-      // Create purchase record
-      const { data, error } = await supabase
-        .from("prompt_purchases")
-        .insert({
-          prompt_id: prompt.id,
-          user_name: formData.name,
-          user_instagram: formData.instagram,
-          user_email: formData.email,
-          amount_cents: prompt.price_cents,
-          payment_status: 'pending',
-          generation_status: 'pending'
-        })
-        .select()
-        .single();
+      const { data, error } = await supabase.functions.invoke("create-prompt-purchase", {
+        body: {
+          promptId: prompt.id,
+          userName: formData.name,
+          userInstagram: formData.instagram,
+          userEmail: formData.email,
+        },
+      });
 
       if (error) throw error;
-      
-      setPurchaseId(data.id);
+      if (!data?.purchaseId) throw new Error("Compra não criada corretamente");
+
+      setPurchaseId(data.purchaseId);
       setStep('payment');
     } catch (error) {
       console.error("Error creating purchase:", error);
