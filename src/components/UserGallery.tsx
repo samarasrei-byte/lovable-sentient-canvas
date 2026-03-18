@@ -156,8 +156,6 @@ export const UserGallery = ({ onReuse }: UserGalleryProps) => {
       </div>
     </Card>
   );
-};
-  const [images, setImages] = useState<UserImage[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
