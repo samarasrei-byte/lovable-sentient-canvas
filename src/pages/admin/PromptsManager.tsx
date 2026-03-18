@@ -654,7 +654,7 @@ const PromptsManager = () => {
             <Camera className="w-4 h-4" />
             Print → Prompt
           </Button>
-          <GlassButton variant="neon" onClick={openNewPrompt}>
+          <GlassButton variant="neon" onClick={() => openNewPrompt()}>
             <Plus className="w-4 h-4 mr-2" />
             Novo Prompt
           </GlassButton>
