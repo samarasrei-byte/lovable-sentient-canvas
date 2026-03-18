@@ -152,36 +152,24 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
     setPaymentStatus('paid');
     toast.success("Pagamento confirmado!");
     
-    // Update purchase status
-    if (purchaseId) {
-      await supabase
-        .from("prompt_purchases")
-        .update({ payment_status: 'paid' })
-        .eq("id", purchaseId);
-    }
-
     // Start generation
     setTimeout(() => {
       setStep('generating');
-      generateImage();
+      void generateImage();
     }, 1000);
   };
 
   const generateImage = async () => {
     try {
-      // Update generation status
-      if (purchaseId) {
-        await supabase
-          .from("prompt_purchases")
-          .update({ generation_status: 'generating' })
-          .eq("id", purchaseId);
+      if (!purchaseId) {
+        throw new Error("Compra não iniciada corretamente");
       }
 
       // Upload user photo to storage if provided
       let uploadedPhotoUrl: string | null = null;
       if (formData.photo) {
         const fileExt = formData.photo.name.split('.').pop();
-        const filePath = `purchases/${purchaseId || Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+        const filePath = `purchases/${purchaseId}-${Math.random().toString(36).slice(2)}.${fileExt}`;
         
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from('user-photos')
@@ -199,17 +187,9 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
             .getPublicUrl(uploadData.path);
           uploadedPhotoUrl = urlData.publicUrl;
         }
-
-        // Also update the purchase record with the user photo
-        if (purchaseId && uploadedPhotoUrl) {
-          await supabase
-            .from("prompt_purchases")
-            .update({ user_photo_url: uploadedPhotoUrl })
-            .eq("id", purchaseId);
-        }
       }
 
-      // Call the generate edge function with the uploaded photo URL and example image
+      // Call the generate edge function; purchase updates are handled server-side
       const { data, error } = await supabase.functions.invoke('generate-prompt-image', {
         body: {
           purchaseId,
@@ -228,32 +208,10 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       if (!data?.imageUrl) throw new Error("Nenhuma imagem gerada");
 
       setGeneratedImage(data.imageUrl);
-      
-      // Update purchase with generated image
-      if (purchaseId) {
-        await supabase
-          .from("prompt_purchases")
-          .update({ 
-            generation_status: 'completed',
-            generated_image_url: data.imageUrl 
-          })
-          .eq("id", purchaseId);
-      }
-
       setStep('complete');
     } catch (error) {
       console.error("Error generating image:", error);
       toast.error("Erro na geração. Tente novamente.");
-      
-      // Update status to failed
-      if (purchaseId) {
-        await supabase
-          .from("prompt_purchases")
-          .update({ generation_status: 'failed' })
-          .eq("id", purchaseId);
-      }
-      
-      // Go back to form step instead of showing fake image
       setStep('form');
     }
   };

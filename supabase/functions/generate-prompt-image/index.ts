@@ -224,6 +224,14 @@ serve(async (req) => {
     );
   } catch (error) {
     console.error("Error generating image:", error);
+
+    if (purchaseId && typeof supabaseAdmin !== "undefined" && supabaseAdmin) {
+      await supabaseAdmin
+        .from("prompt_purchases")
+        .update({ generation_status: "failed" })
+        .eq("id", purchaseId);
+    }
+
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
