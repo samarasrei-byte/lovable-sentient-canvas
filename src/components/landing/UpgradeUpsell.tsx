@@ -1,0 +1,75 @@
+import { motion } from "framer-motion";
+import { Sparkles, Camera, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+
+export const UpgradeUpsell = () => {
+  const navigate = useNavigate();
+
+  return (
+    <section className="py-16 px-4 relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-secondary/5 to-primary/5" />
+      <div className="absolute top-0 left-1/3 w-64 h-64 bg-primary/10 rounded-full blur-[120px]" />
+      <div className="absolute bottom-0 right-1/4 w-48 h-48 bg-secondary/10 rounded-full blur-[80px]" />
+      
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        className="relative max-w-4xl mx-auto"
+      >
+        <div className="rounded-3xl border border-primary/20 bg-card/50 backdrop-blur-xl p-8 md:p-12 text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 mb-6">
+            <Sparkles className="w-4 h-4 text-primary" />
+            <span className="text-sm font-semibold text-primary">Oferta Especial</span>
+          </div>
+
+          <h2 className="text-3xl md:text-4xl font-black text-foreground mb-3">
+            Assine e economize{" "}
+            <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              até 40%
+            </span>
+          </h2>
+
+          <p className="text-muted-foreground max-w-lg mx-auto mb-8">
+            Em vez de pagar R$21 por foto avulsa, assine o plano mensal e gere 8 fotos profissionais por mês.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-8">
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground line-through">R$168 (8 fotos avulsas)</p>
+              <div className="flex items-baseline gap-1 justify-center">
+                <span className="text-5xl font-black text-foreground">R$100</span>
+                <span className="text-muted-foreground">/mês</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-4 mb-8">
+            {[
+              "8 fotos IA por mês",
+              "Download em alta qualidade",
+              "Todos os estilos disponíveis",
+              "Cancele quando quiser",
+            ].map((feat) => (
+              <div key={feat} className="flex items-center gap-2 text-sm text-muted-foreground">
+                <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0" />
+                <span>{feat}</span>
+              </div>
+            ))}
+          </div>
+
+          <Button
+            onClick={() => navigate("/app/planos")}
+            size="lg"
+            className="bg-primary hover:bg-primary/90 rounded-xl gap-2 shadow-lg shadow-primary/20 text-base font-bold px-10"
+          >
+            <Camera className="w-5 h-5" />
+            Assinar agora
+            <ArrowRight className="w-5 h-5" />
+          </Button>
+        </div>
+      </motion.div>
+    </section>
+  );
+};
