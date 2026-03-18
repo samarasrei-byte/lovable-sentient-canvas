@@ -17,7 +17,7 @@ export const FinalCTA = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-destructive/20 border border-destructive/30 text-sm font-bold text-destructive mb-8 animate-pulse">
+          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/20 border border-accent/30 text-sm font-bold text-accent mb-8 animate-pulse">
             <Flame className="w-4 h-4" />
             Não fique de fora
           </span>
