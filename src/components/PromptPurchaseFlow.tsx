@@ -554,13 +554,13 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                     <Sparkles className="w-4 h-4 text-primary" />
                     <span className="text-sm font-semibold text-primary">Plano Mensal</span>
                   </div>
-                  <p className="text-sm font-medium mb-1">
-                    Faça <span className="text-primary font-bold">10 fotos por mês</span> por apenas
-                  </p>
-                  <p className="text-2xl font-bold text-primary mb-2">R$ 100,00<span className="text-xs text-muted-foreground font-normal">/mês</span></p>
-                  <p className="text-xs text-muted-foreground mb-3">
-                    Economize até 50% comparado a compras avulsas
-                  </p>
+                   <p className="text-sm font-medium mb-1">
+                     Faça <span className="text-primary font-bold">8 fotos por mês</span> por apenas
+                   </p>
+                   <p className="text-2xl font-bold text-primary mb-2">R$ 100,00<span className="text-xs text-muted-foreground font-normal">/mês</span></p>
+                   <p className="text-xs text-muted-foreground mb-3">
+                     Economize até 40% comparado a compras avulsas
+                   </p>
                   <GlassButton 
                     onClick={() => window.open('/app/planos', '_blank')}
                     className="w-full text-sm"
