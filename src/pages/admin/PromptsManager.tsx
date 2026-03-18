@@ -964,7 +964,7 @@ const PromptsManager = () => {
                         <Button 
                           variant="ghost" 
                           size="icon"
-                          onClick={() => handleDelete(prompt.id)}
+                          onClick={() => setDeleteConfirmId(prompt.id)}
                         >
                           <Trash2 className="w-4 h-4 text-destructive" />
                         </Button>
