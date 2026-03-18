@@ -930,11 +930,67 @@ const PromptsManager = () => {
       </Dialog>
 
       {/* Table */}
+      {/* Category Filter Tabs */}
+      <div className="flex flex-wrap gap-2">
+        <Button
+          variant={activeCategory === "all" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setActiveCategory("all")}
+        >
+          Todos ({prompts.length})
+        </Button>
+        {Object.entries(CATEGORY_PRESETS).map(([key, preset]) => {
+          const count = groupedPrompts[key]?.length || 0;
+          return (
+            <Button
+              key={key}
+              variant={activeCategory === key ? "default" : "outline"}
+              size="sm"
+              onClick={() => setActiveCategory(key)}
+            >
+              {preset.icon} {preset.label} ({count})
+            </Button>
+          );
+        })}
+        {/* Show other categories not in presets */}
+        {categories.filter(c => !CATEGORY_PRESETS[c]).map(cat => (
+          <Button
+            key={cat}
+            variant={activeCategory === cat ? "default" : "outline"}
+            size="sm"
+            onClick={() => setActiveCategory(cat)}
+          >
+            {cat} ({groupedPrompts[cat]?.length || 0})
+          </Button>
+        ))}
+      </div>
+
+      {/* Category Cards with "Add Prompt" shortcuts */}
+      {activeCategory !== "all" && CATEGORY_PRESETS[activeCategory] && (
+        <Card className="border-primary/30 bg-primary/5">
+          <CardContent className="p-4 flex items-center justify-between">
+            <div>
+              <h3 className="font-semibold text-lg">
+                {CATEGORY_PRESETS[activeCategory].icon} {CATEGORY_PRESETS[activeCategory].label}
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Preço padrão: {formatPrice(CATEGORY_PRESETS[activeCategory].defaultPrice)} · {groupedPrompts[activeCategory]?.length || 0} prompts
+              </p>
+            </div>
+            <GlassButton variant="neon" onClick={() => openNewPrompt(activeCategory)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Novo Prompt em {CATEGORY_PRESETS[activeCategory].label}
+            </GlassButton>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Prompts Table */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-primary" />
-            Prompts ({prompts.length})
+            Prompts ({filteredPrompts.length})
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -942,12 +998,12 @@ const PromptsManager = () => {
             <div className="flex items-center justify-center py-8">
               <Loader2 className="w-6 h-6 animate-spin" />
             </div>
-          ) : prompts.length === 0 ? (
+          ) : filteredPrompts.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               <Sparkles className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p>Nenhum prompt cadastrado</p>
-              <Button className="mt-4" onClick={openNewPrompt}>
-                Criar primeiro prompt
+              <p>Nenhum prompt nesta categoria</p>
+              <Button className="mt-4" onClick={() => openNewPrompt(activeCategory !== "all" ? activeCategory : undefined)}>
+                Criar prompt
               </Button>
             </div>
           ) : (
@@ -963,7 +1019,7 @@ const PromptsManager = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {prompts.map((prompt) => (
+                {filteredPrompts.map((prompt) => (
                   <TableRow key={prompt.id}>
                     <TableCell>
                       {prompt.example_image_url ? (
@@ -987,7 +1043,9 @@ const PromptsManager = () => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline">{prompt.category}</Badge>
+                      <Badge variant="outline">
+                        {CATEGORY_PRESETS[prompt.category]?.icon || "✨"} {prompt.category}
+                      </Badge>
                     </TableCell>
                     <TableCell className="font-medium text-primary">
                       {formatPrice(prompt.price_cents)}
