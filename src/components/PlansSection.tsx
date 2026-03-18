@@ -158,7 +158,7 @@ export const PlansSection = () => {
   const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
 
   const renderFeatureValue = (value: boolean | string) => {
-    if (value === true) return <Check className="w-4 h-4 text-emerald-400" />;
+    if (value === true) return <Check className="w-4 h-4 text-primary" />;
     if (value === false) return <X className="w-3.5 h-3.5 text-muted-foreground/20" />;
     return <span className="text-xs font-medium text-foreground leading-tight">{value}</span>;
   };
