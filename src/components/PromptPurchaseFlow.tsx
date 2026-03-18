@@ -457,8 +457,8 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                       <QrCode className="w-24 h-24 text-white" />
                     </div>
                     {paymentStatus === 'paid' && (
-                      <div className="absolute inset-0 bg-green-500/90 rounded-xl flex items-center justify-center">
-                        <CheckCircle2 className="w-16 h-16 text-white" />
+                      <div className="absolute inset-0 bg-primary/90 rounded-xl flex items-center justify-center">
+                        <CheckCircle2 className="w-16 h-16 text-primary-foreground" />
                       </div>
                     )}
                   </div>
