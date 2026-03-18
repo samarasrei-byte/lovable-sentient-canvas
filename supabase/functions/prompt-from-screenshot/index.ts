@@ -11,8 +11,8 @@ serve(async (req) => {
   }
 
   try {
-    const { screenshotUrl, action } = await req.json();
-    // action: "extract" (OCR only) or "generate" (generate image from prompt text)
+    const body = await req.json();
+    const { screenshotUrl, action, promptText } = body;
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -20,7 +20,6 @@ serve(async (req) => {
     }
 
     if (action === "extract") {
-      // Step 1: Use Gemini vision to extract prompt text from screenshot
       console.log("Extracting prompt text from screenshot...");
 
       const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -64,12 +63,11 @@ serve(async (req) => {
     }
 
     if (action === "generate") {
-      // Step 2: Generate image from the extracted prompt text
-      const { promptText } = await req.json();
-      // We already have promptText from the request body
-      const finalPrompt = req.json ? (await req.clone().json()).promptText : promptText;
-      
-      console.log("Generating image from prompt:", finalPrompt?.substring(0, 200));
+      console.log("Generating image from prompt:", promptText?.substring(0, 200));
+
+      if (!promptText) {
+        throw new Error("promptText is required for generate action");
+      }
 
       const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
@@ -81,7 +79,7 @@ serve(async (req) => {
           model: "google/gemini-2.5-flash-image",
           messages: [{
             role: "user",
-            content: finalPrompt + ". Ultra high resolution, professional quality, 8k."
+            content: promptText + ". Ultra high resolution, professional quality, 8k."
           }],
           modalities: ["image", "text"]
         }),
