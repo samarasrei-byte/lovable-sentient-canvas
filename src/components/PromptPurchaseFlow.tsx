@@ -555,11 +555,11 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                     <span className="text-sm font-semibold text-primary">Plano Mensal</span>
                   </div>
                    <p className="text-sm font-medium mb-1">
-                     Faça <span className="text-primary font-bold">8 fotos por mês</span> por apenas
+                     Faça <span className="text-primary font-bold">6 fotos por mês</span> por apenas
                    </p>
                    <p className="text-2xl font-bold text-primary mb-2">R$ 100,00<span className="text-xs text-muted-foreground font-normal">/mês</span></p>
                    <p className="text-xs text-muted-foreground mb-3">
-                     Economize até 40% comparado a compras avulsas
+                     Economize comparado a compras avulsas
                    </p>
                   <GlassButton 
                     onClick={() => window.open('/app/planos', '_blank')}

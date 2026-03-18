@@ -32,12 +32,12 @@ export const UpgradeUpsell = () => {
           </h2>
 
           <p className="text-muted-foreground max-w-lg mx-auto mb-8">
-            Em vez de pagar R$21 por foto avulsa, assine o plano mensal e gere 8 fotos profissionais por mês.
+            Em vez de pagar R$21 por foto avulsa, assine o plano mensal e gere 6 fotos profissionais por mês.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-8">
             <div className="text-center">
-              <p className="text-sm text-muted-foreground line-through">R$168 (8 fotos avulsas)</p>
+              <p className="text-sm text-muted-foreground line-through">R$126 (6 fotos avulsas)</p>
               <div className="flex items-baseline gap-1 justify-center">
                 <span className="text-5xl font-black text-foreground">R$100</span>
                 <span className="text-muted-foreground">/mês</span>
@@ -47,7 +47,7 @@ export const UpgradeUpsell = () => {
 
           <div className="flex flex-wrap justify-center gap-4 mb-8">
             {[
-              "8 fotos IA por mês",
+              "6 fotos IA por mês",
               "Download em alta qualidade",
               "Todos os estilos disponíveis",
               "Cancele quando quiser",
