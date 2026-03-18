@@ -307,7 +307,7 @@ export const PlansSection = () => {
                 </div>
 
                 {billing === "yearly" && (
-                  <p className="text-xs text-emerald-400 font-medium mb-4">
+                  <p className="text-xs text-secondary font-medium mb-4">
                     Economize R${(
                       (parseInt(plan.price.replace(".", "")) - parseInt(plan.yearlyPrice.replace(".", ""))) * 12
                     ).toLocaleString("pt-BR")}/ano
