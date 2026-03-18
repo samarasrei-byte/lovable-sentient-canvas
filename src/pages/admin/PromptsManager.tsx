@@ -625,7 +625,7 @@ const PromptsManager = () => {
             Novo Prompt
           </GlassButton>
         </div>
-
+      </div>
       {/* Dialog com Preview em Tempo Real */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent
