@@ -85,6 +85,13 @@ export const HeroArcana2 = () => {
                       {link.label}
                     </a>
                   ))}
+                  <a
+                    href="/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="mt-4 text-center py-3 px-4 rounded-xl text-lg font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-all"
+                  >
+                    Entrar
+                  </a>
                 </div>
               </SheetContent>
             </Sheet>
