@@ -51,14 +51,19 @@ serve(async (req) => {
       finalPrompt += ` Avoid: ${negativePrompt}`;
     }
 
-    // Build context-aware system prompt
+    // Build context-aware system prompt with strong reference image instructions
     let imageInstructions = "";
     if (userPhotoUrl && exampleImageUrl) {
-      imageInstructions = "IMPORTANT: The FIRST image is a STYLE REFERENCE — replicate this exact artistic style, lighting, mood, color palette, and composition. The SECOND image is the USER'S PHOTO — preserve this person's face, features, and identity with 100% fidelity. Generate a NEW image that applies the style of image 1 to the person in image 2. ";
+      imageInstructions = "CRITICAL INSTRUCTION — TWO REFERENCE IMAGES PROVIDED:\n" +
+        "IMAGE 1 (STYLE REFERENCE): Replicate this EXACT artistic style, lighting setup, mood, color palette, composition, camera angle, and overall aesthetic. This is your visual blueprint.\n" +
+        "IMAGE 2 (USER'S FACE/IDENTITY): This is the REAL person. You MUST preserve their face with 100% fidelity — exact eye shape, nose, mouth, jawline, skin tone, facial proportions, hair color and style. The generated person must be IDENTICAL to this photo. No modifications to facial features.\n" +
+        "OUTPUT: Generate a NEW image that perfectly merges the style of Image 1 with the person from Image 2. The person must look exactly like the reference photo, placed into the style/scene of Image 1. Ultra-realistic skin texture with visible pores. ";
     } else if (userPhotoUrl) {
-      imageInstructions = "IMPORTANT: The provided image is the USER'S PHOTO. Preserve this person's facial features, proportions, and identity with 100% fidelity. Generate a new artistic image of this exact person. ";
+      imageInstructions = "CRITICAL INSTRUCTION — USER REFERENCE PHOTO PROVIDED:\n" +
+        "The provided image is the USER'S REAL PHOTO. You MUST use this as the absolute primary reference for the subject's face, identity, and physical features. Preserve 100% facial fidelity — exact eye shape, nose, mouth, jawline, skin tone, hair color, facial proportions. The generated image must look like the EXACT SAME PERSON. No stylistic alterations to facial features. Ultra-realistic skin texture. ";
     } else if (exampleImageUrl) {
-      imageInstructions = "IMPORTANT: The provided image is a STYLE REFERENCE. Replicate this exact artistic style, lighting, mood, and composition in the generated image. ";
+      imageInstructions = "CRITICAL INSTRUCTION — STYLE REFERENCE IMAGE PROVIDED:\n" +
+        "The provided image is a STYLE REFERENCE. Replicate this exact artistic style, lighting, mood, composition, and overall aesthetic in the generated image. ";
     }
 
     const fullPrompt = imageInstructions + finalPrompt;
