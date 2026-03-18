@@ -23,8 +23,8 @@ const features = [
   },
   {
     icon: Shield,
-    title: "Privacidade Total",
-    description: "Sua foto é processada e deletada automaticamente. Ninguém vê, ninguém salva",
+    title: "100% Suas Fotos",
+    description: "Todas as fotos geradas são 100% suas. Use como quiser, onde quiser, sem restrição nenhuma",
     gradient: "from-secondary to-primary",
   },
   {
