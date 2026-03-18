@@ -59,7 +59,7 @@ const menuGroups: MenuGroup[] = [
     icon: Home,
     items: [
       { path: "/app/dashboard", icon: Home, label: "Dashboard" },
-      { path: "/app/prompt-dashboard", icon: Palette, label: "Marketplace" },
+      { path: "/app/prompt-dashboard", icon: ShoppingBag, label: "Prompt Marketplace" },
       { path: "/app/meus-produtos", icon: Camera, label: "Minhas Criações" },
       { path: "/app/ai-studio", icon: Sparkles, label: "IA Studio" },
     ]
@@ -75,12 +75,12 @@ const menuGroups: MenuGroup[] = [
       { path: "/app/contratos", icon: FileText, label: "Contratos", comingSoon: true },
       { path: "/app/pagamentos", icon: Wallet, label: "Pagamentos", comingSoon: true },
       { path: "/app/monitoramento", icon: Activity, label: "Monitoramento", comingSoon: true },
+      { path: "/app/chat", icon: MessageCircle, label: "Chat", comingSoon: true },
     ]
   },
 ];
 
 const bottomItems: MenuItem[] = [
-  { path: "/app/chat", icon: MessageCircle, label: "Chat" },
   { path: "/app/perfil", icon: Settings, label: "Configurações" },
 ];
 
