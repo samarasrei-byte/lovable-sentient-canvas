@@ -469,7 +469,7 @@ export const PlansSection = () => {
           transition={{ duration: 0.4, delay: 0.25 }}
           className="mt-10 p-6 rounded-2xl border border-primary/10 bg-primary/[0.03] text-center"
         >
-          <p className="text-sm text-muted-foreground mb-2">💡 Faça as contas:</p>
+          <p className="text-sm text-muted-foreground mb-2">Faça as contas:</p>
           <p className="text-base md:text-lg text-foreground font-medium">
             20 prompts avulsos (R$21 cada) = <span className="line-through text-muted-foreground">R$420/mês</span>
             {" → "}
