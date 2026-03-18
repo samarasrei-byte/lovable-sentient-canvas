@@ -5,7 +5,7 @@ import { GlassButton } from "@/components/ui/glass-button";
 export const FinalCTA = () => {
   return (
     <section className="relative py-24 px-6 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-destructive/10 via-primary/5 to-background" />
+      <div className="absolute inset-0 bg-gradient-to-b from-accent/10 via-primary/5 to-background" />
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/20 rounded-full blur-[200px]" />
       </div>
@@ -17,21 +17,21 @@ export const FinalCTA = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-destructive/20 border border-destructive/30 text-sm font-bold text-destructive mb-8 animate-pulse">
+          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/20 border border-accent/30 text-sm font-bold text-accent mb-8 animate-pulse">
             <Flame className="w-4 h-4" />
             Não fique de fora
           </span>
           
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mb-6 tracking-tight">
             Sua próxima foto viral{" "}
-            <span className="bg-gradient-to-r from-destructive via-secondary to-primary bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-accent via-secondary to-primary bg-clip-text text-transparent">
               começa agora
             </span>
           </h2>
           
           <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto font-light">
             Milhares de creators já transformaram suas redes com nossas fotos IA.{" "}
-            <span className="text-destructive font-bold">Você vai ficar de fora?</span>
+            <span className="text-accent font-bold">Você vai ficar de fora?</span>
           </p>
           
           <a href="#prompts">

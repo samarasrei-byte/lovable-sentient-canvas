@@ -7,7 +7,7 @@ const features = [
     icon: Flame,
     title: "Prompts que Viralizam",
     description: "Os mesmos prompts que geraram +47.000 fotos virais. Testados, validados e prontos pra bombar",
-    gradient: "from-destructive to-secondary",
+    gradient: "from-accent to-secondary",
   },
   {
     icon: Clock,
@@ -54,13 +54,13 @@ export const ValueProposition = () => {
           transition={{ duration: 0.5 }}
           className="text-center mb-16"
         >
-          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-destructive/10 border border-destructive/20 text-sm font-bold text-destructive mb-6">
+          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/20 text-sm font-bold text-accent mb-6">
             <Flame className="w-4 h-4" />
             Por que o ARCANA domina?
           </span>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-black mb-6 tracking-tight">
             As fotos de IA{" "}
-            <span className="bg-gradient-to-r from-destructive via-secondary to-primary bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-accent via-secondary to-primary bg-clip-text text-transparent">
               mais insanas do Brasil
             </span>
           </h2>

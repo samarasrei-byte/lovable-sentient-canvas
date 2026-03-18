@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Star, TrendingUp, Flame, Zap, Camera, Award } from "lucide-react";
 
 const stats = [
-  { icon: Flame, value: "47K+", label: "Fotos geradas", color: "text-destructive" },
+  { icon: Flame, value: "47K+", label: "Fotos geradas", color: "text-accent" },
   { icon: Camera, value: "120+", label: "Prompts exclusivos", color: "text-primary" },
   { icon: Zap, value: "<60s", label: "Tempo de geração", color: "text-secondary" },
   { icon: Award, value: "4.9", label: "Avaliação média", suffix: <Star className="w-4 h-4 fill-current inline ml-1" />, color: "text-secondary" },
@@ -10,8 +10,8 @@ const stats = [
 
 export const SocialProofBanner = () => {
   return (
-    <section className="relative py-12 border-y border-primary/10 bg-gradient-to-r from-destructive/5 via-transparent to-primary/5 overflow-hidden">
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-destructive/50 to-transparent" />
+    <section className="relative py-12 border-y border-primary/10 bg-gradient-to-r from-accent/5 via-transparent to-primary/5 overflow-hidden">
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent" />
       <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
       
       <div className="max-w-7xl mx-auto px-6">
