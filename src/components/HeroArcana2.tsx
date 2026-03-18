@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { GlassButton } from "@/components/ui/glass-button";
 import { Badge } from "@/components/ui/badge";
-import { Zap, Menu, ArrowRight, Flame, Star, TrendingUp } from "lucide-react";
+import { Zap, Menu, ArrowRight, Flame, Star, TrendingUp, Sparkles } from "lucide-react";
 import heroLiquid from "@/assets/hero-liquid.jpg";
 import { useParallax } from "@/hooks/use-parallax";
 import { InstallButton } from "@/components/pwa/InstallButton";
