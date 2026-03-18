@@ -242,7 +242,7 @@ export const PlansSection = () => {
             }`}
           >
             Anual
-            <span className="absolute -top-2.5 -right-4 px-2 py-0.5 rounded-full bg-emerald-500/90 text-white text-[10px] font-bold whitespace-nowrap">
+            <span className="absolute -top-2.5 -right-4 px-2 py-0.5 rounded-full bg-secondary/90 text-secondary-foreground text-[10px] font-bold whitespace-nowrap">
               -20%
             </span>
           </button>
