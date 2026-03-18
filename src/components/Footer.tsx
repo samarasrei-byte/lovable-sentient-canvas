@@ -11,8 +11,6 @@ export const Footer = () => {
           
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span>© 2025 Arcana</span>
-            <span className="text-muted-foreground/50">•</span>
-            <span>Todos os direitos reservados</span>
           </div>
         </div>
       </div>
