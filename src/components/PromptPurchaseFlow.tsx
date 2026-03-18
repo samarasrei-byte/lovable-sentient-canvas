@@ -475,7 +475,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                       className="absolute right-2 top-1/2 -translate-y-1/2 p-2 hover:bg-white/10 rounded transition-colors"
                     >
                       {copied ? (
-                        <Check className="w-4 h-4 text-green-500" />
+                        <Check className="w-4 h-4 text-primary" />
                       ) : (
                         <Copy className="w-4 h-4 text-muted-foreground" />
                       )}
