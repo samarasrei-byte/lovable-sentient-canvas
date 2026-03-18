@@ -476,7 +476,7 @@ export const PlansSection = () => {
             <strong className="text-primary">Creator Pro por R${billing === "monthly" ? "220" : "176"}/mês</strong>
             {" + fotos ilimitadas + vídeos + Live Shop"}
           </p>
-          <p className="text-xs text-emerald-400 mt-2 font-medium">
+          <p className="text-xs text-secondary mt-2 font-medium">
             Economia de {billing === "monthly" ? "47%" : "58%"} + funcionalidades extras inclusas
           </p>
         </motion.div>
