@@ -69,8 +69,8 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("Arquivo muito grande. Máximo 5MB.");
+      if (file.size > 20 * 1024 * 1024) {
+        toast.error("Arquivo muito grande. Máximo 20MB.");
         return;
       }
       // Create optimized preview: resize to max 400px for instant render
