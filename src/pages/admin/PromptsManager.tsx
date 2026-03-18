@@ -275,6 +275,13 @@ const LivePreviewCard = ({ prompt, imageUrl }: { prompt: Partial<Prompt>; imageU
   );
 };
 
+// Category presets with default prices
+const CATEGORY_PRESETS: Record<string, { label: string; defaultPrice: number; icon: string }> = {
+  "Mêsversário & Aniversário": { label: "Mêsversário & Aniversário", defaultPrice: 5800, icon: "🎂" },
+  "Fotografia Profissional": { label: "Fotografia Profissional", defaultPrice: 7000, icon: "📸" },
+  "Geral": { label: "Geral", defaultPrice: 2100, icon: "✨" },
+};
+
 const PromptsManager = () => {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [loading, setLoading] = useState(true);
@@ -289,7 +296,22 @@ const PromptsManager = () => {
   const [fileToCrop, setFileToCrop] = useState<File | null>(null);
   const [screenshotModalOpen, setScreenshotModalOpen] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [activeCategory, setActiveCategory] = useState<string>("all");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Group prompts by category
+  const groupedPrompts = prompts.reduce((acc, prompt) => {
+    const cat = prompt.category || "Geral";
+    if (!acc[cat]) acc[cat] = [];
+    acc[cat].push(prompt);
+    return acc;
+  }, {} as Record<string, Prompt[]>);
+
+  const filteredPrompts = activeCategory === "all" 
+    ? prompts 
+    : prompts.filter(p => p.category === activeCategory);
+
+  const categories = Object.keys(groupedPrompts);
 
   useEffect(() => {
     fetchPrompts();
