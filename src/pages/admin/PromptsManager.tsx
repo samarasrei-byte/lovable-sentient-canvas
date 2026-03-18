@@ -614,11 +614,16 @@ const PromptsManager = () => {
           <h1 className="text-2xl font-bold">Gerenciar Prompts</h1>
           <p className="text-muted-foreground">Anexe a foto + cole o prompt e a IA preenche o resto</p>
         </div>
-        <GlassButton variant="neon" onClick={openNewPrompt}>
-          <Plus className="w-4 h-4 mr-2" />
-          Novo Prompt
-        </GlassButton>
-      </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => setScreenshotModalOpen(true)} className="gap-2">
+            <Camera className="w-4 h-4" />
+            Print → Prompt
+          </Button>
+          <GlassButton variant="neon" onClick={openNewPrompt}>
+            <Plus className="w-4 h-4 mr-2" />
+            Novo Prompt
+          </GlassButton>
+        </div>
 
       {/* Dialog com Preview em Tempo Real */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
