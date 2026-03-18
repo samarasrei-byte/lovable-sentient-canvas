@@ -50,13 +50,14 @@ const Login = () => {
       .from("user_roles")
       .select("role")
       .eq("user_id", userId)
-      .single();
+      .maybeSingle();
 
     if (roleData?.role === "admin") {
       navigate("/admin");
-    } else {
-      navigate("/app/dashboard");
+      return;
     }
+
+    navigate("/app/dashboard");
   };
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -83,13 +84,12 @@ const Login = () => {
     }
 
     if (data.user) {
-      // Check if user is banned
       const { data: banData } = await supabase
         .from("bans")
         .select("*")
         .eq("user_id", data.user.id)
         .eq("is_active", true)
-        .single();
+        .maybeSingle();
 
       if (banData) {
         await supabase.auth.signOut();
@@ -114,37 +114,53 @@ const Login = () => {
   const handleQuickDemoLogin = async (type: "brand" | "influencer" | "admin" | "whitelabel") => {
     setLoading(true);
     const creds = demoCredentials[type];
-    
-    // Try to create account first
-    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+    const dbRole = type === "whitelabel" ? "brand" : type;
+
+    const signInResult = await supabase.auth.signInWithPassword({
+      email: creds.email,
+      password: creds.password,
+    });
+
+    if (!signInResult.error) {
+      toast({
+        title: "Login Demo realizado!",
+        description: `Entrando como ${type}...`,
+      });
+      setLoading(false);
+      return;
+    }
+
+    const signUpPayload: Record<string, string> = {
+      full_name: `Demo ${type.charAt(0).toUpperCase() + type.slice(1)}`,
+      user_type: dbRole,
+    };
+
+    if (type === "influencer") {
+      signUpPayload.stage_name = "Demo Influencer";
+      signUpPayload.category = "Tech";
+      signUpPayload.price_per_post = "1000";
+    }
+
+    const { error: signUpError } = await supabase.auth.signUp({
       email: creds.email,
       password: creds.password,
       options: {
-        data: { full_name: `Demo ${type.charAt(0).toUpperCase() + type.slice(1)}` },
+        data: signUpPayload,
         emailRedirectTo: `${window.location.origin}/app/dashboard`,
       },
     });
 
-    // If signup succeeded, create role and profile
-    if (signUpData.user && !signUpError) {
-      const dbRole = type === "whitelabel" ? "brand" : type;
-      await supabase.from("user_roles").insert({
-        user_id: signUpData.user.id,
-        role: dbRole,
+    if (signUpError) {
+      toast({
+        variant: "destructive",
+        title: "Erro ao preparar login demo",
+        description: signUpError.message,
       });
-
-      if (type === "influencer") {
-        await supabase.from("influencers").insert({
-          user_id: signUpData.user.id,
-          stage_name: "Demo Influencer",
-          category: "Tech",
-          price_per_post: 1000,
-        });
-      }
+      setLoading(false);
+      return;
     }
 
-    // Now login (works whether account was just created or already existed)
-    const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
+    const { error: loginError } = await supabase.auth.signInWithPassword({
       email: creds.email,
       password: creds.password,
     });
@@ -159,12 +175,10 @@ const Login = () => {
       return;
     }
 
-    if (loginData.user) {
-      toast({
-        title: "Login Demo realizado!",
-        description: `Entrando como ${type}...`,
-      });
-    }
+    toast({
+      title: "Login Demo realizado!",
+      description: `Entrando como ${type}...`,
+    });
 
     setLoading(false);
   };
@@ -177,14 +191,27 @@ const Login = () => {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
     const fullName = formData.get("fullName") as string;
+    const stageName = formData.get("stageName") as string;
+    const category = formData.get("category") as string;
+    const pricePerPost = formData.get("pricePerPost") as string;
+    const dbRole = userType === "whitelabel" ? "brand" : userType;
+
+    const signupMetadata: Record<string, string> = {
+      full_name: fullName,
+      user_type: dbRole,
+    };
+
+    if (userType === "influencer") {
+      signupMetadata.stage_name = stageName;
+      signupMetadata.category = category;
+      signupMetadata.price_per_post = pricePerPost;
+    }
 
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: {
-          full_name: fullName,
-        },
+        data: signupMetadata,
         emailRedirectTo: `${window.location.origin}/app/dashboard`,
       },
     });
@@ -200,40 +227,9 @@ const Login = () => {
     }
 
     if (data.user) {
-      // Add user role - map whitelabel to brand role
-      const dbRole = userType === "whitelabel" ? "brand" : userType;
-      const { error: roleError } = await supabase.from("user_roles").insert({
-        user_id: data.user.id,
-        role: dbRole,
-      });
-
-      if (roleError) {
-        toast({
-          variant: "destructive",
-          title: "Erro ao configurar conta",
-          description: roleError.message,
-        });
-        setLoading(false);
-        return;
-      }
-
-      // If influencer, create influencer profile
-      if (userType === "influencer") {
-        const stageName = formData.get("stageName") as string;
-        const category = formData.get("category") as string;
-        const pricePerPost = formData.get("pricePerPost") as string;
-
-        await supabase.from("influencers").insert({
-          user_id: data.user.id,
-          stage_name: stageName,
-          category: category,
-          price_per_post: parseFloat(pricePerPost),
-        });
-      }
-
       toast({
         title: "Conta criada com sucesso!",
-        description: "Você já pode fazer login.",
+        description: "Seu perfil foi configurado automaticamente.",
       });
     }
 

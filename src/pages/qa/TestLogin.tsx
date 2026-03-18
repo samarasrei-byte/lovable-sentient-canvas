@@ -63,20 +63,6 @@ const TestLogin = () => {
         }
 
         if (loginData.user) {
-          // Ensure QA user has admin role for full access
-          const { error: roleError } = await supabase
-            .from("user_roles")
-            .upsert({
-              user_id: loginData.user.id,
-              role: "admin",
-            }, {
-              onConflict: "user_id,role"
-            });
-
-          if (roleError) {
-            console.log("Role setup info:", roleError.message);
-          }
-
           setStatus("success");
           setMessage("Login QA realizado com sucesso!");
           
