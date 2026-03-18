@@ -322,7 +322,7 @@ export const PlansSection = () => {
                     if (val === false) return null;
                     return (
                       <div key={row.key} className="flex items-start gap-2.5 text-sm">
-                        <Check className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                        <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
                         <span className="text-muted-foreground leading-tight">
                           <strong className="text-foreground/80">{row.label}</strong>
                           {typeof val === "string" ? `: ${val}` : ""}
