@@ -166,8 +166,8 @@ export const HeroArcana2 = () => {
           transition={{ duration: 0.6, delay: 0.25 }}
           className="flex flex-wrap items-center justify-center gap-3 md:gap-4 mb-8 md:mb-10"
         >
-          <div className="flex items-center gap-2 text-sm text-muted-foreground px-4 py-2.5 rounded-full bg-card/50 border border-destructive/30 backdrop-blur-sm shadow-[0_0_15px_hsl(var(--destructive)/0.1)]">
-            <TrendingUp className="w-4 h-4 text-destructive" />
+          <div className="flex items-center gap-2 text-sm text-muted-foreground px-4 py-2.5 rounded-full bg-card/50 border border-primary/30 backdrop-blur-sm shadow-[0_0_15px_hsl(var(--primary)/0.1)]">
+            <TrendingUp className="w-4 h-4 text-primary" />
             <span className="font-black text-foreground">#1</span>
             <span>em fotos IA no Brasil</span>
           </div>
