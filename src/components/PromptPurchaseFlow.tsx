@@ -485,7 +485,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                   {/* Payment Status */}
                   <div className="mt-4 p-3 rounded-lg bg-white/5 border border-white/10">
                     {paymentStatus === 'pending' && (
-                      <div className="flex items-center justify-center gap-2 text-yellow-500">
+                      <div className="flex items-center justify-center gap-2 text-secondary">
                         <Clock className="w-4 h-4" />
                         <span className="text-sm">Aguardando pagamento...</span>
                       </div>
