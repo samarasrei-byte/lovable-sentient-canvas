@@ -55,6 +55,7 @@ const menuGroups: MenuGroup[] = [
     icon: Home,
     items: [
       { path: "/app/dashboard", icon: Home, label: "Dashboard" },
+      { path: "/app/prompt-dashboard", icon: Palette, label: "Central de Prompts" },
       { path: "/app/meus-produtos", icon: Camera, label: "Meus Produtos" },
     ]
   },
