@@ -7,7 +7,7 @@ const features = [
     icon: Flame,
     title: "Prompts que Viralizam",
     description: "Os mesmos prompts que geraram +47.000 fotos virais. Testados, validados e prontos pra bombar",
-    gradient: "from-destructive to-secondary",
+    gradient: "from-accent to-secondary",
   },
   {
     icon: Clock,
