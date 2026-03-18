@@ -124,9 +124,9 @@ export const HeroArcana2 = () => {
           transition={{ duration: 0.6, delay: 0.05 }}
           className="mb-6"
         >
-          <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-destructive/20 to-secondary/20 border border-destructive/40 text-sm font-bold text-destructive shadow-[0_0_25px_hsl(var(--destructive)/0.2)] animate-pulse">
-            <Flame className="w-4 h-4" />
-            🔥 +47.000 fotos geradas esta semana — os prompts mais virais do Brasil
+          <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-primary/20 to-secondary/20 border border-primary/40 text-sm font-bold text-primary shadow-[0_0_25px_hsl(var(--primary)/0.2)] animate-pulse">
+            <TrendingUp className="w-4 h-4" />
+            +47.000 fotos geradas esta semana — os prompts mais virais do Brasil
           </span>
         </motion.div>
 
