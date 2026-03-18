@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { History, Download, Edit, Trash2 } from "lucide-react";
+import { History, Download, Edit } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 
@@ -32,7 +32,6 @@ export const UserGallery = ({ onReuse }: UserGalleryProps) => {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
-        // For non-logged users, show images from localStorage
         const localImages = localStorage.getItem('arcana_user_generated');
         if (localImages) {
           setImages(JSON.parse(localImages));
@@ -67,39 +66,6 @@ export const UserGallery = ({ onReuse }: UserGalleryProps) => {
     toast.success("Download iniciado!");
   };
 
-  const handleDelete = async (imageId: string) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        // For non-logged users, remove from localStorage
-        const localImages = localStorage.getItem('arcana_user_generated');
-        if (localImages) {
-          const parsed = JSON.parse(localImages);
-          const filtered = parsed.filter((img: UserImage) => img.id !== imageId);
-          localStorage.setItem('arcana_user_generated', JSON.stringify(filtered));
-          setImages(filtered);
-        }
-        toast.success("Imagem removida!");
-        return;
-      }
-
-      const { error } = await supabase
-        .from('generated_images')
-        .delete()
-        .eq('id', imageId)
-        .eq('user_id', user.id);
-
-      if (error) throw error;
-
-      setImages(images.filter(img => img.id !== imageId));
-      toast.success("Imagem removida!");
-    } catch (error) {
-      console.error('Error deleting image:', error);
-      toast.error("Erro ao remover imagem.");
-    }
-  };
-
   if (loading) {
     return (
       <div className="space-y-4">
@@ -122,9 +88,9 @@ export const UserGallery = ({ onReuse }: UserGalleryProps) => {
           <History className="h-5 w-5 text-primary" />
         </div>
         <div>
-          <h3 className="text-lg font-bold">Suas Criações Anteriores</h3>
+          <h3 className="text-lg font-bold">Suas Criações</h3>
           <p className="text-sm text-muted-foreground">
-            Reutilize ou edite suas criações passadas
+            Suas fotos geradas ficam salvas para sempre
           </p>
         </div>
       </div>
@@ -163,13 +129,6 @@ export const UserGallery = ({ onReuse }: UserGalleryProps) => {
                       onClick={() => handleDownload(image.image_url, image.product_name)}
                     >
                       <Download className="h-3 w-3" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => handleDelete(image.id)}
-                    >
-                      <Trash2 className="h-3 w-3" />
                     </Button>
                   </div>
                 </div>
