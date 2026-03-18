@@ -521,6 +521,38 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                   A IA está criando sua arte personalizada.
                   <br />Isso pode levar alguns segundos.
                 </p>
+
+                {/* Retry button */}
+                <GlassButton 
+                  onClick={() => { setStep('generating'); generateImage(); }} 
+                  variant="outline" 
+                  className="mt-4"
+                >
+                  <Loader2 className="w-4 h-4 mr-2" />
+                  Tentar novamente
+                </GlassButton>
+
+                {/* Subscription upsell */}
+                <div className="mt-6 p-4 rounded-xl border border-primary/30 bg-primary/5">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <Sparkles className="w-4 h-4 text-primary" />
+                    <span className="text-sm font-semibold text-primary">Plano Mensal</span>
+                  </div>
+                  <p className="text-sm font-medium mb-1">
+                    Faça <span className="text-primary font-bold">10 fotos por mês</span> por apenas
+                  </p>
+                  <p className="text-2xl font-bold text-primary mb-2">R$ 100,00<span className="text-xs text-muted-foreground font-normal">/mês</span></p>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    Economize até 50% comparado a compras avulsas
+                  </p>
+                  <GlassButton 
+                    onClick={() => window.open('/app/planos', '_blank')}
+                    className="w-full text-sm"
+                  >
+                    <CheckCircle2 className="w-4 h-4 mr-2" />
+                    Quero assinar agora
+                  </GlassButton>
+                </div>
               </motion.div>
             )}
 
