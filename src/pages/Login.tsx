@@ -1,45 +1,29 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Zap, User, Users, Shield, Building2 } from "lucide-react";
+import { Loader2, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { Session } from "@supabase/supabase-js";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
-  const [userType, setUserType] = useState<"brand" | "influencer" | "admin" | "whitelabel">("brand");
-
-  // Demo credentials
-  const demoCredentials = {
-    brand: { email: "marca@demo.com", password: "demo123" },
-    influencer: { email: "influencer@demo.com", password: "demo123" },
-    admin: { email: "admin@arcana.com", password: "admin123" },
-    whitelabel: { email: "agencia@demo.com", password: "demo123" }
-  };
+  const [mode, setMode] = useState<"login" | "signup">("signup");
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      if (session) {
-        redirectToDashboard(session.user.id);
-      }
+      if (session) redirectToDashboard(session.user.id);
     });
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      if (session) {
-        redirectToDashboard(session.user.id);
-      }
+      if (session) redirectToDashboard(session.user.id);
     });
 
     return () => subscription.unsubscribe();
@@ -56,7 +40,6 @@ const Login = () => {
       navigate("/admin");
       return;
     }
-
     navigate("/app/dashboard");
   };
 
@@ -68,17 +51,10 @@ const Login = () => {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
-      toast({
-        variant: "destructive",
-        title: "Erro ao fazer login",
-        description: error.message,
-      });
+      toast({ variant: "destructive", title: "Erro ao entrar", description: error.message });
       setLoading(false);
       return;
     }
@@ -93,93 +69,11 @@ const Login = () => {
 
       if (banData) {
         await supabase.auth.signOut();
-        toast({
-          variant: "destructive",
-          title: "Acesso negado",
-          description: "Sua conta foi suspensa. Entre em contato com o suporte.",
-        });
+        toast({ variant: "destructive", title: "Acesso negado", description: "Sua conta foi suspensa." });
         setLoading(false);
         return;
       }
-
-      toast({
-        title: "Login realizado!",
-        description: "Bem-vindo de volta.",
-      });
     }
-
-    setLoading(false);
-  };
-
-  const handleQuickDemoLogin = async (type: "brand" | "influencer" | "admin" | "whitelabel") => {
-    setLoading(true);
-    const creds = demoCredentials[type];
-    const dbRole = type === "whitelabel" ? "brand" : type;
-
-    const signInResult = await supabase.auth.signInWithPassword({
-      email: creds.email,
-      password: creds.password,
-    });
-
-    if (!signInResult.error) {
-      toast({
-        title: "Login Demo realizado!",
-        description: `Entrando como ${type}...`,
-      });
-      setLoading(false);
-      return;
-    }
-
-    const signUpPayload: Record<string, string> = {
-      full_name: `Demo ${type.charAt(0).toUpperCase() + type.slice(1)}`,
-      user_type: dbRole,
-    };
-
-    if (type === "influencer") {
-      signUpPayload.stage_name = "Demo Influencer";
-      signUpPayload.category = "Tech";
-      signUpPayload.price_per_post = "1000";
-    }
-
-    const { error: signUpError } = await supabase.auth.signUp({
-      email: creds.email,
-      password: creds.password,
-      options: {
-        data: signUpPayload,
-        emailRedirectTo: `${window.location.origin}/app/dashboard`,
-      },
-    });
-
-    if (signUpError) {
-      toast({
-        variant: "destructive",
-        title: "Erro ao preparar login demo",
-        description: signUpError.message,
-      });
-      setLoading(false);
-      return;
-    }
-
-    const { error: loginError } = await supabase.auth.signInWithPassword({
-      email: creds.email,
-      password: creds.password,
-    });
-
-    if (loginError) {
-      toast({
-        variant: "destructive",
-        title: "Erro ao fazer login",
-        description: loginError.message,
-      });
-      setLoading(false);
-      return;
-    }
-
-    toast({
-      title: "Login Demo realizado!",
-      description: `Entrando como ${type}...`,
-    });
-
     setLoading(false);
   };
 
@@ -191,500 +85,259 @@ const Login = () => {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
     const fullName = formData.get("fullName") as string;
-    const stageName = formData.get("stageName") as string;
-    const category = formData.get("category") as string;
-    const pricePerPost = formData.get("pricePerPost") as string;
-    const dbRole = userType === "whitelabel" ? "brand" : userType;
-
-    const signupMetadata: Record<string, string> = {
-      full_name: fullName,
-      user_type: dbRole,
-    };
-
-    if (userType === "influencer") {
-      signupMetadata.stage_name = stageName;
-      signupMetadata.category = category;
-      signupMetadata.price_per_post = pricePerPost;
-    }
 
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: signupMetadata,
+        data: { full_name: fullName, user_type: "brand" },
         emailRedirectTo: `${window.location.origin}/app/dashboard`,
       },
     });
 
     if (error) {
-      toast({
-        variant: "destructive",
-        title: "Erro ao criar conta",
-        description: error.message,
-      });
+      toast({ variant: "destructive", title: "Erro ao criar conta", description: error.message });
       setLoading(false);
       return;
     }
 
     if (data.user) {
-      toast({
-        title: "Conta criada com sucesso!",
-        description: "Seu perfil foi configurado automaticamente.",
-      });
+      toast({ title: "Conta criada!", description: "Verifique seu email para confirmar." });
     }
-
     setLoading(false);
   };
 
   if (session) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-deep-black via-background to-primary/10 p-4">
-      <Card className="w-full max-w-md border-glass-border bg-card/80 backdrop-blur-xl shadow-2xl animate-fade-in">
-        <CardHeader className="space-y-4">
-          <div className="flex items-center justify-center gap-3">
-            <div className="relative">
-              <div className="absolute -inset-1 bg-gradient-to-r from-primary via-secondary to-artist rounded-xl opacity-50 blur" />
-              <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-primary via-secondary to-artist flex items-center justify-center">
-                <Zap className="w-6 h-6 text-white" />
+    <div className="min-h-screen relative flex items-center justify-center overflow-hidden bg-background">
+      {/* Ambient background */}
+      <div className="absolute inset-0">
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full bg-primary/[0.06] blur-[120px] animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full bg-secondary/[0.04] blur-[100px]" />
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
+      </div>
+
+      {/* Grid pattern */}
+      <div className="absolute inset-0 opacity-[0.02]" style={{
+        backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
+        backgroundSize: '60px 60px'
+      }} />
+
+      <motion.div
+        initial={{ opacity: 0, y: 30, scale: 0.96 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className="relative z-10 w-full max-w-[420px] mx-4"
+      >
+        {/* Logo */}
+        <motion.div 
+          className="text-center mb-8"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <div className="inline-flex items-center gap-2 mb-3">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+              <span className="text-white font-bold text-sm">A</span>
+            </div>
+            <span className="text-xl font-bold tracking-tight text-foreground">ARCANA</span>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            {mode === "signup" ? "Crie sua conta e comece a criar" : "Bem-vindo de volta"}
+          </p>
+        </motion.div>
+
+        {/* Glass card */}
+        <div className="relative">
+          <div className="absolute -inset-px rounded-2xl bg-gradient-to-b from-white/[0.08] to-transparent" />
+          <div className="relative rounded-2xl bg-white/[0.03] backdrop-blur-2xl border border-white/[0.06] p-8">
+            
+            {/* Mode toggle */}
+            <div className="flex rounded-xl bg-white/[0.04] border border-white/[0.06] p-1 mb-8">
+              {(["signup", "login"] as const).map((m) => (
+                <button
+                  key={m}
+                  onClick={() => setMode(m)}
+                  className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 ${
+                    mode === m
+                      ? "bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {m === "signup" ? "Criar conta" : "Entrar"}
+                </button>
+              ))}
+            </div>
+
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={mode}
+                initial={{ opacity: 0, x: mode === "signup" ? -20 : 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: mode === "signup" ? 20 : -20 }}
+                transition={{ duration: 0.25 }}
+              >
+                {mode === "signup" ? (
+                  <form onSubmit={handleSignup} className="space-y-5">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Nome</label>
+                      <Input
+                        name="fullName"
+                        placeholder="Seu nome"
+                        required
+                        className="h-12 bg-white/[0.04] border-white/[0.08] rounded-xl text-foreground placeholder:text-muted-foreground/40 focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Email</label>
+                      <Input
+                        name="email"
+                        type="email"
+                        placeholder="seu@email.com"
+                        required
+                        className="h-12 bg-white/[0.04] border-white/[0.08] rounded-xl text-foreground placeholder:text-muted-foreground/40 focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Senha</label>
+                      <div className="relative">
+                        <Input
+                          name="password"
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Min. 6 caracteres"
+                          required
+                          minLength={6}
+                          className="h-12 bg-white/[0.04] border-white/[0.08] rounded-xl text-foreground placeholder:text-muted-foreground/40 focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all pr-12"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-muted-foreground transition-colors"
+                        >
+                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="w-full h-12 rounded-xl bg-gradient-to-r from-primary to-primary/80 text-primary-foreground font-medium text-sm flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 disabled:opacity-50 group"
+                    >
+                      {loading ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <>
+                          Criar conta gratuita
+                          <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                        </>
+                      )}
+                    </button>
+                  </form>
+                ) : (
+                  <form onSubmit={handleLogin} className="space-y-5">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Email</label>
+                      <Input
+                        name="email"
+                        type="email"
+                        placeholder="seu@email.com"
+                        required
+                        className="h-12 bg-white/[0.04] border-white/[0.08] rounded-xl text-foreground placeholder:text-muted-foreground/40 focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Senha</label>
+                      <div className="relative">
+                        <Input
+                          name="password"
+                          type={showPassword ? "text" : "password"}
+                          placeholder="••••••••"
+                          required
+                          className="h-12 bg-white/[0.04] border-white/[0.08] rounded-xl text-foreground placeholder:text-muted-foreground/40 focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all pr-12"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-muted-foreground transition-colors"
+                        >
+                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="w-full h-12 rounded-xl bg-gradient-to-r from-primary to-primary/80 text-primary-foreground font-medium text-sm flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 disabled:opacity-50 group"
+                    >
+                      {loading ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <>
+                          Entrar
+                          <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                        </>
+                      )}
+                    </button>
+                  </form>
+                )}
+              </motion.div>
+            </AnimatePresence>
+
+            {/* Divider */}
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-white/[0.06]" />
+              </div>
+              <div className="relative flex justify-center">
+                <span className="px-3 bg-transparent text-[10px] text-muted-foreground/40 uppercase tracking-widest">
+                  ou
+                </span>
               </div>
             </div>
-            <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary via-secondary to-artist bg-clip-text text-transparent">
-              ARCANA
-            </CardTitle>
+
+            {/* Demo access - subtle */}
+            <button
+              onClick={async () => {
+                setLoading(true);
+                const creds = { email: "marca@demo.com", password: "demo123" };
+                const res = await supabase.auth.signInWithPassword(creds);
+                if (res.error) {
+                  await supabase.auth.signUp({
+                    email: creds.email,
+                    password: creds.password,
+                    options: { data: { full_name: "Demo User", user_type: "brand" } },
+                  });
+                  await supabase.auth.signInWithPassword(creds);
+                }
+                setLoading(false);
+              }}
+              disabled={loading}
+              className="w-full h-11 rounded-xl border border-white/[0.08] bg-white/[0.02] text-muted-foreground text-sm font-medium hover:bg-white/[0.05] hover:border-white/[0.12] transition-all duration-300"
+            >
+              Acessar demo
+            </button>
           </div>
-          <CardDescription className="text-center text-base">
-            Plataforma de Marketing de Influência
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="brand" onValueChange={(v) => setUserType(v as any)}>
-            <TabsList className="grid w-full grid-cols-4 mb-6">
-              <TabsTrigger value="brand" className="flex items-center gap-2">
-                <User className="w-4 h-4" />
-                Marca
-              </TabsTrigger>
-              <TabsTrigger value="influencer" className="flex items-center gap-2">
-                <Users className="w-4 h-4" />
-                Influencer
-              </TabsTrigger>
-              <TabsTrigger value="whitelabel" className="flex items-center gap-2">
-                <Building2 className="w-4 h-4" />
-                Agência
-              </TabsTrigger>
-              <TabsTrigger value="admin" className="flex items-center gap-2">
-                <Shield className="w-4 h-4" />
-                Admin
-              </TabsTrigger>
-            </TabsList>
+        </div>
 
-            {/* Brand Tab */}
-            <TabsContent value="brand">
-              <Tabs defaultValue="login" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="login">Login</TabsTrigger>
-                  <TabsTrigger value="signup">Cadastro</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="login">
-                  <div className="mb-4">
-                    <Button 
-                      onClick={() => handleQuickDemoLogin("brand")}
-                      className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90 mb-4"
-                      disabled={loading}
-                    >
-                      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      🚀 Login Rápido Demo
-                    </Button>
-                  </div>
-                  <div className="relative mb-4">
-                    <div className="absolute inset-0 flex items-center">
-                      <span className="w-full border-t border-muted" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-card px-2 text-muted-foreground">Ou use suas credenciais</span>
-                    </div>
-                  </div>
-                  <form onSubmit={handleLogin} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input 
-                        id="email" 
-                        name="email" 
-                        type="email" 
-                        placeholder="seu@email.com"
-                        required 
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="password">Senha</Label>
-                      <Input 
-                        id="password" 
-                        name="password" 
-                        type="password"
-                        placeholder="••••••••"
-                        required 
-                      />
-                    </div>
-                    <Button 
-                      type="submit" 
-                      className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90" 
-                      disabled={loading}
-                    >
-                      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      Entrar
-                    </Button>
-                  </form>
-                </TabsContent>
-
-                <TabsContent value="signup">
-                  <form onSubmit={handleSignup} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="fullName">Nome da Marca</Label>
-                      <Input 
-                        id="fullName" 
-                        name="fullName" 
-                        type="text"
-                        placeholder="Sua Empresa Inc."
-                        required 
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input 
-                        id="email" 
-                        name="email" 
-                        type="email"
-                        placeholder="contato@suaempresa.com"
-                        required 
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="password">Senha</Label>
-                      <Input 
-                        id="password" 
-                        name="password" 
-                        type="password"
-                        placeholder="Mínimo 6 caracteres"
-                        required 
-                        minLength={6} 
-                      />
-                    </div>
-                    <Button 
-                      type="submit" 
-                      className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90" 
-                      disabled={loading}
-                    >
-                      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      Criar Conta
-                    </Button>
-                  </form>
-                </TabsContent>
-              </Tabs>
-            </TabsContent>
-
-            {/* Influencer Tab */}
-            <TabsContent value="influencer">
-              <Tabs defaultValue="login" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="login">Login</TabsTrigger>
-                  <TabsTrigger value="signup">Cadastro</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="login">
-                  <div className="mb-4">
-                    <Button 
-                      onClick={() => handleQuickDemoLogin("influencer")}
-                      className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90 mb-4"
-                      disabled={loading}
-                    >
-                      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      🚀 Login Rápido Demo
-                    </Button>
-                  </div>
-                  <div className="relative mb-4">
-                    <div className="absolute inset-0 flex items-center">
-                      <span className="w-full border-t border-muted" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-card px-2 text-muted-foreground">Ou use suas credenciais</span>
-                    </div>
-                  </div>
-                  <form onSubmit={handleLogin} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input 
-                        id="email" 
-                        name="email" 
-                        type="email"
-                        placeholder="seu@email.com"
-                        required 
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="password">Senha</Label>
-                      <Input 
-                        id="password" 
-                        name="password" 
-                        type="password"
-                        placeholder="••••••••"
-                        required 
-                      />
-                    </div>
-                    <Button 
-                      type="submit" 
-                      className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90" 
-                      disabled={loading}
-                    >
-                      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      Entrar
-                    </Button>
-                  </form>
-                </TabsContent>
-
-                <TabsContent value="signup">
-                  <form onSubmit={handleSignup} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="fullName">Nome Completo</Label>
-                      <Input 
-                        id="fullName" 
-                        name="fullName" 
-                        type="text"
-                        placeholder="Seu Nome"
-                        required 
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="stageName">Nome Artístico</Label>
-                      <Input 
-                        id="stageName" 
-                        name="stageName" 
-                        type="text"
-                        placeholder="@seunome"
-                        required 
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="category">Categoria</Label>
-                      <Input 
-                        id="category" 
-                        name="category" 
-                        type="text" 
-                        placeholder="Ex: Tech, Fitness, Fashion" 
-                        required 
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="pricePerPost">Preço por Post (R$)</Label>
-                      <Input 
-                        id="pricePerPost" 
-                        name="pricePerPost" 
-                        type="number" 
-                        step="0.01" 
-                        min="0"
-                        placeholder="1000.00"
-                        required 
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input 
-                        id="email" 
-                        name="email" 
-                        type="email"
-                        placeholder="seu@email.com"
-                        required 
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="password">Senha</Label>
-                      <Input 
-                        id="password" 
-                        name="password" 
-                        type="password"
-                        placeholder="Mínimo 6 caracteres"
-                        required 
-                        minLength={6} 
-                      />
-                    </div>
-                    <Button 
-                      type="submit" 
-                      className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90" 
-                      disabled={loading}
-                    >
-                      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      Criar Conta
-                    </Button>
-                  </form>
-                </TabsContent>
-              </Tabs>
-            </TabsContent>
-
-            {/* White Label Tab */}
-            <TabsContent value="whitelabel">
-              <Tabs defaultValue="login" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="login">Login</TabsTrigger>
-                  <TabsTrigger value="signup">Cadastro</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="login">
-                  <div className="mb-4">
-                    <Button 
-                      onClick={() => handleQuickDemoLogin("whitelabel")}
-                      className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90 mb-4"
-                      disabled={loading}
-                    >
-                      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      🚀 Login Rápido Demo
-                    </Button>
-                  </div>
-                  <div className="relative mb-4">
-                    <div className="absolute inset-0 flex items-center">
-                      <span className="w-full border-t border-muted" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-card px-2 text-muted-foreground">Ou use suas credenciais</span>
-                    </div>
-                  </div>
-                  <form onSubmit={handleLogin} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input 
-                        id="email" 
-                        name="email" 
-                        type="email"
-                        placeholder="agencia@exemplo.com"
-                        required 
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="password">Senha</Label>
-                      <Input 
-                        id="password" 
-                        name="password" 
-                        type="password"
-                        placeholder="••••••••"
-                        required 
-                      />
-                    </div>
-                    <Button 
-                      type="submit" 
-                      className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90" 
-                      disabled={loading}
-                    >
-                      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      Entrar
-                    </Button>
-                  </form>
-                </TabsContent>
-
-                <TabsContent value="signup">
-                  <form onSubmit={handleSignup} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="fullName">Nome da Agência</Label>
-                      <Input 
-                        id="fullName" 
-                        name="fullName" 
-                        type="text"
-                        placeholder="Growth Agency Pro"
-                        required 
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input 
-                        id="email" 
-                        name="email" 
-                        type="email"
-                        placeholder="contato@agencia.com"
-                        required 
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="password">Senha</Label>
-                      <Input 
-                        id="password" 
-                        name="password" 
-                        type="password"
-                        placeholder="Mínimo 6 caracteres"
-                        required 
-                        minLength={6} 
-                      />
-                    </div>
-                    <Button 
-                      type="submit" 
-                      className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90" 
-                      disabled={loading}
-                    >
-                      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      Criar Conta
-                    </Button>
-                  </form>
-                </TabsContent>
-              </Tabs>
-            </TabsContent>
-
-            {/* Admin Tab */}
-            <TabsContent value="admin">
-              <div className="mb-4">
-                <Button 
-                  onClick={() => handleQuickDemoLogin("admin")}
-                  className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90 mb-4"
-                  disabled={loading}
-                >
-                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  🚀 Login Rápido Demo
-                </Button>
-              </div>
-              <div className="relative mb-4">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-muted" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-2 text-muted-foreground">Ou use suas credenciais</span>
-                </div>
-              </div>
-              <form onSubmit={handleLogin} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="admin-email">Email Administrativo</Label>
-                  <Input 
-                    id="admin-email" 
-                    name="email" 
-                    type="email"
-                    placeholder="admin@arcana.com"
-                    required 
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="admin-password">Senha</Label>
-                  <Input 
-                    id="admin-password" 
-                    name="password" 
-                    type="password"
-                    placeholder="••••••••"
-                    required 
-                  />
-                </div>
-                <Button 
-                  type="submit" 
-                  className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90" 
-                  disabled={loading}
-                >
-                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Acessar Painel Admin
-                </Button>
-              </form>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
+        {/* Bottom text */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          className="text-center text-[11px] text-muted-foreground/40 mt-6"
+        >
+          Ao criar conta, você concorda com nossos Termos de Uso
+        </motion.p>
+      </motion.div>
     </div>
   );
 };
