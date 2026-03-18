@@ -828,11 +828,28 @@ const PromptsManager = () => {
                       </div>
                       <div className="space-y-2">
                         <Label>Categoria</Label>
-                        <Input
-                          value={editingPrompt.category || ""}
-                          onChange={(e) => setEditingPrompt({ ...editingPrompt, category: e.target.value })}
-                          placeholder="Cyberpunk, Fashion, etc"
-                        />
+                        <Select
+                          value={editingPrompt.category || "Geral"}
+                          onValueChange={(value) => {
+                            const preset = CATEGORY_PRESETS[value];
+                            setEditingPrompt({ 
+                              ...editingPrompt, 
+                              category: value,
+                              ...(preset && !editingPrompt.id ? { price_cents: preset.defaultPrice } : {})
+                            });
+                          }}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Object.entries(CATEGORY_PRESETS).map(([key, preset]) => (
+                              <SelectItem key={key} value={key}>
+                                {preset.icon} {preset.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                       <div className="space-y-2">
                         <Label>Hype Text</Label>
