@@ -559,8 +559,6 @@ const PromptsManager = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Tem certeza que deseja excluir este prompt?")) return;
-
     try {
       const { error } = await supabase
         .from("prompts")
@@ -568,6 +566,7 @@ const PromptsManager = () => {
         .eq("id", id);
       if (error) throw error;
       toast.success("Prompt excluído!");
+      setDeleteConfirmId(null);
       fetchPrompts();
     } catch (error) {
       console.error("Error deleting prompt:", error);
