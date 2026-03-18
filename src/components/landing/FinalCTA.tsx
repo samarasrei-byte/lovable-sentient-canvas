@@ -31,7 +31,7 @@ export const FinalCTA = () => {
           
           <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto font-light">
             Milhares de creators já transformaram suas redes com nossas fotos IA.{" "}
-            <span className="text-destructive font-bold">Você vai ficar de fora?</span>
+            <span className="text-accent font-bold">Você vai ficar de fora?</span>
           </p>
           
           <a href="#prompts">

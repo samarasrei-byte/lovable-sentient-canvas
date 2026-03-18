@@ -10,8 +10,8 @@ const stats = [
 
 export const SocialProofBanner = () => {
   return (
-    <section className="relative py-12 border-y border-primary/10 bg-gradient-to-r from-destructive/5 via-transparent to-primary/5 overflow-hidden">
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-destructive/50 to-transparent" />
+    <section className="relative py-12 border-y border-primary/10 bg-gradient-to-r from-accent/5 via-transparent to-primary/5 overflow-hidden">
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent" />
       <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
       
       <div className="max-w-7xl mx-auto px-6">

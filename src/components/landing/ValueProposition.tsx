@@ -60,7 +60,7 @@ export const ValueProposition = () => {
           </span>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-black mb-6 tracking-tight">
             As fotos de IA{" "}
-            <span className="bg-gradient-to-r from-destructive via-secondary to-primary bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-accent via-secondary to-primary bg-clip-text text-transparent">
               mais insanas do Brasil
             </span>
           </h2>
