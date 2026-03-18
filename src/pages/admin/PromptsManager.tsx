@@ -980,6 +980,13 @@ const PromptsManager = () => {
           onCropComplete={handleCropComplete}
         />
       )}
+
+      {/* Screenshot to Prompt Modal */}
+      <PromptFromScreenshot
+        open={screenshotModalOpen}
+        onClose={() => setScreenshotModalOpen(false)}
+        onPromptCreated={fetchPrompts}
+      />
     </div>
   );
 };
