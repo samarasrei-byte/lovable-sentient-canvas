@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Star, TrendingUp, Flame, Zap, Camera, Award } from "lucide-react";
 
 const stats = [
-  { icon: Flame, value: "47K+", label: "Fotos geradas", color: "text-destructive" },
+  { icon: Flame, value: "47K+", label: "Fotos geradas", color: "text-accent" },
   { icon: Camera, value: "120+", label: "Prompts exclusivos", color: "text-primary" },
   { icon: Zap, value: "<60s", label: "Tempo de geração", color: "text-secondary" },
   { icon: Award, value: "4.9", label: "Avaliação média", suffix: <Star className="w-4 h-4 fill-current inline ml-1" />, color: "text-secondary" },
