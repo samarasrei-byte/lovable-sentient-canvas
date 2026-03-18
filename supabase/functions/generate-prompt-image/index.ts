@@ -29,6 +29,24 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
+    const supabaseAdmin = purchaseId
+      ? createClient(
+          Deno.env.get("SUPABASE_URL")!,
+          Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+        )
+      : null;
+
+    if (purchaseId && supabaseAdmin) {
+      await supabaseAdmin
+        .from("prompt_purchases")
+        .update({
+          payment_status: "paid",
+          generation_status: "generating",
+          ...(userPhotoUrl ? { user_photo_url: userPhotoUrl } : {}),
+        })
+        .eq("id", purchaseId);
+    }
+
     // Build the final prompt with variable substitution
     let finalPrompt = promptTemplate || "Create a stunning artistic portrait, highly detailed, cinematic lighting, 8k quality";
     
@@ -188,16 +206,14 @@ serve(async (req) => {
     }
 
     // Update the purchase record with the generated image
-    if (purchaseId) {
-      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-      const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-      const supabase = createClient(supabaseUrl, supabaseKey);
-
-      await supabase
+    if (purchaseId && supabaseAdmin) {
+      await supabaseAdmin
         .from("prompt_purchases")
         .update({
+          payment_status: "paid",
           generation_status: "completed",
-          generated_image_url: imageUrl
+          generated_image_url: imageUrl,
+          ...(userPhotoUrl ? { user_photo_url: userPhotoUrl } : {}),
         })
         .eq("id", purchaseId);
     }
@@ -208,6 +224,14 @@ serve(async (req) => {
     );
   } catch (error) {
     console.error("Error generating image:", error);
+
+    if (purchaseId && typeof supabaseAdmin !== "undefined" && supabaseAdmin) {
+      await supabaseAdmin
+        .from("prompt_purchases")
+        .update({ generation_status: "failed" })
+        .eq("id", purchaseId);
+    }
+
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
