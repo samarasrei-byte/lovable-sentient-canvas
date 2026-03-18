@@ -24,7 +24,7 @@ export const FinalCTA = () => {
           
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mb-6 tracking-tight">
             Sua próxima foto viral{" "}
-            <span className="bg-gradient-to-r from-destructive via-secondary to-primary bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-accent via-secondary to-primary bg-clip-text text-transparent">
               começa agora
             </span>
           </h2>
