@@ -1,5 +1,5 @@
 import { HeroArcana2 } from "@/components/HeroArcana2";
-import { SocialProofBanner } from "@/components/landing/SocialProofBanner";
+
 import { PromptMarketplace } from "@/components/marketplace";
 import { UpgradeUpsell } from "@/components/landing/UpgradeUpsell";
 import { PhotoServicesSection } from "@/components/photo-services";
@@ -23,8 +23,6 @@ const Index = () => {
       {/* Hero Section */}
       <HeroArcana2 />
       
-      {/* Social Proof Stats */}
-      <SocialProofBanner />
       
       {/* Marketplace de Talentos — Oculto temporariamente */}
       {/* <InfluencerMarketplaceComingSoon /> */}
