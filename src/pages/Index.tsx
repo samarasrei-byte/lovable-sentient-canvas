@@ -23,8 +23,6 @@ const Index = () => {
       {/* Hero Section */}
       <HeroArcana2 />
       
-      {/* Social Proof Stats */}
-      <SocialProofBanner />
       
       {/* Marketplace de Talentos — Oculto temporariamente */}
       {/* <InfluencerMarketplaceComingSoon /> */}
