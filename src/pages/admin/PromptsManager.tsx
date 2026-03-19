@@ -75,6 +75,7 @@ interface Prompt {
   ai_model: string;
   min_photos: number;
   created_at: string;
+  display_order: number;
 }
 
 // Auto-detect categories and settings from prompt text
