@@ -81,6 +81,7 @@ interface Prompt {
   min_photos: number;
   created_at: string;
   display_order: number;
+  is_featured: boolean;
 }
 
 // Auto-detect categories and settings from prompt text
