@@ -23,6 +23,8 @@ interface Prompt {
   negative_prompt?: string | null;
   ai_model?: string;
   min_photos?: number;
+  is_featured?: boolean;
+  display_order?: number;
 }
 
 export const PromptMarketplace = () => {
