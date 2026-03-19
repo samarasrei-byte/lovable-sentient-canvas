@@ -1051,6 +1051,28 @@ const PromptsManager = () => {
                 {filteredPrompts.map((prompt) => (
                   <TableRow key={prompt.id}>
                     <TableCell>
+                      <div className="flex flex-col items-center gap-0.5">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="w-6 h-6"
+                          onClick={() => handleReorder(prompt.id, 'up')}
+                          disabled={filteredPrompts.indexOf(prompt) === 0}
+                        >
+                          <ArrowUp className="w-3 h-3" />
+                        </Button>
+                        <span className="text-xs text-muted-foreground">{prompt.display_order}</span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="w-6 h-6"
+                          onClick={() => handleReorder(prompt.id, 'down')}
+                          disabled={filteredPrompts.indexOf(prompt) === filteredPrompts.length - 1}
+                        >
+                          <ArrowDown className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    </TableCell>
                       {prompt.example_image_url ? (
                         <img 
                           src={prompt.example_image_url} 
