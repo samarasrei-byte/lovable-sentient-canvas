@@ -184,6 +184,25 @@ const Login = () => {
     setLoading(false);
   };
 
+  const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    const fd = new FormData(e.currentTarget);
+    const email = fd.get("email") as string;
+    const password = fd.get("password") as string;
+    const fullName = fd.get("fullName") as string;
+    const { data, error } = await supabase.auth.signUp({
+      email, password,
+      options: { data: { full_name: fullName, user_type: "brand" }, emailRedirectTo: `${window.location.origin}/app/dashboard` },
+    });
+    if (error) {
+      toast({ variant: "destructive", title: "Erro ao criar conta", description: error.message });
+      setLoading(false); return;
+    }
+    if (data.user) toast({ title: "Conta criada!", description: "Você já pode fazer login." });
+    setLoading(false);
+  };
+
   if (session) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -445,16 +464,6 @@ const Login = () => {
 
                       navigate("/admin");
                     } catch (e: any) {
-                      toast({ title: "Erro", description: e.message, variant: "destructive" });
-                    }
-                    setLoading(false);
-                  }}
-                  disabled={loading}
-                  className="flex-1 h-11 rounded-xl border border-primary/20 bg-primary/[0.05] text-primary text-sm font-medium hover:bg-primary/[0.1] hover:border-primary/30 transition-all duration-300"
-                >
-                  <Shield className="w-3.5 h-3.5 inline mr-1.5" />
-                  Admin
-                </button>
                       toast({ title: "Erro", description: e.message, variant: "destructive" });
                     }
                     setLoading(false);
