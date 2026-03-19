@@ -4,7 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { Zap, Menu, ArrowRight, Star, TrendingUp, Sparkles } from "lucide-react";
 import heroLiquid from "@/assets/hero-liquid.jpg";
 import { useParallax } from "@/hooks/use-parallax";
-import { InstallButton } from "@/components/pwa/InstallButton";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
