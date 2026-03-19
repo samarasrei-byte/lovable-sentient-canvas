@@ -1065,47 +1065,68 @@ const PromptsManager = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredPrompts.map((prompt) => (
-                  <TableRow key={prompt.id}>
+                {filteredPrompts.map((prompt, idx) => (
+                  <TableRow key={prompt.id} className={prompt.is_featured ? "bg-primary/5 border-l-2 border-l-primary" : ""}>
                     <TableCell>
                       <div className="flex flex-col items-center gap-0.5">
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="w-6 h-6"
+                          className="w-7 h-7"
                           onClick={() => handleReorder(prompt.id, 'up')}
-                          disabled={filteredPrompts.indexOf(prompt) === 0}
+                          disabled={idx === 0}
                         >
-                          <ArrowUp className="w-3 h-3" />
+                          <ArrowUp className="w-4 h-4" />
                         </Button>
-                        <span className="text-xs text-muted-foreground">{prompt.display_order}</span>
+                        <GripVertical className="w-3.5 h-3.5 text-muted-foreground/40" />
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="w-6 h-6"
+                          className="w-7 h-7"
                           onClick={() => handleReorder(prompt.id, 'down')}
-                          disabled={filteredPrompts.indexOf(prompt) === filteredPrompts.length - 1}
+                          disabled={idx === filteredPrompts.length - 1}
                         >
-                          <ArrowDown className="w-3 h-3" />
+                          <ArrowDown className="w-4 h-4" />
                         </Button>
                       </div>
                     </TableCell>
                     <TableCell>
-                      {prompt.example_image_url ? (
-                        <img 
-                          src={prompt.example_image_url} 
-                          alt={prompt.name}
-                          className="w-12 h-12 object-cover rounded-lg"
-                        />
-                      ) : (
-                        <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center">
-                          <ImageIcon className="w-5 h-5 text-muted-foreground" />
+                      <div 
+                        className="relative group/img cursor-pointer"
+                        onClick={() => handleToggleFeatured(prompt)}
+                        title={prompt.is_featured ? "Clique para remover destaque" : "Clique para fixar em destaque"}
+                      >
+                        {prompt.example_image_url ? (
+                          <img 
+                            src={prompt.example_image_url} 
+                            alt={prompt.name}
+                            className={`w-14 h-14 object-cover rounded-lg transition-all ${
+                              prompt.is_featured 
+                                ? "ring-2 ring-primary ring-offset-2 ring-offset-background" 
+                                : "group-hover/img:ring-2 group-hover/img:ring-primary/40 group-hover/img:ring-offset-1 group-hover/img:ring-offset-background"
+                            }`}
+                          />
+                        ) : (
+                          <div className="w-14 h-14 rounded-lg bg-muted flex items-center justify-center">
+                            <ImageIcon className="w-5 h-5 text-muted-foreground" />
+                          </div>
+                        )}
+                        {/* Pin overlay */}
+                        <div className={`absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center transition-all ${
+                          prompt.is_featured 
+                            ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30" 
+                            : "bg-muted/80 text-muted-foreground opacity-0 group-hover/img:opacity-100"
+                        }`}>
+                          <Star className={`w-3 h-3 ${prompt.is_featured ? "fill-current" : ""}`} />
                         </div>
-                      )}
+                      </div>
                     </TableCell>
                     <TableCell>
                       <div>
-                        <p className="font-medium">{prompt.name}</p>
+                        <p className="font-medium flex items-center gap-1.5">
+                          {prompt.is_featured && <Pin className="w-3.5 h-3.5 text-primary" />}
+                          {prompt.name}
+                        </p>
                         <p className="text-xs text-muted-foreground truncate max-w-[200px]">
                           {prompt.hype_text}
                         </p>
