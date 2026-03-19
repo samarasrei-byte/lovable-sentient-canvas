@@ -36,7 +36,7 @@ export const HeroArcana2 = () => {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden w-full">
       {/* Navigation — frosted glass bar */}
-      <nav className="absolute top-0 left-0 right-0 z-50 px-4 md:px-8 pt-6 md:pt-4 pb-3 safe-area-top w-full">
+      <nav className="absolute top-0 left-0 right-0 z-50 px-5 md:px-8 pt-10 md:pt-6 pb-4 safe-area-top w-full">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="relative flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 bg-white/[0.04] backdrop-blur-xl rounded-xl border border-white/[0.08]">
             <Zap className="w-4 h-4 md:w-5 md:h-5 text-primary" />
