@@ -627,6 +627,19 @@ const PromptsManager = () => {
     }
   };
 
+  const handleToggleFeatured = async (prompt: Prompt) => {
+    try {
+      await supabase.functions.invoke("manage-prompt", {
+        body: { action: "update", promptId: prompt.id, promptData: { is_featured: !prompt.is_featured } },
+      });
+      toast.success(prompt.is_featured ? "Prompt removido dos destaques" : "⭐ Prompt fixado em destaque!");
+      fetchPrompts();
+    } catch (error) {
+      console.error("Error toggling featured:", error);
+      toast.error("Erro ao alterar destaque");
+    }
+  };
+
   const formatPrice = (cents: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
