@@ -75,11 +75,15 @@ export const PromptMarketplace = () => {
     if (selectedCategory) {
       result = result.filter(p => p.category === selectedCategory);
     }
-    // Featured first, then by image presence
+    // Featured first, then by display_order, then by image presence
     result.sort((a, b) => {
-      const aFeatured = (a as any).is_featured ? 1 : 0;
-      const bFeatured = (b as any).is_featured ? 1 : 0;
+      const aFeatured = a.is_featured ? 1 : 0;
+      const bFeatured = b.is_featured ? 1 : 0;
       if (bFeatured !== aFeatured) return bFeatured - aFeatured;
+      // Within same featured status, respect display_order
+      const aOrder = a.display_order ?? 999;
+      const bOrder = b.display_order ?? 999;
+      if (aOrder !== bOrder) return aOrder - bOrder;
       const aHasImage = a.example_image_url ? 1 : 0;
       const bHasImage = b.example_image_url ? 1 : 0;
       return bHasImage - aHasImage;
