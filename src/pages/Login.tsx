@@ -388,23 +388,42 @@ const Login = () => {
                 </div>
               </div>
 
-              {/* Demo */}
-              <button
-                onClick={async () => {
-                  setLoading(true);
-                  const creds = { email: "marca@demo.com", password: "demo123" };
-                  const res = await supabase.auth.signInWithPassword(creds);
-                  if (res.error) {
-                    await supabase.auth.signUp({ email: creds.email, password: creds.password, options: { data: { full_name: "Demo User", user_type: "brand" } } });
-                    await supabase.auth.signInWithPassword(creds);
-                  }
-                  setLoading(false);
-                }}
-                disabled={loading}
-                className="w-full h-11 rounded-xl border border-white/[0.08] bg-white/[0.02] text-muted-foreground text-sm font-medium hover:bg-white/[0.05] hover:border-white/[0.12] transition-all duration-300"
-              >
-                Acessar demo
-              </button>
+              {/* Demo buttons */}
+              <div className="flex gap-2">
+                <button
+                  onClick={async () => {
+                    setLoading(true);
+                    const creds = { email: "marca@demo.com", password: "demo123" };
+                    const res = await supabase.auth.signInWithPassword(creds);
+                    if (res.error) {
+                      await supabase.auth.signUp({ email: creds.email, password: creds.password, options: { data: { full_name: "Demo User", user_type: "brand" } } });
+                      await supabase.auth.signInWithPassword(creds);
+                    }
+                    setLoading(false);
+                  }}
+                  disabled={loading}
+                  className="flex-1 h-11 rounded-xl border border-white/[0.08] bg-white/[0.02] text-muted-foreground text-sm font-medium hover:bg-white/[0.05] hover:border-white/[0.12] transition-all duration-300"
+                >
+                  Acessar demo
+                </button>
+                <button
+                  onClick={async () => {
+                    setLoading(true);
+                    const creds = { email: "admin@arcana.com.br", password: "arcana2026" };
+                    const res = await supabase.auth.signInWithPassword(creds);
+                    if (res.error) {
+                      await supabase.auth.signUp({ email: creds.email, password: creds.password, options: { data: { full_name: "Admin Arcana", user_type: "admin" } } });
+                      await supabase.auth.signInWithPassword(creds);
+                    }
+                    setLoading(false);
+                  }}
+                  disabled={loading}
+                  className="flex-1 h-11 rounded-xl border border-primary/20 bg-primary/[0.05] text-primary text-sm font-medium hover:bg-primary/[0.1] hover:border-primary/30 transition-all duration-300"
+                >
+                  <Shield className="w-3.5 h-3.5 inline mr-1.5" />
+                  Admin
+                </button>
+              </div>
             </div>
           </div>
 
