@@ -87,6 +87,9 @@ export const PromptCard = ({ prompt, index, onSelect, variant = 'grid' }: Prompt
               alt={`Exemplo do prompt ${prompt.name}`}
               className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
               loading="lazy"
+              decoding="async"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              style={{ imageRendering: 'auto' }}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/5 to-secondary/5">
