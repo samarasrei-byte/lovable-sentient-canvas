@@ -455,16 +455,6 @@ const Login = () => {
                   <Shield className="w-3.5 h-3.5 inline mr-1.5" />
                   Admin
                 </button>
-                      toast({ title: "Erro", description: e.message, variant: "destructive" });
-                    }
-                    setLoading(false);
-                  }}
-                  disabled={loading}
-                  className="flex-1 h-11 rounded-xl border border-primary/20 bg-primary/[0.05] text-primary text-sm font-medium hover:bg-primary/[0.1] hover:border-primary/30 transition-all duration-300"
-                >
-                  <Shield className="w-3.5 h-3.5 inline mr-1.5" />
-                  Admin
-                </button>
               </div>
             </div>
           </div>
