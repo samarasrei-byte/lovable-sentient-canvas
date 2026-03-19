@@ -553,17 +553,18 @@ const PromptsManager = () => {
       };
 
       if (editingPrompt.id) {
-        const { error } = await supabase
-          .from("prompts")
-          .update(promptData)
-          .eq("id", editingPrompt.id);
+        const { data: result, error } = await supabase.functions.invoke("manage-prompt", {
+          body: { action: "update", promptId: editingPrompt.id, promptData }
+        });
         if (error) throw error;
+        if (result?.error) throw new Error(result.error);
         toast.success("Prompt atualizado!");
       } else {
-        const { error } = await supabase
-          .from("prompts")
-          .insert(promptData);
+        const { data: result, error } = await supabase.functions.invoke("manage-prompt", {
+          body: { action: "insert", promptData }
+        });
         if (error) throw error;
+        if (result?.error) throw new Error(result.error);
         toast.success("Prompt criado com sucesso!");
       }
 
