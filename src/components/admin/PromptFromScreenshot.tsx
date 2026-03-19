@@ -195,7 +195,7 @@ export const PromptFromScreenshot = ({ open, onClose, onPromptCreated }: PromptF
       const hypeTexts = ["🔥 +500k gerações", "⚡ Trending", "💎 Premium", "🚀 Viral", "✨ Top Creator"];
       const hypeText = hypeTexts[Math.floor(Math.random() * hypeTexts.length)];
 
-      const { error: insertError } = await supabase.from("prompts").insert({
+      const promptData = {
         name: promptName || "Prompt from Screenshot",
         description: `Gerado automaticamente a partir de screenshot. ${extractedText.substring(0, 100)}...`,
         category: promptCategory,
@@ -208,9 +208,14 @@ export const PromptFromScreenshot = ({ open, onClose, onPromptCreated }: PromptF
         ai_model: "gemini-2.5-flash-image",
         min_photos: 1,
         is_influencer_prompt: false,
+      };
+
+      const { data: result, error: insertError } = await supabase.functions.invoke("manage-prompt", {
+        body: { action: "insert", promptData }
       });
 
       if (insertError) throw insertError;
+      if (result?.error) throw new Error(result.error);
 
       toast.success("Prompt salvo no marketplace!");
       onPromptCreated();

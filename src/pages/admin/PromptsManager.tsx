@@ -583,11 +583,11 @@ const PromptsManager = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from("prompts")
-        .delete()
-        .eq("id", id);
+      const { data: result, error } = await supabase.functions.invoke("manage-prompt", {
+        body: { action: "delete", promptId: id }
+      });
       if (error) throw error;
+      if (result?.error) throw new Error(result.error);
       toast.success("Prompt excluído!");
       setDeleteConfirmId(null);
       fetchPrompts();
