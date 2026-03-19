@@ -1521,6 +1521,7 @@ export type Database = {
           category: string
           created_at: string
           description: string | null
+          display_order: number
           example_image_url: string | null
           hype_text: string | null
           id: string
@@ -1541,6 +1542,7 @@ export type Database = {
           category: string
           created_at?: string
           description?: string | null
+          display_order?: number
           example_image_url?: string | null
           hype_text?: string | null
           id?: string
@@ -1561,6 +1563,7 @@ export type Database = {
           category?: string
           created_at?: string
           description?: string | null
+          display_order?: number
           example_image_url?: string | null
           hype_text?: string | null
           id?: string
