@@ -51,7 +51,9 @@ import {
   X,
   Zap,
   Crop,
-  Camera
+  Camera,
+  ArrowUp,
+  ArrowDown
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -75,6 +77,7 @@ interface Prompt {
   ai_model: string;
   min_photos: number;
   created_at: string;
+  display_order: number;
 }
 
 // Auto-detect categories and settings from prompt text
@@ -322,6 +325,7 @@ const PromptsManager = () => {
       const { data, error } = await supabase
         .from("prompts")
         .select("*")
+        .order("display_order", { ascending: true })
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -594,6 +598,29 @@ const PromptsManager = () => {
     } catch (error) {
       console.error("Error deleting prompt:", error);
       toast.error("Erro ao excluir prompt");
+    }
+  };
+
+  const handleReorder = async (promptId: string, direction: 'up' | 'down') => {
+    const idx = filteredPrompts.findIndex(p => p.id === promptId);
+    if (idx < 0) return;
+    const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
+    if (swapIdx < 0 || swapIdx >= filteredPrompts.length) return;
+
+    const current = filteredPrompts[idx];
+    const swap = filteredPrompts[swapIdx];
+
+    try {
+      await supabase.functions.invoke("manage-prompt", {
+        body: { action: "update", promptId: current.id, promptData: { display_order: swap.display_order } },
+      });
+      await supabase.functions.invoke("manage-prompt", {
+        body: { action: "update", promptId: swap.id, promptData: { display_order: current.display_order } },
+      });
+      fetchPrompts();
+    } catch (error) {
+      console.error("Error reordering:", error);
+      toast.error("Erro ao reordenar");
     }
   };
 
@@ -1011,6 +1038,7 @@ const PromptsManager = () => {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-[80px]">Ordem</TableHead>
                   <TableHead>Preview</TableHead>
                   <TableHead>Nome</TableHead>
                   <TableHead>Categoria</TableHead>
@@ -1022,6 +1050,29 @@ const PromptsManager = () => {
               <TableBody>
                 {filteredPrompts.map((prompt) => (
                   <TableRow key={prompt.id}>
+                    <TableCell>
+                      <div className="flex flex-col items-center gap-0.5">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="w-6 h-6"
+                          onClick={() => handleReorder(prompt.id, 'up')}
+                          disabled={filteredPrompts.indexOf(prompt) === 0}
+                        >
+                          <ArrowUp className="w-3 h-3" />
+                        </Button>
+                        <span className="text-xs text-muted-foreground">{prompt.display_order}</span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="w-6 h-6"
+                          onClick={() => handleReorder(prompt.id, 'down')}
+                          disabled={filteredPrompts.indexOf(prompt) === filteredPrompts.length - 1}
+                        >
+                          <ArrowDown className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    </TableCell>
                     <TableCell>
                       {prompt.example_image_url ? (
                         <img 

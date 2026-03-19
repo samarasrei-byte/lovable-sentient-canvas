@@ -43,6 +43,7 @@ export const PromptMarketplace = () => {
         .from("prompts")
         .select("*")
         .eq("status", "active")
+        .order("display_order", { ascending: true })
         .order("created_at", { ascending: false });
 
       if (error) throw error;
