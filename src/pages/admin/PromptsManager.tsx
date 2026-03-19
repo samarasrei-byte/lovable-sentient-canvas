@@ -304,6 +304,9 @@ const PromptsManager = () => {
   const [screenshotModalOpen, setScreenshotModalOpen] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>("all");
+  const [draggedPromptId, setDraggedPromptId] = useState<string | null>(null);
+  const [dragOverPromptId, setDragOverPromptId] = useState<string | null>(null);
+  const [reordering, setReordering] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Group prompts by category
