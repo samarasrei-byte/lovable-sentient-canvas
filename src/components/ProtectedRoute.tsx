@@ -32,10 +32,10 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
       // Check if user is banned
       const { data: banData } = await supabase
         .from("bans")
-        .select("*")
+        .select("id")
         .eq("user_id", user.id)
         .eq("is_active", true)
-        .single();
+        .maybeSingle();
 
       if (banData) {
         await supabase.auth.signOut();
@@ -49,7 +49,7 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
           .select("role")
           .eq("user_id", user.id)
           .eq("role", requiredRole)
-          .single();
+          .maybeSingle();
 
         setHasAccess(!!roleData);
       } else {
