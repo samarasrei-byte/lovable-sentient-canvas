@@ -1038,6 +1038,7 @@ const PromptsManager = () => {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-[80px]">Ordem</TableHead>
                   <TableHead>Preview</TableHead>
                   <TableHead>Nome</TableHead>
                   <TableHead>Categoria</TableHead>
