@@ -409,11 +409,36 @@ const Login = () => {
                 <button
                   onClick={async () => {
                     setLoading(true);
-                    const creds = { email: "admin@arcana.com.br", password: "arcana2026" };
-                    const res = await supabase.auth.signInWithPassword(creds);
-                    if (res.error) {
-                      await supabase.auth.signUp({ email: creds.email, password: creds.password, options: { data: { full_name: "Admin Arcana", user_type: "admin" } } });
-                      await supabase.auth.signInWithPassword(creds);
+                    try {
+                      const creds = { email: "admin@arcana.com.br", password: "arcana2026" };
+                      const res = await supabase.auth.signInWithPassword(creds);
+                      if (res.error) {
+                        console.log("Admin login failed, attempting signup:", res.error.message);
+                        const signUpRes = await supabase.auth.signUp({ 
+                          email: creds.email, 
+                          password: creds.password, 
+                          options: { data: { full_name: "Admin Arcana", user_type: "admin" } } 
+                        });
+                        console.log("Signup result:", signUpRes.error?.message || "success", signUpRes.data?.session ? "has session" : "no session");
+                        if (signUpRes.error) {
+                          toast({ title: "Erro", description: signUpRes.error.message, variant: "destructive" });
+                        } else if (signUpRes.data?.session) {
+                          // Auto-confirmed, already logged in
+                          navigate("/admin");
+                        } else {
+                          // Try login again after signup
+                          const retry = await supabase.auth.signInWithPassword(creds);
+                          if (retry.error) {
+                            toast({ title: "Erro", description: "Conta criada mas login falhou. Tente novamente.", variant: "destructive" });
+                          } else {
+                            navigate("/admin");
+                          }
+                        }
+                      } else {
+                        navigate("/admin");
+                      }
+                    } catch (e: any) {
+                      toast({ title: "Erro", description: e.message, variant: "destructive" });
                     }
                     setLoading(false);
                   }}
