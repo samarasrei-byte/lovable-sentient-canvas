@@ -1148,7 +1148,11 @@ const PromptsManager = () => {
           <CardTitle className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-primary" />
             Prompts ({filteredPrompts.length})
+            {reordering && <Loader2 className="w-4 h-4 animate-spin text-primary" />}
           </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Arraste pela alça para reorganizar e clique na foto para fixar em destaque.
+          </p>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -1167,7 +1171,7 @@ const PromptsManager = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[80px]">Ordem</TableHead>
+                  <TableHead className="w-[170px]">Ordem</TableHead>
                   <TableHead>Preview</TableHead>
                   <TableHead>Nome</TableHead>
                   <TableHead>Categoria</TableHead>
@@ -1178,28 +1182,61 @@ const PromptsManager = () => {
               </TableHeader>
               <TableBody>
                 {filteredPrompts.map((prompt, idx) => (
-                  <TableRow key={prompt.id} className={prompt.is_featured ? "bg-primary/5 border-l-2 border-l-primary" : ""}>
+                  <TableRow
+                    key={prompt.id}
+                    onDragOver={(event) => handlePromptDragOver(event, prompt.id)}
+                    onDragEnter={() => handlePromptDragEnter(prompt.id)}
+                    onDrop={(event) => handlePromptDrop(event, prompt.id)}
+                    className={[
+                      prompt.is_featured ? "border-l-2 border-l-primary bg-primary/5" : "",
+                      draggedPromptId === prompt.id ? "opacity-50" : "",
+                      dragOverPromptId === prompt.id && draggedPromptId !== prompt.id ? "bg-accent/40" : "",
+                    ].filter(Boolean).join(" ")}
+                  >
                     <TableCell>
-                      <div className="flex flex-col items-center gap-0.5">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="w-7 h-7"
-                          onClick={() => handleReorder(prompt.id, 'up')}
-                          disabled={idx === 0}
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          draggable={!reordering}
+                          disabled={reordering}
+                          onDragStart={(event) => handlePromptDragStart(event, prompt.id)}
+                          onDragEnd={handlePromptDragEnd}
+                          className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-muted/40 text-muted-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+                          aria-label={`Arrastar para reordenar ${prompt.name}`}
+                          title="Arrastar para reordenar"
                         >
-                          <ArrowUp className="w-4 h-4" />
-                        </Button>
-                        <GripVertical className="w-3.5 h-3.5 text-muted-foreground/40" />
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="w-7 h-7"
-                          onClick={() => handleReorder(prompt.id, 'down')}
-                          disabled={idx === filteredPrompts.length - 1}
-                        >
-                          <ArrowDown className="w-4 h-4" />
-                        </Button>
+                          {draggedPromptId === prompt.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <GripVertical className="w-4 h-4" />
+                          )}
+                        </button>
+
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-1.5">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              onClick={() => handleReorder(prompt.id, 'up')}
+                              disabled={idx === 0 || reordering}
+                            >
+                              <ArrowUp className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              onClick={() => handleReorder(prompt.id, 'down')}
+                              disabled={idx === filteredPrompts.length - 1 || reordering}
+                            >
+                              <ArrowDown className="w-4 h-4" />
+                            </Button>
+                          </div>
+                          <span className="text-[11px] text-muted-foreground">
+                            {dragOverPromptId === prompt.id && draggedPromptId !== prompt.id ? "Solte aqui" : "Arraste"}
+                          </span>
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -1223,7 +1260,6 @@ const PromptsManager = () => {
                             <ImageIcon className="w-5 h-5 text-muted-foreground" />
                           </div>
                         )}
-                        {/* Pin overlay */}
                         <div className={`absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center transition-all ${
                           prompt.is_featured 
                             ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30" 
