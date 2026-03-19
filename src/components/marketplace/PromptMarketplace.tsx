@@ -73,7 +73,11 @@ export const PromptMarketplace = () => {
     if (selectedCategory) {
       result = result.filter(p => p.category === selectedCategory);
     }
+    // Featured first, then by image presence
     result.sort((a, b) => {
+      const aFeatured = (a as any).is_featured ? 1 : 0;
+      const bFeatured = (b as any).is_featured ? 1 : 0;
+      if (bFeatured !== aFeatured) return bFeatured - aFeatured;
       const aHasImage = a.example_image_url ? 1 : 0;
       const bHasImage = b.example_image_url ? 1 : 0;
       return bHasImage - aHasImage;
