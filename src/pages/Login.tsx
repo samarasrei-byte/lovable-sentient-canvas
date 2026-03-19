@@ -431,34 +431,30 @@ const Login = () => {
                   onClick={async () => {
                     setLoading(true);
                     try {
-                      const creds = { email: "admin@arcana.com.br", password: "arcana2026" };
-                      const res = await supabase.auth.signInWithPassword(creds);
+                      await ensureAdminAccount();
+                      const res = await supabase.auth.signInWithPassword({ email: ADMIN_EMAIL, password: ADMIN_PASSWORD });
+
                       if (res.error) {
-                        console.log("Admin login failed, attempting signup:", res.error.message);
-                        const signUpRes = await supabase.auth.signUp({ 
-                          email: creds.email, 
-                          password: creds.password, 
-                          options: { data: { full_name: "Admin Arcana", user_type: "admin" } } 
-                        });
-                        console.log("Signup result:", signUpRes.error?.message || "success", signUpRes.data?.session ? "has session" : "no session");
-                        if (signUpRes.error) {
-                          toast({ title: "Erro", description: signUpRes.error.message, variant: "destructive" });
-                        } else if (signUpRes.data?.session) {
-                          // Auto-confirmed, already logged in
-                          navigate("/admin");
-                        } else {
-                          // Try login again after signup
-                          const retry = await supabase.auth.signInWithPassword(creds);
-                          if (retry.error) {
-                            toast({ title: "Erro", description: "Conta criada mas login falhou. Tente novamente.", variant: "destructive" });
-                          } else {
-                            navigate("/admin");
-                          }
-                        }
-                      } else {
-                        navigate("/admin");
+                        throw res.error;
                       }
+
+                      if (res.data.user && await checkIfBanned(res.data.user.id)) {
+                        setLoading(false);
+                        return;
+                      }
+
+                      navigate("/admin");
                     } catch (e: any) {
+                      toast({ title: "Erro", description: e.message, variant: "destructive" });
+                    }
+                    setLoading(false);
+                  }}
+                  disabled={loading}
+                  className="flex-1 h-11 rounded-xl border border-primary/20 bg-primary/[0.05] text-primary text-sm font-medium hover:bg-primary/[0.1] hover:border-primary/30 transition-all duration-300"
+                >
+                  <Shield className="w-3.5 h-3.5 inline mr-1.5" />
+                  Admin
+                </button>
                       toast({ title: "Erro", description: e.message, variant: "destructive" });
                     }
                     setLoading(false);
