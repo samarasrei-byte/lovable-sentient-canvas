@@ -53,7 +53,10 @@ import {
   Crop,
   Camera,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  GripVertical,
+  Pin,
+  Star
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
