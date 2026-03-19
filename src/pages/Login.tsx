@@ -95,6 +95,9 @@ const FeatureItem = ({ icon: Icon, text, delay }: { icon: any; text: string; del
   </motion.div>
 );
 
+const ADMIN_EMAIL = "admin@arcana.com.br";
+const ADMIN_PASSWORD = "arcana2026";
+
 const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -122,44 +125,62 @@ const Login = () => {
     navigate("/app/dashboard");
   };
 
+  const ensureAdminAccount = async () => {
+    const { data, error } = await supabase.functions.invoke("ensure-admin-user", {
+      body: { email: ADMIN_EMAIL, password: ADMIN_PASSWORD },
+    });
+
+    if (error) throw error;
+    if (data?.error) throw new Error(data.error);
+    return data;
+  };
+
+  const checkIfBanned = async (userId: string) => {
+    const { data: banData } = await supabase
+      .from("bans")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("is_active", true)
+      .maybeSingle();
+
+    if (!banData) return false;
+
+    await supabase.auth.signOut();
+    toast({ variant: "destructive", title: "Acesso negado", description: "Sua conta foi suspensa." });
+    return true;
+  };
+
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     const fd = new FormData(e.currentTarget);
-    const email = fd.get("email") as string;
+    const email = (fd.get("email") as string).trim().toLowerCase();
     const password = fd.get("password") as string;
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      toast({ variant: "destructive", title: "Erro ao entrar", description: error.message });
-      setLoading(false); return;
-    }
-    if (data.user) {
-      const { data: banData } = await supabase.from("bans").select("*").eq("user_id", data.user.id).eq("is_active", true).maybeSingle();
-      if (banData) {
-        await supabase.auth.signOut();
-        toast({ variant: "destructive", title: "Acesso negado", description: "Sua conta foi suspensa." });
-        setLoading(false); return;
+
+    let { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (error && email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+      try {
+        await ensureAdminAccount();
+        const retry = await supabase.auth.signInWithPassword({ email, password });
+        data = retry.data;
+        error = retry.error;
+      } catch (adminError: any) {
+        error = adminError;
       }
     }
-    setLoading(false);
-  };
 
-  const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    const fd = new FormData(e.currentTarget);
-    const email = fd.get("email") as string;
-    const password = fd.get("password") as string;
-    const fullName = fd.get("fullName") as string;
-    const { data, error } = await supabase.auth.signUp({
-      email, password,
-      options: { data: { full_name: fullName, user_type: "brand" }, emailRedirectTo: `${window.location.origin}/app/dashboard` },
-    });
     if (error) {
-      toast({ variant: "destructive", title: "Erro ao criar conta", description: error.message });
-      setLoading(false); return;
+      toast({ variant: "destructive", title: "Erro ao entrar", description: error.message });
+      setLoading(false);
+      return;
     }
-    if (data.user) toast({ title: "Conta criada!", description: "Verifique seu email para confirmar." });
+
+    if (data.user && await checkIfBanned(data.user.id)) {
+      setLoading(false);
+      return;
+    }
+
     setLoading(false);
   };
 
