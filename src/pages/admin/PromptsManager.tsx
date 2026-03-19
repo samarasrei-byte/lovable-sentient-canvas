@@ -1073,7 +1073,7 @@ const PromptsManager = () => {
                         </Button>
                       </div>
                     </TableCell>
-                      {prompt.example_image_url ? (
+                    <TableCell>
                         <img 
                           src={prompt.example_image_url} 
                           alt={prompt.name}
