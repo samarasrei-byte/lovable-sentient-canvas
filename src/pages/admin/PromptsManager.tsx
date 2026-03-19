@@ -608,27 +608,136 @@ const PromptsManager = () => {
     }
   };
 
-  const handleReorder = async (promptId: string, direction: 'up' | 'down') => {
-    const idx = filteredPrompts.findIndex(p => p.id === promptId);
-    if (idx < 0) return;
-    const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
-    if (swapIdx < 0 || swapIdx >= filteredPrompts.length) return;
+  const sortPromptsByOrder = (items: Prompt[]) => {
+    return [...items].sort((a, b) => {
+      if (a.display_order !== b.display_order) return a.display_order - b.display_order;
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+  };
 
-    const current = filteredPrompts[idx];
-    const swap = filteredPrompts[swapIdx];
+  const buildUpdatedPromptOrder = (reorderedVisiblePrompts: Prompt[]) => {
+    const availableOrders = [...filteredPrompts]
+      .map((prompt) => prompt.display_order)
+      .sort((a, b) => a - b);
+
+    const reorderedWithDisplayOrder = reorderedVisiblePrompts.map((prompt, index) => ({
+      ...prompt,
+      display_order: availableOrders[index] ?? prompt.display_order,
+    }));
+
+    const updatedPromptMap = new Map(
+      reorderedWithDisplayOrder.map((prompt) => [prompt.id, prompt])
+    );
+
+    return sortPromptsByOrder(
+      prompts.map((prompt) => updatedPromptMap.get(prompt.id) ?? prompt)
+    );
+  };
+
+  const persistPromptOrder = async (updatedPrompts: Prompt[]) => {
+    const previousPrompts = prompts;
+    const changedPrompts = updatedPrompts.filter((prompt) => {
+      const existingPrompt = previousPrompts.find((item) => item.id === prompt.id);
+      return existingPrompt && existingPrompt.display_order !== prompt.display_order;
+    });
+
+    if (changedPrompts.length === 0) return;
+
+    setPrompts(updatedPrompts);
+    setReordering(true);
 
     try {
-      await supabase.functions.invoke("manage-prompt", {
-        body: { action: "update", promptId: current.id, promptData: { display_order: swap.display_order } },
-      });
-      await supabase.functions.invoke("manage-prompt", {
-        body: { action: "update", promptId: swap.id, promptData: { display_order: current.display_order } },
-      });
-      fetchPrompts();
+      const results = await Promise.all(
+        changedPrompts.map((prompt) =>
+          supabase.functions.invoke("manage-prompt", {
+            body: {
+              action: "update",
+              promptId: prompt.id,
+              promptData: { display_order: prompt.display_order },
+            },
+          })
+        )
+      );
+
+      const failedRequest = results.find((result: any) => result.error || result.data?.error);
+      if (failedRequest?.error) throw failedRequest.error;
+      if (failedRequest?.data?.error) throw new Error(failedRequest.data.error);
+
+      toast.success("Ordem atualizada!");
     } catch (error) {
       console.error("Error reordering:", error);
+      setPrompts(previousPrompts);
       toast.error("Erro ao reordenar");
+      fetchPrompts();
+    } finally {
+      setReordering(false);
     }
+  };
+
+  const handleReorder = async (promptId: string, direction: 'up' | 'down') => {
+    const currentIndex = filteredPrompts.findIndex((prompt) => prompt.id === promptId);
+    if (currentIndex < 0) return;
+
+    const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+    if (targetIndex < 0 || targetIndex >= filteredPrompts.length) return;
+
+    const reorderedVisiblePrompts = [...filteredPrompts];
+    const [movedPrompt] = reorderedVisiblePrompts.splice(currentIndex, 1);
+    reorderedVisiblePrompts.splice(targetIndex, 0, movedPrompt);
+
+    await persistPromptOrder(buildUpdatedPromptOrder(reorderedVisiblePrompts));
+  };
+
+  const handlePromptDragStart = (event: React.DragEvent<HTMLButtonElement>, promptId: string) => {
+    setDraggedPromptId(promptId);
+    setDragOverPromptId(promptId);
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", promptId);
+  };
+
+  const handlePromptDragOver = (event: React.DragEvent<HTMLTableRowElement>, promptId: string) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+
+    if (draggedPromptId && draggedPromptId !== promptId) {
+      setDragOverPromptId(promptId);
+    }
+  };
+
+  const handlePromptDragEnter = (promptId: string) => {
+    if (draggedPromptId && draggedPromptId !== promptId) {
+      setDragOverPromptId(promptId);
+    }
+  };
+
+  const handlePromptDragEnd = () => {
+    setDraggedPromptId(null);
+    setDragOverPromptId(null);
+  };
+
+  const handlePromptDrop = async (event: React.DragEvent<HTMLTableRowElement>, targetPromptId: string) => {
+    event.preventDefault();
+
+    const sourcePromptId = draggedPromptId || event.dataTransfer.getData("text/plain");
+    if (!sourcePromptId || sourcePromptId === targetPromptId) {
+      handlePromptDragEnd();
+      return;
+    }
+
+    const sourceIndex = filteredPrompts.findIndex((prompt) => prompt.id === sourcePromptId);
+    const targetIndex = filteredPrompts.findIndex((prompt) => prompt.id === targetPromptId);
+
+    if (sourceIndex < 0 || targetIndex < 0) {
+      handlePromptDragEnd();
+      return;
+    }
+
+    const reorderedVisiblePrompts = [...filteredPrompts];
+    const [movedPrompt] = reorderedVisiblePrompts.splice(sourceIndex, 1);
+    reorderedVisiblePrompts.splice(targetIndex, 0, movedPrompt);
+
+    handlePromptDragEnd();
+    await persistPromptOrder(buildUpdatedPromptOrder(reorderedVisiblePrompts));
   };
 
   const handleToggleFeatured = async (prompt: Prompt) => {
