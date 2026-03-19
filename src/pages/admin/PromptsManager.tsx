@@ -304,6 +304,9 @@ const PromptsManager = () => {
   const [screenshotModalOpen, setScreenshotModalOpen] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>("all");
+  const [draggedPromptId, setDraggedPromptId] = useState<string | null>(null);
+  const [dragOverPromptId, setDragOverPromptId] = useState<string | null>(null);
+  const [reordering, setReordering] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Group prompts by category
@@ -605,27 +608,136 @@ const PromptsManager = () => {
     }
   };
 
-  const handleReorder = async (promptId: string, direction: 'up' | 'down') => {
-    const idx = filteredPrompts.findIndex(p => p.id === promptId);
-    if (idx < 0) return;
-    const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
-    if (swapIdx < 0 || swapIdx >= filteredPrompts.length) return;
+  const sortPromptsByOrder = (items: Prompt[]) => {
+    return [...items].sort((a, b) => {
+      if (a.display_order !== b.display_order) return a.display_order - b.display_order;
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+  };
 
-    const current = filteredPrompts[idx];
-    const swap = filteredPrompts[swapIdx];
+  const buildUpdatedPromptOrder = (reorderedVisiblePrompts: Prompt[]) => {
+    const availableOrders = [...filteredPrompts]
+      .map((prompt) => prompt.display_order)
+      .sort((a, b) => a - b);
+
+    const reorderedWithDisplayOrder = reorderedVisiblePrompts.map((prompt, index) => ({
+      ...prompt,
+      display_order: availableOrders[index] ?? prompt.display_order,
+    }));
+
+    const updatedPromptMap = new Map(
+      reorderedWithDisplayOrder.map((prompt) => [prompt.id, prompt])
+    );
+
+    return sortPromptsByOrder(
+      prompts.map((prompt) => updatedPromptMap.get(prompt.id) ?? prompt)
+    );
+  };
+
+  const persistPromptOrder = async (updatedPrompts: Prompt[]) => {
+    const previousPrompts = prompts;
+    const changedPrompts = updatedPrompts.filter((prompt) => {
+      const existingPrompt = previousPrompts.find((item) => item.id === prompt.id);
+      return existingPrompt && existingPrompt.display_order !== prompt.display_order;
+    });
+
+    if (changedPrompts.length === 0) return;
+
+    setPrompts(updatedPrompts);
+    setReordering(true);
 
     try {
-      await supabase.functions.invoke("manage-prompt", {
-        body: { action: "update", promptId: current.id, promptData: { display_order: swap.display_order } },
-      });
-      await supabase.functions.invoke("manage-prompt", {
-        body: { action: "update", promptId: swap.id, promptData: { display_order: current.display_order } },
-      });
-      fetchPrompts();
+      const results = await Promise.all(
+        changedPrompts.map((prompt) =>
+          supabase.functions.invoke("manage-prompt", {
+            body: {
+              action: "update",
+              promptId: prompt.id,
+              promptData: { display_order: prompt.display_order },
+            },
+          })
+        )
+      );
+
+      const failedRequest = results.find((result: any) => result.error || result.data?.error);
+      if (failedRequest?.error) throw failedRequest.error;
+      if (failedRequest?.data?.error) throw new Error(failedRequest.data.error);
+
+      toast.success("Ordem atualizada!");
     } catch (error) {
       console.error("Error reordering:", error);
+      setPrompts(previousPrompts);
       toast.error("Erro ao reordenar");
+      fetchPrompts();
+    } finally {
+      setReordering(false);
     }
+  };
+
+  const handleReorder = async (promptId: string, direction: 'up' | 'down') => {
+    const currentIndex = filteredPrompts.findIndex((prompt) => prompt.id === promptId);
+    if (currentIndex < 0) return;
+
+    const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+    if (targetIndex < 0 || targetIndex >= filteredPrompts.length) return;
+
+    const reorderedVisiblePrompts = [...filteredPrompts];
+    const [movedPrompt] = reorderedVisiblePrompts.splice(currentIndex, 1);
+    reorderedVisiblePrompts.splice(targetIndex, 0, movedPrompt);
+
+    await persistPromptOrder(buildUpdatedPromptOrder(reorderedVisiblePrompts));
+  };
+
+  const handlePromptDragStart = (event: React.DragEvent<HTMLButtonElement>, promptId: string) => {
+    setDraggedPromptId(promptId);
+    setDragOverPromptId(promptId);
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", promptId);
+  };
+
+  const handlePromptDragOver = (event: React.DragEvent<HTMLTableRowElement>, promptId: string) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+
+    if (draggedPromptId && draggedPromptId !== promptId) {
+      setDragOverPromptId(promptId);
+    }
+  };
+
+  const handlePromptDragEnter = (promptId: string) => {
+    if (draggedPromptId && draggedPromptId !== promptId) {
+      setDragOverPromptId(promptId);
+    }
+  };
+
+  const handlePromptDragEnd = () => {
+    setDraggedPromptId(null);
+    setDragOverPromptId(null);
+  };
+
+  const handlePromptDrop = async (event: React.DragEvent<HTMLTableRowElement>, targetPromptId: string) => {
+    event.preventDefault();
+
+    const sourcePromptId = draggedPromptId || event.dataTransfer.getData("text/plain");
+    if (!sourcePromptId || sourcePromptId === targetPromptId) {
+      handlePromptDragEnd();
+      return;
+    }
+
+    const sourceIndex = filteredPrompts.findIndex((prompt) => prompt.id === sourcePromptId);
+    const targetIndex = filteredPrompts.findIndex((prompt) => prompt.id === targetPromptId);
+
+    if (sourceIndex < 0 || targetIndex < 0) {
+      handlePromptDragEnd();
+      return;
+    }
+
+    const reorderedVisiblePrompts = [...filteredPrompts];
+    const [movedPrompt] = reorderedVisiblePrompts.splice(sourceIndex, 1);
+    reorderedVisiblePrompts.splice(targetIndex, 0, movedPrompt);
+
+    handlePromptDragEnd();
+    await persistPromptOrder(buildUpdatedPromptOrder(reorderedVisiblePrompts));
   };
 
   const handleToggleFeatured = async (prompt: Prompt) => {
@@ -1036,7 +1148,11 @@ const PromptsManager = () => {
           <CardTitle className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-primary" />
             Prompts ({filteredPrompts.length})
+            {reordering && <Loader2 className="w-4 h-4 animate-spin text-primary" />}
           </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Arraste pela alça para reorganizar e clique na foto para fixar em destaque.
+          </p>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -1055,7 +1171,7 @@ const PromptsManager = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[80px]">Ordem</TableHead>
+                  <TableHead className="w-[170px]">Ordem</TableHead>
                   <TableHead>Preview</TableHead>
                   <TableHead>Nome</TableHead>
                   <TableHead>Categoria</TableHead>
@@ -1066,28 +1182,61 @@ const PromptsManager = () => {
               </TableHeader>
               <TableBody>
                 {filteredPrompts.map((prompt, idx) => (
-                  <TableRow key={prompt.id} className={prompt.is_featured ? "bg-primary/5 border-l-2 border-l-primary" : ""}>
+                  <TableRow
+                    key={prompt.id}
+                    onDragOver={(event) => handlePromptDragOver(event, prompt.id)}
+                    onDragEnter={() => handlePromptDragEnter(prompt.id)}
+                    onDrop={(event) => handlePromptDrop(event, prompt.id)}
+                    className={[
+                      prompt.is_featured ? "border-l-2 border-l-primary bg-primary/5" : "",
+                      draggedPromptId === prompt.id ? "opacity-50" : "",
+                      dragOverPromptId === prompt.id && draggedPromptId !== prompt.id ? "bg-accent/40" : "",
+                    ].filter(Boolean).join(" ")}
+                  >
                     <TableCell>
-                      <div className="flex flex-col items-center gap-0.5">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="w-7 h-7"
-                          onClick={() => handleReorder(prompt.id, 'up')}
-                          disabled={idx === 0}
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          draggable={!reordering}
+                          disabled={reordering}
+                          onDragStart={(event) => handlePromptDragStart(event, prompt.id)}
+                          onDragEnd={handlePromptDragEnd}
+                          className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-muted/40 text-muted-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+                          aria-label={`Arrastar para reordenar ${prompt.name}`}
+                          title="Arrastar para reordenar"
                         >
-                          <ArrowUp className="w-4 h-4" />
-                        </Button>
-                        <GripVertical className="w-3.5 h-3.5 text-muted-foreground/40" />
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="w-7 h-7"
-                          onClick={() => handleReorder(prompt.id, 'down')}
-                          disabled={idx === filteredPrompts.length - 1}
-                        >
-                          <ArrowDown className="w-4 h-4" />
-                        </Button>
+                          {draggedPromptId === prompt.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <GripVertical className="w-4 h-4" />
+                          )}
+                        </button>
+
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-1.5">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              onClick={() => handleReorder(prompt.id, 'up')}
+                              disabled={idx === 0 || reordering}
+                            >
+                              <ArrowUp className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              onClick={() => handleReorder(prompt.id, 'down')}
+                              disabled={idx === filteredPrompts.length - 1 || reordering}
+                            >
+                              <ArrowDown className="w-4 h-4" />
+                            </Button>
+                          </div>
+                          <span className="text-[11px] text-muted-foreground">
+                            {dragOverPromptId === prompt.id && draggedPromptId !== prompt.id ? "Solte aqui" : "Arraste"}
+                          </span>
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -1111,7 +1260,6 @@ const PromptsManager = () => {
                             <ImageIcon className="w-5 h-5 text-muted-foreground" />
                           </div>
                         )}
-                        {/* Pin overlay */}
                         <div className={`absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center transition-all ${
                           prompt.is_featured 
                             ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30" 
