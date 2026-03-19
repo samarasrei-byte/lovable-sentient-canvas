@@ -1527,6 +1527,7 @@ export type Database = {
           id: string
           influencer_avatar_url: string | null
           influencer_name: string | null
+          is_featured: boolean
           is_influencer_prompt: boolean
           min_photos: number | null
           name: string
@@ -1548,6 +1549,7 @@ export type Database = {
           id?: string
           influencer_avatar_url?: string | null
           influencer_name?: string | null
+          is_featured?: boolean
           is_influencer_prompt?: boolean
           min_photos?: number | null
           name: string
@@ -1569,6 +1571,7 @@ export type Database = {
           id?: string
           influencer_avatar_url?: string | null
           influencer_name?: string | null
+          is_featured?: boolean
           is_influencer_prompt?: boolean
           min_photos?: number | null
           name?: string
