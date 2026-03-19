@@ -61,7 +61,6 @@ export const Hero = () => {
                 {link.label}
               </a>
             ))}
-            <InstallButton />
             <Button 
               variant="outline" 
               className="border-primary/20 hover:bg-primary/10"
@@ -73,7 +72,6 @@ export const Hero = () => {
 
           {/* Mobile Navigation */}
           <div className="flex md:hidden items-center gap-2">
-            <InstallButton />
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-10 w-10">
