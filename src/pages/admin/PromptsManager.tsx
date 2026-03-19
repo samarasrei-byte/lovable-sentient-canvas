@@ -601,6 +601,29 @@ const PromptsManager = () => {
     }
   };
 
+  const handleReorder = async (promptId: string, direction: 'up' | 'down') => {
+    const idx = filteredPrompts.findIndex(p => p.id === promptId);
+    if (idx < 0) return;
+    const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
+    if (swapIdx < 0 || swapIdx >= filteredPrompts.length) return;
+
+    const current = filteredPrompts[idx];
+    const swap = filteredPrompts[swapIdx];
+
+    try {
+      await supabase.functions.invoke("manage-prompt", {
+        body: { action: "update", promptId: current.id, promptData: { display_order: swap.display_order } },
+      });
+      await supabase.functions.invoke("manage-prompt", {
+        body: { action: "update", promptId: swap.id, promptData: { display_order: current.display_order } },
+      });
+      fetchPrompts();
+    } catch (error) {
+      console.error("Error reordering:", error);
+      toast.error("Erro ao reordenar");
+    }
+  };
+
   const formatPrice = (cents: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
