@@ -5,9 +5,9 @@ import { GlassButton } from "@/components/ui/glass-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { 
+import {
   X, Upload, User, AtSign, Sparkles, QrCode, Copy, Check, Download,
-  Loader2, CheckCircle2, Clock, Pencil, Plus, Trash2, Users,
+  Loader2, CheckCircle2, Clock, Pencil, Plus, Trash2,
   RefreshCw, AlertTriangle, ImagePlus
 } from "lucide-react";
 import { toast } from "sonner";
@@ -44,12 +44,22 @@ interface GeneratedVariant {
   selected: boolean;
 }
 
+interface PhotoProfile {
+  ageGroup: string;
+  presentation: string;
+  suggestedCategory?: string;
+}
+
+const MAX_VARIANTS = 3;
+
 const GeneratingStep = ({ label, delay, isQA }: { label: string; delay: number; isQA?: boolean }) => {
   const [active, setActive] = useState(false);
+
   useEffect(() => {
     const timer = setTimeout(() => setActive(true), delay * 1000);
     return () => clearTimeout(timer);
   }, [delay]);
+
   return (
     <div className={`flex items-center gap-2 text-xs transition-all duration-500 ${active ? (isQA ? 'text-secondary opacity-100' : 'text-primary opacity-100') : 'text-muted-foreground/40 opacity-60'}`}>
       {active ? <Check className="w-3.5 h-3.5" /> : <Loader2 className="w-3.5 h-3.5 animate-spin" />}
@@ -58,11 +68,27 @@ const GeneratingStep = ({ label, delay, isQA }: { label: string; delay: number; 
   );
 };
 
+const ageGroupLabel: Record<string, string> = {
+  bebe: 'Bebê',
+  crianca: 'Criança',
+  adolescente: 'Adolescente',
+  adulto: 'Adulto',
+};
+
+const presentationLabel: Record<string, string> = {
+  masculina: 'Apresentação masc.',
+  feminina: 'Apresentação fem.',
+  indefinida: 'Apresentação indefinida',
+};
+
 export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps) => {
   const [step, setStep] = useState<FlowStep>('form');
   const maxPhotos = prompt.min_photos && prompt.min_photos > 1 ? Math.min(prompt.min_photos, 5) : 5;
   const [formData, setFormData] = useState({ name: '', instagram: '', email: '', description: '' });
   const [photos, setPhotos] = useState<PhotoSlot[]>([{ file: null, preview: '' }]);
+  const [photoProfiles, setPhotoProfiles] = useState<(PhotoProfile | null)[]>([null]);
+  const [analyzingPhotoSlots, setAnalyzingPhotoSlots] = useState<number[]>([]);
+  const [uploadedPhotoUrls, setUploadedPhotoUrls] = useState<string[]>([]);
   const [paymentStatus, setPaymentStatus] = useState<'pending' | 'checking' | 'paid'>('pending');
   const [generatedVariants, setGeneratedVariants] = useState<GeneratedVariant[]>([]);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
@@ -76,64 +102,128 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const [generationCount, setGenerationCount] = useState(0);
   const fileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
+  const activePhotoCount = photos.filter((photo) => photo.file).length;
+
   const formatPrice = (cents: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cents / 100);
+
+  const analyzeUploadedPhoto = async (index: number, imageDataUrl: string) => {
+    setAnalyzingPhotoSlots((prev) => [...prev.filter((slot) => slot !== index), index]);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('analyze-person-photo', {
+        body: { imageDataUrl },
+      });
+
+      if (error) throw error;
+
+      setPhotoProfiles((prev) => {
+        const next = [...prev];
+        next[index] = data
+          ? {
+              ageGroup: data.ageGroup || 'adulto',
+              presentation: data.presentation || 'indefinida',
+              suggestedCategory: data.suggestedCategory,
+            }
+          : null;
+        return next;
+      });
+    } catch (error) {
+      console.error('Error analyzing uploaded photo:', error);
+      setPhotoProfiles((prev) => {
+        const next = [...prev];
+        next[index] = null;
+        return next;
+      });
+    } finally {
+      setAnalyzingPhotoSlots((prev) => prev.filter((slot) => slot !== index));
+    }
+  };
 
   const handlePhotoUpload = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 20 * 1024 * 1024) { toast.error("Arquivo muito grande. Máximo 20MB."); return; }
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const maxSize = 512;
-          const scale = Math.min(maxSize / img.width, maxSize / img.height, 1);
-          canvas.width = img.width * scale;
-          canvas.height = img.height * scale;
-          const ctx = canvas.getContext('2d');
-          ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
-          setPhotos(prev => {
-            const updated = [...prev];
-            updated[index] = { file, preview: canvas.toDataURL('image/jpeg', 0.85) };
-            return updated;
-          });
-        };
-        img.src = event.target?.result as string;
-      };
-      reader.readAsDataURL(file);
+
+    if (!file) return;
+    if (file.size > 20 * 1024 * 1024) {
+      toast.error('Arquivo muito grande. Máximo 20MB.');
+      return;
     }
+
+    setUploadedPhotoUrls([]);
+    setPhotoProfiles((prev) => {
+      const next = [...prev];
+      next[index] = null;
+      return next;
+    });
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const maxSize = 512;
+        const scale = Math.min(maxSize / img.width, maxSize / img.height, 1);
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        const preview = canvas.toDataURL('image/jpeg', 0.85);
+
+        setPhotos((prev) => {
+          const updated = [...prev];
+          updated[index] = { file, preview };
+          return updated;
+        });
+
+        void analyzeUploadedPhoto(index, preview);
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
   };
 
   const addPhotoSlot = () => {
-    if (photos.length < maxPhotos) setPhotos(prev => [...prev, { file: null, preview: '' }]);
+    if (photos.length >= maxPhotos) return;
+    setPhotos((prev) => [...prev, { file: null, preview: '' }]);
+    setPhotoProfiles((prev) => [...prev, null]);
+    setUploadedPhotoUrls([]);
   };
 
   const removePhotoSlot = (index: number) => {
-    if (photos.length > 1) setPhotos(prev => prev.filter((_, i) => i !== index));
+    if (photos.length <= 1) return;
+
+    setPhotos((prev) => prev.filter((_, i) => i !== index));
+    setPhotoProfiles((prev) => prev.filter((_, i) => i !== index));
+    setAnalyzingPhotoSlots((prev) => prev.filter((slot) => slot !== index).map((slot) => (slot > index ? slot - 1 : slot)));
+    setUploadedPhotoUrls([]);
   };
 
   const handleSubmitForm = async () => {
-    const hasAnyPhoto = photos.some(p => p.file);
+    const hasAnyPhoto = photos.some((photo) => photo.file);
+
     if (prompt.required_fields.includes('photo') && !hasAnyPhoto) {
-      toast.error("Por favor, envie pelo menos uma foto.");
+      toast.error('Por favor, envie pelo menos uma foto.');
       return;
     }
+
     if (prompt.required_fields.includes('name') && !formData.name.trim()) {
-      toast.error("Por favor, informe seu nome.");
+      toast.error('Por favor, informe seu nome.');
       return;
     }
+
     try {
-      const { data, error } = await supabase.functions.invoke("create-prompt-purchase", {
+      const { data, error } = await supabase.functions.invoke('create-prompt-purchase', {
         body: { promptId: prompt.id, userName: formData.name, userInstagram: formData.instagram, userEmail: formData.email },
       });
+
       if (error) throw error;
-      if (!data?.purchaseId) throw new Error("Compra não criada corretamente");
+      if (!data?.purchaseId) throw new Error('Compra não criada corretamente');
+
       setPurchaseId(data.purchaseId);
       setStep('payment');
     } catch (error) {
-      console.error("Error creating purchase:", error);
-      toast.error("Erro ao processar. Tente novamente.");
+      console.error('Error creating purchase:', error);
+      toast.error('Erro ao processar. Tente novamente.');
     }
   };
 
@@ -142,209 +232,304 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const handleCopyPix = () => {
     navigator.clipboard.writeText(pixCode);
     setCopied(true);
-    toast.success("Código PIX copiado!");
+    toast.success('Código PIX copiado!');
     setTimeout(() => setCopied(false), 3000);
   };
 
   const simulatePayment = async () => {
     setPaymentStatus('checking');
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 2000));
     setPaymentStatus('paid');
-    toast.success("Pagamento confirmado!");
-    setTimeout(() => { setStep('generating'); void generateImage(); }, 1000);
+    toast.success('Pagamento confirmado!');
+    setTimeout(() => {
+      setStep('generating');
+      void generateImage();
+    }, 1000);
   };
 
   const uploadPhotos = async (): Promise<string[]> => {
     const urls: string[] = [];
+
     for (let i = 0; i < photos.length; i++) {
       const photo = photos[i];
       if (!photo.file) continue;
+
       const fileExt = photo.file.name.split('.').pop();
       const filePath = `purchases/${purchaseId}-photo${i + 1}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('user-photos')
         .upload(filePath, photo.file, { cacheControl: '3600', upsert: false });
-      if (uploadError) { console.error(`Error uploading photo ${i + 1}:`, uploadError); continue; }
+
+      if (uploadError) throw uploadError;
+
       const { data: urlData } = supabase.storage.from('user-photos').getPublicUrl(uploadData.path);
+      if (!urlData.publicUrl) throw new Error(`Falha ao obter URL da foto ${i + 1}`);
+
       urls.push(urlData.publicUrl);
     }
+
     return urls;
   };
 
-  const runQAValidation = async (imageUrl: string): Promise<{ passed: boolean; issues: string[] }> => {
+  const ensureUploadedPhotoUrls = async (): Promise<string[]> => {
+    if (!prompt.required_fields.includes('photo')) return [];
+    if (uploadedPhotoUrls.length > 0) return uploadedPhotoUrls;
+
+    const urls = await uploadPhotos();
+    setUploadedPhotoUrls(urls);
+    return urls;
+  };
+
+  const buildGenerationBody = (referencePhotoUrls: string[], overrides: Record<string, unknown> = {}) => ({
+    purchaseId,
+    promptTemplate: prompt.prompt_template,
+    negativePrompt: prompt.negative_prompt,
+    aiModel: prompt.ai_model,
+    userName: formData.name,
+    userInstagram: formData.instagram,
+    userDescription: formData.description,
+    userPhotoUrl: referencePhotoUrls[0] || null,
+    userPhotoUrls: referencePhotoUrls.length > 0 ? referencePhotoUrls : undefined,
+    exampleImageUrl: prompt.example_image_url,
+    ...overrides,
+  });
+
+  const runQAValidation = async (imageUrl: string, referenceImageUrls: string[]): Promise<{ passed: boolean; issues: string[] }> => {
     try {
       setQaStatus('checking');
+
       const { data, error } = await supabase.functions.invoke('validate-generated-image', {
         body: {
           imageUrl,
           promptCategory: prompt.category,
+          promptTemplate: prompt.prompt_template,
           expectedName: formData.name,
           expectedDescription: formData.description,
-          hasReferencePhoto: photos.some(p => p.file),
-          numberOfPeople: photos.filter(p => p.file).length,
-        }
+          hasReferencePhoto: referenceImageUrls.length > 0,
+          numberOfPeople: Math.max(referenceImageUrls.length, activePhotoCount || 1),
+          referenceImageUrls,
+          styleReferenceImageUrl: prompt.example_image_url,
+        },
       });
+
       if (error || !data) {
-        console.warn("QA validation unavailable, passing by default");
+        console.warn('QA validation unavailable, passing by default');
         return { passed: true, issues: [] };
       }
+
       return { passed: data.passed ?? true, issues: data.issues ?? [] };
-    } catch {
+    } catch (error) {
+      console.error('QA validation failed:', error);
       return { passed: true, issues: [] };
     }
   };
 
-  const generateImage = async (isRetry = false) => {
+  const generateImage = async () => {
     try {
-      if (!purchaseId) throw new Error("Compra não iniciada corretamente");
+      if (!purchaseId) throw new Error('Compra não iniciada corretamente');
 
-      const uploadedUrls = isRetry ? [] : await uploadPhotos();
-      
+      const referencePhotoUrls = await ensureUploadedPhotoUrls();
+      if (prompt.required_fields.includes('photo') && referencePhotoUrls.length === 0) {
+        throw new Error('Nenhuma foto de referência válida foi enviada');
+      }
+
       const { data, error } = await supabase.functions.invoke('generate-prompt-image', {
-        body: {
-          purchaseId,
-          promptTemplate: prompt.prompt_template,
-          negativePrompt: prompt.negative_prompt,
-          aiModel: prompt.ai_model,
-          userName: formData.name,
-          userInstagram: formData.instagram,
-          userDescription: formData.description,
-          userPhotoUrl: uploadedUrls[0] || null,
-          userPhotoUrls: uploadedUrls.length > 0 ? uploadedUrls : undefined,
-          exampleImageUrl: prompt.example_image_url,
-        }
+        body: buildGenerationBody(referencePhotoUrls),
       });
 
       if (error) throw error;
-      if (!data?.imageUrl) throw new Error("Nenhuma imagem gerada");
+      if (!data?.imageUrl) throw new Error('Nenhuma imagem gerada');
 
       const newCount = generationCount + 1;
       setGenerationCount(newCount);
 
-      // Run QA validation
-      const qa = await runQAValidation(data.imageUrl);
-      
+      let finalImageUrl = data.imageUrl;
+      let qa = await runQAValidation(finalImageUrl, referencePhotoUrls);
+
       if (!qa.passed && newCount <= 2) {
-        // Auto-retry with QA feedback
         setQaStatus('fixing');
         setQaIssues(qa.issues);
-        toast.info("Ajustando qualidade automaticamente...");
+        toast.info('Ajustando qualidade automaticamente...');
 
-        const { data: retryData } = await supabase.functions.invoke('generate-prompt-image', {
-          body: {
-            purchaseId,
-            promptTemplate: `${prompt.prompt_template}\n\nCORREÇÕES OBRIGATÓRIAS (erros detectados na versão anterior):\n${qa.issues.map(i => `- CORRIGIR: ${i}`).join('\n')}`,
-            negativePrompt: `${prompt.negative_prompt || ''}, ${qa.issues.join(', ')}`,
-            aiModel: prompt.ai_model,
-            userName: formData.name,
-            userInstagram: formData.instagram,
-            userDescription: formData.description,
-            exampleImageUrl: prompt.example_image_url,
-          }
+        const correctionBlock = [
+          'CORREÇÕES OBRIGATÓRIAS:',
+          'Preserve EXATAMENTE a identidade da(s) pessoa(s) da(s) foto(s) de referência.',
+          'Não troque idade aparente, rosto, formato dos olhos, nariz, boca ou cabelo.',
+          ...qa.issues.map((issue) => `- ${issue}`),
+        ].join('\n');
+
+        const { data: retryData, error: retryError } = await supabase.functions.invoke('generate-prompt-image', {
+          body: buildGenerationBody(referencePhotoUrls, {
+            promptTemplate: `${prompt.prompt_template}\n\n${correctionBlock}`,
+            negativePrompt: `${prompt.negative_prompt || ''}${prompt.negative_prompt ? ', ' : ''}${qa.issues.join(', ')}`,
+          }),
         });
 
+        if (retryError) throw retryError;
+
         if (retryData?.imageUrl) {
-          setGeneratedImage(retryData.imageUrl);
-          setGeneratedVariants(prev => [...prev, { url: retryData.imageUrl, selected: true }]);
-        } else {
-          setGeneratedImage(data.imageUrl);
-          setGeneratedVariants(prev => [...prev, { url: data.imageUrl, selected: true }]);
+          finalImageUrl = retryData.imageUrl;
+          qa = await runQAValidation(finalImageUrl, referencePhotoUrls);
         }
-      } else {
-        setGeneratedImage(data.imageUrl);
-        setGeneratedVariants(prev => [...prev, { url: data.imageUrl, selected: prev.length === 0 }]);
       }
 
-      setQaStatus(qa.passed ? 'passed' : 'passed');
-      setQaIssues([]);
+      setGeneratedImage(finalImageUrl);
+      setGeneratedVariants([{ url: finalImageUrl, selected: true }]);
+      setQaStatus('passed');
+      setQaIssues(qa.passed ? [] : qa.issues);
+
+      if (!qa.passed) {
+        toast.warning('A auditoria encontrou pontos de atenção; revise a versão final antes de baixar.');
+      }
+
       setStep('complete');
     } catch (error) {
-      console.error("Error generating image:", error);
-      toast.error("Erro na geração. Tente novamente.");
+      console.error('Error generating image:', error);
+      toast.error(error instanceof Error ? error.message : 'Erro na geração. Tente novamente.');
+      setQaStatus('idle');
+      setQaIssues([]);
       setStep('form');
     }
   };
 
   const generateMoreVariants = async () => {
-    if (generatedVariants.length >= 4) { toast.error("Máximo de 4 variações."); return; }
+    if (generatedVariants.length >= MAX_VARIANTS) {
+      toast.error(`Máximo de ${MAX_VARIANTS} variações.`);
+      return;
+    }
+
     setIsGeneratingMore(true);
+
     try {
+      const referencePhotoUrls = await ensureUploadedPhotoUrls();
+      const variationIndex = generatedVariants.length + 1;
+
       const { data, error } = await supabase.functions.invoke('generate-prompt-image', {
-        body: {
-          purchaseId,
-          promptTemplate: prompt.prompt_template + "\n\nGere uma VARIAÇÃO DIFERENTE da composição, mantendo 100% da fidelidade facial.",
-          negativePrompt: prompt.negative_prompt,
-          aiModel: prompt.ai_model,
-          userName: formData.name,
-          userInstagram: formData.instagram,
-          userDescription: formData.description,
-          exampleImageUrl: prompt.example_image_url,
-        }
+        body: buildGenerationBody(referencePhotoUrls, {
+          promptTemplate: `${prompt.prompt_template}\n\nVARIAÇÃO ${variationIndex}: gere uma composição diferente, mantendo 100% da fidelidade facial e a mesma faixa etária aparente das pessoas de referência.`,
+        }),
       });
+
       if (error) throw error;
-      if (data?.imageUrl) {
-        setGeneratedVariants(prev => [...prev, { url: data.imageUrl, selected: false }]);
-        toast.success("Nova variação gerada!");
+      if (!data?.imageUrl) throw new Error('Nenhuma variação gerada');
+
+      let finalVariantUrl = data.imageUrl;
+      let qa = await runQAValidation(finalVariantUrl, referencePhotoUrls);
+
+      if (!qa.passed) {
+        setQaStatus('fixing');
+        setQaIssues(qa.issues);
+
+        const { data: retryData, error: retryError } = await supabase.functions.invoke('generate-prompt-image', {
+          body: buildGenerationBody(referencePhotoUrls, {
+            promptTemplate: `${prompt.prompt_template}\n\nVARIAÇÃO ${variationIndex}: gere uma composição diferente, mantendo 100% da fidelidade facial.\n\nCORREÇÕES OBRIGATÓRIAS:\n${qa.issues.map((issue) => `- ${issue}`).join('\n')}`,
+            negativePrompt: `${prompt.negative_prompt || ''}${prompt.negative_prompt ? ', ' : ''}${qa.issues.join(', ')}`,
+          }),
+        });
+
+        if (retryError) throw retryError;
+        if (retryData?.imageUrl) {
+          finalVariantUrl = retryData.imageUrl;
+          qa = await runQAValidation(finalVariantUrl, referencePhotoUrls);
+        }
+      }
+
+      setGeneratedVariants((prev) => [...prev, { url: finalVariantUrl, selected: false }]);
+      setQaStatus('passed');
+      setQaIssues([]);
+      toast.success('Nova variação gerada!');
+
+      if (!qa.passed) {
+        toast.warning('Essa variação passou por correção automática; revise antes de baixar.');
       }
     } catch (error) {
-      toast.error("Erro ao gerar variação.");
+      console.error('Error generating more variants:', error);
+      toast.error('Erro ao gerar variação.');
     } finally {
       setIsGeneratingMore(false);
     }
   };
 
   const selectVariant = (index: number) => {
-    setGeneratedVariants(prev => prev.map((v, i) => ({ ...v, selected: i === index })));
-    setGeneratedImage(generatedVariants[index].url);
+    const nextUrl = generatedVariants[index]?.url;
+    setGeneratedVariants((prev) => prev.map((variant, i) => ({ ...variant, selected: i === index })));
+    if (nextUrl) setGeneratedImage(nextUrl);
   };
 
   const handleEditImage = async () => {
-    if (!editInstruction.trim()) { toast.error("Descreva o que deseja alterar."); return; }
+    if (!editInstruction.trim()) {
+      toast.error('Descreva o que deseja alterar.');
+      return;
+    }
+
     if (!generatedImage) return;
+
     setIsEditing(true);
+
     try {
       const { data, error } = await supabase.functions.invoke('generate-prompt-image', {
         body: {
-          purchaseId, promptTemplate: editInstruction, aiModel: 'google/gemini-3.1-flash-image-preview',
-          editMode: true, sourceImageUrl: generatedImage, userName: formData.name,
-        }
+          purchaseId,
+          promptTemplate: editInstruction,
+          aiModel: 'google/gemini-3.1-flash-image-preview',
+          editMode: true,
+          sourceImageUrl: generatedImage,
+          userName: formData.name,
+        },
       });
+
       if (error) throw error;
-      if (!data?.imageUrl) throw new Error("Edição não gerou imagem");
+      if (!data?.imageUrl) throw new Error('Edição não gerou imagem');
+
       setGeneratedImage(data.imageUrl);
+      setGeneratedVariants((prev) => prev.map((variant, index) => ({ ...variant, selected: index === 0 })));
       setEditInstruction('');
       setStep('complete');
-      toast.success("Imagem editada com sucesso!");
+      toast.success('Imagem editada com sucesso!');
     } catch (error) {
-      toast.error("Erro ao editar. Tente novamente.");
-    } finally { setIsEditing(false); }
+      console.error('Error editing image:', error);
+      toast.error('Erro ao editar. Tente novamente.');
+    } finally {
+      setIsEditing(false);
+    }
   };
 
   const handleDownload = (url?: string) => {
     const imageUrl = url || generatedImage;
-    if (imageUrl) {
-      const link = document.createElement('a');
-      link.href = imageUrl;
-      link.download = `arcana-${prompt.name.toLowerCase().replace(/\s+/g, '-')}.png`;
-      link.click();
-      toast.success("Download iniciado!");
-    }
+    if (!imageUrl) return;
+
+    const link = document.createElement('a');
+    link.href = imageUrl;
+    link.download = `arcana-${prompt.name.toLowerCase().replace(/\s+/g, '-')}.png`;
+    link.click();
+    toast.success('Download iniciado!');
   };
 
   const handleDownloadAll = () => {
-    const selected = generatedVariants.filter(v => v.selected);
-    if (selected.length === 0) { handleDownload(); return; }
-    selected.forEach((v, i) => setTimeout(() => handleDownload(v.url), i * 500));
+    const selected = generatedVariants.filter((variant) => variant.selected);
+    if (selected.length === 0) {
+      handleDownload();
+      return;
+    }
+
+    selected.forEach((variant, index) => {
+      setTimeout(() => handleDownload(variant.url), index * 500);
+    });
   };
 
   return (
     <motion.div
-      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm overflow-y-auto"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <motion.div
-        initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.95, opacity: 0 }}
         className="w-full max-w-lg my-2 sm:my-4"
       >
         <GlassCard className="relative overflow-hidden max-h-[90vh] overflow-y-auto">
@@ -368,36 +553,36 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
           </GlassCardHeader>
 
           <GlassCardContent className="space-y-4 sm:space-y-6">
-            {/* Step Indicator */}
             <div className="flex items-center justify-between text-[10px] sm:text-xs text-muted-foreground">
-              {['form', 'payment', 'generating', 'complete'].map((s, i) => (
-                <div key={s} className="flex items-center">
-                  <div className={`flex items-center gap-0.5 sm:gap-1 ${step === s || (step === 'editing' && s === 'complete') ? 'text-primary' : ''}`}>
-                    <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-medium ${
-                      step === s || (step === 'editing' && s === 'complete') ? 'bg-primary text-primary-foreground' : 
-                      ['form', 'payment', 'generating', 'complete'].indexOf(step === 'editing' ? 'complete' : step) > i ? 'bg-primary/20 text-primary' : 'bg-white/10'
-                    }`}>
-                      {i + 1}
+              {['form', 'payment', 'generating', 'complete'].map((status, index) => (
+                <div key={status} className="flex items-center">
+                  <div className={`flex items-center gap-0.5 sm:gap-1 ${step === status || (step === 'editing' && status === 'complete') ? 'text-primary' : ''}`}>
+                    <div
+                      className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-medium ${
+                        step === status || (step === 'editing' && status === 'complete')
+                          ? 'bg-primary text-primary-foreground'
+                          : ['form', 'payment', 'generating', 'complete'].indexOf(step === 'editing' ? 'complete' : step) > index
+                            ? 'bg-primary/20 text-primary'
+                            : 'bg-white/10'
+                      }`}
+                    >
+                      {index + 1}
                     </div>
-                    <span className="hidden sm:inline">{['Dados', 'PIX', 'Gerar', 'Pronto'][i]}</span>
+                    <span className="hidden sm:inline">{['Dados', 'PIX', 'Gerar', 'Pronto'][index]}</span>
                   </div>
-                  {i < 3 && <div className="flex-1 h-px bg-white/10 mx-1 sm:mx-2 w-3 sm:w-8" />}
+                  {index < 3 && <div className="flex-1 h-px bg-white/10 mx-1 sm:mx-2 w-3 sm:w-8" />}
                 </div>
               ))}
             </div>
 
-            {/* STEP 1: Form */}
             {step === 'form' && (
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
-                {/* Photo Upload */}
                 {prompt.required_fields.includes('photo') && (
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <Label className="text-xs sm:text-sm flex items-center gap-2">
                         <Upload className="w-4 h-4" />
-                        {photos.filter(p => p.file).length > 0 
-                          ? `Fotos (${photos.filter(p => p.file).length} enviada${photos.filter(p => p.file).length > 1 ? 's' : ''})`
-                          : 'Suas fotos'}
+                        {activePhotoCount > 0 ? `Fotos (${activePhotoCount} enviada${activePhotoCount > 1 ? 's' : ''})` : 'Suas fotos'}
                       </Label>
                       {photos.length < maxPhotos && (
                         <button onClick={addPhotoSlot} className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors">
@@ -407,43 +592,77 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                         </button>
                       )}
                     </div>
-                    
-                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-3">
-                      {photos.map((photo, index) => (
-                        <div key={index} className="relative group">
-                          <div
-                            onClick={() => fileInputRefs.current[index]?.click()}
-                            className="relative rounded-xl border-2 border-dashed border-white/20 hover:border-primary/50 transition-colors cursor-pointer overflow-hidden aspect-square"
-                          >
-                            {photo.preview ? (
-                              <img src={photo.preview} alt={`Foto ${index + 1}`} className="w-full h-full object-cover" />
-                            ) : (
-                              <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-muted-foreground">
-                                <Upload className="w-5 h-5" />
-                                <span className="text-[9px] sm:text-[10px]">Pessoa {index + 1}</span>
-                              </div>
-                            )}
-                          </div>
-                          {photos.length > 1 && (
-                            <button
-                              onClick={(e) => { e.stopPropagation(); removePhotoSlot(index); }}
-                              className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-[10px]"
+
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
+                      {photos.map((photo, index) => {
+                        const photoProfile = photoProfiles[index];
+                        const isAnalyzing = analyzingPhotoSlots.includes(index);
+
+                        return (
+                          <div key={index} className="relative group space-y-1.5">
+                            <div
+                              onClick={() => fileInputRefs.current[index]?.click()}
+                              className="relative rounded-xl border-2 border-dashed border-white/20 hover:border-primary/50 transition-colors cursor-pointer overflow-hidden aspect-square"
                             >
-                              <Trash2 className="w-2.5 h-2.5" />
-                            </button>
-                          )}
-                          <input
-                            ref={el => { fileInputRefs.current[index] = el; }}
-                            type="file" accept="image/*"
-                            onChange={(e) => handlePhotoUpload(index, e)}
-                            className="hidden"
-                          />
-                        </div>
-                      ))}
+                              {photo.preview ? (
+                                <img src={photo.preview} alt={`Foto ${index + 1}`} className="w-full h-full object-cover" />
+                              ) : (
+                                <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-muted-foreground">
+                                  <Upload className="w-5 h-5" />
+                                  <span className="text-[9px] sm:text-[10px]">Pessoa {index + 1}</span>
+                                </div>
+                              )}
+                            </div>
+
+                            {photos.length > 1 && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  removePhotoSlot(index);
+                                }}
+                                className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-[10px]"
+                              >
+                                <Trash2 className="w-2.5 h-2.5" />
+                              </button>
+                            )}
+
+                            <input
+                              ref={(el) => {
+                                fileInputRefs.current[index] = el;
+                              }}
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handlePhotoUpload(index, e)}
+                              className="hidden"
+                            />
+
+                            <div className="min-h-10 flex flex-wrap gap-1">
+                              {isAnalyzing && (
+                                <Badge variant="outline" className="text-[10px] border-primary/30 bg-primary/10 text-primary">
+                                  <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                                  Analisando
+                                </Badge>
+                              )}
+                              {photoProfile?.ageGroup && (
+                                <Badge variant="outline" className="text-[10px] border-border/60 bg-background/70">
+                                  {ageGroupLabel[photoProfile.ageGroup] || photoProfile.ageGroup}
+                                </Badge>
+                              )}
+                              {photoProfile?.presentation && photoProfile.presentation !== 'indefinida' && (
+                                <Badge variant="outline" className="text-[10px] border-border/60 bg-background/70">
+                                  {presentationLabel[photoProfile.presentation] || photoProfile.presentation}
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
-                    <p className="text-[10px] text-muted-foreground text-center">
-                      Envie de 1 a {maxPhotos} fotos • Cada foto = uma pessoa na imagem
-                    </p>
+
+                    <div className="space-y-1 text-center">
+                      <p className="text-[10px] text-muted-foreground">Envie de 1 a {maxPhotos} fotos • Cada foto = uma pessoa na imagem</p>
+                      <p className="text-[10px] text-muted-foreground">A auditoria compara a imagem final com a referência antes de liberar o resultado</p>
+                    </div>
                   </div>
                 )}
 
@@ -452,8 +671,12 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                     <Label className="text-xs sm:text-sm">Seu nome</Label>
                     <div className="relative">
                       <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input value={formData.name} onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                        placeholder="Como você quer ser chamado" className="pl-10 bg-white/5 border-white/10 text-sm" />
+                      <Input
+                        value={formData.name}
+                        onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
+                        placeholder="Como você quer ser chamado"
+                        className="pl-10 bg-white/5 border-white/10 text-sm"
+                      />
                     </div>
                   </div>
                 )}
@@ -463,8 +686,12 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                     <Label className="text-xs sm:text-sm">@Instagram</Label>
                     <div className="relative">
                       <AtSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input value={formData.instagram} onChange={(e) => setFormData(prev => ({ ...prev, instagram: e.target.value }))}
-                        placeholder="seu_usuario" className="pl-10 bg-white/5 border-white/10 text-sm" />
+                      <Input
+                        value={formData.instagram}
+                        onChange={(e) => setFormData((prev) => ({ ...prev, instagram: e.target.value }))}
+                        placeholder="seu_usuario"
+                        className="pl-10 bg-white/5 border-white/10 text-sm"
+                      />
                     </div>
                   </div>
                 )}
@@ -472,9 +699,12 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                 {prompt.required_fields.includes('description') && (
                   <div className="space-y-1.5">
                     <Label className="text-xs sm:text-sm">Descrição adicional</Label>
-                    <textarea value={formData.description} onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                    <textarea
+                      value={formData.description}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
                       placeholder="Ex: 3 meses, 25 anos, cor do fundo..."
-                      className="w-full min-h-[60px] px-3 py-2 text-sm rounded-md bg-white/5 border border-white/10 focus:border-primary/50 focus:outline-none resize-none" />
+                      className="w-full min-h-[60px] px-3 py-2 text-sm rounded-md bg-white/5 border border-white/10 focus:border-primary/50 focus:outline-none resize-none"
+                    />
                   </div>
                 )}
 
@@ -485,7 +715,6 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
               </motion.div>
             )}
 
-            {/* STEP 2: Payment */}
             {step === 'payment' && (
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
                 <div className="text-center">
@@ -520,7 +749,6 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
               </motion.div>
             )}
 
-            {/* STEP 3: Generating */}
             {step === 'generating' && (
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="py-6 sm:py-8 text-center">
                 <div className="relative w-24 h-24 sm:w-28 sm:h-28 mx-auto mb-5">
@@ -536,18 +764,20 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                   {qaStatus === 'checking' ? 'Validando qualidade...' : qaStatus === 'fixing' ? 'Corrigindo automaticamente...' : 'Gerando sua imagem...'}
                 </h3>
                 <p className="text-xs sm:text-sm text-muted-foreground mb-4">
-                  {qaStatus === 'fixing' ? 'Problemas detectados, gerando versão corrigida...' : `A IA está ${photos.filter(p => p.file).length > 1 ? `processando ${photos.filter(p => p.file).length} fotos` : 'criando sua arte'}. Até 30s.`}
+                  {qaStatus === 'fixing'
+                    ? 'Problemas detectados, gerando versão corrigida...'
+                    : `A IA está ${activePhotoCount > 1 ? `processando ${activePhotoCount} fotos` : 'criando sua arte'}. Até 30s.`}
                 </p>
 
                 <div className="space-y-1.5 text-left max-w-[260px] mx-auto mb-5">
                   {[
-                    { label: "Analisando traços faciais", delay: 0 },
-                    { label: photos.filter(p => p.file).length > 1 ? "Identificando cada pessoa" : "Aplicando estilo artístico", delay: 3 },
-                    { label: "Refinando detalhes", delay: 8 },
-                    { label: "Validação de qualidade (QA)", delay: 14, isQA: true },
-                    { label: "Finalizando imagem", delay: 18 },
-                  ].map((item, i) => (
-                    <GeneratingStep key={i} label={item.label} delay={item.delay} isQA={item.isQA} />
+                    { label: 'Analisando traços faciais', delay: 0 },
+                    { label: activePhotoCount > 1 ? 'Comparando cada referência' : 'Aplicando estilo artístico', delay: 3 },
+                    { label: 'Refinando detalhes', delay: 8 },
+                    { label: 'Auditoria com imagem de referência', delay: 14, isQA: true },
+                    { label: 'Finalizando imagem', delay: 18 },
+                  ].map((item, index) => (
+                    <GeneratingStep key={index} label={item.label} delay={item.delay} isQA={item.isQA} />
                   ))}
                 </div>
 
@@ -556,13 +786,13 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                     <div className="flex items-center gap-1.5 text-secondary text-xs font-medium mb-1.5">
                       <AlertTriangle className="w-3.5 h-3.5" />Corrigindo:
                     </div>
-                    {qaIssues.map((issue, i) => (
-                      <p key={i} className="text-[10px] text-muted-foreground">• {issue}</p>
+                    {qaIssues.map((issue, index) => (
+                      <p key={index} className="text-[10px] text-muted-foreground">• {issue}</p>
                     ))}
                   </div>
                 )}
 
-                <GlassButton onClick={() => { setStep('generating'); generateImage(true); }} variant="outline" className="mt-2" size="sm">
+                <GlassButton onClick={() => { setStep('generating'); void generateImage(); }} variant="outline" className="mt-2" size="sm">
                   <RefreshCw className="w-4 h-4 mr-2" />Tentar novamente
                 </GlassButton>
 
@@ -582,7 +812,6 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
               </motion.div>
             )}
 
-            {/* STEP 4: Complete */}
             {step === 'complete' && generatedImage && (
               <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="space-y-3 sm:space-y-4">
                 <div className="text-center mb-2">
@@ -590,19 +819,20 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                   <h3 className="text-base sm:text-lg font-medium">Imagem gerada!</h3>
                 </div>
 
-                {/* Main image */}
                 <div className="relative aspect-[4/5] rounded-xl overflow-hidden border border-white/10">
                   <img src={generatedImage} alt="Generated" className="w-full h-full object-cover" />
                 </div>
 
-                {/* Variants grid */}
                 {generatedVariants.length > 1 && (
                   <div className="space-y-2">
                     <p className="text-[10px] text-muted-foreground text-center">Toque para selecionar • Baixe uma ou todas</p>
-                    <div className="grid grid-cols-4 gap-2">
+                    <div className="grid grid-cols-3 gap-2">
                       {generatedVariants.map((variant, index) => (
-                        <button key={index} onClick={() => selectVariant(index)}
-                          className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${variant.selected ? 'border-primary ring-2 ring-primary/30' : 'border-white/10 hover:border-white/30'}`}>
+                        <button
+                          key={index}
+                          onClick={() => selectVariant(index)}
+                          className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${variant.selected ? 'border-primary ring-2 ring-primary/30' : 'border-white/10 hover:border-white/30'}`}
+                        >
                           <img src={variant.url} alt={`Variação ${index + 1}`} className="w-full h-full object-cover" />
                           {variant.selected && (
                             <div className="absolute top-1 right-1 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
@@ -615,7 +845,6 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                   </div>
                 )}
 
-                {/* Actions */}
                 <div className="grid grid-cols-3 gap-2">
                   <GlassButton onClick={handleDownloadAll} className="col-span-1" size="sm">
                     <Download className="w-3.5 h-3.5 sm:mr-1.5" />
@@ -625,17 +854,20 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                     <Pencil className="w-3.5 h-3.5 sm:mr-1.5" />
                     <span className="hidden sm:inline">Editar</span>
                   </GlassButton>
-                  <GlassButton onClick={generateMoreVariants} variant="outline" size="sm" disabled={isGeneratingMore || generatedVariants.length >= 4}>
+                  <GlassButton onClick={generateMoreVariants} variant="outline" size="sm" disabled={isGeneratingMore || generatedVariants.length >= MAX_VARIANTS}>
                     {isGeneratingMore ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ImagePlus className="w-3.5 h-3.5 sm:mr-1.5" />}
                     <span className="hidden sm:inline">{isGeneratingMore ? '...' : '+Variação'}</span>
                   </GlassButton>
                 </div>
 
+                <p className="text-[10px] text-center text-muted-foreground">
+                  Até {MAX_VARIANTS} versões por compra para manter qualidade e custo sob controle
+                </p>
+
                 <GlassButton onClick={onClose} variant="outline" className="w-full" size="sm">Fechar</GlassButton>
               </motion.div>
             )}
 
-            {/* STEP 5: Editing */}
             {step === 'editing' && generatedImage && (
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-3 sm:space-y-4">
                 <div className="text-center mb-1">
@@ -646,9 +878,12 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                 <div className="relative aspect-video rounded-xl overflow-hidden border border-white/10">
                   <img src={generatedImage} alt="Current" className="w-full h-full object-contain bg-black/50" />
                 </div>
-                <textarea value={editInstruction} onChange={(e) => setEditInstruction(e.target.value)}
+                <textarea
+                  value={editInstruction}
+                  onChange={(e) => setEditInstruction(e.target.value)}
                   placeholder="Ex: Mude o fundo para uma praia, adicione óculos de sol..."
-                  className="w-full min-h-[60px] px-3 py-2 text-sm rounded-md bg-white/5 border border-white/10 focus:border-primary/50 focus:outline-none resize-none" />
+                  className="w-full min-h-[60px] px-3 py-2 text-sm rounded-md bg-white/5 border border-white/10 focus:border-primary/50 focus:outline-none resize-none"
+                />
                 <div className="flex gap-2">
                   <GlassButton onClick={handleEditImage} className="flex-1" disabled={isEditing || !editInstruction.trim()} size="sm">
                     {isEditing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}

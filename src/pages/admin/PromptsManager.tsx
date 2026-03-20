@@ -742,9 +742,12 @@ const PromptsManager = () => {
 
   const handleToggleFeatured = async (prompt: Prompt) => {
     try {
-      await supabase.functions.invoke("manage-prompt", {
+      const { error } = await supabase.functions.invoke("manage-prompt", {
         body: { action: "update", promptId: prompt.id, promptData: { is_featured: !prompt.is_featured } },
       });
+
+      if (error) throw error;
+
       toast.success(prompt.is_featured ? "Prompt removido dos destaques" : "⭐ Prompt fixado em destaque!");
       fetchPrompts();
     } catch (error) {
