@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { GlassCard, GlassCardContent, GlassCardHeader, GlassCardTitle } from "@/components/ui/glass-card";
 import { GlassButton } from "@/components/ui/glass-button";
@@ -42,6 +42,21 @@ interface PromptPurchaseFlowProps {
 }
 
 type FlowStep = 'form' | 'payment' | 'generating' | 'complete';
+
+const GeneratingStep = ({ label, delay }: { label: string; delay: number }) => {
+  const [active, setActive] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => setActive(true), delay * 1000);
+    return () => clearTimeout(timer);
+  }, [delay]);
+  return (
+    <div className={`flex items-center gap-2 text-xs transition-all duration-500 ${active ? 'text-primary opacity-100' : 'text-muted-foreground/40 opacity-60'}`}>
+      {active ? <Check className="w-3.5 h-3.5 text-primary" /> : <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+      <span>{label}</span>
+    </div>
+  );
+};
+
 
 export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps) => {
   const [step, setStep] = useState<FlowStep>('form');
@@ -479,23 +494,40 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                 animate={{ opacity: 1, x: 0 }}
                 className="py-8 text-center"
               >
-                <div className="relative w-24 h-24 mx-auto mb-6">
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary to-violet-500 animate-spin" style={{ animationDuration: '3s' }} />
-                  <div className="absolute inset-1 rounded-full bg-background flex items-center justify-center">
+                {/* Animated loading ring */}
+                <div className="relative w-28 h-28 mx-auto mb-6">
+                  <div className="absolute inset-0 rounded-full border-2 border-white/[0.06]" />
+                  <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-primary animate-spin" style={{ animationDuration: '1.2s' }} />
+                  <div className="absolute inset-2 rounded-full border-2 border-transparent border-b-secondary animate-spin" style={{ animationDuration: '2s', animationDirection: 'reverse' }} />
+                  <div className="absolute inset-4 rounded-full bg-white/[0.03] backdrop-blur-sm flex items-center justify-center">
                     <Sparkles className="w-8 h-8 text-primary animate-pulse" />
                   </div>
                 </div>
-                <h3 className="text-lg font-medium mb-2">Gerando sua imagem...</h3>
-                <p className="text-sm text-muted-foreground">
-                  A IA está criando sua arte personalizada.
-                  <br />Isso pode levar alguns segundos.
+
+                <h3 className="text-lg font-semibold mb-1">Gerando sua imagem...</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  A IA está analisando sua foto e criando sua arte.
+                  <br />Isso pode levar até 30 segundos.
                 </p>
+
+                {/* Animated progress steps */}
+                <div className="space-y-2 text-left max-w-[260px] mx-auto mb-6">
+                  {[
+                    { label: "Analisando traços faciais", delay: 0 },
+                    { label: "Aplicando estilo artístico", delay: 3 },
+                    { label: "Refinando detalhes", delay: 8 },
+                    { label: "Finalizando imagem", delay: 15 },
+                  ].map((item, i) => (
+                    <GeneratingStep key={i} label={item.label} delay={item.delay} />
+                  ))}
+                </div>
 
                 {/* Retry button */}
                 <GlassButton 
                   onClick={() => { setStep('generating'); generateImage(); }} 
                   variant="outline" 
-                  className="mt-4"
+                  className="mt-2"
+                  size="sm"
                 >
                   <Loader2 className="w-4 h-4 mr-2" />
                   Tentar novamente

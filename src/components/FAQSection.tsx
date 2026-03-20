@@ -35,7 +35,7 @@ const faqs = [
 
 export const FAQSection = () => {
   return (
-    <section className="relative py-28 px-6 overflow-hidden">
+    <section className="relative py-20 md:py-28 px-4 sm:px-6 overflow-hidden">
       <div className="max-w-2xl mx-auto relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

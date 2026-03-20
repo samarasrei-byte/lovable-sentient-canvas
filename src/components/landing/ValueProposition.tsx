@@ -41,7 +41,7 @@ export const ValueProposition = () => {
   const parallaxOffset = useParallax(sectionRef, 0.1);
 
   return (
-    <section ref={sectionRef} className="relative py-28 px-6 overflow-hidden">
+    <section ref={sectionRef} className="relative py-20 md:py-28 px-4 sm:px-6 overflow-hidden">
       {/* Parallax background orb */}
       <div
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/[0.04] rounded-full blur-[150px] pointer-events-none"

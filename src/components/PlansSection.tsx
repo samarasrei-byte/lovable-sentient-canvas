@@ -79,7 +79,7 @@ export const PlansSection = () => {
   };
 
   return (
-    <section id="planos" className="relative py-28 px-4 sm:px-6 overflow-hidden">
+    <section id="planos" className="relative py-20 md:py-28 px-4 sm:px-6 overflow-hidden">
       {/* Ambient */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/[0.04] rounded-full blur-[150px]" />
 
@@ -139,7 +139,7 @@ export const PlansSection = () => {
         </motion.div>
 
         {/* Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {plans.map((plan, i) => (
             <motion.div
               key={plan.name}
