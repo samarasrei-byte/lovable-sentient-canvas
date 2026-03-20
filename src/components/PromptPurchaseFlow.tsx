@@ -43,6 +43,21 @@ interface PromptPurchaseFlowProps {
 
 type FlowStep = 'form' | 'payment' | 'generating' | 'complete';
 
+const GeneratingStep = ({ label, delay }: { label: string; delay: number }) => {
+  const [active, setActive] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => setActive(true), delay * 1000);
+    return () => clearTimeout(timer);
+  }, [delay]);
+  return (
+    <div className={`flex items-center gap-2 text-xs transition-all duration-500 ${active ? 'text-primary opacity-100' : 'text-muted-foreground/40 opacity-60'}`}>
+      {active ? <Check className="w-3.5 h-3.5 text-primary" /> : <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+      <span>{label}</span>
+    </div>
+  );
+};
+
+
 export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps) => {
   const [step, setStep] = useState<FlowStep>('form');
   const [formData, setFormData] = useState({
