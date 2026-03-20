@@ -15,7 +15,7 @@ export const HowItWorksNew = () => {
   const parallaxOffset = useParallax(sectionRef, 0.08);
 
   return (
-    <section ref={sectionRef} id="como-funciona" className="relative py-28 px-6 overflow-hidden">
+    <section ref={sectionRef} id="como-funciona" className="relative py-20 md:py-28 px-4 sm:px-6 overflow-hidden">
       {/* Parallax background */}
       <div
         className="absolute top-0 right-0 w-[500px] h-[500px] bg-secondary/[0.03] rounded-full blur-[150px] pointer-events-none"

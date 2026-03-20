@@ -79,7 +79,7 @@ export const PlansSection = () => {
   };
 
   return (
-    <section id="planos" className="relative py-28 px-4 sm:px-6 overflow-hidden">
+    <section id="planos" className="relative py-20 md:py-28 px-4 sm:px-6 overflow-hidden">
       {/* Ambient */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/[0.04] rounded-full blur-[150px]" />
 
