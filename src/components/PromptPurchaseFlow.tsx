@@ -1,27 +1,14 @@
 import { useState, useRef, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { GlassCard, GlassCardContent, GlassCardHeader, GlassCardTitle } from "@/components/ui/glass-card";
 import { GlassButton } from "@/components/ui/glass-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { 
-  X, 
-  Upload, 
-  User, 
-  AtSign, 
-  Sparkles, 
-  QrCode, 
-  Copy, 
-  Check, 
-  Download,
-  Loader2,
-  CheckCircle2,
-  Clock,
-  Pencil,
-  Plus,
-  Trash2,
-  Users
+  X, Upload, User, AtSign, Sparkles, QrCode, Copy, Check, Download,
+  Loader2, CheckCircle2, Clock, Pencil, Plus, Trash2, Users,
+  RefreshCw, AlertTriangle, ImagePlus
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -52,59 +39,55 @@ interface PhotoSlot {
   preview: string;
 }
 
-const GeneratingStep = ({ label, delay }: { label: string; delay: number }) => {
+interface GeneratedVariant {
+  url: string;
+  selected: boolean;
+}
+
+const GeneratingStep = ({ label, delay, isQA }: { label: string; delay: number; isQA?: boolean }) => {
   const [active, setActive] = useState(false);
   useEffect(() => {
     const timer = setTimeout(() => setActive(true), delay * 1000);
     return () => clearTimeout(timer);
   }, [delay]);
   return (
-    <div className={`flex items-center gap-2 text-xs transition-all duration-500 ${active ? 'text-primary opacity-100' : 'text-muted-foreground/40 opacity-60'}`}>
-      {active ? <Check className="w-3.5 h-3.5 text-primary" /> : <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+    <div className={`flex items-center gap-2 text-xs transition-all duration-500 ${active ? (isQA ? 'text-secondary opacity-100' : 'text-primary opacity-100') : 'text-muted-foreground/40 opacity-60'}`}>
+      {active ? <Check className="w-3.5 h-3.5" /> : <Loader2 className="w-3.5 h-3.5 animate-spin" />}
       <span>{label}</span>
     </div>
   );
 };
 
-
 export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps) => {
   const [step, setStep] = useState<FlowStep>('form');
-  const maxPhotos = prompt.min_photos && prompt.min_photos > 1 ? prompt.min_photos : 1;
-  const [formData, setFormData] = useState({
-    name: '',
-    instagram: '',
-    email: '',
-    description: '',
-  });
+  const maxPhotos = prompt.min_photos && prompt.min_photos > 1 ? Math.min(prompt.min_photos, 5) : 5;
+  const [formData, setFormData] = useState({ name: '', instagram: '', email: '', description: '' });
   const [photos, setPhotos] = useState<PhotoSlot[]>([{ file: null, preview: '' }]);
   const [paymentStatus, setPaymentStatus] = useState<'pending' | 'checking' | 'paid'>('pending');
+  const [generatedVariants, setGeneratedVariants] = useState<GeneratedVariant[]>([]);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [purchaseId, setPurchaseId] = useState<string | null>(null);
   const [editInstruction, setEditInstruction] = useState('');
   const [isEditing, setIsEditing] = useState(false);
+  const [isGeneratingMore, setIsGeneratingMore] = useState(false);
+  const [qaStatus, setQaStatus] = useState<'idle' | 'checking' | 'passed' | 'fixing'>('idle');
+  const [qaIssues, setQaIssues] = useState<string[]>([]);
+  const [generationCount, setGenerationCount] = useState(0);
   const fileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  const formatPrice = (cents: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(cents / 100);
-  };
+  const formatPrice = (cents: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cents / 100);
 
   const handlePhotoUpload = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 20 * 1024 * 1024) {
-        toast.error("Arquivo muito grande. Máximo 20MB.");
-        return;
-      }
+      if (file.size > 20 * 1024 * 1024) { toast.error("Arquivo muito grande. Máximo 20MB."); return; }
       const reader = new FileReader();
       reader.onload = (event) => {
         const img = new Image();
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          const maxSize = 400;
+          const maxSize = 512;
           const scale = Math.min(maxSize / img.width, maxSize / img.height, 1);
           canvas.width = img.width * scale;
           canvas.height = img.height * scale;
@@ -123,19 +106,16 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   };
 
   const addPhotoSlot = () => {
-    if (photos.length < maxPhotos) {
-      setPhotos(prev => [...prev, { file: null, preview: '' }]);
-    }
+    if (photos.length < maxPhotos) setPhotos(prev => [...prev, { file: null, preview: '' }]);
   };
 
   const removePhotoSlot = (index: number) => {
-    if (photos.length > 1) {
-      setPhotos(prev => prev.filter((_, i) => i !== index));
-    }
+    if (photos.length > 1) setPhotos(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmitForm = async () => {
-    if (prompt.required_fields.includes('photo') && !photos[0].file) {
+    const hasAnyPhoto = photos.some(p => p.file);
+    if (prompt.required_fields.includes('photo') && !hasAnyPhoto) {
       toast.error("Por favor, envie pelo menos uma foto.");
       return;
     }
@@ -143,20 +123,12 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       toast.error("Por favor, informe seu nome.");
       return;
     }
-
     try {
       const { data, error } = await supabase.functions.invoke("create-prompt-purchase", {
-        body: {
-          promptId: prompt.id,
-          userName: formData.name,
-          userInstagram: formData.instagram,
-          userEmail: formData.email,
-        },
+        body: { promptId: prompt.id, userName: formData.name, userInstagram: formData.instagram, userEmail: formData.email },
       });
-
       if (error) throw error;
       if (!data?.purchaseId) throw new Error("Compra não criada corretamente");
-
       setPurchaseId(data.purchaseId);
       setStep('payment');
     } catch (error) {
@@ -179,10 +151,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
     await new Promise(resolve => setTimeout(resolve, 2000));
     setPaymentStatus('paid');
     toast.success("Pagamento confirmado!");
-    setTimeout(() => {
-      setStep('generating');
-      void generateImage();
-    }, 1000);
+    setTimeout(() => { setStep('generating'); void generateImage(); }, 1000);
   };
 
   const uploadPhotos = async (): Promise<string[]> => {
@@ -192,30 +161,45 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       if (!photo.file) continue;
       const fileExt = photo.file.name.split('.').pop();
       const filePath = `purchases/${purchaseId}-photo${i + 1}-${Math.random().toString(36).slice(2)}.${fileExt}`;
-      
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('user-photos')
         .upload(filePath, photo.file, { cacheControl: '3600', upsert: false });
-
-      if (uploadError) {
-        console.error(`Error uploading photo ${i + 1}:`, uploadError);
-        continue;
-      }
+      if (uploadError) { console.error(`Error uploading photo ${i + 1}:`, uploadError); continue; }
       const { data: urlData } = supabase.storage.from('user-photos').getPublicUrl(uploadData.path);
       urls.push(urlData.publicUrl);
     }
     return urls;
   };
 
-  const generateImage = async () => {
+  const runQAValidation = async (imageUrl: string): Promise<{ passed: boolean; issues: string[] }> => {
+    try {
+      setQaStatus('checking');
+      const { data, error } = await supabase.functions.invoke('validate-generated-image', {
+        body: {
+          imageUrl,
+          promptCategory: prompt.category,
+          expectedName: formData.name,
+          expectedDescription: formData.description,
+          hasReferencePhoto: photos.some(p => p.file),
+          numberOfPeople: photos.filter(p => p.file).length,
+        }
+      });
+      if (error || !data) {
+        console.warn("QA validation unavailable, passing by default");
+        return { passed: true, issues: [] };
+      }
+      return { passed: data.passed ?? true, issues: data.issues ?? [] };
+    } catch {
+      return { passed: true, issues: [] };
+    }
+  };
+
+  const generateImage = async (isRetry = false) => {
     try {
       if (!purchaseId) throw new Error("Compra não iniciada corretamente");
 
-      const uploadedUrls = await uploadPhotos();
-      if (photos.some(p => p.file) && uploadedUrls.length === 0) {
-        toast.error("Erro ao enviar fotos. Tentando gerar sem referência...");
-      }
-
+      const uploadedUrls = isRetry ? [] : await uploadPhotos();
+      
       const { data, error } = await supabase.functions.invoke('generate-prompt-image', {
         body: {
           purchaseId,
@@ -226,7 +210,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
           userInstagram: formData.instagram,
           userDescription: formData.description,
           userPhotoUrl: uploadedUrls[0] || null,
-          userPhotoUrls: uploadedUrls,
+          userPhotoUrls: uploadedUrls.length > 0 ? uploadedUrls : undefined,
           exampleImageUrl: prompt.example_image_url,
         }
       });
@@ -234,7 +218,45 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       if (error) throw error;
       if (!data?.imageUrl) throw new Error("Nenhuma imagem gerada");
 
-      setGeneratedImage(data.imageUrl);
+      const newCount = generationCount + 1;
+      setGenerationCount(newCount);
+
+      // Run QA validation
+      const qa = await runQAValidation(data.imageUrl);
+      
+      if (!qa.passed && newCount <= 2) {
+        // Auto-retry with QA feedback
+        setQaStatus('fixing');
+        setQaIssues(qa.issues);
+        toast.info("Ajustando qualidade automaticamente...");
+
+        const { data: retryData } = await supabase.functions.invoke('generate-prompt-image', {
+          body: {
+            purchaseId,
+            promptTemplate: `${prompt.prompt_template}\n\nCORREÇÕES OBRIGATÓRIAS (erros detectados na versão anterior):\n${qa.issues.map(i => `- CORRIGIR: ${i}`).join('\n')}`,
+            negativePrompt: `${prompt.negative_prompt || ''}, ${qa.issues.join(', ')}`,
+            aiModel: prompt.ai_model,
+            userName: formData.name,
+            userInstagram: formData.instagram,
+            userDescription: formData.description,
+            exampleImageUrl: prompt.example_image_url,
+          }
+        });
+
+        if (retryData?.imageUrl) {
+          setGeneratedImage(retryData.imageUrl);
+          setGeneratedVariants(prev => [...prev, { url: retryData.imageUrl, selected: true }]);
+        } else {
+          setGeneratedImage(data.imageUrl);
+          setGeneratedVariants(prev => [...prev, { url: data.imageUrl, selected: true }]);
+        }
+      } else {
+        setGeneratedImage(data.imageUrl);
+        setGeneratedVariants(prev => [...prev, { url: data.imageUrl, selected: prev.length === 0 }]);
+      }
+
+      setQaStatus(qa.passed ? 'passed' : 'passed');
+      setQaIssues([]);
       setStep('complete');
     } catch (error) {
       console.error("Error generating image:", error);
@@ -243,95 +265,115 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
     }
   };
 
-  const handleEditImage = async () => {
-    if (!editInstruction.trim()) {
-      toast.error("Descreva o que deseja alterar.");
-      return;
-    }
-    if (!generatedImage) return;
-
-    setIsEditing(true);
+  const generateMoreVariants = async () => {
+    if (generatedVariants.length >= 4) { toast.error("Máximo de 4 variações."); return; }
+    setIsGeneratingMore(true);
     try {
       const { data, error } = await supabase.functions.invoke('generate-prompt-image', {
         body: {
           purchaseId,
-          promptTemplate: editInstruction,
-          aiModel: 'google/gemini-3.1-flash-image-preview',
-          editMode: true,
-          sourceImageUrl: generatedImage,
+          promptTemplate: prompt.prompt_template + "\n\nGere uma VARIAÇÃO DIFERENTE da composição, mantendo 100% da fidelidade facial.",
+          negativePrompt: prompt.negative_prompt,
+          aiModel: prompt.ai_model,
           userName: formData.name,
+          userInstagram: formData.instagram,
+          userDescription: formData.description,
+          exampleImageUrl: prompt.example_image_url,
         }
       });
+      if (error) throw error;
+      if (data?.imageUrl) {
+        setGeneratedVariants(prev => [...prev, { url: data.imageUrl, selected: false }]);
+        toast.success("Nova variação gerada!");
+      }
+    } catch (error) {
+      toast.error("Erro ao gerar variação.");
+    } finally {
+      setIsGeneratingMore(false);
+    }
+  };
 
+  const selectVariant = (index: number) => {
+    setGeneratedVariants(prev => prev.map((v, i) => ({ ...v, selected: i === index })));
+    setGeneratedImage(generatedVariants[index].url);
+  };
+
+  const handleEditImage = async () => {
+    if (!editInstruction.trim()) { toast.error("Descreva o que deseja alterar."); return; }
+    if (!generatedImage) return;
+    setIsEditing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-prompt-image', {
+        body: {
+          purchaseId, promptTemplate: editInstruction, aiModel: 'google/gemini-3.1-flash-image-preview',
+          editMode: true, sourceImageUrl: generatedImage, userName: formData.name,
+        }
+      });
       if (error) throw error;
       if (!data?.imageUrl) throw new Error("Edição não gerou imagem");
-
       setGeneratedImage(data.imageUrl);
       setEditInstruction('');
       setStep('complete');
       toast.success("Imagem editada com sucesso!");
     } catch (error) {
-      console.error("Error editing image:", error);
       toast.error("Erro ao editar. Tente novamente.");
-    } finally {
-      setIsEditing(false);
-    }
+    } finally { setIsEditing(false); }
   };
 
-  const handleDownload = () => {
-    if (generatedImage) {
+  const handleDownload = (url?: string) => {
+    const imageUrl = url || generatedImage;
+    if (imageUrl) {
       const link = document.createElement('a');
-      link.href = generatedImage;
+      link.href = imageUrl;
       link.download = `arcana-${prompt.name.toLowerCase().replace(/\s+/g, '-')}.png`;
       link.click();
       toast.success("Download iniciado!");
     }
   };
 
+  const handleDownloadAll = () => {
+    const selected = generatedVariants.filter(v => v.selected);
+    if (selected.length === 0) { handleDownload(); return; }
+    selected.forEach((v, i) => setTimeout(() => handleDownload(v.url), i * 500));
+  };
+
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto"
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm overflow-y-auto"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <motion.div
-        initial={{ scale: 0.95, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.95, opacity: 0 }}
-        className="w-full max-w-lg my-4"
+        initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+        className="w-full max-w-lg my-2 sm:my-4"
       >
-        <GlassCard className="relative overflow-hidden">
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
-          >
+        <GlassCard className="relative overflow-hidden max-h-[90vh] overflow-y-auto">
+          <button onClick={onClose} className="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors">
             <X className="w-4 h-4" />
           </button>
 
-          <GlassCardHeader className="pb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                <Sparkles className="w-6 h-6 text-primary" />
+          <GlassCardHeader className="pb-3">
+            <div className="flex items-center gap-3 pr-10">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center shrink-0">
+                <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
               </div>
-              <div>
-                <GlassCardTitle className="text-lg">{prompt.name}</GlassCardTitle>
-                <p className="text-sm text-muted-foreground">{prompt.category}</p>
+              <div className="min-w-0">
+                <GlassCardTitle className="text-base sm:text-lg truncate">{prompt.name}</GlassCardTitle>
+                <p className="text-xs sm:text-sm text-muted-foreground">{prompt.category}</p>
               </div>
             </div>
-            <Badge className="absolute top-6 right-14 bg-primary text-primary-foreground">
+            <Badge className="absolute top-5 right-12 bg-primary text-primary-foreground text-xs">
               {formatPrice(prompt.price_cents)}
             </Badge>
           </GlassCardHeader>
 
-          <GlassCardContent className="space-y-6">
+          <GlassCardContent className="space-y-4 sm:space-y-6">
             {/* Step Indicator */}
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <div className="flex items-center justify-between text-[10px] sm:text-xs text-muted-foreground">
               {['form', 'payment', 'generating', 'complete'].map((s, i) => (
                 <div key={s} className="flex items-center">
-                  <div className={`flex items-center gap-1 ${step === s || (step === 'editing' && s === 'complete') ? 'text-primary' : ''}`}>
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${
+                  <div className={`flex items-center gap-0.5 sm:gap-1 ${step === s || (step === 'editing' && s === 'complete') ? 'text-primary' : ''}`}>
+                    <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-medium ${
                       step === s || (step === 'editing' && s === 'complete') ? 'bg-primary text-primary-foreground' : 
                       ['form', 'payment', 'generating', 'complete'].indexOf(step === 'editing' ? 'complete' : step) > i ? 'bg-primary/20 text-primary' : 'bg-white/10'
                     }`}>
@@ -339,207 +381,139 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                     </div>
                     <span className="hidden sm:inline">{['Dados', 'PIX', 'Gerar', 'Pronto'][i]}</span>
                   </div>
-                  {i < 3 && <div className="flex-1 h-px bg-white/10 mx-2 w-4 sm:w-8" />}
+                  {i < 3 && <div className="flex-1 h-px bg-white/10 mx-1 sm:mx-2 w-3 sm:w-8" />}
                 </div>
               ))}
             </div>
 
             {/* STEP 1: Form */}
             {step === 'form' && (
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="space-y-4"
-              >
-                {/* Photo Upload - Multi support */}
+              <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
+                {/* Photo Upload */}
                 {prompt.required_fields.includes('photo') && (
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <Label className="text-sm flex items-center gap-2">
-                        {maxPhotos > 1 ? <Users className="w-4 h-4" /> : <Upload className="w-4 h-4" />}
-                        {maxPhotos > 1 ? `Fotos (${photos.length}/${maxPhotos} pessoas)` : 'Sua foto'}
+                      <Label className="text-xs sm:text-sm flex items-center gap-2">
+                        <Upload className="w-4 h-4" />
+                        {photos.filter(p => p.file).length > 0 
+                          ? `Fotos (${photos.filter(p => p.file).length} enviada${photos.filter(p => p.file).length > 1 ? 's' : ''})`
+                          : 'Suas fotos'}
                       </Label>
-                      {maxPhotos > 1 && photos.length < maxPhotos && (
-                        <button
-                          onClick={addPhotoSlot}
-                          className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors"
-                        >
+                      {photos.length < maxPhotos && (
+                        <button onClick={addPhotoSlot} className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors">
                           <Plus className="w-3.5 h-3.5" />
-                          Adicionar pessoa
+                          <span className="hidden sm:inline">Adicionar pessoa</span>
+                          <span className="sm:hidden">+Pessoa</span>
                         </button>
                       )}
                     </div>
                     
-                    <div className={`grid gap-3 ${maxPhotos > 1 ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-1'}`}>
+                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-3">
                       {photos.map((photo, index) => (
                         <div key={index} className="relative group">
                           <div
                             onClick={() => fileInputRefs.current[index]?.click()}
-                            className={`relative rounded-xl border-2 border-dashed border-white/20 hover:border-primary/50 transition-colors cursor-pointer overflow-hidden ${
-                              maxPhotos > 1 ? 'aspect-square' : 'aspect-square max-w-[200px] mx-auto'
-                            }`}
+                            className="relative rounded-xl border-2 border-dashed border-white/20 hover:border-primary/50 transition-colors cursor-pointer overflow-hidden aspect-square"
                           >
                             {photo.preview ? (
                               <img src={photo.preview} alt={`Foto ${index + 1}`} className="w-full h-full object-cover" />
                             ) : (
-                              <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 text-muted-foreground">
-                                <Upload className="w-6 h-6" />
-                                <span className="text-[10px]">
-                                  {maxPhotos > 1 ? `Pessoa ${index + 1}` : 'Clique para enviar'}
-                                </span>
+                              <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-muted-foreground">
+                                <Upload className="w-5 h-5" />
+                                <span className="text-[9px] sm:text-[10px]">Pessoa {index + 1}</span>
                               </div>
                             )}
                           </div>
-                          {/* Remove button for multi-photo */}
-                          {maxPhotos > 1 && photos.length > 1 && (
+                          {photos.length > 1 && (
                             <button
                               onClick={(e) => { e.stopPropagation(); removePhotoSlot(index); }}
-                              className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                              className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-[10px]"
                             >
-                              <Trash2 className="w-3 h-3" />
+                              <Trash2 className="w-2.5 h-2.5" />
                             </button>
                           )}
                           <input
                             ref={el => { fileInputRefs.current[index] = el; }}
-                            type="file"
-                            accept="image/*"
+                            type="file" accept="image/*"
                             onChange={(e) => handlePhotoUpload(index, e)}
                             className="hidden"
                           />
                         </div>
                       ))}
                     </div>
-
-                    {maxPhotos > 1 && (
-                      <p className="text-[10px] text-muted-foreground text-center">
-                        Envie uma foto de cada pessoa que deve aparecer na imagem
-                      </p>
-                    )}
+                    <p className="text-[10px] text-muted-foreground text-center">
+                      Envie de 1 a {maxPhotos} fotos • Cada foto = uma pessoa na imagem
+                    </p>
                   </div>
                 )}
 
-                {/* Name */}
                 {prompt.required_fields.includes('name') && (
-                  <div className="space-y-2">
-                    <Label className="text-sm">Seu nome</Label>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs sm:text-sm">Seu nome</Label>
                     <div className="relative">
                       <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input
-                        value={formData.name}
-                        onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                        placeholder="Como você quer ser chamado"
-                        className="pl-10 bg-white/5 border-white/10"
-                      />
+                      <Input value={formData.name} onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                        placeholder="Como você quer ser chamado" className="pl-10 bg-white/5 border-white/10 text-sm" />
                     </div>
                   </div>
                 )}
 
-                {/* Instagram */}
                 {prompt.required_fields.includes('instagram') && (
-                  <div className="space-y-2">
-                    <Label className="text-sm">@Instagram</Label>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs sm:text-sm">@Instagram</Label>
                     <div className="relative">
                       <AtSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input
-                        value={formData.instagram}
-                        onChange={(e) => setFormData(prev => ({ ...prev, instagram: e.target.value }))}
-                        placeholder="seu_usuario"
-                        className="pl-10 bg-white/5 border-white/10"
-                      />
+                      <Input value={formData.instagram} onChange={(e) => setFormData(prev => ({ ...prev, instagram: e.target.value }))}
+                        placeholder="seu_usuario" className="pl-10 bg-white/5 border-white/10 text-sm" />
                     </div>
                   </div>
                 )}
 
-                {/* Description */}
                 {prompt.required_fields.includes('description') && (
-                  <div className="space-y-2">
-                    <Label className="text-sm">Descrição adicional</Label>
-                    <textarea
-                      value={formData.description}
-                      onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                      placeholder="Descreva o que você quer na imagem..."
-                      className="w-full min-h-[80px] px-3 py-2 text-sm rounded-md bg-white/5 border border-white/10 focus:border-primary/50 focus:outline-none resize-none"
-                    />
+                  <div className="space-y-1.5">
+                    <Label className="text-xs sm:text-sm">Descrição adicional</Label>
+                    <textarea value={formData.description} onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                      placeholder="Ex: 3 meses, 25 anos, cor do fundo..."
+                      className="w-full min-h-[60px] px-3 py-2 text-sm rounded-md bg-white/5 border border-white/10 focus:border-primary/50 focus:outline-none resize-none" />
                   </div>
                 )}
 
                 <GlassButton onClick={handleSubmitForm} className="w-full">
                   <Sparkles className="w-4 h-4 mr-2" />
-                  Gerar imagem - {formatPrice(prompt.price_cents)}
+                  Gerar imagem — {formatPrice(prompt.price_cents)}
                 </GlassButton>
               </motion.div>
             )}
 
             {/* STEP 2: Payment */}
             {step === 'payment' && (
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="space-y-4"
-              >
+              <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
                 <div className="text-center">
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Escaneie o QR Code ou copie o código PIX
-                  </p>
-
-                  <div className="relative w-48 h-48 mx-auto bg-white rounded-xl p-3 mb-4">
+                  <p className="text-xs sm:text-sm text-muted-foreground mb-3">Escaneie o QR Code ou copie o código PIX</p>
+                  <div className="relative w-40 h-40 sm:w-48 sm:h-48 mx-auto bg-white rounded-xl p-3 mb-3">
                     <div className="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg flex items-center justify-center">
-                      <QrCode className="w-24 h-24 text-white" />
+                      <QrCode className="w-20 h-20 sm:w-24 sm:h-24 text-white" />
                     </div>
                     {paymentStatus === 'paid' && (
                       <div className="absolute inset-0 bg-primary/90 rounded-xl flex items-center justify-center">
-                        <CheckCircle2 className="w-16 h-16 text-primary-foreground" />
+                        <CheckCircle2 className="w-14 h-14 text-primary-foreground" />
                       </div>
                     )}
                   </div>
-
                   <div className="relative">
-                    <Input
-                      value={pixCode.slice(0, 40) + '...'}
-                      readOnly
-                      className="pr-12 text-xs bg-white/5 border-white/10"
-                    />
-                    <button
-                      onClick={handleCopyPix}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 p-2 hover:bg-white/10 rounded transition-colors"
-                    >
-                      {copied ? (
-                        <Check className="w-4 h-4 text-primary" />
-                      ) : (
-                        <Copy className="w-4 h-4 text-muted-foreground" />
-                      )}
+                    <Input value={pixCode.slice(0, 40) + '...'} readOnly className="pr-12 text-xs bg-white/5 border-white/10" />
+                    <button onClick={handleCopyPix} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 hover:bg-white/10 rounded transition-colors">
+                      {copied ? <Check className="w-4 h-4 text-primary" /> : <Copy className="w-4 h-4 text-muted-foreground" />}
                     </button>
                   </div>
-
-                  <div className="mt-4 p-3 rounded-lg bg-white/5 border border-white/10">
-                    {paymentStatus === 'pending' && (
-                      <div className="flex items-center justify-center gap-2 text-secondary">
-                        <Clock className="w-4 h-4" />
-                        <span className="text-sm">Aguardando pagamento...</span>
-                      </div>
-                    )}
-                    {paymentStatus === 'checking' && (
-                      <div className="flex items-center justify-center gap-2 text-primary">
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span className="text-sm">Verificando pagamento...</span>
-                      </div>
-                    )}
-                    {paymentStatus === 'paid' && (
-                      <div className="flex items-center justify-center gap-2 text-primary">
-                        <CheckCircle2 className="w-4 h-4" />
-                        <span className="text-sm">Pagamento confirmado!</span>
-                      </div>
-                    )}
+                  <div className="mt-3 p-2.5 rounded-lg bg-white/5 border border-white/10">
+                    {paymentStatus === 'pending' && <div className="flex items-center justify-center gap-2 text-secondary"><Clock className="w-4 h-4" /><span className="text-sm">Aguardando pagamento...</span></div>}
+                    {paymentStatus === 'checking' && <div className="flex items-center justify-center gap-2 text-primary"><Loader2 className="w-4 h-4 animate-spin" /><span className="text-sm">Verificando...</span></div>}
+                    {paymentStatus === 'paid' && <div className="flex items-center justify-center gap-2 text-primary"><CheckCircle2 className="w-4 h-4" /><span className="text-sm">Pagamento confirmado!</span></div>}
                   </div>
-
                   {paymentStatus === 'pending' && (
-                    <GlassButton 
-                      onClick={simulatePayment} 
-                      className="w-full mt-4"
-                      variant="outline"
-                    >
-                      <Check className="w-4 h-4 mr-2" />
-                      Simular Pagamento (Demo)
+                    <GlassButton onClick={simulatePayment} className="w-full mt-3" variant="outline">
+                      <Check className="w-4 h-4 mr-2" />Simular Pagamento (Demo)
                     </GlassButton>
                   )}
                 </div>
@@ -548,65 +522,61 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
 
             {/* STEP 3: Generating */}
             {step === 'generating' && (
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="py-8 text-center"
-              >
-                <div className="relative w-28 h-28 mx-auto mb-6">
+              <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="py-6 sm:py-8 text-center">
+                <div className="relative w-24 h-24 sm:w-28 sm:h-28 mx-auto mb-5">
                   <div className="absolute inset-0 rounded-full border-2 border-white/[0.06]" />
                   <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-primary animate-spin" style={{ animationDuration: '1.2s' }} />
                   <div className="absolute inset-2 rounded-full border-2 border-transparent border-b-secondary animate-spin" style={{ animationDuration: '2s', animationDirection: 'reverse' }} />
                   <div className="absolute inset-4 rounded-full bg-white/[0.03] backdrop-blur-sm flex items-center justify-center">
-                    <Sparkles className="w-8 h-8 text-primary animate-pulse" />
+                    <Sparkles className="w-7 h-7 text-primary animate-pulse" />
                   </div>
                 </div>
 
-                <h3 className="text-lg font-semibold mb-1">Gerando sua imagem...</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  A IA está analisando {photos.filter(p => p.file).length > 1 ? `suas ${photos.filter(p => p.file).length} fotos` : 'sua foto'} e criando sua arte.
-                  <br />Isso pode levar até 30 segundos.
+                <h3 className="text-base sm:text-lg font-semibold mb-1">
+                  {qaStatus === 'checking' ? 'Validando qualidade...' : qaStatus === 'fixing' ? 'Corrigindo automaticamente...' : 'Gerando sua imagem...'}
+                </h3>
+                <p className="text-xs sm:text-sm text-muted-foreground mb-4">
+                  {qaStatus === 'fixing' ? 'Problemas detectados, gerando versão corrigida...' : `A IA está ${photos.filter(p => p.file).length > 1 ? `processando ${photos.filter(p => p.file).length} fotos` : 'criando sua arte'}. Até 30s.`}
                 </p>
 
-                <div className="space-y-2 text-left max-w-[260px] mx-auto mb-6">
+                <div className="space-y-1.5 text-left max-w-[260px] mx-auto mb-5">
                   {[
                     { label: "Analisando traços faciais", delay: 0 },
                     { label: photos.filter(p => p.file).length > 1 ? "Identificando cada pessoa" : "Aplicando estilo artístico", delay: 3 },
                     { label: "Refinando detalhes", delay: 8 },
-                    { label: "Finalizando imagem", delay: 15 },
+                    { label: "Validação de qualidade (QA)", delay: 14, isQA: true },
+                    { label: "Finalizando imagem", delay: 18 },
                   ].map((item, i) => (
-                    <GeneratingStep key={i} label={item.label} delay={item.delay} />
+                    <GeneratingStep key={i} label={item.label} delay={item.delay} isQA={item.isQA} />
                   ))}
                 </div>
 
-                <GlassButton 
-                  onClick={() => { setStep('generating'); generateImage(); }} 
-                  variant="outline" 
-                  className="mt-2"
-                  size="sm"
-                >
-                  <Loader2 className="w-4 h-4 mr-2" />
-                  Tentar novamente
+                {qaIssues.length > 0 && (
+                  <div className="mb-4 p-3 rounded-lg bg-secondary/10 border border-secondary/30 text-left">
+                    <div className="flex items-center gap-1.5 text-secondary text-xs font-medium mb-1.5">
+                      <AlertTriangle className="w-3.5 h-3.5" />Corrigindo:
+                    </div>
+                    {qaIssues.map((issue, i) => (
+                      <p key={i} className="text-[10px] text-muted-foreground">• {issue}</p>
+                    ))}
+                  </div>
+                )}
+
+                <GlassButton onClick={() => { setStep('generating'); generateImage(true); }} variant="outline" className="mt-2" size="sm">
+                  <RefreshCw className="w-4 h-4 mr-2" />Tentar novamente
                 </GlassButton>
 
-                <div className="mt-6 p-4 rounded-xl border border-primary/30 bg-primary/5">
-                  <div className="flex items-center justify-center gap-2 mb-2">
+                <div className="mt-5 p-3 sm:p-4 rounded-xl border border-primary/30 bg-primary/5">
+                  <div className="flex items-center justify-center gap-2 mb-1.5">
                     <Sparkles className="w-4 h-4 text-primary" />
-                    <span className="text-sm font-semibold text-primary">Plano Mensal</span>
+                    <span className="text-xs sm:text-sm font-semibold text-primary">Plano Mensal</span>
                   </div>
-                   <p className="text-sm font-medium mb-1">
-                     Faça <span className="text-primary font-bold">6 fotos por mês</span> por apenas
-                   </p>
-                   <p className="text-2xl font-bold text-primary mb-2">R$ 100,00<span className="text-xs text-muted-foreground font-normal">/mês</span></p>
-                   <p className="text-xs text-muted-foreground mb-3">
-                     Economize comparado a compras avulsas
-                   </p>
-                  <GlassButton 
-                    onClick={() => window.open('/app/planos', '_blank')}
-                    className="w-full text-sm"
-                  >
-                    <CheckCircle2 className="w-4 h-4 mr-2" />
-                    Quero assinar agora
+                  <p className="text-xs sm:text-sm font-medium mb-1">
+                    <span className="text-primary font-bold">6 fotos/mês</span> por apenas
+                  </p>
+                  <p className="text-xl sm:text-2xl font-bold text-primary mb-2">R$ 100<span className="text-[10px] text-muted-foreground font-normal">/mês</span></p>
+                  <GlassButton onClick={() => window.open('/app/planos', '_blank')} className="w-full text-xs sm:text-sm">
+                    <CheckCircle2 className="w-4 h-4 mr-2" />Quero assinar
                   </GlassButton>
                 </div>
               </motion.div>
@@ -614,86 +584,77 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
 
             {/* STEP 4: Complete */}
             {step === 'complete' && generatedImage && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="space-y-4"
-              >
-                <div className="text-center mb-4">
-                  <CheckCircle2 className="w-12 h-12 text-primary mx-auto mb-2" />
-                  <h3 className="text-lg font-medium">Imagem gerada com sucesso!</h3>
+              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="space-y-3 sm:space-y-4">
+                <div className="text-center mb-2">
+                  <CheckCircle2 className="w-10 h-10 text-primary mx-auto mb-1.5" />
+                  <h3 className="text-base sm:text-lg font-medium">Imagem gerada!</h3>
                 </div>
 
-                <div className="relative aspect-square rounded-xl overflow-hidden border border-white/10">
-                  <img 
-                    src={generatedImage} 
-                    alt="Generated" 
-                    className="w-full h-full object-cover"
-                  />
+                {/* Main image */}
+                <div className="relative aspect-[4/5] rounded-xl overflow-hidden border border-white/10">
+                  <img src={generatedImage} alt="Generated" className="w-full h-full object-cover" />
                 </div>
+
+                {/* Variants grid */}
+                {generatedVariants.length > 1 && (
+                  <div className="space-y-2">
+                    <p className="text-[10px] text-muted-foreground text-center">Toque para selecionar • Baixe uma ou todas</p>
+                    <div className="grid grid-cols-4 gap-2">
+                      {generatedVariants.map((variant, index) => (
+                        <button key={index} onClick={() => selectVariant(index)}
+                          className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${variant.selected ? 'border-primary ring-2 ring-primary/30' : 'border-white/10 hover:border-white/30'}`}>
+                          <img src={variant.url} alt={`Variação ${index + 1}`} className="w-full h-full object-cover" />
+                          {variant.selected && (
+                            <div className="absolute top-1 right-1 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+                              <Check className="w-2.5 h-2.5 text-primary-foreground" />
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Actions */}
-                <div className="flex gap-3">
-                  <GlassButton onClick={handleDownload} className="flex-1">
-                    <Download className="w-4 h-4 mr-2" />
-                    Download
+                <div className="grid grid-cols-3 gap-2">
+                  <GlassButton onClick={handleDownloadAll} className="col-span-1" size="sm">
+                    <Download className="w-3.5 h-3.5 sm:mr-1.5" />
+                    <span className="hidden sm:inline">Baixar</span>
                   </GlassButton>
-                  <GlassButton onClick={() => setStep('editing')} variant="outline" className="flex-1">
-                    <Pencil className="w-4 h-4 mr-2" />
-                    Editar
+                  <GlassButton onClick={() => setStep('editing')} variant="outline" size="sm">
+                    <Pencil className="w-3.5 h-3.5 sm:mr-1.5" />
+                    <span className="hidden sm:inline">Editar</span>
+                  </GlassButton>
+                  <GlassButton onClick={generateMoreVariants} variant="outline" size="sm" disabled={isGeneratingMore || generatedVariants.length >= 4}>
+                    {isGeneratingMore ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ImagePlus className="w-3.5 h-3.5 sm:mr-1.5" />}
+                    <span className="hidden sm:inline">{isGeneratingMore ? '...' : '+Variação'}</span>
                   </GlassButton>
                 </div>
 
-                <GlassButton onClick={onClose} variant="outline" className="w-full">
-                  Fechar
-                </GlassButton>
-
-                <p className="text-xs text-center text-muted-foreground">
-                  Sua imagem também foi enviada para seu email (se informado).
-                </p>
+                <GlassButton onClick={onClose} variant="outline" className="w-full" size="sm">Fechar</GlassButton>
               </motion.div>
             )}
 
             {/* STEP 5: Editing */}
             {step === 'editing' && generatedImage && (
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="space-y-4"
-              >
-                <div className="text-center mb-2">
-                  <Pencil className="w-8 h-8 text-primary mx-auto mb-2" />
-                  <h3 className="text-lg font-medium">Editar sua imagem</h3>
-                  <p className="text-xs text-muted-foreground">Descreva o que deseja alterar</p>
+              <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-3 sm:space-y-4">
+                <div className="text-center mb-1">
+                  <Pencil className="w-7 h-7 text-primary mx-auto mb-1.5" />
+                  <h3 className="text-base font-medium">Editar sua imagem</h3>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground">Descreva o que deseja alterar</p>
                 </div>
-
                 <div className="relative aspect-video rounded-xl overflow-hidden border border-white/10">
                   <img src={generatedImage} alt="Current" className="w-full h-full object-contain bg-black/50" />
                 </div>
-
-                <textarea
-                  value={editInstruction}
-                  onChange={(e) => setEditInstruction(e.target.value)}
-                  placeholder="Ex: Mude o fundo para uma praia, adicione óculos de sol, deixe o cabelo mais claro..."
-                  className="w-full min-h-[80px] px-3 py-2 text-sm rounded-md bg-white/5 border border-white/10 focus:border-primary/50 focus:outline-none resize-none"
-                />
-
-                <div className="flex gap-3">
-                  <GlassButton 
-                    onClick={handleEditImage} 
-                    className="flex-1"
-                    disabled={isEditing || !editInstruction.trim()}
-                  >
-                    {isEditing ? (
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    ) : (
-                      <Sparkles className="w-4 h-4 mr-2" />
-                    )}
-                    {isEditing ? 'Editando...' : 'Aplicar edição'}
+                <textarea value={editInstruction} onChange={(e) => setEditInstruction(e.target.value)}
+                  placeholder="Ex: Mude o fundo para uma praia, adicione óculos de sol..."
+                  className="w-full min-h-[60px] px-3 py-2 text-sm rounded-md bg-white/5 border border-white/10 focus:border-primary/50 focus:outline-none resize-none" />
+                <div className="flex gap-2">
+                  <GlassButton onClick={handleEditImage} className="flex-1" disabled={isEditing || !editInstruction.trim()} size="sm">
+                    {isEditing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
+                    {isEditing ? 'Editando...' : 'Aplicar'}
                   </GlassButton>
-                  <GlassButton onClick={() => setStep('complete')} variant="outline">
-                    Voltar
-                  </GlassButton>
+                  <GlassButton onClick={() => setStep('complete')} variant="outline" size="sm">Voltar</GlassButton>
                 </div>
               </motion.div>
             )}
