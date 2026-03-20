@@ -1,0 +1,21 @@
+-- Rename prompts to descriptive theme-based names
+UPDATE prompts SET name = 'Aviador Infantil' WHERE id = 'f3f4995d-4d4b-44e1-94fa-42aad7bf17ef';
+UPDATE prompts SET name = 'Jet Privado Luxo' WHERE id = '44e092f4-9ed9-438f-b776-8d0c6c4dc2de';
+UPDATE prompts SET name = 'Adidas Style Kids' WHERE id = '433490f3-8a85-4899-ad7e-41e7a4812e52';
+UPDATE prompts SET name = 'Selfie com Tartarugas Ninja' WHERE id = '1490090f-56f8-469f-8cab-1ec61f50be77';
+UPDATE prompts SET name = 'Mergulho com Tubarões' WHERE id = '9bdab1ce-08af-4a0d-9f5e-dad5dd798618';
+UPDATE prompts SET name = 'Fast-Food Editorial' WHERE id = '99aa1c2f-5112-46d6-b2c6-fdc910222387';
+UPDATE prompts SET name = 'Sentado no Carro Luxo' WHERE id = 'e5235c75-caf7-4eb4-8f94-f4f84373f742';
+UPDATE prompts SET name = 'Selfie com Dinossauros' WHERE id = 'deeeb655-2a2e-4499-b893-b7b8fbadeb1d';
+UPDATE prompts SET name = 'Ação Realista LinkedIn' WHERE id = 'd6101acb-dea6-444c-9d12-b65712c56d07';
+UPDATE prompts SET name = 'Sedução Editorial' WHERE id = '26fe6bf5-07e8-4c15-80b9-e85fc4df8d23';
+UPDATE prompts SET name = 'Cyberpunk Neon City' WHERE id = 'f3840cca-45b7-4f44-9814-4b28de25fbb2';
+UPDATE prompts SET name = 'Edição Artística' WHERE id = 'a7a129ab-8dce-40b0-8c7b-7eaab77e2cc1';
+UPDATE prompts SET name = 'Jet Privado Champagne' WHERE id = 'e85d79d8-4fb7-48da-858c-e57d3c0bf19e';
+UPDATE prompts SET name = 'Bastidores de Filme' WHERE id = '8d53c04e-ef00-4f58-a61a-9786d57471f0';
+UPDATE prompts SET name = 'Edição Criativa' WHERE id = 'd812df50-8004-426e-b031-eb13d32220b5';
+UPDATE prompts SET name = 'Selfie Aventureiro' WHERE id = '127db636-83a3-4a5c-b849-f7705ebcf73c';
+UPDATE prompts SET name = 'Close Fashion Elegante' WHERE id = '16ca0fef-cd7a-4627-b970-413241e45612';
+UPDATE prompts SET name = 'Produto Fashion Premium' WHERE id = '93853857-d7fa-4b29-9770-a5c003e1800d';
+UPDATE prompts SET name = 'Retrato 4K Editorial' WHERE id = '09291754-3ce5-481a-b4fd-f0ae73787e53';
+UPDATE prompts SET name = 'Close Fashion Dourado' WHERE id = 'c462ef79-9de6-4148-b53f-a48b74183035';

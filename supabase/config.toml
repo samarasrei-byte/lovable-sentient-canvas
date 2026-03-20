@@ -17,3 +17,24 @@ verify_jwt = false
 
 [functions.prompt-from-screenshot]
 verify_jwt = false
+
+[functions.analyze-person-photo]
+verify_jwt = false
+
+[functions.classify-image-type]
+verify_jwt = false
+
+[functions.create-prompt-purchase]
+verify_jwt = false
+
+[functions.ensure-admin-user]
+verify_jwt = false
+
+[functions.generate-prompt-image]
+verify_jwt = false
+
+[functions.manage-prompt]
+verify_jwt = false
+
+[functions.validate-generated-image]
+verify_jwt = false
