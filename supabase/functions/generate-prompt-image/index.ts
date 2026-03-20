@@ -62,42 +62,54 @@ serve(async (req) => {
     }
 
     // Add quality enhancers
-    finalPrompt += ". Ultra high resolution, professional photography, trending on artstation.";
+    finalPrompt += ". Ultra high resolution, professional photography, trending on artstation, 8K quality, masterful lighting.";
 
     // Add negative prompt if provided
     if (negativePrompt) {
       finalPrompt += ` Avoid: ${negativePrompt}`;
     }
 
-    // Build context-aware system prompt with strong reference image instructions
+    // Build context-aware system prompt with MAXIMUM reference image fidelity
     let imageInstructions = "";
     if (userPhotoUrl && exampleImageUrl) {
-      imageInstructions = "CRITICAL INSTRUCTION — TWO REFERENCE IMAGES PROVIDED:\n" +
-        "IMAGE 1 (STYLE REFERENCE ONLY — DO NOT COPY THE PERSON): This image is ONLY for style, lighting, mood, color palette, composition, camera angle, pose, clothing style, and overall aesthetic. " +
-        "⚠️ The person shown in this image is NOT the subject. DO NOT reproduce their face, features, or identity. COMPLETELY IGNORE the person's face in this image. Only use the artistic direction.\n" +
-        "IMAGE 2 (THE REAL SUBJECT — THIS IS THE PERSON TO GENERATE): This is the REAL person who MUST appear in the final image. " +
-        "You MUST preserve their face with 100% fidelity — exact eye shape, nose structure, mouth shape, jawline, skin tone and texture, facial proportions, hair color, hair texture, and hairstyle. " +
-        "The generated person must be UNMISTAKABLY IDENTICAL to this photo. Zero modifications to facial features.\n" +
-        "OUTPUT: Generate a NEW image that takes ONLY the style/scene/composition/lighting from Image 1 but places the EXACT person from Image 2 into that scene. " +
-        "The face in the output MUST match Image 2, NOT Image 1. If Image 1 shows a different person, that person must be completely replaced by the person from Image 2. " +
-        "Ultra-realistic skin texture with visible pores, natural imperfections. ";
+      imageInstructions = "ABSOLUTE CRITICAL INSTRUCTION — TWO REFERENCE IMAGES PROVIDED:\n" +
+        "IMAGE 1 (STYLE REFERENCE ONLY — DO NOT COPY THE PERSON): This image defines ONLY the artistic style, lighting, mood, color palette, composition, camera angle, pose, clothing style, and overall aesthetic. " +
+        "⚠️ COMPLETELY IGNORE the face/identity of any person in this image. Only extract the visual style.\n\n" +
+        "IMAGE 2 (THE REAL SUBJECT — ABSOLUTE FIDELITY REQUIRED): This is the REAL person who MUST appear in the final image. " +
+        "MANDATORY FIDELITY CHECKLIST — preserve ALL with 100% accuracy:\n" +
+        "• Exact eye shape, size, spacing, color, and depth\n" +
+        "• Precise nose structure (bridge width, tip shape, nostril shape)\n" +
+        "• Exact mouth shape (lip fullness, cupid's bow, smile lines)\n" +
+        "• Jawline contour and chin shape\n" +
+        "• Skin tone, texture, pores, and any marks (moles, freckles, scars)\n" +
+        "• Hair color, texture, length, and exact style\n" +
+        "• Ear shape and size\n" +
+        "• Eyebrow shape, thickness, and arch\n" +
+        "• Forehead proportions\n" +
+        "• Facial proportions and bone structure\n" +
+        "• Body proportions and build\n\n" +
+        "The generated person must be UNMISTAKABLY IDENTICAL — a friend or family member must instantly recognize them. " +
+        "ZERO modifications to ANY facial feature. If in doubt, match the reference photo EXACTLY.\n" +
+        "OUTPUT: Place the EXACT person from Image 2 into the style/scene from Image 1. Ultra-realistic skin with visible pores and natural imperfections. ";
     } else if (userPhotoUrl) {
-      imageInstructions = "CRITICAL INSTRUCTION — USER REFERENCE PHOTO PROVIDED:\n" +
-        "The provided image is the USER'S REAL PHOTO. This is the SUBJECT. You MUST use this as the absolute primary reference for the subject's face, identity, and ALL physical features. " +
-        "Preserve 100% facial fidelity — exact eye shape, nose, mouth, jawline, skin tone, hair color, facial proportions. " +
-        "The generated image MUST look like the EXACT SAME PERSON. No stylistic alterations to facial features. Ultra-realistic skin texture. ";
+      imageInstructions = "ABSOLUTE CRITICAL INSTRUCTION — USER REFERENCE PHOTO:\n" +
+        "The provided image is the USER'S REAL PHOTO. This person MUST appear in the output with 100% facial fidelity.\n" +
+        "MANDATORY: Preserve EVERY facial detail — eye shape, nose structure, mouth shape, jawline, skin tone, " +
+        "hair color/texture/style, moles, freckles, scars, eyebrow shape, ear shape, forehead proportions, " +
+        "and overall facial bone structure. The output must be INSTANTLY recognizable as the EXACT same person. " +
+        "Zero stylistic alterations to facial features. Ultra-realistic skin texture with natural imperfections. ";
     } else if (exampleImageUrl) {
-      imageInstructions = "CRITICAL INSTRUCTION — STYLE REFERENCE IMAGE PROVIDED:\n" +
-        "The provided image is a STYLE REFERENCE. Replicate this exact artistic style, lighting, mood, composition, and overall aesthetic in the generated image. ";
+      imageInstructions = "CRITICAL INSTRUCTION — STYLE REFERENCE IMAGE:\n" +
+        "Replicate this exact artistic style, lighting, mood, composition, and overall aesthetic. ";
     }
 
     const fullPrompt = imageInstructions + finalPrompt;
     console.log("Generating image with prompt:", fullPrompt.substring(0, 300));
 
-    // Ensure model has proper prefix
+    // Use highest quality image model by default
     const resolvedModel = aiModel 
       ? (aiModel.includes('/') ? aiModel : `google/${aiModel}`)
-      : "google/gemini-2.5-flash-image";
+      : "google/gemini-3.1-flash-image-preview";
     console.log("Using model:", resolvedModel);
     console.log("User photo:", userPhotoUrl ? "YES" : "NO");
     console.log("Example image:", exampleImageUrl ? "YES" : "NO");
