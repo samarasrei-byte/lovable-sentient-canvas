@@ -1,32 +1,12 @@
-import { useState, useEffect, useRef } from "react";
-import { GlassButton } from "@/components/ui/glass-button";
+import { useState, useCallback } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Zap, Menu, ArrowRight, Star, TrendingUp, Sparkles } from "lucide-react";
-import heroLiquid from "@/assets/hero-liquid.jpg";
-import { useParallax } from "@/hooks/use-parallax";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { GlassButton } from "@/components/ui/glass-button";
 
 export const HeroArcana2 = () => {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const backgroundRef = useRef<HTMLDivElement>(null);
-
-  const contentOffset = useParallax(contentRef, 0.3);
-  const backgroundOffset = useParallax(backgroundRef, -0.2);
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({
-        x: (e.clientX / window.innerWidth - 0.5) * 20,
-        y: (e.clientY / window.innerHeight - 0.5) * 20,
-      });
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
 
   const navLinks = [
     { href: "#prompts", label: "Prompts" },
@@ -35,10 +15,10 @@ export const HeroArcana2 = () => {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden w-full">
-      {/* Navigation — frosted glass bar */}
+      {/* Navigation */}
       <nav className="absolute top-0 left-0 right-0 z-50 px-5 md:px-8 pt-16 sm:pt-12 md:pt-6 pb-4 safe-area-top w-full">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="relative flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 bg-white/[0.04] backdrop-blur-xl rounded-xl border border-white/[0.08]">
+          <div className="relative flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 bg-white/[0.04] rounded-xl border border-white/[0.08]">
             <Zap className="w-4 h-4 md:w-5 md:h-5 text-primary" />
             <span className="text-lg md:text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
               ARCANA
@@ -72,7 +52,7 @@ export const HeroArcana2 = () => {
             </a>
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-10 w-10 bg-white/[0.04] backdrop-blur-xl border border-white/[0.08]">
+                <Button variant="ghost" size="icon" className="h-10 w-10 bg-white/[0.04] border border-white/[0.08]">
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
@@ -102,83 +82,45 @@ export const HeroArcana2 = () => {
         </div>
       </nav>
 
-      {/* Background with parallax */}
-      <div ref={backgroundRef} className="absolute inset-0 w-full h-full">
-        <img
-          src={heroLiquid}
-          alt="Background"
-          className="w-full h-full object-cover opacity-10 scale-110"
-          loading="eager"
-          style={{ transform: `translateY(${backgroundOffset * 0.3}px)` }}
-        />
+      {/* Static background — no parallax, no mouse tracking */}
+      <div className="absolute inset-0 w-full h-full">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.08] via-background to-secondary/[0.05]" />
         <div className="absolute inset-0 bg-gradient-to-b from-background via-background/70 to-background" />
       </div>
 
-      {/* Floating glass orbs — parallax reactive */}
+      {/* Static ambient orbs — no mousemove tracking */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div
-          className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full bg-primary/[0.06] blur-[120px]"
-          style={{ transform: `translate(${mousePosition.x * 0.5}px, ${mousePosition.y * 0.5}px)` }}
-        />
-        <div
-          className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full bg-secondary/[0.05] blur-[120px]"
-          style={{ transform: `translate(${-mousePosition.x * 0.3}px, ${-mousePosition.y * 0.3}px)` }}
-        />
-        {/* Subtle grid pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(hsl(var(--border)/0.03)_1px,transparent_1px),linear-gradient(90deg,hsl(var(--border)/0.03)_1px,transparent_1px)] bg-[size:60px_60px]" />
+        <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] rounded-full bg-primary/[0.06] blur-[100px]" />
+        <div className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] rounded-full bg-secondary/[0.05] blur-[100px]" />
       </div>
 
-      {/* Content */}
-      <div
-        ref={contentRef}
-        className="relative z-10 text-center px-4 md:px-6 max-w-4xl mx-auto pt-28 md:pt-20"
-        style={{ transform: `translateY(${-contentOffset}px)` }}
-      >
-        {/* Badge — glass pill */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.05 }}
-          className="mb-8"
-        >
-          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.04] backdrop-blur-xl border border-white/[0.08] text-sm font-medium text-foreground/80">
+      {/* Content — CSS animations instead of framer-motion for initial load */}
+      <div className="relative z-10 text-center px-4 md:px-6 max-w-4xl mx-auto pt-28 md:pt-20 animate-fade-in">
+        {/* Badge */}
+        <div className="mb-8">
+          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.04] border border-white/[0.08] text-sm font-medium text-foreground/80">
             <TrendingUp className="w-3.5 h-3.5 text-primary" />
             +47.000 fotos geradas esta semana
           </span>
-        </motion.div>
+        </div>
 
-        {/* Headline — clean, big, gradient */}
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-6 text-foreground leading-[1.05] tracking-tight"
-        >
+        {/* Headline */}
+        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-6 text-foreground leading-[1.05] tracking-tight">
           Fotos de IA que{" "}
           <span className="bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
             viralizam
           </span>
-        </motion.h1>
+        </h1>
 
         {/* Subheadline */}
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-base sm:text-lg md:text-xl text-muted-foreground mb-10 font-light max-w-2xl mx-auto leading-relaxed"
-        >
+        <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-10 font-light max-w-2xl mx-auto leading-relaxed">
           Qualidade de estúdio profissional por menos de R$25.
           <br className="hidden sm:block" />
           Resultado em 60 segundos, sem cadastro.
-        </motion.p>
+        </p>
 
-        {/* Social proof chips — glass style */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.25 }}
-          className="flex flex-wrap items-center justify-center gap-3 mb-10"
-        >
+        {/* Social proof chips */}
+        <div className="flex flex-wrap items-center justify-center gap-3 mb-10">
           {[
             { icon: TrendingUp, text: "#1 em fotos IA no Brasil", highlight: true },
             { icon: Star, text: "4.9/5 avaliação" },
@@ -186,7 +128,7 @@ export const HeroArcana2 = () => {
           ].map((chip, i) => (
             <div
               key={i}
-              className="flex items-center gap-2 text-sm text-muted-foreground px-4 py-2 rounded-full bg-white/[0.03] backdrop-blur-lg border border-white/[0.06] hover:border-white/[0.12] transition-all duration-300"
+              className="flex items-center gap-2 text-sm text-muted-foreground px-4 py-2 rounded-full bg-white/[0.03] border border-white/[0.06]"
             >
               <chip.icon className={`w-3.5 h-3.5 ${chip.highlight ? 'text-primary' : 'text-secondary'}`} />
               <span className={chip.highlight ? 'font-bold text-foreground' : 'font-medium text-foreground/80'}>
@@ -194,15 +136,10 @@ export const HeroArcana2 = () => {
               </span>
             </div>
           ))}
-        </motion.div>
+        </div>
 
         {/* CTA Buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="flex flex-col items-center gap-4"
-        >
+        <div className="flex flex-col items-center gap-4">
           <div className="flex flex-col sm:flex-row items-center gap-3">
             <a href="#prompts">
               <GlassButton
@@ -229,7 +166,7 @@ export const HeroArcana2 = () => {
             <Sparkles className="w-3.5 h-3.5 text-primary/50" />
             Sem cadastro · PIX instantâneo · Download imediato
           </p>
-        </motion.div>
+        </div>
       </div>
 
       {/* Bottom fade */}

@@ -1,72 +1,12 @@
 import { Check, Sparkles, Zap, Crown, Image, Shield } from "lucide-react";
-import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 const plans = [
-  {
-    name: "Avulso",
-    price: "21",
-    period: "por prompt",
-    tagline: "Compre quando quiser",
-    features: [
-      "1 prompt por compra",
-      "Geração com sua foto",
-      "Download em alta qualidade",
-      "Sem compromisso",
-    ],
-    popular: false,
-    cta: "Comprar agora",
-  },
-  {
-    name: "Starter",
-    price: "100",
-    yearlyPrice: "80",
-    period: "/mês",
-    tagline: "Para quem cria sempre",
-    features: [
-      "6 fotos IA por mês",
-      "Todos os temas disponíveis",
-      "Download em alta qualidade",
-      "Suporte por email",
-    ],
-    popular: false,
-    cta: "Começar grátis",
-  },
-  {
-    name: "Creator Pro",
-    price: "220",
-    yearlyPrice: "176",
-    period: "/mês",
-    tagline: "Criação sem limites",
-    features: [
-      "20 prompts por mês",
-      "Fotos IA ilimitadas",
-      "Todos os temas",
-      "15 fotos de produto",
-      "5 vídeos IA",
-      "Chat prioritário",
-    ],
-    popular: true,
-    cta: "Começar grátis",
-  },
-  {
-    name: "Business",
-    price: "1.200",
-    yearlyPrice: "960",
-    period: "/mês",
-    tagline: "Para marcas e agências",
-    features: [
-      "Prompts ilimitados",
-      "Tudo do Creator Pro",
-      "30 vídeos IA",
-      "Avatares personalizados",
-      "API de integração",
-      "Gerente dedicado",
-    ],
-    popular: false,
-    cta: "Falar com vendas",
-  },
+  { name: "Avulso", price: "21", period: "por prompt", tagline: "Compre quando quiser", features: ["1 prompt por compra", "Geração com sua foto", "Download em alta qualidade", "Sem compromisso"], popular: false, cta: "Comprar agora" },
+  { name: "Starter", price: "100", yearlyPrice: "80", period: "/mês", tagline: "Para quem cria sempre", features: ["6 fotos IA por mês", "Todos os temas disponíveis", "Download em alta qualidade", "Suporte por email"], popular: false, cta: "Começar grátis" },
+  { name: "Creator Pro", price: "220", yearlyPrice: "176", period: "/mês", tagline: "Criação sem limites", features: ["20 prompts por mês", "Fotos IA ilimitadas", "Todos os temas", "15 fotos de produto", "5 vídeos IA", "Chat prioritário"], popular: true, cta: "Começar grátis" },
+  { name: "Business", price: "1.200", yearlyPrice: "960", period: "/mês", tagline: "Para marcas e agências", features: ["Prompts ilimitados", "Tudo do Creator Pro", "30 vídeos IA", "Avatares personalizados", "API de integração", "Gerente dedicado"], popular: false, cta: "Falar com vendas" },
 ];
 
 export const PlansSection = () => {
@@ -80,18 +20,8 @@ export const PlansSection = () => {
 
   return (
     <section id="planos" className="relative py-20 md:py-28 px-4 sm:px-6 overflow-hidden">
-      {/* Ambient */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/[0.04] rounded-full blur-[150px]" />
-
       <div className="max-w-5xl mx-auto relative z-10">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-14"
-        >
+        <div className="text-center mb-14">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.04] border border-white/[0.08] text-xs text-muted-foreground mb-5">
             <Sparkles className="w-3 h-3 text-primary" />
             7 dias grátis
@@ -107,15 +37,10 @@ export const PlansSection = () => {
           <p className="text-muted-foreground text-base max-w-lg mx-auto font-light">
             Transforme suas fotos em imagens profissionais com IA. Escolha o plano ideal.
           </p>
-        </motion.div>
+        </div>
 
         {/* Billing toggle */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="flex items-center justify-center gap-1 mb-12"
-        >
+        <div className="flex items-center justify-center gap-1 mb-12">
           <div className="flex rounded-xl bg-white/[0.03] border border-white/[0.06] p-1">
             {(["monthly", "yearly"] as const).map((b) => (
               <button
@@ -136,26 +61,18 @@ export const PlansSection = () => {
               -20%
             </span>
           )}
-        </motion.div>
+        </div>
 
         {/* Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {plans.map((plan, i) => (
-            <motion.div
-              key={plan.name}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: i * 0.08 }}
-              className="relative group"
-            >
-              {/* Popular glow */}
+          {plans.map((plan) => (
+            <div key={plan.name} className="relative group">
               {plan.popular && (
                 <div className="absolute -inset-px rounded-2xl bg-gradient-to-b from-primary/25 via-primary/10 to-transparent blur-sm" />
               )}
 
               <div
-                className={`relative h-full rounded-2xl border p-6 flex flex-col transition-all duration-500 ${
+                className={`relative h-full rounded-2xl border p-6 flex flex-col transition-all duration-300 ${
                   plan.popular
                     ? "border-primary/25 bg-white/[0.04]"
                     : "border-white/[0.06] bg-white/[0.02] hover:border-white/[0.12] hover:bg-white/[0.03]"
@@ -169,13 +86,11 @@ export const PlansSection = () => {
                   </div>
                 )}
 
-                {/* Plan name */}
                 <div className="mb-5 mt-1">
                   <h3 className="text-base font-semibold text-foreground">{plan.name}</h3>
                   <p className="text-xs text-muted-foreground mt-0.5">{plan.tagline}</p>
                 </div>
 
-                {/* Price */}
                 <div className="mb-6">
                   <div className="flex items-baseline gap-1">
                     <span className="text-xs text-muted-foreground">R$</span>
@@ -184,7 +99,6 @@ export const PlansSection = () => {
                   </div>
                 </div>
 
-                {/* Features */}
                 <div className="space-y-3 mb-8 flex-1">
                   {plan.features.map((f, j) => (
                     <div key={j} className="flex items-start gap-2.5">
@@ -196,7 +110,6 @@ export const PlansSection = () => {
                   ))}
                 </div>
 
-                {/* CTA */}
                 <button
                   onClick={() => navigate("/login")}
                   className={`w-full h-11 rounded-xl text-sm font-medium transition-all duration-300 ${
@@ -208,18 +121,12 @@ export const PlansSection = () => {
                   {plan.cta}
                 </button>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
 
         {/* Trust bar */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.4 }}
-          className="mt-12 flex flex-wrap items-center justify-center gap-6 text-xs text-muted-foreground/60"
-        >
+        <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-xs text-muted-foreground/60">
           <div className="flex items-center gap-1.5">
             <Shield className="w-3.5 h-3.5" />
             <span>Garantia 7 dias</span>
@@ -234,7 +141,7 @@ export const PlansSection = () => {
             <Image className="w-3.5 h-3.5" />
             <span>+50.000 fotos geradas</span>
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

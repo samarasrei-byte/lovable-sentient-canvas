@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { Sparkles, Camera, ArrowRight, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -9,16 +8,9 @@ export const UpgradeUpsell = () => {
   return (
     <section className="py-16 px-4 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-secondary/5 to-primary/5" />
-      <div className="absolute top-0 left-1/3 w-64 h-64 bg-primary/10 rounded-full blur-[120px]" />
-      <div className="absolute bottom-0 right-1/4 w-48 h-48 bg-secondary/10 rounded-full blur-[80px]" />
-      
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        className="relative max-w-4xl mx-auto"
-      >
-        <div className="rounded-3xl border border-primary/20 bg-card/50 backdrop-blur-xl p-8 md:p-12 text-center">
+
+      <div className="relative max-w-4xl mx-auto">
+        <div className="rounded-3xl border border-primary/20 bg-card/50 p-8 md:p-12 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 mb-6">
             <Sparkles className="w-4 h-4 text-primary" />
             <span className="text-sm font-semibold text-primary">Oferta Especial</span>
@@ -69,7 +61,7 @@ export const UpgradeUpsell = () => {
             <ArrowRight className="w-5 h-5" />
           </Button>
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 };

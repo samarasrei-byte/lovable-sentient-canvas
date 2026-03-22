@@ -1,6 +1,5 @@
 import { Badge } from "@/components/ui/badge";
 import { Sparkles, Zap, Star, TrendingUp, Layers, Linkedin, ArrowUpRight } from "lucide-react";
-import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 interface Prompt {
@@ -59,11 +58,7 @@ export const PromptCard = ({ prompt, index, onSelect, variant = 'grid' }: Prompt
   const isFull = variant === 'full';
 
   return (
-    <motion.article
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.4, delay: Math.min(index * 0.06, 0.3) }}
+    <article
       className={cn("group cursor-pointer", isFull && "w-full")}
       onClick={() => onSelect(prompt)}
       role="button"
@@ -72,8 +67,8 @@ export const PromptCard = ({ prompt, index, onSelect, variant = 'grid' }: Prompt
       onKeyDown={(e) => e.key === 'Enter' && onSelect(prompt)}
     >
       <div className={cn(
-        "relative overflow-hidden rounded-2xl transition-all duration-500 ease-out",
-        "bg-white/[0.02] backdrop-blur-sm border border-white/[0.05]",
+        "relative overflow-hidden rounded-2xl transition-all duration-300 ease-out",
+        "bg-white/[0.02] border border-white/[0.05]",
         "hover:border-white/[0.12] hover:bg-white/[0.04]",
         "hover:translate-y-[-2px]",
         "focus-within:ring-1 focus-within:ring-primary/30 focus-within:ring-offset-1 focus-within:ring-offset-background",
@@ -85,11 +80,10 @@ export const PromptCard = ({ prompt, index, onSelect, variant = 'grid' }: Prompt
             <img
               src={prompt.example_image_url}
               alt={`Exemplo do prompt ${prompt.name}`}
-              className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+              className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
               loading="lazy"
               decoding="async"
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              style={{ imageRendering: 'auto' }}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/5 to-secondary/5">
@@ -98,28 +92,27 @@ export const PromptCard = ({ prompt, index, onSelect, variant = 'grid' }: Prompt
           )}
 
           {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent opacity-80" />
 
           {/* Top badges */}
           <div className="absolute top-3 left-3 right-3 flex items-start justify-between">
-            <Badge className="bg-white/[0.08] backdrop-blur-xl text-foreground/80 text-[10px] px-3 py-1 font-medium border border-white/[0.08]">
+            <Badge className="bg-white/[0.08] text-foreground/80 text-[10px] px-3 py-1 font-medium border border-white/[0.08]">
               {prompt.hype_text || 'Trending'}
             </Badge>
-            <div className="w-8 h-8 rounded-lg bg-white/[0.06] backdrop-blur-xl flex items-center justify-center border border-white/[0.06] group-hover:border-primary/20 transition-colors duration-300">
+            <div className="w-8 h-8 rounded-lg bg-white/[0.06] flex items-center justify-center border border-white/[0.06]">
               <IconComponent className="w-3.5 h-3.5 text-primary/60" />
             </div>
           </div>
 
           {/* Hover CTA */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 scale-90 group-hover:scale-100">
-            <div className="w-12 h-12 rounded-full bg-white/[0.1] backdrop-blur-xl flex items-center justify-center border border-white/[0.15]">
+            <div className="w-12 h-12 rounded-full bg-white/[0.1] flex items-center justify-center border border-white/[0.15]">
               <ArrowUpRight className="w-5 h-5 text-foreground/80" />
             </div>
           </div>
 
           {/* Content overlay */}
           <div className="absolute bottom-0 left-0 right-0 p-4 space-y-2">
-            {/* Category & Complexity */}
             <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.15em] font-medium">
               <span className="text-muted-foreground/60">{prompt.category}</span>
               <span className="w-0.5 h-0.5 rounded-full bg-white/20" />
@@ -129,28 +122,25 @@ export const PromptCard = ({ prompt, index, onSelect, variant = 'grid' }: Prompt
               </span>
             </div>
 
-            {/* Title */}
             <h3 className="font-semibold text-foreground text-base leading-tight line-clamp-2 group-hover:text-primary/90 transition-colors duration-300">
               {prompt.name}
             </h3>
 
-            {/* Description */}
             <p className="text-muted-foreground/60 text-xs leading-relaxed line-clamp-2">
               {prompt.description}
             </p>
 
-            {/* Footer */}
             <div className="pt-2.5 border-t border-white/[0.04] flex items-center justify-between">
               <span className="text-foreground text-sm font-semibold tracking-tight">
                 {formatPrice(prompt.price_cents || 2100)}
               </span>
-              <span className="text-primary/60 text-[11px] font-medium opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center gap-1 translate-x-2 group-hover:translate-x-0">
+              <span className="text-primary/60 text-[11px] font-medium opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center gap-1">
                 Gerar agora
               </span>
             </div>
           </div>
         </div>
       </div>
-    </motion.article>
+    </article>
   );
 };

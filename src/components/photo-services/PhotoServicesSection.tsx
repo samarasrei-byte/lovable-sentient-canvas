@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import { Camera, Baby, Briefcase, Upload, Sparkles, Users, Wand2 } from "lucide-react";
 import { GlassCard, GlassCardContent } from "@/components/ui/glass-card";
 import { GlassButton } from "@/components/ui/glass-button";
@@ -20,20 +19,14 @@ interface PhotoService {
 
 const getCategoryIcon = (category: string) => {
   switch (category) {
-    case 'mesversario':
-      return Baby;
-    case 'profissional':
-      return Briefcase;
-    default:
-      return Camera;
+    case 'mesversario': return Baby;
+    case 'profissional': return Briefcase;
+    default: return Camera;
   }
 };
 
 const formatPrice = (cents: number) => {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL'
-  }).format(cents / 100);
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cents / 100);
 };
 
 export const PhotoServicesSection = () => {
@@ -72,10 +65,8 @@ export const PhotoServicesSection = () => {
   if (loading) {
     return (
       <section id="photo-services" className="relative py-20 px-4 md:px-6 overflow-hidden">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-center py-20">
-            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-          </div>
+        <div className="max-w-7xl mx-auto flex items-center justify-center py-20">
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
       </section>
     );
@@ -83,21 +74,9 @@ export const PhotoServicesSection = () => {
 
   return (
     <section id="photo-services" className="relative py-20 md:py-28 px-4 md:px-6 overflow-hidden">
-      {/* Background Effects */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/4 right-0 w-[600px] h-[600px] bg-secondary/[0.05] rounded-full blur-[200px]" />
-        <div className="absolute bottom-1/4 left-0 w-[500px] h-[500px] bg-primary/[0.08] rounded-full blur-[180px]" />
-      </div>
-
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
-        <motion.header
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-14 md:mb-18"
-        >
+        <header className="text-center mb-14 md:mb-18">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/10 border border-secondary/30 mb-6">
             <Camera className="w-4 h-4 text-secondary" />
             <span className="text-sm font-medium text-secondary">GERAÇÃO DE FOTOS IA</span>
@@ -116,143 +95,90 @@ export const PhotoServicesSection = () => {
             <span className="text-secondary font-medium">momentos especiais</span> e{" "}
             <span className="text-primary font-medium">branding pessoal</span>.
           </p>
-        </motion.header>
+        </header>
 
         {/* Services Grid */}
         <div className="grid md:grid-cols-2 gap-6 lg:gap-8 mb-10">
-          {services.map((service, index) => {
+          {services.map((service) => {
             const Icon = getCategoryIcon(service.category);
             const isMesversario = service.category === 'mesversario';
             
             return (
-              <motion.div
-                key={service.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-              >
-                <GlassCard className="h-full group hover:border-secondary/40 transition-all duration-500 hover:shadow-[0_0_40px_hsl(var(--secondary)/0.15)] overflow-hidden">
-                  {/* Neon Border Glow Effect */}
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
-                    <div className="absolute inset-0 bg-gradient-to-r from-secondary/10 via-primary/10 to-secondary/10" />
+              <GlassCard key={service.id} className="h-full group hover:border-secondary/40 transition-all duration-300 overflow-hidden">
+                <GlassCardContent className="p-6 md:p-8 relative">
+                  <div className="flex items-start justify-between mb-6">
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-secondary/20 to-primary/20 flex items-center justify-center border border-secondary/30">
+                        <Icon className="w-7 h-7 text-secondary" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold text-foreground mb-1">{service.name}</h3>
+                        <Badge className="bg-secondary/20 text-secondary border-secondary/30 text-xs">
+                          {service.themes.length} temas disponíveis
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-2xl font-bold text-secondary">{formatPrice(service.price_cents)}</div>
+                      <div className="text-xs text-muted-foreground">pacote completo</div>
+                    </div>
                   </div>
-                  
-                  <GlassCardContent className="p-6 md:p-8 relative">
-                    {/* Header */}
-                    <div className="flex items-start justify-between mb-6">
-                      <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-secondary/20 to-primary/20 flex items-center justify-center border border-secondary/30 shadow-[0_0_20px_hsl(var(--secondary)/0.2)]">
-                          <Icon className="w-7 h-7 text-secondary" />
-                        </div>
-                        <div>
-                          <h3 className="text-xl font-bold text-foreground mb-1">
-                            {service.name}
-                          </h3>
-                          <Badge className="bg-secondary/20 text-secondary border-secondary/30 text-xs">
-                            {service.themes.length} temas disponíveis
-                          </Badge>
-                        </div>
-                      </div>
-                      
-                      {/* Price */}
-                      <div className="text-right">
-                        <div className="text-2xl font-bold text-secondary">
-                          {formatPrice(service.price_cents)}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          pacote completo
-                        </div>
-                      </div>
-                    </div>
 
-                    {/* Description */}
-                    <p className="text-muted-foreground text-sm leading-relaxed mb-6">
-                      {service.description}
-                    </p>
+                  <p className="text-muted-foreground text-sm leading-relaxed mb-6">{service.description}</p>
 
-                    {/* Features */}
-                    <div className="grid grid-cols-2 gap-3 mb-6">
-                      {service.features.map((feature, idx) => (
-                        <div 
-                          key={idx}
-                          className="flex items-center gap-2 text-sm text-foreground/80"
-                        >
-                          <div className="w-1.5 h-1.5 rounded-full bg-secondary" />
-                          {feature}
-                        </div>
+                  <div className="grid grid-cols-2 gap-3 mb-6">
+                    {service.features.map((feature, idx) => (
+                      <div key={idx} className="flex items-center gap-2 text-sm text-foreground/80">
+                        <div className="w-1.5 h-1.5 rounded-full bg-secondary" />
+                        {feature}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mb-6">
+                    <div className="text-xs text-muted-foreground mb-2 uppercase tracking-wide">Alguns temas:</div>
+                    <div className="flex flex-wrap gap-2">
+                      {service.themes.slice(0, 4).map((theme) => (
+                        <span key={theme.id} className="px-3 py-1 rounded-full bg-muted/50 text-xs text-foreground/70 border border-border">
+                          {theme.name}
+                        </span>
                       ))}
+                      {service.themes.length > 4 && (
+                        <span className="px-3 py-1 rounded-full bg-primary/20 text-xs text-primary border border-primary/30">
+                          +{service.themes.length - 4} mais
+                        </span>
+                      )}
                     </div>
+                  </div>
 
-                    {/* Sample Themes */}
-                    <div className="mb-6">
-                      <div className="text-xs text-muted-foreground mb-2 uppercase tracking-wide">
-                        Alguns temas:
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {service.themes.slice(0, 4).map((theme) => (
-                          <span 
-                            key={theme.id}
-                            className="px-3 py-1 rounded-full bg-muted/50 text-xs text-foreground/70 border border-border"
-                          >
-                            {theme.name}
-                          </span>
-                        ))}
-                        {service.themes.length > 4 && (
-                          <span className="px-3 py-1 rounded-full bg-primary/20 text-xs text-primary border border-primary/30">
-                            +{service.themes.length - 4} mais
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* CTA */}
-                    <GlassButton 
-                      variant="neon"
-                      className="w-full"
-                      onClick={() => setSelectedService(service)}
-                    >
-                      <Upload className="w-4 h-4 mr-2" />
-                      {isMesversario ? 'Criar Minha Foto de Aniversário' : 'Gerar Minha Foto Profissional'}
-                    </GlassButton>
-                  </GlassCardContent>
-                </GlassCard>
-              </motion.div>
+                  <GlassButton variant="neon" className="w-full" onClick={() => setSelectedService(service)}>
+                    <Upload className="w-4 h-4 mr-2" />
+                    {isMesversario ? 'Criar Minha Foto de Aniversário' : 'Gerar Minha Foto Profissional'}
+                  </GlassButton>
+                </GlassCardContent>
+              </GlassCard>
             );
           })}
         </div>
 
         {/* Features Highlight */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="grid grid-cols-3 gap-4 md:gap-6 max-w-3xl mx-auto"
-        >
+        <div className="grid grid-cols-3 gap-4 md:gap-6 max-w-3xl mx-auto">
           {[
             { icon: Upload, label: "Upload Fácil", desc: "Envie suas fotos" },
             { icon: Wand2, label: "IA Avançada", desc: "Consistência facial" },
             { icon: Users, label: "Família Toda", desc: "Inclua todos" },
           ].map((feature, index) => (
-            <div 
-              key={index}
-              className="text-center p-4 rounded-xl bg-card/50 border border-border hover:border-secondary/30 transition-colors"
-            >
+            <div key={index} className="text-center p-4 rounded-xl bg-card/50 border border-border hover:border-secondary/30 transition-colors">
               <feature.icon className="w-6 h-6 mx-auto mb-2 text-secondary" />
               <div className="text-sm font-medium text-foreground">{feature.label}</div>
               <div className="text-xs text-muted-foreground">{feature.desc}</div>
             </div>
           ))}
-        </motion.div>
+        </div>
       </div>
 
-      {/* Service Modal */}
       {selectedService && (
-        <PhotoServiceModal
-          service={selectedService}
-          onClose={() => setSelectedService(null)}
-        />
+        <PhotoServiceModal service={selectedService} onClose={() => setSelectedService(null)} />
       )}
     </section>
   );
