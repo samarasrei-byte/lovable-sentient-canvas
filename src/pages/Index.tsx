@@ -1,61 +1,71 @@
+import { lazy, Suspense } from "react";
 import { HeroArcana2 } from "@/components/HeroArcana2";
-
-import { PromptMarketplace } from "@/components/marketplace";
-import { UpgradeUpsell } from "@/components/landing/UpgradeUpsell";
-import { PhotoServicesSection } from "@/components/photo-services";
-import { ValueProposition } from "@/components/landing/ValueProposition";
-import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
-import { HowItWorksNew } from "@/components/HowItWorksNew";
-import { FAQSection } from "@/components/FAQSection";
-import { PlansSection } from "@/components/PlansSection";
-import { FinalCTA } from "@/components/landing/FinalCTA";
-import { Footer } from "@/components/Footer";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { UpdatePrompt } from "@/components/pwa/UpdatePrompt";
+
+// Lazy load below-the-fold sections
+const PromptMarketplace = lazy(() => import("@/components/marketplace/PromptMarketplace").then(m => ({ default: m.PromptMarketplace })));
+const UpgradeUpsell = lazy(() => import("@/components/landing/UpgradeUpsell").then(m => ({ default: m.UpgradeUpsell })));
+const PhotoServicesSection = lazy(() => import("@/components/photo-services/PhotoServicesSection").then(m => ({ default: m.PhotoServicesSection })));
+const ValueProposition = lazy(() => import("@/components/landing/ValueProposition").then(m => ({ default: m.ValueProposition })));
+const TestimonialsSection = lazy(() => import("@/components/landing/TestimonialsSection").then(m => ({ default: m.TestimonialsSection })));
+const HowItWorksNew = lazy(() => import("@/components/HowItWorksNew").then(m => ({ default: m.HowItWorksNew })));
+const FAQSection = lazy(() => import("@/components/FAQSection").then(m => ({ default: m.FAQSection })));
+const PlansSection = lazy(() => import("@/components/PlansSection").then(m => ({ default: m.PlansSection })));
+const FinalCTA = lazy(() => import("@/components/landing/FinalCTA").then(m => ({ default: m.FinalCTA })));
+const Footer = lazy(() => import("@/components/Footer").then(m => ({ default: m.Footer })));
+
+const SectionFallback = () => <div className="py-20" />;
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-background text-foreground scroll-smooth">
-      {/* PWA Components */}
       <InstallPrompt />
       <UpdatePrompt />
       
-      {/* Hero Section */}
+      {/* Hero — loaded eagerly for instant FCP */}
       <HeroArcana2 />
       
+      {/* Everything below the fold is lazy loaded */}
+      <Suspense fallback={<SectionFallback />}>
+        <PromptMarketplace />
+      </Suspense>
       
-      {/* Marketplace de Talentos — Oculto temporariamente */}
-      {/* <InfluencerMarketplaceComingSoon /> */}
+      <Suspense fallback={<SectionFallback />}>
+        <UpgradeUpsell />
+      </Suspense>
       
-      {/* Prompt Marketplace - Galeria de Elite */}
-      <PromptMarketplace />
+      <Suspense fallback={<SectionFallback />}>
+        <PhotoServicesSection />
+      </Suspense>
       
-      {/* Upgrade Upsell - 8 fotos/R$100 */}
-      <UpgradeUpsell />
+      <Suspense fallback={<SectionFallback />}>
+        <ValueProposition />
+      </Suspense>
       
-      {/* Photo Services - Upload de Fotos IA */}
-      <PhotoServicesSection />
+      <Suspense fallback={<SectionFallback />}>
+        <TestimonialsSection />
+      </Suspense>
       
-      {/* Value Proposition */}
-      <ValueProposition />
+      <Suspense fallback={<SectionFallback />}>
+        <PlansSection />
+      </Suspense>
       
-      {/* Testimonials */}
-      <TestimonialsSection />
+      <Suspense fallback={<SectionFallback />}>
+        <HowItWorksNew />
+      </Suspense>
       
-      {/* Planos */}
-      <PlansSection />
+      <Suspense fallback={<SectionFallback />}>
+        <FAQSection />
+      </Suspense>
       
-      {/* How It Works */}
-      <HowItWorksNew />
+      <Suspense fallback={<SectionFallback />}>
+        <FinalCTA />
+      </Suspense>
       
-      {/* FAQ */}
-      <FAQSection />
-      
-      {/* Final CTA */}
-      <FinalCTA />
-      
-      {/* Footer */}
-      <Footer />
+      <Suspense fallback={<SectionFallback />}>
+        <Footer />
+      </Suspense>
     </div>
   );
 };
