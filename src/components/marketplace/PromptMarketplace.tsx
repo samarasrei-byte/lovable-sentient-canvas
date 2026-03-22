@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from "react";
-import { motion } from "framer-motion";
 import { Sparkles, Loader2, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PromptCard } from "./PromptCard";
@@ -75,12 +74,10 @@ export const PromptMarketplace = () => {
     if (selectedCategory) {
       result = result.filter(p => p.category === selectedCategory);
     }
-    // Featured first, then by display_order, then by image presence
     result.sort((a, b) => {
       const aFeatured = a.is_featured ? 1 : 0;
       const bFeatured = b.is_featured ? 1 : 0;
       if (bFeatured !== aFeatured) return bFeatured - aFeatured;
-      // Within same featured status, respect display_order
       const aOrder = a.display_order ?? 999;
       const bOrder = b.display_order ?? 999;
       if (aOrder !== bOrder) return aOrder - bOrder;
@@ -114,30 +111,13 @@ export const PromptMarketplace = () => {
 
   return (
     <section id="prompts" className="relative py-24 md:py-32 px-4 md:px-6 overflow-hidden">
-      {/* Subtle background */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/3 w-[500px] h-[500px] bg-primary/[0.03] rounded-full blur-[150px]" />
-        <div className="absolute bottom-0 right-1/3 w-[400px] h-[400px] bg-secondary/[0.02] rounded-full blur-[150px]" />
-      </div>
-
       <div className="max-w-7xl mx-auto relative z-10">
-        {/* Header */}
-        <motion.header
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-12 md:mb-14"
-        >
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            whileInView={{ scale: 1, opacity: 1 }}
-            viewport={{ once: true }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.06] mb-6"
-          >
+        {/* Header — no motion wrapper */}
+        <header className="text-center mb-12 md:mb-14">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.06] mb-6">
             <Zap className="w-3.5 h-3.5 text-primary/70" />
             <span className="text-xs font-medium text-muted-foreground tracking-wider uppercase">Marketplace</span>
-          </motion.div>
+          </div>
 
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 tracking-tight">
             Galeria de{" "}
@@ -149,16 +129,10 @@ export const PromptMarketplace = () => {
           <p className="text-muted-foreground text-base md:text-lg max-w-xl mx-auto font-light leading-relaxed">
             Explore nossa coleção curada de prompts profissionais.
           </p>
-        </motion.header>
+        </header>
 
         {/* Filters */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.4, delay: 0.1 }}
-          className="mb-10"
-        >
+        <div className="mb-10">
           <PromptFilters
             categories={categories}
             selectedCategory={selectedCategory}
@@ -166,7 +140,7 @@ export const PromptMarketplace = () => {
             sortBy={sortBy}
             onSortChange={setSortBy}
           />
-        </motion.div>
+        </div>
 
         {/* Grid */}
         {isMobile ? (
@@ -184,14 +158,10 @@ export const PromptMarketplace = () => {
         )}
 
         {/* Count */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-center mt-10 text-muted-foreground/40 text-xs tracking-wide"
-        >
+        <div className="text-center mt-10 text-muted-foreground/40 text-xs tracking-wide">
           {filteredPrompts.length} {filteredPrompts.length === 1 ? 'prompt' : 'prompts'}
           {selectedCategory && ` em ${selectedCategory}`}
-        </motion.div>
+        </div>
       </div>
 
       {/* Purchase Flow Modal */}
