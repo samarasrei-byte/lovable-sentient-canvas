@@ -158,10 +158,21 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
               ageGroup: data.ageGroup || 'adulto',
               presentation: data.presentation || 'indefinida',
               suggestedCategory: data.suggestedCategory,
+              analise: data.analise,
+              areas_editaveis: data.areas_editaveis,
+              prompt_gerado: data.prompt_gerado,
+              categoria: data.categoria,
+              subcategorias: data.subcategorias,
+              metadados: data.metadados,
             }
           : null;
         return next;
       });
+
+      // Auto-detect age for birthday prompts
+      if (data?.metadados?.idade_detectada && isBirthdayPrompt && !formData.age) {
+        setFormData(prev => ({ ...prev, age: String(data.metadados.idade_detectada) }));
+      }
     } catch (error) {
       console.error('Error analyzing uploaded photo:', error);
       setPhotoProfiles((prev) => {
