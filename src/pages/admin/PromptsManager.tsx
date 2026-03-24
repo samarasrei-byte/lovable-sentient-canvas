@@ -1003,7 +1003,13 @@ const PromptsManager = () => {
                         <Select
                           value={editingPrompt.category || "Geral"}
                           onValueChange={(value) => {
+                            if (value === "__nova__") {
+                              setNewCategoryName("");
+                              setEditingPrompt({ ...editingPrompt, category: "__nova__" });
+                              return;
+                            }
                             const preset = CATEGORY_PRESETS[value];
+                            setNewCategoryName("");
                             setEditingPrompt({ 
                               ...editingPrompt, 
                               category: value,
