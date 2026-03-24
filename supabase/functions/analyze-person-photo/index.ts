@@ -21,26 +21,67 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    const analysisPrompt = `Analyze this reference portrait for image-generation assistance.
+    const analysisPrompt = `Analyze this image thoroughly and return ONLY valid JSON in this exact format:
 
-Return ONLY valid JSON in this exact format:
 {
-  "ageGroup": "bebe|crianca|adolescente|adulto",
-  "presentation": "masculina|feminina|indefinida",
-  "suggestedCategory": "mesversario|infantil|retrato_pessoal",
+  "analise": {
+    "quantidade_pessoas": 1,
+    "pessoas": [
+      {
+        "label": "Pessoa 1",
+        "tipo": "adulto",
+        "genero": "masculino",
+        "idade_aproximada": 30
+      }
+    ],
+    "contexto": "individual",
+    "animais": []
+  },
+  "areas_editaveis": [
+    {
+      "tipo": "pessoa",
+      "label": "Pessoa 1",
+      "descricao": "homem adulto ~30 anos",
+      "editavel": true
+    }
+  ],
+  "prompt_gerado": "A detailed prompt describing the scene for AI image generation",
+  "categoria": "individual",
+  "subcategorias": [],
+  "metadados": {
+    "pessoas": 1,
+    "criancas": 0,
+    "adultos": 1,
+    "idosos": 0,
+    "homens": 1,
+    "mulheres": 0,
+    "idade_detectada": null,
+    "animal": null
+  },
+  "ageGroup": "adulto",
+  "presentation": "masculina",
+  "suggestedCategory": "retrato_pessoal",
   "summary": "short phrase"
 }
 
 Rules:
-- Use bebe for babies/toddlers.
-- Use crianca for children.
-- Use adolescente for teens.
-- Use adulto for adults.
-- presentation must describe only visible presentation; if uncertain use indefinida.
-- If the photo clearly looks like a baby, suggestedCategory should be mesversario.
-- If it looks like a child or teen, suggestedCategory should be infantil.
-- Otherwise suggestedCategory should be retrato_pessoal.
-- Do not identify the person.`;
+- "tipo" for each pessoa must be one of: bebe, crianca, adolescente, adulto, idoso
+- "genero" must be: masculino, feminino, indefinido
+- "contexto" must be one of: aniversario, profissional, familia, casal, individual, social, pet
+- If there's a birthday cake with candles or age number, set contexto to "aniversario", extract the age into "idade_detectada" and add an editable area with tipo "idade"
+- If formal/professional attire or neutral background, contexto = "profissional"
+- If 2+ people of different ages, contexto = "familia"
+- If 2 people in romantic context, contexto = "casal"
+- If animals are present, list them in "animais" array with {tipo, descricao}
+- "categoria" maps: aniversario→aniversario, profissional→linkedin, familia→familia, casal→casal, individual→individual, pet→pet, social→social
+- "subcategorias" can include: com_crianca, com_animal, evento, profissional, com_bebe, com_idoso
+- "ageGroup" must be: bebe (babies/toddlers ≤1yr), crianca (2-12), adolescente (13-17), adulto (18+)
+  - For multiple people use the primary subject's age group
+- "presentation" must be: masculina, feminina, indefinida
+- "suggestedCategory" must be: mesversario (baby ≤1yr), infantil (child), retrato_pessoal, linkedin_profissional, aniversario, familia, casal
+- "prompt_gerado" should be a rich, detailed prompt in Portuguese describing all people, their appearance, the scene, lighting, and style
+- Do not identify real people by name
+- Return ONLY valid JSON, no markdown`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -53,7 +94,7 @@ Rules:
         messages: [
           {
             role: "system",
-            content: "You analyze reference portraits and return compact JSON for generation hints.",
+            content: "You analyze images and return structured JSON with person detection, age estimation, context classification, editable areas, and AI prompt generation. Always return valid JSON only.",
           },
           {
             role: "user",
@@ -82,15 +123,39 @@ Rules:
 
     const result = JSON.parse(jsonMatch[0]);
 
-    return new Response(
-      JSON.stringify({
-        ageGroup: result.ageGroup || "adulto",
-        presentation: result.presentation || "indefinida",
-        suggestedCategory: result.suggestedCategory || "retrato_pessoal",
-        summary: result.summary || "",
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } },
-    );
+    // Ensure backward compatibility + new fields
+    const finalResult = {
+      // Legacy fields (backward compat)
+      ageGroup: result.ageGroup || "adulto",
+      presentation: result.presentation || "indefinida",
+      suggestedCategory: result.suggestedCategory || "retrato_pessoal",
+      summary: result.summary || "",
+      // New rich analysis
+      analise: result.analise || {
+        quantidade_pessoas: 1,
+        pessoas: [],
+        contexto: "individual",
+        animais: [],
+      },
+      areas_editaveis: result.areas_editaveis || [],
+      prompt_gerado: result.prompt_gerado || "",
+      categoria: result.categoria || "individual",
+      subcategorias: result.subcategorias || [],
+      metadados: result.metadados || {
+        pessoas: 1,
+        criancas: 0,
+        adultos: 1,
+        idosos: 0,
+        homens: 0,
+        mulheres: 0,
+        idade_detectada: null,
+        animal: null,
+      },
+    };
+
+    return new Response(JSON.stringify(finalResult), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   } catch (error) {
     console.error("Photo analysis exception:", error);
     return new Response(
@@ -99,6 +164,12 @@ Rules:
         presentation: "indefinida",
         suggestedCategory: "retrato_pessoal",
         summary: "",
+        analise: { quantidade_pessoas: 1, pessoas: [], contexto: "individual", animais: [] },
+        areas_editaveis: [],
+        prompt_gerado: "",
+        categoria: "individual",
+        subcategorias: [],
+        metadados: { pessoas: 1, criancas: 0, adultos: 1, idosos: 0, homens: 0, mulheres: 0, idade_detectada: null, animal: null },
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
