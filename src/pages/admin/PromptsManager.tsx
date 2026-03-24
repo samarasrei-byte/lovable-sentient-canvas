@@ -284,9 +284,19 @@ const LivePreviewCard = ({ prompt, imageUrl }: { prompt: Partial<Prompt>; imageU
 
 // Category presets with default prices
 const CATEGORY_PRESETS: Record<string, { label: string; defaultPrice: number; icon: string }> = {
-  "Mêsversário & Aniversário": { label: "Mêsversário & Aniversário", defaultPrice: 5800, icon: "🎂" },
-  "Fotografia Profissional": { label: "Fotografia Profissional", defaultPrice: 7000, icon: "📸" },
   "Geral": { label: "Geral", defaultPrice: 2100, icon: "✨" },
+  "Fashion": { label: "Fashion", defaultPrice: 2100, icon: "👗" },
+  "Cyberpunk": { label: "Cyberpunk", defaultPrice: 2100, icon: "⚡" },
+  "Anime": { label: "Anime", defaultPrice: 2100, icon: "🎌" },
+  "Arte": { label: "Arte", defaultPrice: 2100, icon: "🎨" },
+  "Social Media": { label: "Social Media", defaultPrice: 2100, icon: "📱" },
+  "LinkedIn": { label: "LinkedIn", defaultPrice: 2100, icon: "💼" },
+  "Profissional": { label: "Profissional", defaultPrice: 7000, icon: "📸" },
+  "Corporativo": { label: "Corporativo", defaultPrice: 7000, icon: "🏢" },
+  "Família": { label: "Família", defaultPrice: 5800, icon: "👨‍👩‍👧‍👦" },
+  "Mêsversário": { label: "Mêsversário", defaultPrice: 5800, icon: "👶" },
+  "Mêsversário & Aniversário": { label: "Mêsversário & Aniversário", defaultPrice: 5800, icon: "🎂" },
+  "Fotografia Profissional": { label: "Fotografia Profissional", defaultPrice: 7000, icon: "📷" },
 };
 
 const PromptsManager = () => {
