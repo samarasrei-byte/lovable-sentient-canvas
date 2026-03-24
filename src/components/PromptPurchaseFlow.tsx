@@ -281,19 +281,61 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
     return urls;
   };
 
-  const buildGenerationBody = (referencePhotoUrls: string[], overrides: Record<string, unknown> = {}) => ({
-    purchaseId,
-    promptTemplate: prompt.prompt_template,
-    negativePrompt: prompt.negative_prompt,
-    aiModel: prompt.ai_model,
-    userName: formData.name,
-    userInstagram: formData.instagram,
-    userDescription: formData.description,
-    userPhotoUrl: referencePhotoUrls[0] || null,
-    userPhotoUrls: referencePhotoUrls.length > 0 ? referencePhotoUrls : undefined,
-    exampleImageUrl: prompt.example_image_url,
-    ...overrides,
-  });
+  // Sort photos by age group: adults first, then children/babies (matching typical prompt layout)
+  const sortPhotosByAge = (urls: string[]): string[] => {
+    if (urls.length <= 1) return urls;
+    
+    const indexed = urls.map((url, i) => ({ url, profile: photoProfiles[i] }));
+    const adults = indexed.filter(p => !p.profile || p.profile.ageGroup === 'adulto' || p.profile.ageGroup === 'adolescente');
+    const children = indexed.filter(p => p.profile && (p.profile.ageGroup === 'crianca' || p.profile.ageGroup === 'bebe'));
+    
+    return [...adults, ...children].map(p => p.url);
+  };
+
+  const isBirthdayPrompt = /aniversário|aniversario|birthday/i.test(prompt.category || '') || 
+    /aniversário|aniversario|birthday/i.test(prompt.name || '');
+
+  const buildGenerationBody = (referencePhotoUrls: string[], overrides: Record<string, unknown> = {}) => {
+    const sortedUrls = sortPhotosByAge(referencePhotoUrls);
+    
+    // Build age/position context for the prompt
+    const photoContextLines: string[] = [];
+    sortedUrls.forEach((_, i) => {
+      const profile = photoProfiles[i];
+      if (profile) {
+        photoContextLines.push(`Foto ${i + 1}: ${ageGroupLabel[profile.ageGroup] || profile.ageGroup}${profile.presentation !== 'indefinida' ? `, ${presentationLabel[profile.presentation]}` : ''}`);
+      }
+    });
+
+    let template = prompt.prompt_template || '';
+    
+    // Inject age customization for birthday prompts
+    if (isBirthdayPrompt && formData.age) {
+      template = template
+        .replace(/\[IDADE\]/g, formData.age)
+        .replace(/\{idade\}/g, formData.age)
+        .replace(/\{age\}/g, formData.age);
+      template += `\n\nIDADE OBRIGATÓRIA: A pessoa tem ${formData.age} anos. Exiba "${formData.age}" como idade/vela/número na imagem. NÃO use outra idade.`;
+    }
+
+    if (photoContextLines.length > 1) {
+      template += `\n\nORDEM DAS PESSOAS (da esquerda para direita ou conforme composição):\n${photoContextLines.join('\n')}\nPosicione cada pessoa de acordo com sua faixa etária detectada.`;
+    }
+
+    return {
+      purchaseId,
+      promptTemplate: template,
+      negativePrompt: prompt.negative_prompt,
+      aiModel: prompt.ai_model,
+      userName: formData.name,
+      userInstagram: formData.instagram,
+      userDescription: formData.description,
+      userPhotoUrl: sortedUrls[0] || null,
+      userPhotoUrls: sortedUrls.length > 0 ? sortedUrls : undefined,
+      exampleImageUrl: prompt.example_image_url,
+      ...overrides,
+    };
+  };
 
   const runQAValidation = async (imageUrl: string, referenceImageUrls: string[]): Promise<{ passed: boolean; issues: string[] }> => {
     try {
