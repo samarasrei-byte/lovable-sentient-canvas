@@ -164,7 +164,7 @@ export const AdminSidebar = () => {
             <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
               <Shield className="h-4 w-4 text-primary-foreground" />
             </div>
-            <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 bg-green-500 rounded-full border-2 border-card" />
+            <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 bg-emerald-500 rounded-full border-2 border-card" />
           </div>
           {!collapsed && (
             <div className="flex-1 min-w-0">
