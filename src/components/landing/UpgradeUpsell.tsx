@@ -51,13 +51,15 @@ export const UpgradeUpsell = () => {
           </div>
 
           <Button
-            onClick={() => navigate("/app/planos")}
+            asChild
             size="lg"
             className="bg-primary hover:bg-primary/90 rounded-xl gap-2 shadow-lg shadow-primary/20 text-base font-bold px-10"
           >
-            <Camera className="w-5 h-5" />
-            Assinar agora
-            <ArrowRight className="w-5 h-5" />
+            <Link to="/app/planos">
+              <Camera className="w-5 h-5" />
+              Assinar agora
+              <ArrowRight className="w-5 h-5" />
+            </Link>
           </Button>
         </div>
       </div>
