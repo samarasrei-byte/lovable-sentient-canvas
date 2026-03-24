@@ -31,15 +31,18 @@ interface Prompt {
 const CATEGORY_CONFIG: Record<string, { icon: string; label: string }> = {
   'Hypados': { icon: '🔥', label: 'Hypados' },
   'LinkedIn': { icon: '💼', label: 'LinkedIn' },
-  'Aniversário': { icon: '🎂', label: 'Aniversário' },
-  'Fotografia Profissional': { icon: '📸', label: 'Fotografia Profissional' },
+  'Profissional': { icon: '📸', label: 'Fotos Profissionais' },
   'Social Media': { icon: '📱', label: 'Social Media' },
-  'Mêsversário': { icon: '👶', label: 'Mêsversário' },
-  'Anime': { icon: '🎌', label: 'Anime' },
-  'Fashion': { icon: '👗', label: 'Fashion' },
+  'Aniversário': { icon: '🎂', label: 'Aniversário' },
   'Família': { icon: '👨‍👩‍👧‍👦', label: 'Família' },
+  'Kids': { icon: '🧒', label: 'Kids' },
+  'Mêsversário': { icon: '👶', label: 'Mêsversário' },
+  'Fashion': { icon: '👗', label: 'Fashion' },
+  'Anime': { icon: '🎌', label: 'Anime' },
   'Cyberpunk': { icon: '⚡', label: 'Cyberpunk' },
   'Corporativo': { icon: '🏢', label: 'Corporativo' },
+  'Arte': { icon: '🎨', label: 'Arte' },
+  'Geral': { icon: '✨', label: 'Geral' },
   'Evento': { icon: '🎉', label: 'Evento' },
 };
 
