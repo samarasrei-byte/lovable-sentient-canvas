@@ -84,7 +84,7 @@ const presentationLabel: Record<string, string> = {
 export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps) => {
   const [step, setStep] = useState<FlowStep>('form');
   const maxPhotos = prompt.min_photos && prompt.min_photos > 1 ? Math.min(prompt.min_photos, 5) : 5;
-  const [formData, setFormData] = useState({ name: '', instagram: '', email: '', description: '' });
+  const [formData, setFormData] = useState({ name: '', instagram: '', email: '', description: '', age: '' });
   const [photos, setPhotos] = useState<PhotoSlot[]>([{ file: null, preview: '' }]);
   const [photoProfiles, setPhotoProfiles] = useState<(PhotoProfile | null)[]>([null]);
   const [analyzingPhotoSlots, setAnalyzingPhotoSlots] = useState<number[]>([]);
@@ -281,19 +281,61 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
     return urls;
   };
 
-  const buildGenerationBody = (referencePhotoUrls: string[], overrides: Record<string, unknown> = {}) => ({
-    purchaseId,
-    promptTemplate: prompt.prompt_template,
-    negativePrompt: prompt.negative_prompt,
-    aiModel: prompt.ai_model,
-    userName: formData.name,
-    userInstagram: formData.instagram,
-    userDescription: formData.description,
-    userPhotoUrl: referencePhotoUrls[0] || null,
-    userPhotoUrls: referencePhotoUrls.length > 0 ? referencePhotoUrls : undefined,
-    exampleImageUrl: prompt.example_image_url,
-    ...overrides,
-  });
+  // Sort photos by age group: adults first, then children/babies (matching typical prompt layout)
+  const sortPhotosByAge = (urls: string[]): string[] => {
+    if (urls.length <= 1) return urls;
+    
+    const indexed = urls.map((url, i) => ({ url, profile: photoProfiles[i] }));
+    const adults = indexed.filter(p => !p.profile || p.profile.ageGroup === 'adulto' || p.profile.ageGroup === 'adolescente');
+    const children = indexed.filter(p => p.profile && (p.profile.ageGroup === 'crianca' || p.profile.ageGroup === 'bebe'));
+    
+    return [...adults, ...children].map(p => p.url);
+  };
+
+  const isBirthdayPrompt = /aniversário|aniversario|birthday/i.test(prompt.category || '') || 
+    /aniversário|aniversario|birthday/i.test(prompt.name || '');
+
+  const buildGenerationBody = (referencePhotoUrls: string[], overrides: Record<string, unknown> = {}) => {
+    const sortedUrls = sortPhotosByAge(referencePhotoUrls);
+    
+    // Build age/position context for the prompt
+    const photoContextLines: string[] = [];
+    sortedUrls.forEach((_, i) => {
+      const profile = photoProfiles[i];
+      if (profile) {
+        photoContextLines.push(`Foto ${i + 1}: ${ageGroupLabel[profile.ageGroup] || profile.ageGroup}${profile.presentation !== 'indefinida' ? `, ${presentationLabel[profile.presentation]}` : ''}`);
+      }
+    });
+
+    let template = prompt.prompt_template || '';
+    
+    // Inject age customization for birthday prompts
+    if (isBirthdayPrompt && formData.age) {
+      template = template
+        .replace(/\[IDADE\]/g, formData.age)
+        .replace(/\{idade\}/g, formData.age)
+        .replace(/\{age\}/g, formData.age);
+      template += `\n\nIDADE OBRIGATÓRIA: A pessoa tem ${formData.age} anos. Exiba "${formData.age}" como idade/vela/número na imagem. NÃO use outra idade.`;
+    }
+
+    if (photoContextLines.length > 1) {
+      template += `\n\nORDEM DAS PESSOAS (da esquerda para direita ou conforme composição):\n${photoContextLines.join('\n')}\nPosicione cada pessoa de acordo com sua faixa etária detectada.`;
+    }
+
+    return {
+      purchaseId,
+      promptTemplate: template,
+      negativePrompt: prompt.negative_prompt,
+      aiModel: prompt.ai_model,
+      userName: formData.name,
+      userInstagram: formData.instagram,
+      userDescription: formData.description,
+      userPhotoUrl: sortedUrls[0] || null,
+      userPhotoUrls: sortedUrls.length > 0 ? sortedUrls : undefined,
+      exampleImageUrl: prompt.example_image_url,
+      ...overrides,
+    };
+  };
 
   const runQAValidation = async (imageUrl: string, referenceImageUrls: string[]): Promise<{ passed: boolean; issues: string[] }> => {
     try {
@@ -705,6 +747,26 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                       placeholder="Ex: 3 meses, 25 anos, cor do fundo..."
                       className="w-full min-h-[60px] px-3 py-2 text-sm rounded-md bg-white/5 border border-white/10 focus:border-primary/50 focus:outline-none resize-none"
                     />
+                  </div>
+                )}
+
+                {isBirthdayPrompt && (
+                  <div className="space-y-1.5">
+                    <Label className="text-xs sm:text-sm flex items-center gap-2">
+                      🎂 Idade para a imagem
+                    </Label>
+                    <Input
+                      value={formData.age}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, age: e.target.value.replace(/\D/g, '') }))}
+                      placeholder="Ex: 28"
+                      className="bg-white/5 border-white/10 text-sm"
+                      maxLength={3}
+                      type="text"
+                      inputMode="numeric"
+                    />
+                    <p className="text-[10px] text-muted-foreground">
+                      A idade informada será usada na imagem, independente da referência.
+                    </p>
                   </div>
                 )}
 
