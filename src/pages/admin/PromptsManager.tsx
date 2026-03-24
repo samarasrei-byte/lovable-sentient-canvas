@@ -314,6 +314,8 @@ const PromptsManager = () => {
   const [screenshotModalOpen, setScreenshotModalOpen] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>("all");
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
   const [draggedPromptId, setDraggedPromptId] = useState<string | null>(null);
   const [dragOverPromptId, setDragOverPromptId] = useState<string | null>(null);
   const [reordering, setReordering] = useState(false);
