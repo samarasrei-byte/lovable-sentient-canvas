@@ -1,9 +1,8 @@
 import { Sparkles, Camera, ArrowRight, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 export const UpgradeUpsell = () => {
-  const navigate = useNavigate();
 
   return (
     <section className="py-16 px-4 relative overflow-hidden">
@@ -52,13 +51,15 @@ export const UpgradeUpsell = () => {
           </div>
 
           <Button
-            onClick={() => navigate("/app/planos")}
+            asChild
             size="lg"
             className="bg-primary hover:bg-primary/90 rounded-xl gap-2 shadow-lg shadow-primary/20 text-base font-bold px-10"
           >
-            <Camera className="w-5 h-5" />
-            Assinar agora
-            <ArrowRight className="w-5 h-5" />
+            <Link to="/app/planos">
+              <Camera className="w-5 h-5" />
+              Assinar agora
+              <ArrowRight className="w-5 h-5" />
+            </Link>
           </Button>
         </div>
       </div>
