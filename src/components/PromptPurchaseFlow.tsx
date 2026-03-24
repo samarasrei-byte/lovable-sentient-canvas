@@ -44,10 +44,45 @@ interface GeneratedVariant {
   selected: boolean;
 }
 
+interface AnalisePersona {
+  label: string;
+  tipo: string;
+  genero: string;
+  idade_aproximada?: number;
+}
+
+interface AreaEditavel {
+  tipo: string;
+  label: string;
+  descricao?: string;
+  valor?: string | number;
+  editavel?: boolean;
+}
+
 interface PhotoProfile {
   ageGroup: string;
   presentation: string;
   suggestedCategory?: string;
+  analise?: {
+    quantidade_pessoas: number;
+    pessoas: AnalisePersona[];
+    contexto: string;
+    animais: { tipo: string; descricao: string }[];
+  };
+  areas_editaveis?: AreaEditavel[];
+  prompt_gerado?: string;
+  categoria?: string;
+  subcategorias?: string[];
+  metadados?: {
+    pessoas: number;
+    criancas: number;
+    adultos: number;
+    idosos: number;
+    homens: number;
+    mulheres: number;
+    idade_detectada: number | null;
+    animal: string | null;
+  };
 }
 
 const MAX_VARIANTS = 3;
@@ -123,10 +158,21 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
               ageGroup: data.ageGroup || 'adulto',
               presentation: data.presentation || 'indefinida',
               suggestedCategory: data.suggestedCategory,
+              analise: data.analise,
+              areas_editaveis: data.areas_editaveis,
+              prompt_gerado: data.prompt_gerado,
+              categoria: data.categoria,
+              subcategorias: data.subcategorias,
+              metadados: data.metadados,
             }
           : null;
         return next;
       });
+
+      // Auto-detect age for birthday prompts
+      if (data?.metadados?.idade_detectada && isBirthdayPrompt && !formData.age) {
+        setFormData(prev => ({ ...prev, age: String(data.metadados.idade_detectada) }));
+      }
     } catch (error) {
       console.error('Error analyzing uploaded photo:', error);
       setPhotoProfiles((prev) => {
@@ -298,16 +344,31 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const buildGenerationBody = (referencePhotoUrls: string[], overrides: Record<string, unknown> = {}) => {
     const sortedUrls = sortPhotosByAge(referencePhotoUrls);
     
-    // Build age/position context for the prompt
+    // Build age/position context from rich analysis
     const photoContextLines: string[] = [];
     sortedUrls.forEach((_, i) => {
       const profile = photoProfiles[i];
-      if (profile) {
+      if (profile?.analise?.pessoas?.length) {
+        profile.analise.pessoas.forEach((p, j) => {
+          photoContextLines.push(`Foto ${i + 1} Pessoa ${j + 1}: ${p.tipo}${p.genero !== 'indefinido' ? ` ${p.genero}` : ''}${p.idade_aproximada ? ` ~${p.idade_aproximada} anos` : ''}`);
+        });
+        if (profile.analise.animais?.length) {
+          profile.analise.animais.forEach(a => {
+            photoContextLines.push(`Foto ${i + 1} Animal: ${a.tipo} (${a.descricao})`);
+          });
+        }
+      } else if (profile) {
         photoContextLines.push(`Foto ${i + 1}: ${ageGroupLabel[profile.ageGroup] || profile.ageGroup}${profile.presentation !== 'indefinida' ? `, ${presentationLabel[profile.presentation]}` : ''}`);
       }
     });
 
     let template = prompt.prompt_template || '';
+
+    // Enrich with AI-generated prompt context if available
+    const firstProfileWithPrompt = photoProfiles.find(p => p?.prompt_gerado);
+    if (firstProfileWithPrompt?.prompt_gerado) {
+      template += `\n\nCONTEXTO DA ANÁLISE DA IMAGEM DE REFERÊNCIA:\n${firstProfileWithPrompt.prompt_gerado}`;
+    }
     
     // Inject age customization for birthday prompts
     if (isBirthdayPrompt && formData.age) {
@@ -318,8 +379,8 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       template += `\n\nIDADE OBRIGATÓRIA: A pessoa tem ${formData.age} anos. Exiba "${formData.age}" como idade/vela/número na imagem. NÃO use outra idade.`;
     }
 
-    if (photoContextLines.length > 1) {
-      template += `\n\nORDEM DAS PESSOAS (da esquerda para direita ou conforme composição):\n${photoContextLines.join('\n')}\nPosicione cada pessoa de acordo com sua faixa etária detectada.`;
+    if (photoContextLines.length > 0) {
+      template += `\n\nDETALHES DAS PESSOAS E ELEMENTOS DETECTADOS:\n${photoContextLines.join('\n')}\nPosicione cada pessoa de acordo com sua faixa etária e gênero detectados.`;
     }
 
     return {
@@ -693,6 +754,26 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                               {photoProfile?.presentation && photoProfile.presentation !== 'indefinida' && (
                                 <Badge variant="outline" className="text-[10px] border-border/60 bg-background/70">
                                   {presentationLabel[photoProfile.presentation] || photoProfile.presentation}
+                                </Badge>
+                              )}
+                              {photoProfile?.categoria && (
+                                <Badge variant="outline" className="text-[10px] border-secondary/30 bg-secondary/10 text-secondary">
+                                  {photoProfile.categoria.replace(/_/g, ' ')}
+                                </Badge>
+                              )}
+                              {photoProfile?.metadados?.animal && (
+                                <Badge variant="outline" className="text-[10px] border-border/60 bg-background/70">
+                                  🐾 {photoProfile.metadados.animal}
+                                </Badge>
+                              )}
+                              {photoProfile?.metadados?.idade_detectada && (
+                                <Badge variant="outline" className="text-[10px] border-primary/30 bg-primary/10 text-primary">
+                                  ~{photoProfile.metadados.idade_detectada} anos
+                                </Badge>
+                              )}
+                              {photoProfile?.analise && photoProfile.analise.quantidade_pessoas > 1 && (
+                                <Badge variant="outline" className="text-[10px] border-border/60 bg-background/70">
+                                  👥 {photoProfile.analise.quantidade_pessoas} pessoas
                                 </Badge>
                               )}
                             </div>
