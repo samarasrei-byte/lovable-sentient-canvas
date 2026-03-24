@@ -56,7 +56,7 @@ export const ListSkeleton = ({ count = 3 }: { count?: number }) => (
 );
 
 export const GridSkeleton = ({ count = 6 }: { count?: number }) => (
-  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
     {Array.from({ length: count }).map((_, i) => (
       <div key={i} className="space-y-2">
         <SkeletonLoader variant="image" />
