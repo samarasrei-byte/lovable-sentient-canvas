@@ -118,7 +118,7 @@ export const PromptMarketplace = () => {
 
         {/* Prompt Grid */}
         {loading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {[...Array(8)].map((_, i) => (
               <div key={i} className="animate-pulse">
                 <div className="aspect-square bg-white/5 rounded-xl" />
@@ -128,7 +128,7 @@ export const PromptMarketplace = () => {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {prompts.map((prompt, index) => {
               const IconComponent = getCategoryIcon(prompt.category);
               return (
