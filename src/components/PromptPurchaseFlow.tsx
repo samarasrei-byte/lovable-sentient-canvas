@@ -344,16 +344,31 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const buildGenerationBody = (referencePhotoUrls: string[], overrides: Record<string, unknown> = {}) => {
     const sortedUrls = sortPhotosByAge(referencePhotoUrls);
     
-    // Build age/position context for the prompt
+    // Build age/position context from rich analysis
     const photoContextLines: string[] = [];
     sortedUrls.forEach((_, i) => {
       const profile = photoProfiles[i];
-      if (profile) {
+      if (profile?.analise?.pessoas?.length) {
+        profile.analise.pessoas.forEach((p, j) => {
+          photoContextLines.push(`Foto ${i + 1} Pessoa ${j + 1}: ${p.tipo}${p.genero !== 'indefinido' ? ` ${p.genero}` : ''}${p.idade_aproximada ? ` ~${p.idade_aproximada} anos` : ''}`);
+        });
+        if (profile.analise.animais?.length) {
+          profile.analise.animais.forEach(a => {
+            photoContextLines.push(`Foto ${i + 1} Animal: ${a.tipo} (${a.descricao})`);
+          });
+        }
+      } else if (profile) {
         photoContextLines.push(`Foto ${i + 1}: ${ageGroupLabel[profile.ageGroup] || profile.ageGroup}${profile.presentation !== 'indefinida' ? `, ${presentationLabel[profile.presentation]}` : ''}`);
       }
     });
 
     let template = prompt.prompt_template || '';
+
+    // Enrich with AI-generated prompt context if available
+    const firstProfileWithPrompt = photoProfiles.find(p => p?.prompt_gerado);
+    if (firstProfileWithPrompt?.prompt_gerado) {
+      template += `\n\nCONTEXTO DA ANÁLISE DA IMAGEM DE REFERÊNCIA:\n${firstProfileWithPrompt.prompt_gerado}`;
+    }
     
     // Inject age customization for birthday prompts
     if (isBirthdayPrompt && formData.age) {
@@ -364,8 +379,8 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       template += `\n\nIDADE OBRIGATÓRIA: A pessoa tem ${formData.age} anos. Exiba "${formData.age}" como idade/vela/número na imagem. NÃO use outra idade.`;
     }
 
-    if (photoContextLines.length > 1) {
-      template += `\n\nORDEM DAS PESSOAS (da esquerda para direita ou conforme composição):\n${photoContextLines.join('\n')}\nPosicione cada pessoa de acordo com sua faixa etária detectada.`;
+    if (photoContextLines.length > 0) {
+      template += `\n\nDETALHES DAS PESSOAS E ELEMENTOS DETECTADOS:\n${photoContextLines.join('\n')}\nPosicione cada pessoa de acordo com sua faixa etária e gênero detectados.`;
     }
 
     return {
