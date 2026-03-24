@@ -44,10 +44,45 @@ interface GeneratedVariant {
   selected: boolean;
 }
 
+interface AnalisePersona {
+  label: string;
+  tipo: string;
+  genero: string;
+  idade_aproximada?: number;
+}
+
+interface AreaEditavel {
+  tipo: string;
+  label: string;
+  descricao?: string;
+  valor?: string | number;
+  editavel?: boolean;
+}
+
 interface PhotoProfile {
   ageGroup: string;
   presentation: string;
   suggestedCategory?: string;
+  analise?: {
+    quantidade_pessoas: number;
+    pessoas: AnalisePersona[];
+    contexto: string;
+    animais: { tipo: string; descricao: string }[];
+  };
+  areas_editaveis?: AreaEditavel[];
+  prompt_gerado?: string;
+  categoria?: string;
+  subcategorias?: string[];
+  metadados?: {
+    pessoas: number;
+    criancas: number;
+    adultos: number;
+    idosos: number;
+    homens: number;
+    mulheres: number;
+    idade_detectada: number | null;
+    animal: string | null;
+  };
 }
 
 const MAX_VARIANTS = 3;
