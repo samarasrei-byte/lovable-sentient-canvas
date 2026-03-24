@@ -1,9 +1,8 @@
 import { Sparkles, Camera, ArrowRight, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 export const UpgradeUpsell = () => {
-  const navigate = useNavigate();
 
   return (
     <section className="py-16 px-4 relative overflow-hidden">
