@@ -768,7 +768,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                       A idade informada será usada na imagem, independente da referência.
                     </p>
                   </div>
-                )
+                )}
 
                 <GlassButton onClick={handleSubmitForm} className="w-full">
                   <Sparkles className="w-4 h-4 mr-2" />
