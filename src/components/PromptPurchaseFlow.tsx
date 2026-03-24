@@ -750,6 +750,26 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                   </div>
                 )}
 
+                {isBirthdayPrompt && (
+                  <div className="space-y-1.5">
+                    <Label className="text-xs sm:text-sm flex items-center gap-2">
+                      🎂 Idade para a imagem
+                    </Label>
+                    <Input
+                      value={formData.age}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, age: e.target.value.replace(/\D/g, '') }))}
+                      placeholder="Ex: 28"
+                      className="bg-white/5 border-white/10 text-sm"
+                      maxLength={3}
+                      type="text"
+                      inputMode="numeric"
+                    />
+                    <p className="text-[10px] text-muted-foreground">
+                      A idade informada será usada na imagem, independente da referência.
+                    </p>
+                  </div>
+                )
+
                 <GlassButton onClick={handleSubmitForm} className="w-full">
                   <Sparkles className="w-4 h-4 mr-2" />
                   Gerar imagem — {formatPrice(prompt.price_cents)}
