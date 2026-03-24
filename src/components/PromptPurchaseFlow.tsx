@@ -741,6 +741,26 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                                   {presentationLabel[photoProfile.presentation] || photoProfile.presentation}
                                 </Badge>
                               )}
+                              {photoProfile?.categoria && (
+                                <Badge variant="outline" className="text-[10px] border-secondary/30 bg-secondary/10 text-secondary">
+                                  {photoProfile.categoria.replace(/_/g, ' ')}
+                                </Badge>
+                              )}
+                              {photoProfile?.metadados?.animal && (
+                                <Badge variant="outline" className="text-[10px] border-border/60 bg-background/70">
+                                  🐾 {photoProfile.metadados.animal}
+                                </Badge>
+                              )}
+                              {photoProfile?.metadados?.idade_detectada && (
+                                <Badge variant="outline" className="text-[10px] border-primary/30 bg-primary/10 text-primary">
+                                  ~{photoProfile.metadados.idade_detectada} anos
+                                </Badge>
+                              )}
+                              {photoProfile?.analise && photoProfile.analise.quantidade_pessoas > 1 && (
+                                <Badge variant="outline" className="text-[10px] border-border/60 bg-background/70">
+                                  👥 {photoProfile.analise.quantidade_pessoas} pessoas
+                                </Badge>
+                              )}
                             </div>
                           </div>
                         );
