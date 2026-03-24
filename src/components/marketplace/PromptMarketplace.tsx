@@ -328,7 +328,7 @@ export const PromptMarketplace = () => {
                       <ScrollBar orientation="horizontal" className="h-1" />
                     </ScrollArea>
                   ) : (
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                       {catPrompts.map((prompt, index) => (
                         <PromptCard key={prompt.id} prompt={prompt} index={index} onSelect={setSelectedPrompt} variant="grid" />
                       ))}
