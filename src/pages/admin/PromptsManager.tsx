@@ -284,9 +284,19 @@ const LivePreviewCard = ({ prompt, imageUrl }: { prompt: Partial<Prompt>; imageU
 
 // Category presets with default prices
 const CATEGORY_PRESETS: Record<string, { label: string; defaultPrice: number; icon: string }> = {
-  "Mêsversário & Aniversário": { label: "Mêsversário & Aniversário", defaultPrice: 5800, icon: "🎂" },
-  "Fotografia Profissional": { label: "Fotografia Profissional", defaultPrice: 7000, icon: "📸" },
   "Geral": { label: "Geral", defaultPrice: 2100, icon: "✨" },
+  "Fashion": { label: "Fashion", defaultPrice: 2100, icon: "👗" },
+  "Cyberpunk": { label: "Cyberpunk", defaultPrice: 2100, icon: "⚡" },
+  "Anime": { label: "Anime", defaultPrice: 2100, icon: "🎌" },
+  "Arte": { label: "Arte", defaultPrice: 2100, icon: "🎨" },
+  "Social Media": { label: "Social Media", defaultPrice: 2100, icon: "📱" },
+  "LinkedIn": { label: "LinkedIn", defaultPrice: 2100, icon: "💼" },
+  "Profissional": { label: "Profissional", defaultPrice: 7000, icon: "📸" },
+  "Corporativo": { label: "Corporativo", defaultPrice: 7000, icon: "🏢" },
+  "Família": { label: "Família", defaultPrice: 5800, icon: "👨‍👩‍👧‍👦" },
+  "Mêsversário": { label: "Mêsversário", defaultPrice: 5800, icon: "👶" },
+  "Mêsversário & Aniversário": { label: "Mêsversário & Aniversário", defaultPrice: 5800, icon: "🎂" },
+  "Fotografia Profissional": { label: "Fotografia Profissional", defaultPrice: 7000, icon: "📷" },
 };
 
 const PromptsManager = () => {
@@ -304,6 +314,8 @@ const PromptsManager = () => {
   const [screenshotModalOpen, setScreenshotModalOpen] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>("all");
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
   const [draggedPromptId, setDraggedPromptId] = useState<string | null>(null);
   const [dragOverPromptId, setDragOverPromptId] = useState<string | null>(null);
   const [reordering, setReordering] = useState(false);
@@ -991,7 +1003,13 @@ const PromptsManager = () => {
                         <Select
                           value={editingPrompt.category || "Geral"}
                           onValueChange={(value) => {
+                            if (value === "__nova__") {
+                              setNewCategoryName("");
+                              setEditingPrompt({ ...editingPrompt, category: "__nova__" });
+                              return;
+                            }
                             const preset = CATEGORY_PRESETS[value];
+                            setNewCategoryName("");
                             setEditingPrompt({ 
                               ...editingPrompt, 
                               category: value,
@@ -1003,13 +1021,37 @@ const PromptsManager = () => {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            {Object.entries(CATEGORY_PRESETS).map(([key, preset]) => (
-                              <SelectItem key={key} value={key}>
-                                {preset.icon} {preset.label}
-                              </SelectItem>
-                            ))}
+                            {/* All known categories (presets + dynamic from DB) */}
+                            {[...new Set([...Object.keys(CATEGORY_PRESETS), ...categories])].sort().map((key) => {
+                              const preset = CATEGORY_PRESETS[key];
+                              return (
+                                <SelectItem key={key} value={key}>
+                                  {preset?.icon || "📁"} {preset?.label || key}
+                                </SelectItem>
+                              );
+                            })}
+                            <SelectItem value="__nova__">➕ Nova Categoria...</SelectItem>
                           </SelectContent>
                         </Select>
+                        {editingPrompt.category === "__nova__" && (
+                          <Input
+                            autoFocus
+                            placeholder="Nome da nova categoria"
+                            value={newCategoryName}
+                            onChange={(e) => {
+                              setNewCategoryName(e.target.value);
+                              if (e.target.value.trim()) {
+                                setEditingPrompt({ ...editingPrompt, category: e.target.value.trim() });
+                              }
+                            }}
+                            onBlur={() => {
+                              if (newCategoryName.trim()) {
+                                setEditingPrompt({ ...editingPrompt, category: newCategoryName.trim() });
+                              }
+                            }}
+                            className="mt-2"
+                          />
+                        )}
                       </div>
                       <div className="space-y-2">
                         <Label>Hype Text</Label>
