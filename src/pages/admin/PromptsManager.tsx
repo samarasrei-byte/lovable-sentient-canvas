@@ -1015,13 +1015,37 @@ const PromptsManager = () => {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            {Object.entries(CATEGORY_PRESETS).map(([key, preset]) => (
-                              <SelectItem key={key} value={key}>
-                                {preset.icon} {preset.label}
-                              </SelectItem>
-                            ))}
+                            {/* All known categories (presets + dynamic from DB) */}
+                            {[...new Set([...Object.keys(CATEGORY_PRESETS), ...categories])].sort().map((key) => {
+                              const preset = CATEGORY_PRESETS[key];
+                              return (
+                                <SelectItem key={key} value={key}>
+                                  {preset?.icon || "📁"} {preset?.label || key}
+                                </SelectItem>
+                              );
+                            })}
+                            <SelectItem value="__nova__">➕ Nova Categoria...</SelectItem>
                           </SelectContent>
                         </Select>
+                        {editingPrompt.category === "__nova__" && (
+                          <Input
+                            autoFocus
+                            placeholder="Nome da nova categoria"
+                            value={newCategoryName}
+                            onChange={(e) => {
+                              setNewCategoryName(e.target.value);
+                              if (e.target.value.trim()) {
+                                setEditingPrompt({ ...editingPrompt, category: e.target.value.trim() });
+                              }
+                            }}
+                            onBlur={() => {
+                              if (newCategoryName.trim()) {
+                                setEditingPrompt({ ...editingPrompt, category: newCategoryName.trim() });
+                              }
+                            }}
+                            className="mt-2"
+                          />
+                        )}
                       </div>
                       <div className="space-y-2">
                         <Label>Hype Text</Label>
