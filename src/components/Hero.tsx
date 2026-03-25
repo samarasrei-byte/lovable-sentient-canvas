@@ -4,7 +4,6 @@ import { Zap, Menu, X, Download } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import heroLiquid from "@/assets/hero-liquid.jpg";
 import { useParallax } from "@/hooks/use-parallax";
-import { InstallButton } from "@/components/pwa/InstallButton";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 export const Hero = () => {
