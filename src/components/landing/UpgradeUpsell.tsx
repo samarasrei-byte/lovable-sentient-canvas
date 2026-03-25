@@ -55,7 +55,7 @@ export const UpgradeUpsell = () => {
             size="lg"
             className="bg-primary hover:bg-primary/90 rounded-xl gap-2 shadow-lg shadow-primary/20 text-base font-bold px-10"
           >
-            <Link to="/app/planos">
+            <Link to="/login">
               <Camera className="w-5 h-5" />
               Assinar agora
               <ArrowRight className="w-5 h-5" />
