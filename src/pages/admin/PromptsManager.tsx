@@ -1017,11 +1017,24 @@ const PromptsManager = () => {
                           Trocar imagem
                         </Button>
                         <Button
+                          variant="default"
+                          size="sm"
+                          className="gap-1 text-xs bg-gradient-to-r from-primary to-accent text-white"
+                          onClick={handleAnalyzePhoto}
+                          disabled={analyzing}
+                        >
+                          {analyzing ? (
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                          ) : (
+                            <Wand2 className="w-3 h-3" />
+                          )}
+                          {analyzing ? "Analisando..." : "🤖 Analisar com IA"}
+                        </Button>
+                        <Button
                           variant="ghost"
                           size="sm"
                           className="gap-1 text-xs"
                           onClick={() => {
-                            // Re-crop from existing URL - would need original file
                             toast.info("Para recortar, troque a imagem e use o recorte no upload");
                           }}
                         >
