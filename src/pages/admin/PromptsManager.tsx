@@ -297,6 +297,7 @@ const CATEGORY_PRESETS: Record<string, { label: string; defaultPrice: number; ic
   "Mêsversário": { label: "Mêsversário", defaultPrice: 5800, icon: "👶" },
   "Mêsversário & Aniversário": { label: "Mêsversário & Aniversário", defaultPrice: 5800, icon: "🎂" },
   "Fotografia Profissional": { label: "Fotografia Profissional", defaultPrice: 7000, icon: "📷" },
+  "Hypando": { label: "Hypando", defaultPrice: 2100, icon: "🔥" },
 };
 
 const PromptsManager = () => {
