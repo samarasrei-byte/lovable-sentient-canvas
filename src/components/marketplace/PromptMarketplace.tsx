@@ -317,16 +317,11 @@ export const PromptMarketplace = () => {
                   </div>
 
                   {isMobile ? (
-                    <ScrollArea className="w-full">
-                      <div className="flex gap-3 pb-3">
-                        {catPrompts.map((prompt, index) => (
-                          <div key={prompt.id} className="w-[200px] flex-shrink-0">
-                            <PromptCard prompt={prompt} index={index} onSelect={setSelectedPrompt} variant="grid" />
-                          </div>
-                        ))}
-                      </div>
-                      <ScrollBar orientation="horizontal" className="h-1" />
-                    </ScrollArea>
+                    <div className="grid grid-cols-1 gap-4">
+                      {catPrompts.map((prompt, index) => (
+                        <PromptCard key={prompt.id} prompt={prompt} index={index} onSelect={setSelectedPrompt} variant="grid" />
+                      ))}
+                    </div>
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                       {catPrompts.map((prompt, index) => (
