@@ -43,6 +43,8 @@ const getCategoryIcon = (category: string) => {
       return Camera;
     case 'linkedin':
       return Linkedin;
+    case 'hypando':
+      return Flame;
     default:
       return Sparkles;
   }
