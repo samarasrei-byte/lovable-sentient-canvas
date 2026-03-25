@@ -1391,7 +1391,7 @@ const PromptsManager = () => {
                       <div 
                         className="relative group/img cursor-pointer"
                         onClick={() => handleToggleFeatured(prompt)}
-                        title={prompt.is_featured ? "Clique para remover destaque" : "Clique para fixar em destaque"}
+                        title={prompt.is_featured ? "Clique para remover do Hypando" : "⭐ Clique para mover para Hypando"}
                       >
                         {prompt.example_image_url ? (
                           <img 
