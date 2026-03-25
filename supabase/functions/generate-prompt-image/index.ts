@@ -6,6 +6,21 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+function getApiKeys(): { primary: string; fallback: string | null } {
+  const lovableKey = Deno.env.get("LOVABLE_API_KEY");
+  const nanoBananaKey = Deno.env.get("NANO_BANANA_API_KEY");
+  
+  if (!lovableKey && !nanoBananaKey) {
+    throw new Error("No AI API keys configured (LOVABLE_API_KEY or NANO_BANANA_API_KEY)");
+  }
+
+  // Prefer NANO_BANANA_API_KEY as primary for image generation (specialized)
+  if (nanoBananaKey && lovableKey) {
+    return { primary: nanoBananaKey, fallback: lovableKey };
+  }
+  return { primary: (nanoBananaKey || lovableKey)!, fallback: null };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -31,11 +46,8 @@ serve(async (req) => {
     } = await req.json();
 
     purchaseId = pId;
-
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
-    }
+    const apiKeys = getApiKeys();
+    console.log("API Keys: primary =", apiKeys.fallback ? "NANO_BANANA" : "LOVABLE", "| fallback =", apiKeys.fallback ? "LOVABLE" : "none");
 
     supabaseAdmin = purchaseId
       ? createClient(
@@ -74,7 +86,7 @@ serve(async (req) => {
       ];
 
       const editModel = aiModel || "google/gemini-3.1-flash-image-preview";
-      const imageUrl = await tryGenerateWithRetry(editModel, editMessages, LOVABLE_API_KEY);
+      const imageUrl = await tryGenerateWithRetry(editModel, editMessages, apiKeys);
 
       if (!imageUrl) {
         throw new Error("Edit failed after multiple attempts.");
@@ -180,7 +192,7 @@ serve(async (req) => {
       }
     ];
 
-    const imageUrl = await tryGenerateWithRetry(resolvedModel, messages, LOVABLE_API_KEY);
+    const imageUrl = await tryGenerateWithRetry(resolvedModel, messages, apiKeys);
 
     if (!imageUrl) {
       throw new Error("Image generation failed after multiple attempts. Please try again.");
@@ -219,53 +231,75 @@ serve(async (req) => {
   }
 });
 
-async function tryGenerateWithRetry(primaryModel: string, messages: any[], apiKey: string): Promise<string | null> {
-  const modelsToTry = [primaryModel, primaryModel, "google/gemini-2.5-flash"];
+async function callGateway(model: string, messages: any[], apiKey: string): Promise<any> {
+  const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ model, messages, modalities: ["image", "text"] }),
+  });
 
-  for (const model of modelsToTry) {
-    try {
-      console.log("Attempting generation with model:", model);
-      const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ model, messages, modalities: ["image", "text"] }),
-      });
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("AI gateway error:", response.status, errorText);
+    if (response.status === 429) throw new Error("Rate limit exceeded.");
+    if (response.status === 402) throw new Error("Service temporarily unavailable.");
+    return null;
+  }
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("AI gateway error:", response.status, errorText);
-        if (response.status === 429 || response.status === 402) {
-          throw new Error(response.status === 429 ? "Rate limit exceeded." : "Service temporarily unavailable.");
+  return response.json();
+}
+
+function extractImageUrl(data: any): string | null {
+  const choice = data?.choices?.[0]?.message;
+  if (!choice) return null;
+
+  return (
+    choice.images?.[0]?.image_url?.url ||
+    (Array.isArray(choice.content)
+      ? choice.content.find((c: any) => c.type === "image_url")?.image_url?.url
+      : null) ||
+    (Array.isArray(choice.content)
+      ? (() => {
+          const img = choice.content.find((c: any) => c.type === "image" || c.inline_data);
+          if (img?.inline_data) return `data:${img.inline_data.mime_type || "image/png"};base64,${img.inline_data.data}`;
+          if (img?.image?.url) return img.image.url;
+          return null;
+        })()
+      : null)
+  );
+}
+
+async function tryGenerateWithRetry(
+  primaryModel: string,
+  messages: any[],
+  apiKeys: { primary: string; fallback: string | null }
+): Promise<string | null> {
+  const modelsToTry = [primaryModel, primaryModel, "google/gemini-3-pro-image-preview", "google/gemini-2.5-flash-image"];
+  const keysToTry = apiKeys.fallback ? [apiKeys.primary, apiKeys.fallback] : [apiKeys.primary];
+
+  for (const apiKey of keysToTry) {
+    const keyLabel = apiKey === apiKeys.primary ? "PRIMARY" : "FALLBACK";
+    for (const model of modelsToTry) {
+      try {
+        console.log(`[${keyLabel}] Attempting: ${model}`);
+        const data = await callGateway(model, messages, apiKey);
+        if (!data) continue;
+
+        const imageUrl = extractImageUrl(data);
+        if (imageUrl) {
+          console.log(`[${keyLabel}] ✅ Success with ${model}`);
+          return imageUrl;
         }
-        continue;
+        console.warn(`[${keyLabel}] No image in response from ${model}`);
+      } catch (e: any) {
+        if (e.message.includes("Rate limit") || e.message.includes("temporarily")) throw e;
+        console.error(`[${keyLabel}] ${model} failed:`, e.message);
       }
-
-      const data = await response.json();
-      const choice = data.choices?.[0]?.message;
-
-      const imageUrl =
-        choice?.images?.[0]?.image_url?.url ||
-        (Array.isArray(choice?.content) 
-          ? choice.content.find((c: any) => c.type === "image_url")?.image_url?.url 
-          : null) ||
-        (Array.isArray(choice?.content)
-          ? (() => {
-              const img = choice.content.find((c: any) => c.type === "image" || c.inline_data);
-              if (img?.inline_data) return `data:${img.inline_data.mime_type || "image/png"};base64,${img.inline_data.data}`;
-              if (img?.image?.url) return img.image.url;
-              return null;
-            })()
-          : null);
-
-      if (imageUrl) return imageUrl;
-      console.warn("No image in response, retrying...");
-    } catch (e: any) {
-      if (e.message.includes("Rate limit") || e.message.includes("temporarily")) throw e;
-      console.error("Attempt failed:", e.message);
     }
+    console.warn(`[${keyLabel}] All models exhausted, trying next key...`);
   }
   return null;
 }
