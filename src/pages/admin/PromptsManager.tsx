@@ -320,6 +320,7 @@ const PromptsManager = () => {
   const [draggedPromptId, setDraggedPromptId] = useState<string | null>(null);
   const [dragOverPromptId, setDragOverPromptId] = useState<string | null>(null);
   const [reordering, setReordering] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Group prompts by category
