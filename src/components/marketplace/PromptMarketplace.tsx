@@ -215,8 +215,8 @@ export const PromptMarketplace = () => {
               </button>
             </div>
             <div className={cn(
-              "grid gap-4",
-              isMobile ? "grid-cols-1" : "grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+              "grid",
+              isMobile ? "grid-cols-1 gap-5 px-1" : "grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
             )}>
               {searchResults.map((prompt, index) => (
                 <PromptCard key={prompt.id} prompt={prompt} index={index} onSelect={setSelectedPrompt} variant="grid" />
