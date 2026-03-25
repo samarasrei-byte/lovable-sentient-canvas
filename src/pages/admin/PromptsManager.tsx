@@ -754,15 +754,103 @@ const PromptsManager = () => {
     await persistPromptOrder(buildUpdatedPromptOrder(reorderedVisiblePrompts));
   };
 
-  const handleToggleFeatured = async (prompt: Prompt) => {
+  const handleAnalyzePhoto = async () => {
+    const imageUrl = editingPrompt?.example_image_url;
+    if (!imageUrl) {
+      toast.error("Anexe uma foto primeiro");
+      return;
+    }
+
+    setAnalyzing(true);
     try {
-      const { error } = await supabase.functions.invoke("manage-prompt", {
-        body: { action: "update", promptId: prompt.id, promptData: { is_featured: !prompt.is_featured } },
+      const { data, error } = await supabase.functions.invoke("analyze-person-photo", {
+        body: { imageUrl },
       });
 
       if (error) throw error;
 
-      toast.success(prompt.is_featured ? "Prompt removido dos destaques" : "⭐ Prompt fixado em destaque!");
+      // Map analysis to prompt fields
+      const categoryMap: Record<string, string> = {
+        aniversario: "Mêsversário & Aniversário",
+        linkedin: "LinkedIn",
+        profissional: "Profissional",
+        corporativo: "Corporativo",
+        familia: "Família",
+        individual: "Geral",
+        casal: "Geral",
+        pet: "Geral",
+        social: "Social Media",
+      };
+
+      const suggestedCatMap: Record<string, string> = {
+        mesversario: "Mêsversário",
+        infantil: "Mêsversário & Aniversário",
+        retrato_pessoal: "Geral",
+        linkedin_profissional: "LinkedIn",
+        aniversario: "Mêsversário & Aniversário",
+        familia: "Família",
+        casal: "Geral",
+      };
+
+      const detectedCategory = suggestedCatMap[data?.suggestedCategory] || categoryMap[data?.categoria] || "Geral";
+      
+      // Build a smart title from the analysis
+      const contextLabels: Record<string, string> = {
+        aniversario: "Aniversário",
+        profissional: "Profissional",
+        familia: "Família",
+        casal: "Casal",
+        individual: "Retrato",
+        social: "Social",
+        pet: "Pet",
+      };
+      const contextLabel = contextLabels[data?.analise?.contexto] || "Retrato";
+      const genderLabel = data?.presentation === "feminina" ? "Feminino" : data?.presentation === "masculina" ? "Masculino" : "";
+      const autoTitle = `${contextLabel} ${genderLabel} ${detectedCategory !== "Geral" ? "- " + detectedCategory : ""}`.trim();
+
+      // Build description from prompt_gerado
+      const autoDesc = data?.prompt_gerado
+        ? data.prompt_gerado.slice(0, 200) + (data.prompt_gerado.length > 200 ? "..." : "")
+        : data?.summary || "";
+
+      setEditingPrompt((prev) =>
+        prev
+          ? {
+              ...prev,
+              name: prev.name && prev.name !== "Custom Prompt" ? prev.name : autoTitle,
+              category: detectedCategory,
+              description: prev.description || autoDesc,
+              price_cents: CATEGORY_PRESETS[detectedCategory]?.defaultPrice || prev.price_cents || 2100,
+            }
+          : null
+      );
+
+      toast.success(`✅ Análise concluída! Categoria: ${detectedCategory}`);
+    } catch (error) {
+      console.error("Error analyzing photo:", error);
+      toast.error("Erro ao analisar foto com IA");
+    } finally {
+      setAnalyzing(false);
+    }
+  };
+
+  const handleToggleFeatured = async (prompt: Prompt) => {
+    try {
+      const newFeatured = !prompt.is_featured;
+      const updateData: any = { is_featured: newFeatured };
+      
+      // When starring, also set category to Hypando
+      if (newFeatured) {
+        updateData.category = "Hypando";
+      }
+
+      const { error } = await supabase.functions.invoke("manage-prompt", {
+        body: { action: "update", promptId: prompt.id, promptData: updateData },
+      });
+
+      if (error) throw error;
+
+      toast.success(newFeatured ? "🔥 Prompt movido para Hypando!" : "Prompt removido dos destaques");
       fetchPrompts();
     } catch (error) {
       console.error("Error toggling featured:", error);
