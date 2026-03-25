@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Zap, Star, TrendingUp, Layers, Linkedin, ArrowUpRight } from "lucide-react";
+import { Sparkles, Zap, Star, TrendingUp, Layers, Linkedin, ArrowUpRight, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Prompt {
   id: string;
@@ -56,6 +57,7 @@ export const PromptCard = ({ prompt, index, onSelect, variant = 'grid' }: Prompt
   const IconComponent = getCategoryIcon(prompt.category);
   const complexity = getComplexityLevel(prompt);
   const isFull = variant === 'full';
+  const isMobile = useIsMobile();
 
   return (
     <article
@@ -67,76 +69,123 @@ export const PromptCard = ({ prompt, index, onSelect, variant = 'grid' }: Prompt
       onKeyDown={(e) => e.key === 'Enter' && onSelect(prompt)}
     >
       <div className={cn(
-        "relative overflow-hidden rounded-2xl transition-all duration-300 ease-out",
-        "bg-white/[0.02] border border-white/[0.05]",
-        "hover:border-white/[0.12] hover:bg-white/[0.04]",
-        "hover:translate-y-[-2px]",
+        "relative overflow-hidden transition-all duration-500 ease-out",
+        "border border-border/40",
+        "hover:border-primary/30 hover:shadow-[0_8px_32px_hsl(var(--primary)/0.15)]",
+        "hover:translate-y-[-3px]",
         "focus-within:ring-1 focus-within:ring-primary/30 focus-within:ring-offset-1 focus-within:ring-offset-background",
+        isMobile ? "rounded-2xl bg-card/80 backdrop-blur-sm" : "rounded-xl bg-card/40",
         isFull ? "flex flex-col" : "h-full"
       )}>
-        {/* Image */}
-        <div className={cn("relative overflow-hidden", isFull ? "aspect-[4/5] w-full" : "aspect-[4/5]")}>
+        {/* Image Container */}
+        <div className={cn(
+          "relative overflow-hidden",
+          isMobile ? "aspect-[3/4] w-full" : "aspect-[4/5]"
+        )}>
           {prompt.example_image_url ? (
             <img
               src={prompt.example_image_url}
               alt={`Exemplo do prompt ${prompt.name}`}
-              className="w-full h-full object-contain sm:object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+              className={cn(
+                "w-full h-full transition-transform duration-700 ease-out group-hover:scale-[1.04]",
+                isMobile ? "object-contain bg-background/50" : "object-cover"
+              )}
               loading="lazy"
               decoding="async"
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/5 to-secondary/5">
-              <Sparkles className="w-12 h-12 text-primary/15" />
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-secondary/10">
+              <Sparkles className="w-14 h-14 text-primary/20" />
             </div>
           )}
 
-          {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent opacity-80" />
+          {/* Gradient overlays */}
+          <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent opacity-90" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-transparent to-transparent" />
 
           {/* Top badges */}
           <div className="absolute top-3 left-3 right-3 flex items-start justify-between">
-            <Badge className="bg-white/[0.08] text-foreground/80 text-[10px] px-3 py-1 font-medium border border-white/[0.08]">
+            <Badge className={cn(
+              "text-[10px] px-3 py-1 font-semibold border-0 shadow-lg",
+              "bg-primary/90 text-primary-foreground backdrop-blur-md"
+            )}>
               {prompt.hype_text || 'Trending'}
             </Badge>
-            <div className="w-8 h-8 rounded-lg bg-white/[0.06] flex items-center justify-center border border-white/[0.06]">
-              <IconComponent className="w-3.5 h-3.5 text-primary/60" />
+            <div className={cn(
+              "w-8 h-8 rounded-full flex items-center justify-center",
+              "bg-background/60 backdrop-blur-md border border-border/30"
+            )}>
+              <IconComponent className="w-3.5 h-3.5 text-primary" />
             </div>
           </div>
 
-          {/* Hover CTA */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 scale-90 group-hover:scale-100">
-            <div className="w-12 h-12 rounded-full bg-white/[0.1] flex items-center justify-center border border-white/[0.15]">
-              <ArrowUpRight className="w-5 h-5 text-foreground/80" />
+          {/* Hover CTA overlay */}
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-400 bg-background/20 backdrop-blur-[2px]">
+            <div className={cn(
+              "flex items-center gap-2 px-5 py-2.5 rounded-full",
+              "bg-primary text-primary-foreground font-medium text-sm",
+              "shadow-[0_0_20px_hsl(var(--primary)/0.5)]",
+              "scale-90 group-hover:scale-100 transition-transform duration-300"
+            )}>
+              <Eye className="w-4 h-4" />
+              Ver prompt
             </div>
           </div>
+        </div>
 
-          {/* Content overlay */}
-          <div className="absolute bottom-0 left-0 right-0 p-4 space-y-2">
-            <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.15em] font-medium">
-              <span className="text-muted-foreground/60">{prompt.category}</span>
-              <span className="w-0.5 h-0.5 rounded-full bg-white/20" />
-              <span className={cn("flex items-center gap-1", complexity.color)}>
-                <Layers className="w-2.5 h-2.5" />
-                {complexity.label}
-              </span>
-            </div>
+        {/* Content Section */}
+        <div className={cn(
+          "relative flex flex-col gap-2",
+          isMobile ? "p-4 pb-5" : "p-3.5"
+        )}>
+          {/* Category + Complexity */}
+          <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.15em] font-medium">
+            <span className="text-muted-foreground">{prompt.category}</span>
+            <span className="w-1 h-1 rounded-full bg-border" />
+            <span className={cn("flex items-center gap-1", complexity.color)}>
+              <Layers className="w-2.5 h-2.5" />
+              {complexity.label}
+            </span>
+          </div>
 
-            <h3 className="font-semibold text-foreground text-base leading-tight line-clamp-2 group-hover:text-primary/90 transition-colors duration-300">
-              {prompt.name}
-            </h3>
+          {/* Title */}
+          <h3 className={cn(
+            "font-bold text-foreground leading-tight line-clamp-2",
+            "group-hover:text-primary transition-colors duration-300",
+            isMobile ? "text-lg" : "text-base"
+          )}>
+            {prompt.name}
+          </h3>
 
-            <p className="text-muted-foreground/60 text-xs leading-relaxed line-clamp-2">
-              {prompt.description}
-            </p>
+          {/* Description */}
+          <p className={cn(
+            "text-muted-foreground leading-relaxed line-clamp-2",
+            isMobile ? "text-sm" : "text-xs"
+          )}>
+            {prompt.description}
+          </p>
 
-            <div className="pt-2.5 border-t border-white/[0.04] flex items-center justify-between">
-              <span className="text-foreground text-sm font-semibold tracking-tight">
+          {/* Price + CTA */}
+          <div className={cn(
+            "flex items-center justify-between mt-1",
+            "pt-3 border-t border-border/30"
+          )}>
+            <div className="flex flex-col">
+              <span className={cn(
+                "font-bold tracking-tight bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent",
+                isMobile ? "text-lg" : "text-sm"
+              )}>
                 {formatPrice(prompt.price_cents || 2100)}
               </span>
-              <span className="text-primary/60 text-[11px] font-medium opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center gap-1">
-                Gerar agora
-              </span>
+            </div>
+            <div className={cn(
+              "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-300",
+              "bg-primary/10 text-primary border border-primary/20",
+              "group-hover:bg-primary group-hover:text-primary-foreground group-hover:shadow-[0_0_12px_hsl(var(--primary)/0.3)]"
+            )}>
+              <ArrowUpRight className="w-3.5 h-3.5" />
+              <span className={isMobile ? "" : "hidden sm:inline"}>Gerar</span>
             </div>
           </div>
         </div>
