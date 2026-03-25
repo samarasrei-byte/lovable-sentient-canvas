@@ -1234,45 +1234,120 @@ const PromptsManager = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Table */}
-      {/* Category Filter Tabs */}
-      <div className="flex flex-wrap gap-2">
-        <Button
-          variant={activeCategory === "all" ? "default" : "outline"}
-          size="sm"
-          onClick={() => setActiveCategory("all")}
-        >
-          Todos ({prompts.length})
-        </Button>
-        {Object.entries(CATEGORY_PRESETS).map(([key, preset]) => {
-          const count = groupedPrompts[key]?.length || 0;
-          return (
+      {/* Category Filter Bar */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-medium text-muted-foreground">Filtrar por categoria</h3>
+          {!showNewCategoryInput ? (
             <Button
-              key={key}
-              variant={activeCategory === key ? "default" : "outline"}
+              variant="ghost"
               size="sm"
-              onClick={() => setActiveCategory(key)}
+              className="gap-1.5 text-xs text-primary hover:text-primary"
+              onClick={() => setShowNewCategoryInput(true)}
             >
-              {preset.icon} {preset.label} ({count})
+              <Plus className="w-3.5 h-3.5" />
+              Nova Categoria
             </Button>
-          );
-        })}
-        {/* Show other categories not in presets */}
-        {categories.filter(c => !CATEGORY_PRESETS[c]).map(cat => (
-          <Button
-            key={cat}
-            variant={activeCategory === cat ? "default" : "outline"}
-            size="sm"
-            onClick={() => setActiveCategory(cat)}
+          ) : (
+            <div className="flex items-center gap-2">
+              <Input
+                autoFocus
+                placeholder="Nome da categoria..."
+                value={newCategoryName}
+                onChange={(e) => setNewCategoryName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && newCategoryName.trim()) {
+                    CATEGORY_PRESETS[newCategoryName.trim()] = {
+                      label: newCategoryName.trim(),
+                      defaultPrice: 2100,
+                      icon: "✨",
+                    };
+                    setActiveCategory(newCategoryName.trim());
+                    toast.success(`Categoria "${newCategoryName.trim()}" criada!`);
+                    setNewCategoryName("");
+                    setShowNewCategoryInput(false);
+                  }
+                  if (e.key === "Escape") {
+                    setNewCategoryName("");
+                    setShowNewCategoryInput(false);
+                  }
+                }}
+                className="h-8 w-48 text-sm"
+              />
+              <Button
+                size="sm"
+                className="h-8 px-3"
+                disabled={!newCategoryName.trim()}
+                onClick={() => {
+                  if (newCategoryName.trim()) {
+                    CATEGORY_PRESETS[newCategoryName.trim()] = {
+                      label: newCategoryName.trim(),
+                      defaultPrice: 2100,
+                      icon: "✨",
+                    };
+                    setActiveCategory(newCategoryName.trim());
+                    toast.success(`Categoria "${newCategoryName.trim()}" criada!`);
+                    setNewCategoryName("");
+                    setShowNewCategoryInput(false);
+                  }
+                }}
+              >
+                Criar
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0"
+                onClick={() => { setNewCategoryName(""); setShowNewCategoryInput(false); }}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setActiveCategory("all")}
+            className={`px-3.5 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
+              activeCategory === "all"
+                ? "bg-primary text-primary-foreground shadow-md shadow-primary/25"
+                : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
+            }`}
           >
-            {cat} ({groupedPrompts[cat]?.length || 0})
-          </Button>
-        ))}
+            Todos ({prompts.length})
+          </button>
+          {[...new Set([...Object.keys(CATEGORY_PRESETS), ...categories])].map((key) => {
+            const preset = CATEGORY_PRESETS[key];
+            const count = groupedPrompts[key]?.length || 0;
+            return (
+              <button
+                key={key}
+                onClick={() => setActiveCategory(key)}
+                className={`px-3.5 py-1.5 rounded-full text-sm font-medium transition-all duration-200 flex items-center gap-1.5 ${
+                  activeCategory === key
+                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/25"
+                    : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                <span>{preset?.icon || "📁"}</span>
+                {preset?.label || key}
+                {count > 0 && (
+                  <span className={`text-xs px-1.5 rounded-full ${
+                    activeCategory === key ? "bg-white/20" : "bg-foreground/10"
+                  }`}>
+                    {count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Category Cards with "Add Prompt" shortcuts */}
+      {/* Category Header */}
       {activeCategory !== "all" && CATEGORY_PRESETS[activeCategory] && (
-        <Card className="border-primary/30 bg-primary/5">
+        <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-transparent">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
               <h3 className="font-semibold text-lg">
@@ -1284,184 +1359,158 @@ const PromptsManager = () => {
             </div>
             <GlassButton variant="neon" onClick={() => openNewPrompt(activeCategory)}>
               <Plus className="w-4 h-4 mr-2" />
-              Novo Prompt em {CATEGORY_PRESETS[activeCategory].label}
+              Novo Prompt
             </GlassButton>
           </CardContent>
         </Card>
       )}
 
-      {/* Prompts Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+      {/* Prompts Grid */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-primary" />
-            Prompts ({filteredPrompts.length})
+            <h2 className="font-semibold text-lg">{filteredPrompts.length} Prompts</h2>
             {reordering && <Loader2 className="w-4 h-4 animate-spin text-primary" />}
-          </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Arraste pela alça para reorganizar e clique na foto para fixar em destaque.
+          </div>
+          <p className="text-xs text-muted-foreground hidden md:block">
+            Clique na ⭐ para Hypando · Arraste para reorganizar
           </p>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="w-6 h-6 animate-spin" />
-            </div>
-          ) : filteredPrompts.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <Sparkles className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p>Nenhum prompt nesta categoria</p>
-              <Button className="mt-4" onClick={() => openNewPrompt(activeCategory !== "all" ? activeCategory : undefined)}>
-                Criar prompt
-              </Button>
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[170px]">Ordem</TableHead>
-                  <TableHead>Preview</TableHead>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Categoria</TableHead>
-                  <TableHead>Preço</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredPrompts.map((prompt, idx) => (
-                  <TableRow
-                    key={prompt.id}
-                    onDragOver={(event) => handlePromptDragOver(event, prompt.id)}
-                    onDragEnter={() => handlePromptDragEnter(prompt.id)}
-                    onDrop={(event) => handlePromptDrop(event, prompt.id)}
-                    className={[
-                      prompt.is_featured ? "border-l-2 border-l-primary bg-primary/5" : "",
-                      draggedPromptId === prompt.id ? "opacity-50" : "",
-                      dragOverPromptId === prompt.id && draggedPromptId !== prompt.id ? "bg-accent/40" : "",
-                    ].filter(Boolean).join(" ")}
-                  >
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          draggable={!reordering}
-                          disabled={reordering}
-                          onDragStart={(event) => handlePromptDragStart(event, prompt.id)}
-                          onDragEnd={handlePromptDragEnd}
-                          className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-muted/40 text-muted-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
-                          aria-label={`Arrastar para reordenar ${prompt.name}`}
-                          title="Arrastar para reordenar"
-                        >
-                          {draggedPromptId === prompt.id ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <GripVertical className="w-4 h-4" />
-                          )}
-                        </button>
+        </div>
 
-                        <div className="flex flex-col gap-1">
-                          <div className="flex items-center gap-1.5">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7"
-                              onClick={() => handleReorder(prompt.id, 'up')}
-                              disabled={idx === 0 || reordering}
-                            >
-                              <ArrowUp className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7"
-                              onClick={() => handleReorder(prompt.id, 'down')}
-                              disabled={idx === filteredPrompts.length - 1 || reordering}
-                            >
-                              <ArrowDown className="w-4 h-4" />
-                            </Button>
-                          </div>
-                          <span className="text-[11px] text-muted-foreground">
-                            {dragOverPromptId === prompt.id && draggedPromptId !== prompt.id ? "Solte aqui" : "Arraste"}
-                          </span>
-                        </div>
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </div>
+        ) : filteredPrompts.length === 0 ? (
+          <Card className="border-dashed">
+            <CardContent className="flex flex-col items-center justify-center py-16">
+              <Sparkles className="w-12 h-12 text-muted-foreground/30 mb-4" />
+              <p className="text-muted-foreground mb-4">Nenhum prompt nesta categoria</p>
+              <GlassButton variant="neon" onClick={() => openNewPrompt(activeCategory !== "all" ? activeCategory : undefined)}>
+                <Plus className="w-4 h-4 mr-2" />
+                Criar Prompt
+              </GlassButton>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {filteredPrompts.map((prompt, idx) => (
+              <motion.div
+                key={prompt.id}
+                layout
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.03 }}
+                draggable={!reordering}
+                onDragStart={(e: any) => {
+                  setDraggedPromptId(prompt.id);
+                  e.dataTransfer?.setData?.("text/plain", prompt.id);
+                }}
+                onDragOver={(e: any) => {
+                  e.preventDefault();
+                  if (draggedPromptId && draggedPromptId !== prompt.id) setDragOverPromptId(prompt.id);
+                }}
+                onDrop={(e: any) => {
+                  e.preventDefault();
+                  const sourceId = draggedPromptId;
+                  if (!sourceId || sourceId === prompt.id) { handlePromptDragEnd(); return; }
+                  const sourceIdx = filteredPrompts.findIndex(p => p.id === sourceId);
+                  const targetIdx = filteredPrompts.findIndex(p => p.id === prompt.id);
+                  if (sourceIdx < 0 || targetIdx < 0) { handlePromptDragEnd(); return; }
+                  const reordered = [...filteredPrompts];
+                  const [moved] = reordered.splice(sourceIdx, 1);
+                  reordered.splice(targetIdx, 0, moved);
+                  handlePromptDragEnd();
+                  persistPromptOrder(buildUpdatedPromptOrder(reordered));
+                }}
+                onDragEnd={handlePromptDragEnd}
+                className={`group relative rounded-xl border bg-card overflow-hidden transition-all duration-200 cursor-grab active:cursor-grabbing ${
+                  prompt.is_featured ? "border-primary/40 ring-1 ring-primary/20" : "border-border hover:border-primary/30"
+                } ${draggedPromptId === prompt.id ? "opacity-40 scale-95" : ""} ${
+                  dragOverPromptId === prompt.id && draggedPromptId !== prompt.id ? "ring-2 ring-primary/50 scale-[1.01]" : ""
+                }`}
+              >
+                <div className="flex gap-0">
+                  {/* Image Side */}
+                  <div className="relative w-28 md:w-36 flex-shrink-0">
+                    {prompt.example_image_url ? (
+                      <img
+                        src={prompt.example_image_url}
+                        alt={prompt.name}
+                        className="w-full h-full object-cover min-h-[120px]"
+                      />
+                    ) : (
+                      <div className="w-full h-full min-h-[120px] bg-muted/30 flex items-center justify-center">
+                        <ImageIcon className="w-8 h-8 text-muted-foreground/30" />
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <div 
-                        className="relative group/img cursor-pointer"
-                        onClick={() => handleToggleFeatured(prompt)}
-                        title={prompt.is_featured ? "Clique para remover do Hypando" : "⭐ Clique para mover para Hypando"}
+                    )}
+                    {/* Star overlay */}
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleToggleFeatured(prompt); }}
+                      className={`absolute top-2 left-2 w-7 h-7 rounded-full flex items-center justify-center transition-all ${
+                        prompt.is_featured
+                          ? "bg-primary text-primary-foreground shadow-lg shadow-primary/40"
+                          : "bg-black/40 text-white/70 opacity-0 group-hover:opacity-100 hover:bg-primary hover:text-primary-foreground"
+                      }`}
+                      title={prompt.is_featured ? "Remover do Hypando" : "Mover para Hypando ⭐"}
+                    >
+                      <Star className={`w-3.5 h-3.5 ${prompt.is_featured ? "fill-current" : ""}`} />
+                    </button>
+                    {/* Order badge */}
+                    <div className="absolute bottom-2 left-2 flex gap-1">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleReorder(prompt.id, 'up'); }}
+                        disabled={idx === 0 || reordering}
+                        className="w-6 h-6 rounded bg-black/50 text-white/80 flex items-center justify-center hover:bg-black/70 disabled:opacity-30 transition-all opacity-0 group-hover:opacity-100"
                       >
-                        {prompt.example_image_url ? (
-                          <img 
-                            src={prompt.example_image_url} 
-                            alt={prompt.name}
-                            className={`w-14 h-14 object-cover rounded-lg transition-all ${
-                              prompt.is_featured 
-                                ? "ring-2 ring-primary ring-offset-2 ring-offset-background" 
-                                : "group-hover/img:ring-2 group-hover/img:ring-primary/40 group-hover/img:ring-offset-1 group-hover/img:ring-offset-background"
-                            }`}
-                          />
-                        ) : (
-                          <div className="w-14 h-14 rounded-lg bg-muted flex items-center justify-center">
-                            <ImageIcon className="w-5 h-5 text-muted-foreground" />
-                          </div>
-                        )}
-                        <div className={`absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center transition-all ${
-                          prompt.is_featured 
-                            ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30" 
-                            : "bg-muted/80 text-muted-foreground opacity-0 group-hover/img:opacity-100"
-                        }`}>
-                          <Star className={`w-3 h-3 ${prompt.is_featured ? "fill-current" : ""}`} />
+                        <ArrowUp className="w-3 h-3" />
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleReorder(prompt.id, 'down'); }}
+                        disabled={idx === filteredPrompts.length - 1 || reordering}
+                        className="w-6 h-6 rounded bg-black/50 text-white/80 flex items-center justify-center hover:bg-black/70 disabled:opacity-30 transition-all opacity-0 group-hover:opacity-100"
+                      >
+                        <ArrowDown className="w-3 h-3" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Content Side */}
+                  <div className="flex-1 p-3 flex flex-col justify-between min-w-0">
+                    <div className="space-y-1.5">
+                      <div className="flex items-start justify-between gap-2">
+                        <h3 className="font-semibold text-sm leading-tight truncate flex items-center gap-1.5">
+                          {prompt.is_featured && <Pin className="w-3 h-3 text-primary flex-shrink-0" />}
+                          {prompt.name}
+                        </h3>
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEditPrompt(prompt)}>
+                            <Pencil className="w-3.5 h-3.5" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setDeleteConfirmId(prompt.id)}>
+                            <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                          </Button>
                         </div>
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <p className="font-medium flex items-center gap-1.5">
-                          {prompt.is_featured && <Pin className="w-3.5 h-3.5 text-primary" />}
-                          {prompt.name}
-                        </p>
-                        <p className="text-xs text-muted-foreground truncate max-w-[200px]">
-                          {prompt.hype_text}
-                        </p>
+                      <p className="text-xs text-muted-foreground line-clamp-1">{prompt.hype_text}</p>
+                    </div>
+                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/50">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5">
+                          {CATEGORY_PRESETS[prompt.category]?.icon || "✨"} {prompt.category}
+                        </Badge>
+                        {getStatusBadge(prompt.status)}
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">
-                        {CATEGORY_PRESETS[prompt.category]?.icon || "✨"} {prompt.category}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="font-medium text-primary">
-                      {formatPrice(prompt.price_cents)}
-                    </TableCell>
-                    <TableCell>{getStatusBadge(prompt.status)}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={() => openEditPrompt(prompt)}
-                        >
-                          <Pencil className="w-4 h-4" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={() => setDeleteConfirmId(prompt.id)}
-                        >
-                          <Trash2 className="w-4 h-4 text-destructive" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
+                      <span className="text-sm font-bold text-primary">{formatPrice(prompt.price_cents)}</span>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Image Crop Modal */}
       {fileToCrop && (
