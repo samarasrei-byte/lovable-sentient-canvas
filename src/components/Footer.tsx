@@ -10,7 +10,7 @@ export const Footer = () => {
             <span className="text-sm font-semibold text-foreground/70">ARCANA</span>
           </div>
           <div className="text-xs text-muted-foreground/40">
-            © 2025 Arcana. Todos os direitos reservados.
+            © {new Date().getFullYear()} Arcana. Todos os direitos reservados.
           </div>
         </div>
       </div>

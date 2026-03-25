@@ -6,12 +6,12 @@ import {
 } from "@/components/ui/accordion";
 
 const faqs = [
-  { question: "Como funciona o marketplace de talentos?", answer: "Nosso marketplace conecta marcas a influenciadores reais, artistas digitais e avatares IA. Você pode navegar por categorias, ver métricas de engajamento e contratar diretamente pela plataforma." },
-  { question: "O que são avatares IA?", answer: "Avatares IA são representações virtuais geradas por inteligência artificial que podem criar conteúdo, apresentar produtos e interagir de forma similar a influenciadores humanos, com custos reduzidos e disponibilidade 24/7." },
-  { question: "Como funciona a geração de imagens?", answer: "Nossa IA cria imagens profissionais combinando seu produto com templates de influenciadores. Você escolhe o estilo, personaliza características e gera até 4 variações em segundos." },
-  { question: "Qual a diferença entre os planos Basic e Pro?", answer: "O plano Basic oferece criação de imagens estáticas e acesso ao marketplace. O Pro adiciona animação de imagens com IA, mais créditos mensais, templates exclusivos e suporte prioritário." },
-  { question: "Posso testar antes de assinar?", answer: "Sim! Oferecemos 5 gerações gratuitas por dia sem cadastro. Para acesso completo, você pode iniciar um trial de 7 dias grátis em qualquer plano." },
-  { question: "Como funciona o pagamento?", answer: "Aceitamos cartões de crédito e PIX. A cobrança é mensal e você pode cancelar a qualquer momento sem multas ou taxas adicionais." },
+  { question: "Como funciona a geração de fotos com IA?", answer: "Você escolhe um prompt (estilo), envia sua foto, paga via PIX e em menos de 60 segundos recebe sua imagem gerada por IA com qualidade profissional." },
+  { question: "Preciso criar conta para usar?", answer: "Não! Você pode comprar prompts avulsos sem cadastro. Basta escolher o estilo, enviar sua foto, pagar via PIX e pronto. Para planos mensais, é necessário criar uma conta." },
+  { question: "Quais formas de pagamento são aceitas?", answer: "Aceitamos PIX (pagamento instantâneo) e cartão de crédito. O PIX é processado em segundos e sua foto é gerada imediatamente após a confirmação." },
+  { question: "A qualidade é realmente profissional?", answer: "Sim! Nossos prompts são testados e otimizados para gerar imagens com qualidade de estúdio fotográfico. São mais de 47.000 fotos geradas com avaliação média de 4.9/5." },
+  { question: "Posso usar as fotos comercialmente?", answer: "Sim! Todas as fotos geradas são 100% suas. Use como quiser: redes sociais, LinkedIn, materiais de marketing, sites, etc. Sem restrições de uso." },
+  { question: "Qual a diferença entre prompt avulso e plano mensal?", answer: "O prompt avulso custa R$21 por foto. Nos planos mensais, o custo por foto é menor — o Starter sai por ~R$17/foto. Além disso, planos incluem acesso a todos os estilos e suporte prioritário." },
 ];
 
 export const FAQSection = () => {

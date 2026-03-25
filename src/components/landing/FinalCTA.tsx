@@ -21,7 +21,7 @@ export const FinalCTA = () => {
           Milhares de creators já transformaram suas redes.
         </p>
 
-        <a href="#prompts">
+        <a href="/login">
           <GlassButton
             variant="glow"
             size="xl"
