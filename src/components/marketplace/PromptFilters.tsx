@@ -45,6 +45,10 @@ const getCategoryIcon = (category: string) => {
       return Linkedin;
     case 'hypando':
       return Flame;
+    case 'copa do mundo':
+      return Sparkles;
+    case 'animais':
+      return Sparkles;
     default:
       return Sparkles;
   }

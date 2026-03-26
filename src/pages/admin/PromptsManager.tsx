@@ -298,6 +298,8 @@ const CATEGORY_PRESETS: Record<string, { label: string; defaultPrice: number; ic
   "Mêsversário & Aniversário": { label: "Mêsversário & Aniversário", defaultPrice: 5800, icon: "🎂" },
   "Fotografia Profissional": { label: "Fotografia Profissional", defaultPrice: 7000, icon: "📷" },
   "Hypando": { label: "Hypando", defaultPrice: 2100, icon: "🔥" },
+  "Copa do Mundo": { label: "Copa do Mundo", defaultPrice: 2100, icon: "⚽" },
+  "Animais": { label: "Animais", defaultPrice: 2100, icon: "🐾" },
 };
 
 const PromptsManager = () => {
@@ -1488,8 +1490,13 @@ const PromptsManager = () => {
                           <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEditPrompt(prompt)}>
                             <Pencil className="w-3.5 h-3.5" />
                           </Button>
-                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setDeleteConfirmId(prompt.id)}>
-                            <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                          <Button 
+                            variant="destructive" 
+                            size="icon" 
+                            className="h-7 w-7 bg-destructive/90 hover:bg-destructive shadow-sm"
+                            onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(prompt.id); }}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
                           </Button>
                         </div>
                       </div>
