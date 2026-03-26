@@ -228,7 +228,7 @@ export const PromptFromScreenshot = ({ open, onClose, onPromptCreated }: PromptF
     }
   };
 
-  const categories = ["Geral", "Cyberpunk", "Anime", "Fashion", "LinkedIn", "Fitness", "Social Media", "Vintage", "Arte", "Profissional", "Hypando"];
+  const categories = ["Geral", "Cyberpunk", "Anime", "Fashion", "LinkedIn", "Fitness", "Social Media", "Vintage", "Arte", "Profissional", "Hypando", "Copa do Mundo", "Animais"];
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && handleClose()}>
