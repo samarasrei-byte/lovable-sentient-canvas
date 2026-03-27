@@ -34,8 +34,18 @@ export const PhotoServiceModal = ({ service, onClose }: PhotoServiceModalProps) 
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    phone: ''
+    phone: '',
+    age: '',
+    months: '',
+    displayName: ''
   });
+
+  const isBirthdayTheme = /aniversário|aniversario|birthday/i.test(service.name || '') || 
+    /aniversário|aniversario|birthday/i.test(service.category || '');
+  const isMesversarioTheme = /mêsversário|mesversário|mesversario/i.test(service.name || '') || 
+    /mêsversário|mesversário|mesversario/i.test(service.category || '');
+  const hasNameInImage = /nome|name/i.test(service.name || '') || 
+    service.themes?.some(t => /nome|name/i.test(t.name || '') || /nome|name/i.test(t.description || ''));
 
   const formatPrice = (cents: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -89,6 +99,12 @@ export const PhotoServiceModal = ({ service, onClose }: PhotoServiceModalProps) 
         uploadedUrls.push(urlData.publicUrl);
       }
 
+      // Build custom fields from dynamic inputs
+      const customFields: Record<string, string> = {};
+      if (formData.age) customFields.age = formData.age;
+      if (formData.months) customFields.months = formData.months;
+      if (formData.displayName) customFields.displayName = formData.displayName;
+
       // Create generation record
       const { error: insertError } = await supabase
         .from('photo_generations')
@@ -101,7 +117,8 @@ export const PhotoServiceModal = ({ service, onClose }: PhotoServiceModalProps) 
           theme: selectedTheme,
           amount_cents: service.price_cents,
           payment_status: 'pending',
-          generation_status: 'pending'
+          generation_status: 'pending',
+          custom_fields: Object.keys(customFields).length > 0 ? customFields : null
         });
 
       if (insertError) throw insertError;
@@ -271,6 +288,75 @@ export const PhotoServiceModal = ({ service, onClose }: PhotoServiceModalProps) 
                 <div className="text-xs text-muted-foreground text-center">
                   {uploadedPhotos.length}/10 fotos selecionadas
                 </div>
+              </div>
+            )}
+
+            {/* Step 2.5: Dynamic Fields based on service type */}
+            {step === 'upload' && (isMesversarioTheme || isBirthdayTheme || hasNameInImage) && (
+              <div className="space-y-4 mt-4 pt-4 border-t border-border">
+                {isMesversarioTheme && (
+                  <div className="space-y-2">
+                    <Label className="text-sm flex items-center gap-2">
+                      👶 Quantos meses o bebê está fazendo?
+                    </Label>
+                    <div className="grid grid-cols-4 sm:grid-cols-6 gap-1.5">
+                      {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
+                        <button
+                          key={month}
+                          onClick={() => setFormData(prev => ({ ...prev, months: String(month) }))}
+                          className={`p-2 rounded-lg text-sm font-medium transition-all ${
+                            formData.months === String(month)
+                              ? 'bg-secondary text-secondary-foreground shadow-lg scale-105'
+                              : 'bg-muted/50 border border-border hover:border-secondary/50 text-foreground'
+                          }`}
+                        >
+                          {month}m
+                        </button>
+                      ))}
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">
+                      O número será exibido na imagem como decoração (balão, vela, banner, etc).
+                    </p>
+                  </div>
+                )}
+
+                {isBirthdayTheme && !isMesversarioTheme && (
+                  <div className="space-y-1.5">
+                    <Label className="text-sm flex items-center gap-2">
+                      🎂 Idade para a imagem
+                    </Label>
+                    <Input
+                      value={formData.age}
+                      onChange={(e) => setFormData(prev => ({ ...prev, age: e.target.value.replace(/\D/g, '') }))}
+                      placeholder="Ex: 3"
+                      maxLength={3}
+                      type="text"
+                      inputMode="numeric"
+                    />
+                    <p className="text-[10px] text-muted-foreground">
+                      A idade será exibida na imagem (vela, balão, número decorativo, etc).
+                    </p>
+                  </div>
+                )}
+
+                {hasNameInImage && (
+                  <div className="space-y-1.5">
+                    <Label className="text-sm flex items-center gap-2">
+                      ✨ Nome que aparece na imagem
+                    </Label>
+                    <Input
+                      value={formData.displayName}
+                      onChange={(e) => setFormData(prev => ({ ...prev, displayName: e.target.value }))}
+                      placeholder="Ex: Maria, João..."
+                    />
+                    {formData.displayName && (
+                      <div className="p-2 rounded-lg bg-secondary/10 border border-secondary/20 text-center">
+                        <span className="text-xs text-muted-foreground">Preview: </span>
+                        <span className="text-sm font-bold text-secondary">{formData.displayName}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 
