@@ -99,11 +99,18 @@ export const PromptMarketplace = () => {
     return sorted.slice(0, MAX_FEATURED);
   }, [prompts]);
 
-  // Group prompts by category
+  // Collect IDs already shown in featured section to avoid duplicates
+  const featuredIds = useMemo(() => new Set(featuredPrompts.map(p => p.id)), [featuredPrompts]);
+
+  // Group prompts by category, excluding those already in featured and skipping "Hypando" category
   const categoryGroups = useMemo(() => {
     const groups: Record<string, Prompt[]> = {};
     for (const p of prompts) {
       const cat = p.category || 'Outros';
+      // Skip "Hypando" category entirely — it's already the featured section
+      if (cat.toLowerCase() === 'hypando') continue;
+      // Skip prompts already shown in featured
+      if (featuredIds.has(p.id)) continue;
       if (!groups[cat]) groups[cat] = [];
       if (groups[cat].length < MAX_PER_CATEGORY) {
         groups[cat].push(p);
@@ -119,7 +126,7 @@ export const PromptMarketplace = () => {
       if (bi !== -1) return 1;
       return a.localeCompare(b);
     });
-  }, [prompts]);
+  }, [prompts, featuredIds]);
 
   // Search results
   const searchResults = useMemo(() => {
