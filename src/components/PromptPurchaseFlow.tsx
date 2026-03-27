@@ -252,6 +252,16 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       return;
     }
 
+    if (isFamilyPrompt && activePhotoCount < 2) {
+      toast.error('Para fotos de família, envie pelo menos 2 fotos (uma de cada membro).');
+      return;
+    }
+
+    if (isMesversarioPrompt && !formData.months) {
+      toast.error('Por favor, selecione quantos meses o bebê está fazendo.');
+      return;
+    }
+
     if (prompt.required_fields.includes('name') && !formData.name.trim()) {
       toast.error('Por favor, informe seu nome.');
       return;
