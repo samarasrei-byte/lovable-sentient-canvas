@@ -14,11 +14,11 @@ function getApiKeys(): { primary: string; fallback: string | null } {
     throw new Error("No AI API keys configured (LOVABLE_API_KEY or NANO_BANANA_API_KEY)");
   }
 
-  // Prefer NANO_BANANA_API_KEY as primary for image generation (specialized)
-  if (nanoBananaKey && lovableKey) {
-    return { primary: nanoBananaKey, fallback: lovableKey };
+  // Use LOVABLE_API_KEY as primary (always valid format), NANO_BANANA as fallback
+  if (lovableKey && nanoBananaKey) {
+    return { primary: lovableKey, fallback: nanoBananaKey };
   }
-  return { primary: (nanoBananaKey || lovableKey)!, fallback: null };
+  return { primary: (lovableKey || nanoBananaKey)!, fallback: null };
 }
 
 serve(async (req) => {
@@ -244,6 +244,7 @@ async function callGateway(model: string, messages: any[], apiKey: string): Prom
   if (!response.ok) {
     const errorText = await response.text();
     console.error("AI gateway error:", response.status, errorText);
+    if (response.status === 401) throw new Error("AUTH_INVALID");
     if (response.status === 429) throw new Error("Rate limit exceeded.");
     if (response.status === 402) throw new Error("Service temporarily unavailable.");
     return null;
@@ -277,12 +278,15 @@ async function tryGenerateWithRetry(
   messages: any[],
   apiKeys: { primary: string; fallback: string | null }
 ): Promise<string | null> {
-  const modelsToTry = [primaryModel, primaryModel, "google/gemini-3-pro-image-preview", "google/gemini-2.5-flash-image"];
+  const modelsToTry = [primaryModel, "google/gemini-3-pro-image-preview", "google/gemini-2.5-flash-image"];
   const keysToTry = apiKeys.fallback ? [apiKeys.primary, apiKeys.fallback] : [apiKeys.primary];
 
   for (const apiKey of keysToTry) {
     const keyLabel = apiKey === apiKeys.primary ? "PRIMARY" : "FALLBACK";
+    let authFailed = false;
+    
     for (const model of modelsToTry) {
+      if (authFailed) break; // Skip remaining models if auth is invalid for this key
       try {
         console.log(`[${keyLabel}] Attempting: ${model}`);
         const data = await callGateway(model, messages, apiKey);
@@ -295,6 +299,11 @@ async function tryGenerateWithRetry(
         }
         console.warn(`[${keyLabel}] No image in response from ${model}`);
       } catch (e: any) {
+        if (e.message === "AUTH_INVALID") {
+          console.warn(`[${keyLabel}] ❌ Auth invalid, skipping all models for this key`);
+          authFailed = true;
+          break;
+        }
         if (e.message.includes("Rate limit") || e.message.includes("temporarily")) throw e;
         console.error(`[${keyLabel}] ${model} failed:`, e.message);
       }

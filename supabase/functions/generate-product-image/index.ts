@@ -13,10 +13,11 @@ function getApiKeys(): { primary: string; fallback: string | null } {
     throw new Error("No AI API keys configured");
   }
 
-  if (nanoBananaKey && lovableKey) {
-    return { primary: nanoBananaKey, fallback: lovableKey };
+  // Use LOVABLE_API_KEY as primary (always valid format), NANO_BANANA as fallback
+  if (lovableKey && nanoBananaKey) {
+    return { primary: lovableKey, fallback: nanoBananaKey };
   }
-  return { primary: (nanoBananaKey || lovableKey)!, fallback: null };
+  return { primary: (lovableKey || nanoBananaKey)!, fallback: null };
 }
 
 function extractImageUrl(data: any): string | null {
@@ -153,6 +154,7 @@ Crie uma foto publicitária premium cinematográfica que destaque "${productName
           if (!response.ok) {
             const errorText = await response.text();
             console.error(`[${keyLabel}] ${model} error:`, response.status, errorText);
+            if (response.status === 401) { console.warn(`[${keyLabel}] ❌ Auth invalid, skipping key`); break; }
             if (response.status === 402) throw new Error('Créditos insuficientes. Adicione créditos à sua conta.');
             if (response.status === 429) throw new Error('Limite de requisições excedido. Aguarde e tente novamente.');
             continue;
