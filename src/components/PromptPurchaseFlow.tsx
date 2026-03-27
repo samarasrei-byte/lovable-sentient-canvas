@@ -390,15 +390,35 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       template += `\n\nIDADE OBRIGATÓRIA: A pessoa tem ${formData.age} anos. Exiba "${formData.age}" como idade/vela/número na imagem. NÃO use outra idade.`;
     }
 
-    if (photoContextLines.length > 0) {
-      template += `\n\nDETALHES DAS PESSOAS E ELEMENTOS DETECTADOS:\n${photoContextLines.join('\n')}\nPosicione cada pessoa de acordo com sua faixa etária e gênero detectados.`;
+    // Inject month for mesversário
+    if (isMesversarioPrompt && formData.months) {
+      template = template
+        .replace(/\[MESES\]/g, formData.months)
+        .replace(/\{meses\}/g, formData.months);
+      template += `\n\nMESES DO BEBÊ: O bebê tem ${formData.months} meses. Exiba o número "${formData.months}" como decoração/tema na imagem (vela, balão, banner, etc). NÃO use outro número.`;
     }
 
-    return {
-      purchaseId,
-      promptTemplate: template,
-      negativePrompt: prompt.negative_prompt,
-      aiModel: prompt.ai_model,
+    // Inject display name for prompts with text in image
+    const nameForImage = formData.displayName || formData.name;
+    if (hasNameInImage && nameForImage) {
+      template = template
+        .replace(/\[NOME\]/g, nameForImage)
+        .replace(/\[NAME\]/g, nameForImage)
+        .replace(/\{nome\}/g, nameForImage)
+        .replace(/\{name\}/g, nameForImage);
+      template += `\n\nNOME NA IMAGEM: Escreva EXATAMENTE "${nameForImage}" na imagem onde houver texto decorativo, banner, placa ou similar. Grafia EXATA, sem alterações.`;
+    }
+
+    // Family context
+    if (isFamilyPrompt && sortedUrls.length > 1) {
+      const familyContext = sortedUrls.map((_, i) => {
+        const label = familyPhotoLabels[i] || `Pessoa ${i + 1}`;
+        const profile = photoProfiles[i];
+        const ageInfo = profile?.metadados?.idade_detectada ? ` (~${profile.metadados.idade_detectada} anos)` : '';
+        return `Foto ${i + 1} = ${label}${ageInfo}`;
+      }).join('\n');
+      template += `\n\nCOMPOSIÇÃO FAMILIAR:\n${familyContext}\nMostre TODAS as pessoas juntas em um retrato familiar harmonioso. Cada pessoa DEVE ser reconhecível pela foto de referência correspondente.`;
+    }
       userName: formData.name,
       userInstagram: formData.instagram,
       userDescription: formData.description,
