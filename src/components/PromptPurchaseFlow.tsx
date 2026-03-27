@@ -119,7 +119,7 @@ const presentationLabel: Record<string, string> = {
 export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps) => {
   const [step, setStep] = useState<FlowStep>('form');
   const maxPhotos = prompt.min_photos && prompt.min_photos > 1 ? Math.min(prompt.min_photos, 5) : 5;
-  const [formData, setFormData] = useState({ name: '', instagram: '', email: '', description: '', age: '' });
+  const [formData, setFormData] = useState({ name: '', instagram: '', email: '', description: '', age: '', displayName: '', months: '' });
   const [photos, setPhotos] = useState<PhotoSlot[]>([{ file: null, preview: '' }]);
   const [photoProfiles, setPhotoProfiles] = useState<(PhotoProfile | null)[]>([null]);
   const [analyzingPhotoSlots, setAnalyzingPhotoSlots] = useState<number[]>([]);
