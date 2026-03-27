@@ -46,7 +46,7 @@ const CATEGORY_CONFIG: Record<string, { icon: string; label: string }> = {
   'Evento': { icon: '🎉', label: 'Evento' },
 };
 
-const MAX_FEATURED = 20;
+const MAX_FEATURED = 30;
 const MAX_PER_CATEGORY = 8;
 
 export const PromptMarketplace = () => {
