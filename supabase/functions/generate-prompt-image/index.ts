@@ -244,6 +244,7 @@ async function callGateway(model: string, messages: any[], apiKey: string): Prom
   if (!response.ok) {
     const errorText = await response.text();
     console.error("AI gateway error:", response.status, errorText);
+    if (response.status === 401) throw new Error("AUTH_INVALID");
     if (response.status === 429) throw new Error("Rate limit exceeded.");
     if (response.status === 402) throw new Error("Service temporarily unavailable.");
     return null;
