@@ -120,8 +120,10 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const [step, setStep] = useState<FlowStep>('form');
   const maxPhotos = prompt.min_photos && prompt.min_photos > 1 ? Math.min(prompt.min_photos, 5) : 5;
   const [formData, setFormData] = useState({ name: '', instagram: '', email: '', description: '', age: '', displayName: '', months: '' });
-  const [photos, setPhotos] = useState<PhotoSlot[]>([{ file: null, preview: '' }]);
-  const [photoProfiles, setPhotoProfiles] = useState<(PhotoProfile | null)[]>([null]);
+  const isFamilyInit = /família|familia|family/i.test(prompt.category || '') || /família|familia|family/i.test(prompt.name || '');
+  const initialPhotoSlots = isFamilyInit ? Math.max(prompt.min_photos || 2, 2) : 1;
+  const [photos, setPhotos] = useState<PhotoSlot[]>(Array.from({ length: initialPhotoSlots }, () => ({ file: null, preview: '' })));
+  const [photoProfiles, setPhotoProfiles] = useState<(PhotoProfile | null)[]>(Array.from({ length: initialPhotoSlots }, () => null));
   const [analyzingPhotoSlots, setAnalyzingPhotoSlots] = useState<number[]>([]);
   const [uploadedPhotoUrls, setUploadedPhotoUrls] = useState<string[]>([]);
   const [paymentStatus, setPaymentStatus] = useState<'pending' | 'checking' | 'paid'>('pending');
