@@ -99,6 +99,12 @@ export const PhotoServiceModal = ({ service, onClose }: PhotoServiceModalProps) 
         uploadedUrls.push(urlData.publicUrl);
       }
 
+      // Build custom fields from dynamic inputs
+      const customFields: Record<string, string> = {};
+      if (formData.age) customFields.age = formData.age;
+      if (formData.months) customFields.months = formData.months;
+      if (formData.displayName) customFields.displayName = formData.displayName;
+
       // Create generation record
       const { error: insertError } = await supabase
         .from('photo_generations')
@@ -111,7 +117,8 @@ export const PhotoServiceModal = ({ service, onClose }: PhotoServiceModalProps) 
           theme: selectedTheme,
           amount_cents: service.price_cents,
           payment_status: 'pending',
-          generation_status: 'pending'
+          generation_status: 'pending',
+          custom_fields: Object.keys(customFields).length > 0 ? customFields : null
         });
 
       if (insertError) throw insertError;
