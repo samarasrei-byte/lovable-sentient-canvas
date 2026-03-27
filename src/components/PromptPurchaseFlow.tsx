@@ -341,6 +341,17 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const isBirthdayPrompt = /aniversário|aniversario|birthday/i.test(prompt.category || '') || 
     /aniversário|aniversario|birthday/i.test(prompt.name || '');
 
+  const isFamilyPrompt = /família|familia|family/i.test(prompt.category || '') || 
+    /família|familia|family/i.test(prompt.name || '');
+
+  const isMesversarioPrompt = /mêsversário|mesversário|mesversario/i.test(prompt.category || '') || 
+    /mêsversário|mesversário|mesversario/i.test(prompt.name || '');
+
+  const hasNameInImage = /nome|name|\[NAME\]|\{nome\}/i.test(prompt.prompt_template || '') ||
+    prompt.required_fields.includes('name');
+
+  const familyPhotoLabels = ['Pai/Mãe', 'Filho(a) 1', 'Filho(a) 2', 'Filho(a) 3', 'Outro familiar'];
+
   const buildGenerationBody = (referencePhotoUrls: string[], overrides: Record<string, unknown> = {}) => {
     const sortedUrls = sortPhotosByAge(referencePhotoUrls);
     
