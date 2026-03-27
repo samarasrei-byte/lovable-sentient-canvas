@@ -119,9 +119,11 @@ const presentationLabel: Record<string, string> = {
 export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps) => {
   const [step, setStep] = useState<FlowStep>('form');
   const maxPhotos = prompt.min_photos && prompt.min_photos > 1 ? Math.min(prompt.min_photos, 5) : 5;
-  const [formData, setFormData] = useState({ name: '', instagram: '', email: '', description: '', age: '' });
-  const [photos, setPhotos] = useState<PhotoSlot[]>([{ file: null, preview: '' }]);
-  const [photoProfiles, setPhotoProfiles] = useState<(PhotoProfile | null)[]>([null]);
+  const [formData, setFormData] = useState({ name: '', instagram: '', email: '', description: '', age: '', displayName: '', months: '' });
+  const isFamilyInit = /família|familia|family/i.test(prompt.category || '') || /família|familia|family/i.test(prompt.name || '');
+  const initialPhotoSlots = isFamilyInit ? Math.max(prompt.min_photos || 2, 2) : 1;
+  const [photos, setPhotos] = useState<PhotoSlot[]>(Array.from({ length: initialPhotoSlots }, () => ({ file: null, preview: '' })));
+  const [photoProfiles, setPhotoProfiles] = useState<(PhotoProfile | null)[]>(Array.from({ length: initialPhotoSlots }, () => null));
   const [analyzingPhotoSlots, setAnalyzingPhotoSlots] = useState<number[]>([]);
   const [uploadedPhotoUrls, setUploadedPhotoUrls] = useState<string[]>([]);
   const [paymentStatus, setPaymentStatus] = useState<'pending' | 'checking' | 'paid'>('pending');
@@ -252,6 +254,16 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       return;
     }
 
+    if (isFamilyPrompt && activePhotoCount < 2) {
+      toast.error('Para fotos de família, envie pelo menos 2 fotos (uma de cada membro).');
+      return;
+    }
+
+    if (isMesversarioPrompt && !formData.months) {
+      toast.error('Por favor, selecione quantos meses o bebê está fazendo.');
+      return;
+    }
+
     if (prompt.required_fields.includes('name') && !formData.name.trim()) {
       toast.error('Por favor, informe seu nome.');
       return;
@@ -341,6 +353,17 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const isBirthdayPrompt = /aniversário|aniversario|birthday/i.test(prompt.category || '') || 
     /aniversário|aniversario|birthday/i.test(prompt.name || '');
 
+  const isFamilyPrompt = /família|familia|family/i.test(prompt.category || '') || 
+    /família|familia|family/i.test(prompt.name || '');
+
+  const isMesversarioPrompt = /mêsversário|mesversário|mesversario/i.test(prompt.category || '') || 
+    /mêsversário|mesversário|mesversario/i.test(prompt.name || '');
+
+  const hasNameInImage = /nome|name|\[NAME\]|\{nome\}/i.test(prompt.prompt_template || '') ||
+    prompt.required_fields.includes('name');
+
+  const familyPhotoLabels = ['Pai/Mãe', 'Filho(a) 1', 'Filho(a) 2', 'Filho(a) 3', 'Outro familiar'];
+
   const buildGenerationBody = (referencePhotoUrls: string[], overrides: Record<string, unknown> = {}) => {
     const sortedUrls = sortPhotosByAge(referencePhotoUrls);
     
@@ -377,6 +400,36 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
         .replace(/\{idade\}/g, formData.age)
         .replace(/\{age\}/g, formData.age);
       template += `\n\nIDADE OBRIGATÓRIA: A pessoa tem ${formData.age} anos. Exiba "${formData.age}" como idade/vela/número na imagem. NÃO use outra idade.`;
+    }
+
+    // Inject month for mesversário
+    if (isMesversarioPrompt && formData.months) {
+      template = template
+        .replace(/\[MESES\]/g, formData.months)
+        .replace(/\{meses\}/g, formData.months);
+      template += `\n\nMESES DO BEBÊ: O bebê tem ${formData.months} meses. Exiba o número "${formData.months}" como decoração/tema na imagem (vela, balão, banner, etc). NÃO use outro número.`;
+    }
+
+    // Inject display name for prompts with text in image
+    const nameForImage = formData.displayName || formData.name;
+    if (hasNameInImage && nameForImage) {
+      template = template
+        .replace(/\[NOME\]/g, nameForImage)
+        .replace(/\[NAME\]/g, nameForImage)
+        .replace(/\{nome\}/g, nameForImage)
+        .replace(/\{name\}/g, nameForImage);
+      template += `\n\nNOME NA IMAGEM: Escreva EXATAMENTE "${nameForImage}" na imagem onde houver texto decorativo, banner, placa ou similar. Grafia EXATA, sem alterações.`;
+    }
+
+    // Family context
+    if (isFamilyPrompt && sortedUrls.length > 1) {
+      const familyContext = sortedUrls.map((_, i) => {
+        const label = familyPhotoLabels[i] || `Pessoa ${i + 1}`;
+        const profile = photoProfiles[i];
+        const ageInfo = profile?.metadados?.idade_detectada ? ` (~${profile.metadados.idade_detectada} anos)` : '';
+        return `Foto ${i + 1} = ${label}${ageInfo}`;
+      }).join('\n');
+      template += `\n\nCOMPOSIÇÃO FAMILIAR:\n${familyContext}\nMostre TODAS as pessoas juntas em um retrato familiar harmonioso. Cada pessoa DEVE ser reconhecível pela foto de referência correspondente.`;
     }
 
     if (photoContextLines.length > 0) {
@@ -685,21 +738,36 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                     <div className="flex items-center justify-between">
                       <Label className="text-xs sm:text-sm flex items-center gap-2">
                         <Upload className="w-4 h-4" />
-                        {activePhotoCount > 0 ? `Fotos (${activePhotoCount} enviada${activePhotoCount > 1 ? 's' : ''})` : 'Suas fotos'}
+                        {isFamilyPrompt 
+                          ? `Fotos da Família (${activePhotoCount} de ${maxPhotos})`
+                          : activePhotoCount > 0 
+                            ? `Fotos (${activePhotoCount} enviada${activePhotoCount > 1 ? 's' : ''})` 
+                            : 'Suas fotos'}
                       </Label>
                       {photos.length < maxPhotos && (
                         <button onClick={addPhotoSlot} className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors">
                           <Plus className="w-3.5 h-3.5" />
-                          <span className="hidden sm:inline">Adicionar pessoa</span>
-                          <span className="sm:hidden">+Pessoa</span>
+                          <span className="hidden sm:inline">{isFamilyPrompt ? 'Adicionar familiar' : 'Adicionar pessoa'}</span>
+                          <span className="sm:hidden">{isFamilyPrompt ? '+Familiar' : '+Pessoa'}</span>
                         </button>
                       )}
                     </div>
+
+                    {isFamilyPrompt && (
+                      <div className="p-2.5 rounded-lg bg-primary/5 border border-primary/20">
+                        <p className="text-[10px] sm:text-xs text-primary">
+                          👨‍👩‍👧‍👦 Envie uma foto separada de cada membro da família. A IA vai unir todos em uma composição familiar.
+                        </p>
+                      </div>
+                    )}
 
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
                       {photos.map((photo, index) => {
                         const photoProfile = photoProfiles[index];
                         const isAnalyzing = analyzingPhotoSlots.includes(index);
+                        const slotLabel = isFamilyPrompt 
+                          ? (familyPhotoLabels[index] || `Pessoa ${index + 1}`) 
+                          : `Pessoa ${index + 1}`;
 
                         return (
                           <div key={index} className="relative group space-y-1.5">
@@ -708,11 +776,16 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                               className="relative rounded-xl border-2 border-dashed border-white/20 hover:border-primary/50 transition-colors cursor-pointer overflow-hidden aspect-square"
                             >
                               {photo.preview ? (
-                                <img src={photo.preview} alt={`Foto ${index + 1}`} className="w-full h-full object-cover" />
+                                <img src={photo.preview} alt={slotLabel} className="w-full h-full object-cover" />
                               ) : (
                                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-muted-foreground">
                                   <Upload className="w-5 h-5" />
-                                  <span className="text-[9px] sm:text-[10px]">Pessoa {index + 1}</span>
+                                  <span className="text-[9px] sm:text-[10px] text-center px-1">{slotLabel}</span>
+                                </div>
+                              )}
+                              {photo.preview && (
+                                <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/70 to-transparent p-1.5">
+                                  <span className="text-[9px] text-white font-medium">{slotLabel}</span>
                                 </div>
                               )}
                             </div>
@@ -783,12 +856,17 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                     </div>
 
                     <div className="space-y-1 text-center">
-                      <p className="text-[10px] text-muted-foreground">Envie de 1 a {maxPhotos} fotos • Cada foto = uma pessoa na imagem</p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {isFamilyPrompt 
+                          ? `Envie de 2 a ${maxPhotos} fotos • Uma foto por membro da família`
+                          : `Envie de 1 a ${maxPhotos} fotos • Cada foto = uma pessoa na imagem`}
+                      </p>
                       <p className="text-[10px] text-muted-foreground">A auditoria compara a imagem final com a referência antes de liberar o resultado</p>
                     </div>
                   </div>
                 )}
 
+                {/* Name field */}
                 {prompt.required_fields.includes('name') && (
                   <div className="space-y-1.5">
                     <Label className="text-xs sm:text-sm">Seu nome</Label>
@@ -804,6 +882,31 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                   </div>
                 )}
 
+                {/* Display name for image text - shown when prompt has text in image */}
+                {hasNameInImage && (
+                  <div className="space-y-1.5">
+                    <Label className="text-xs sm:text-sm flex items-center gap-2">
+                      ✨ Nome que aparece na imagem
+                    </Label>
+                    <Input
+                      value={formData.displayName}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, displayName: e.target.value }))}
+                      placeholder={formData.name || "Ex: Maria, João Pedro, Baby Luna"}
+                      className="bg-white/5 border-white/10 text-sm font-medium"
+                    />
+                    {formData.displayName && (
+                      <div className="p-2 rounded-lg bg-primary/5 border border-primary/20 text-center">
+                        <p className="text-[10px] text-muted-foreground mb-1">Preview do nome na imagem:</p>
+                        <p className="text-sm font-bold text-primary">{formData.displayName}</p>
+                      </div>
+                    )}
+                    <p className="text-[10px] text-muted-foreground">
+                      Este nome será escrito EXATAMENTE como digitado na imagem gerada (banners, placas, decorações).
+                    </p>
+                  </div>
+                )}
+
+                {/* Instagram field */}
                 {prompt.required_fields.includes('instagram') && (
                   <div className="space-y-1.5">
                     <Label className="text-xs sm:text-sm">@Instagram</Label>
@@ -819,18 +922,51 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                   </div>
                 )}
 
+                {/* Description field */}
                 {prompt.required_fields.includes('description') && (
                   <div className="space-y-1.5">
                     <Label className="text-xs sm:text-sm">Descrição adicional</Label>
                     <textarea
                       value={formData.description}
                       onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
-                      placeholder="Ex: 3 meses, 25 anos, cor do fundo..."
+                      placeholder={isMesversarioPrompt 
+                        ? "Ex: tema safari, cor rosa, fundo azul..." 
+                        : isBirthdayPrompt 
+                          ? "Ex: tema festa junina, cor preferida, detalhes..." 
+                          : "Ex: 3 meses, 25 anos, cor do fundo..."}
                       className="w-full min-h-[60px] px-3 py-2 text-sm rounded-md bg-white/5 border border-white/10 focus:border-primary/50 focus:outline-none resize-none"
                     />
                   </div>
                 )}
 
+                {/* Mesversário months selector */}
+                {isMesversarioPrompt && (
+                  <div className="space-y-2">
+                    <Label className="text-xs sm:text-sm flex items-center gap-2">
+                      👶 Quantos meses o bebê está fazendo?
+                    </Label>
+                    <div className="grid grid-cols-4 sm:grid-cols-6 gap-1.5">
+                      {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
+                        <button
+                          key={month}
+                          onClick={() => setFormData((prev) => ({ ...prev, months: String(month) }))}
+                          className={`p-2 rounded-lg text-sm font-medium transition-all ${
+                            formData.months === String(month)
+                              ? 'bg-primary text-primary-foreground shadow-lg scale-105'
+                              : 'bg-white/5 border border-white/10 hover:border-primary/50 text-foreground'
+                          }`}
+                        >
+                          {month} {month === 1 ? 'mês' : 'meses'}
+                        </button>
+                      ))}
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">
+                      O número será exibido na imagem como decoração (balão, vela, banner, etc).
+                    </p>
+                  </div>
+                )}
+
+                {/* Birthday age input */}
                 {isBirthdayPrompt && (
                   <div className="space-y-1.5">
                     <Label className="text-xs sm:text-sm flex items-center gap-2">
