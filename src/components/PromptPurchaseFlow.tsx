@@ -419,6 +419,16 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       }).join('\n');
       template += `\n\nCOMPOSIÇÃO FAMILIAR:\n${familyContext}\nMostre TODAS as pessoas juntas em um retrato familiar harmonioso. Cada pessoa DEVE ser reconhecível pela foto de referência correspondente.`;
     }
+
+    if (photoContextLines.length > 0) {
+      template += `\n\nDETALHES DAS PESSOAS E ELEMENTOS DETECTADOS:\n${photoContextLines.join('\n')}\nPosicione cada pessoa de acordo com sua faixa etária e gênero detectados.`;
+    }
+
+    return {
+      purchaseId,
+      promptTemplate: template,
+      negativePrompt: prompt.negative_prompt,
+      aiModel: prompt.ai_model,
       userName: formData.name,
       userInstagram: formData.instagram,
       userDescription: formData.description,
