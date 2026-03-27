@@ -153,6 +153,7 @@ Crie uma foto publicitária premium cinematográfica que destaque "${productName
           if (!response.ok) {
             const errorText = await response.text();
             console.error(`[${keyLabel}] ${model} error:`, response.status, errorText);
+            if (response.status === 401) { console.warn(`[${keyLabel}] ❌ Auth invalid, skipping key`); break; }
             if (response.status === 402) throw new Error('Créditos insuficientes. Adicione créditos à sua conta.');
             if (response.status === 429) throw new Error('Limite de requisições excedido. Aguarde e tente novamente.');
             continue;
