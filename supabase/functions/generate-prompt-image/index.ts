@@ -14,11 +14,11 @@ function getApiKeys(): { primary: string; fallback: string | null } {
     throw new Error("No AI API keys configured (LOVABLE_API_KEY or NANO_BANANA_API_KEY)");
   }
 
-  // Prefer NANO_BANANA_API_KEY as primary for image generation (specialized)
-  if (nanoBananaKey && lovableKey) {
-    return { primary: nanoBananaKey, fallback: lovableKey };
+  // Use LOVABLE_API_KEY as primary (always valid format), NANO_BANANA as fallback
+  if (lovableKey && nanoBananaKey) {
+    return { primary: lovableKey, fallback: nanoBananaKey };
   }
-  return { primary: (nanoBananaKey || lovableKey)!, fallback: null };
+  return { primary: (lovableKey || nanoBananaKey)!, fallback: null };
 }
 
 serve(async (req) => {
