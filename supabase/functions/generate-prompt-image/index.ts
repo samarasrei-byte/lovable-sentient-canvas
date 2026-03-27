@@ -278,12 +278,15 @@ async function tryGenerateWithRetry(
   messages: any[],
   apiKeys: { primary: string; fallback: string | null }
 ): Promise<string | null> {
-  const modelsToTry = [primaryModel, primaryModel, "google/gemini-3-pro-image-preview", "google/gemini-2.5-flash-image"];
+  const modelsToTry = [primaryModel, "google/gemini-3-pro-image-preview", "google/gemini-2.5-flash-image"];
   const keysToTry = apiKeys.fallback ? [apiKeys.primary, apiKeys.fallback] : [apiKeys.primary];
 
   for (const apiKey of keysToTry) {
     const keyLabel = apiKey === apiKeys.primary ? "PRIMARY" : "FALLBACK";
+    let authFailed = false;
+    
     for (const model of modelsToTry) {
+      if (authFailed) break; // Skip remaining models if auth is invalid for this key
       try {
         console.log(`[${keyLabel}] Attempting: ${model}`);
         const data = await callGateway(model, messages, apiKey);
@@ -296,6 +299,11 @@ async function tryGenerateWithRetry(
         }
         console.warn(`[${keyLabel}] No image in response from ${model}`);
       } catch (e: any) {
+        if (e.message === "AUTH_INVALID") {
+          console.warn(`[${keyLabel}] ❌ Auth invalid, skipping all models for this key`);
+          authFailed = true;
+          break;
+        }
         if (e.message.includes("Rate limit") || e.message.includes("temporarily")) throw e;
         console.error(`[${keyLabel}] ${model} failed:`, e.message);
       }
