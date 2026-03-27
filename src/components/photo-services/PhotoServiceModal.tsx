@@ -34,8 +34,18 @@ export const PhotoServiceModal = ({ service, onClose }: PhotoServiceModalProps) 
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    phone: ''
+    phone: '',
+    age: '',
+    months: '',
+    displayName: ''
   });
+
+  const isBirthdayTheme = /aniversário|aniversario|birthday/i.test(service.name || '') || 
+    /aniversário|aniversario|birthday/i.test(service.category || '');
+  const isMesversarioTheme = /mêsversário|mesversário|mesversario/i.test(service.name || '') || 
+    /mêsversário|mesversário|mesversario/i.test(service.category || '');
+  const hasNameInImage = /nome|name/i.test(service.name || '') || 
+    service.themes?.some(t => /nome|name/i.test(t.name || '') || /nome|name/i.test(t.description || ''));
 
   const formatPrice = (cents: number) => {
     return new Intl.NumberFormat('pt-BR', {
