@@ -259,6 +259,11 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       return;
     }
 
+    if (isBirthdayPrompt && !formData.age?.trim()) {
+      toast.error('Por favor, informe a idade para o prompt de aniversário.');
+      return;
+    }
+
     if (isMesversarioPrompt && !formData.months) {
       toast.error('Por favor, selecione quantos meses o bebê está fazendo.');
       return;
