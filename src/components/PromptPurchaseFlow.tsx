@@ -1185,6 +1185,27 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                   </div>
                 )}
 
+                {/* Export Format Selector */}
+                <div className="space-y-2">
+                  <p className="text-xs font-medium text-muted-foreground">📐 Formato de exportação:</p>
+                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
+                    {exportFormats.map((fmt) => (
+                      <button
+                        key={fmt.key}
+                        onClick={() => setExportFormat(fmt.key)}
+                        className={`flex flex-col items-center gap-0.5 p-2 rounded-lg text-[10px] font-medium transition-all ${
+                          exportFormat === fmt.key
+                            ? 'bg-primary text-primary-foreground shadow-lg ring-2 ring-primary/30'
+                            : 'bg-white/5 border border-white/10 hover:border-primary/50 text-foreground'
+                        }`}
+                      >
+                        <span className="text-sm">{fmt.icon}</span>
+                        <span>{fmt.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-3 gap-2">
                   <GlassButton onClick={handleDownloadAll} className="col-span-1" size="sm">
                     <Download className="w-3.5 h-3.5 sm:mr-1.5" />
