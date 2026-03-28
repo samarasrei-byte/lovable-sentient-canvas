@@ -136,6 +136,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const [isGeneratingMore, setIsGeneratingMore] = useState(false);
   const [qaStatus, setQaStatus] = useState<'idle' | 'checking' | 'passed' | 'fixing'>('idle');
   const [qaIssues, setQaIssues] = useState<string[]>([]);
+  const [exportFormat, setExportFormat] = useState<string>('original');
   const [generationCount, setGenerationCount] = useState(0);
   const fileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -656,15 +657,70 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
     }
   };
 
+  const exportFormats = [
+    { key: 'original', label: 'Original', icon: '📐', ratio: null },
+    { key: '1:1', label: 'Feed 1:1', icon: '⬜', ratio: 1 },
+    { key: '4:5', label: 'Post 4:5', icon: '📱', ratio: 4 / 5 },
+    { key: '9:16', label: 'Stories', icon: '📲', ratio: 9 / 16 },
+    { key: '16:9', label: 'Cover', icon: '🖥️', ratio: 16 / 9 },
+    { key: '3:4', label: 'Retrato', icon: '🖼️', ratio: 3 / 4 },
+  ];
+
   const handleDownload = (url?: string) => {
     const imageUrl = url || generatedImage;
     if (!imageUrl) return;
 
-    const link = document.createElement('a');
-    link.href = imageUrl;
-    link.download = `arcana-${prompt.name.toLowerCase().replace(/\s+/g, '-')}.png`;
-    link.click();
-    toast.success('Download iniciado!');
+    const selectedFormat = exportFormats.find(f => f.key === exportFormat);
+    if (!selectedFormat?.ratio) {
+      const link = document.createElement('a');
+      link.href = imageUrl;
+      link.download = `arcana-${prompt.name.toLowerCase().replace(/\s+/g, '-')}.png`;
+      link.click();
+      toast.success('Download iniciado!');
+      return;
+    }
+
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.src = imageUrl;
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      const targetRatio = selectedFormat.ratio;
+      const srcRatio = img.width / img.height;
+      let sx = 0, sy = 0, sw = img.width, sh = img.height;
+
+      if (srcRatio > targetRatio) {
+        sw = img.height * targetRatio;
+        sx = (img.width - sw) / 2;
+      } else {
+        sh = img.width / targetRatio;
+        sy = (img.height - sh) / 2;
+      }
+
+      canvas.width = Math.min(sw, 2048);
+      canvas.height = Math.min(sh, 2048);
+      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+
+      canvas.toBlob((blob) => {
+        if (!blob) return;
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `arcana-${prompt.name.toLowerCase().replace(/\s+/g, '-')}-${exportFormat}.png`;
+        link.click();
+        URL.revokeObjectURL(link.href);
+        toast.success(`Download ${selectedFormat.label} iniciado!`);
+      }, 'image/png');
+    };
+    img.onerror = () => {
+      const link = document.createElement('a');
+      link.href = imageUrl;
+      link.download = `arcana-${prompt.name.toLowerCase().replace(/\s+/g, '-')}.png`;
+      link.click();
+      toast.success('Download iniciado!');
+    };
   };
 
   const handleDownloadAll = () => {
@@ -1128,6 +1184,27 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                     </div>
                   </div>
                 )}
+
+                {/* Export Format Selector */}
+                <div className="space-y-2">
+                  <p className="text-xs font-medium text-muted-foreground">📐 Formato de exportação:</p>
+                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
+                    {exportFormats.map((fmt) => (
+                      <button
+                        key={fmt.key}
+                        onClick={() => setExportFormat(fmt.key)}
+                        className={`flex flex-col items-center gap-0.5 p-2 rounded-lg text-[10px] font-medium transition-all ${
+                          exportFormat === fmt.key
+                            ? 'bg-primary text-primary-foreground shadow-lg ring-2 ring-primary/30'
+                            : 'bg-white/5 border border-white/10 hover:border-primary/50 text-foreground'
+                        }`}
+                      >
+                        <span className="text-sm">{fmt.icon}</span>
+                        <span>{fmt.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
                 <div className="grid grid-cols-3 gap-2">
                   <GlassButton onClick={handleDownloadAll} className="col-span-1" size="sm">
