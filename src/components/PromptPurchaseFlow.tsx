@@ -136,6 +136,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const [isGeneratingMore, setIsGeneratingMore] = useState(false);
   const [qaStatus, setQaStatus] = useState<'idle' | 'checking' | 'passed' | 'fixing'>('idle');
   const [qaIssues, setQaIssues] = useState<string[]>([]);
+  const [exportFormat, setExportFormat] = useState<string>('original');
   const [generationCount, setGenerationCount] = useState(0);
   const fileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
