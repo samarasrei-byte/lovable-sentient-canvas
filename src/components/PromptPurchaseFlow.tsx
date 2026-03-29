@@ -1171,10 +1171,14 @@ Se houver bolo na cena, as velas ou topper DEVEM mostrar "${formData.age}".`;
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
                 <div className="text-center">
                   <p className="text-xs sm:text-sm text-muted-foreground mb-3">Escaneie o QR Code ou copie o código PIX</p>
-                  <div className="relative w-40 h-40 sm:w-48 sm:h-48 mx-auto bg-white rounded-xl p-3 mb-3">
-                    <div className="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg flex items-center justify-center">
-                      <QrCode className="w-20 h-20 sm:w-24 sm:h-24 text-white" />
-                    </div>
+                  <div className="relative w-48 h-48 sm:w-56 sm:h-56 mx-auto bg-white rounded-xl p-3 mb-3">
+                    <QRCodeSVG
+                      value={pixCode}
+                      size={192}
+                      level="M"
+                      includeMargin={false}
+                      className="w-full h-full"
+                    />
                     {paymentStatus === 'paid' && (
                       <div className="absolute inset-0 bg-primary/90 rounded-xl flex items-center justify-center">
                         <CheckCircle2 className="w-14 h-14 text-primary-foreground" />
