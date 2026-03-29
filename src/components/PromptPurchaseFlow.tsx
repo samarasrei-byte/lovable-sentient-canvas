@@ -282,8 +282,25 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
     }
 
     try {
+      // Collect all custom fields for persistence
+      const customFields: Record<string, unknown> = {};
+      if (formData.age) customFields.age = formData.age;
+      if (formData.months) customFields.months = formData.months;
+      if (formData.displayName) customFields.displayName = formData.displayName;
+      if (formData.description) customFields.description = formData.description;
+      
+      // Save photo profiles analysis data
+      const validProfiles = photoProfiles.filter(Boolean);
+      if (validProfiles.length > 0) customFields.photoProfiles = validProfiles;
+
       const { data, error } = await supabase.functions.invoke('create-prompt-purchase', {
-        body: { promptId: prompt.id, userName: formData.name, userInstagram: formData.instagram, userEmail: formData.email },
+        body: { 
+          promptId: prompt.id, 
+          userName: formData.name, 
+          userInstagram: formData.instagram, 
+          userEmail: formData.email,
+          customFields: Object.keys(customFields).length > 0 ? customFields : undefined,
+        },
       });
 
       if (error) throw error;
