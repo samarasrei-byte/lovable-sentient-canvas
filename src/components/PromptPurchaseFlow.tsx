@@ -332,63 +332,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
     }
   };
 
-  // Generate a proper PIX EMV QR code payload
-  const generatePixPayload = () => {
-    const value = (prompt.price_cents / 100).toFixed(2);
-    const merchantName = "ARCANA MARKETPLACE";
-    const merchantCity = "SAO PAULO";
-    const pixKey = purchaseId?.slice(0, 32) || "arcana-prompt";
-    
-    // Build EMV QR code fields
-    const buildField = (id: string, value: string) => `${id}${String(value.length).padStart(2, '0')}${value}`;
-    
-    const pixAccount = buildField("00", "br.gov.bcb.pix") + buildField("01", pixKey);
-    const merchantAccountInfo = buildField("26", pixAccount);
-    
-    let payload = "";
-    payload += buildField("00", "01"); // Payload Format Indicator
-    payload += merchantAccountInfo;
-    payload += buildField("52", "0000"); // Merchant Category Code
-    payload += buildField("53", "986"); // Currency (BRL)
-    payload += buildField("54", value); // Transaction Amount
-    payload += buildField("58", "BR"); // Country Code
-    payload += buildField("59", merchantName);
-    payload += buildField("60", merchantCity);
-    payload += buildField("62", buildField("05", "***")); // Additional Data
-    
-    // CRC16-CCITT calculation
-    payload += "6304";
-    let crc = 0xFFFF;
-    for (let i = 0; i < payload.length; i++) {
-      crc ^= payload.charCodeAt(i) << 8;
-      for (let j = 0; j < 8; j++) {
-        crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1);
-        crc &= 0xFFFF;
-      }
-    }
-    
-    return payload.slice(0, -4) + "6304" + crc.toString(16).toUpperCase().padStart(4, '0');
-  };
-
-  const pixCode = generatePixPayload();
-
-  const handleCopyPix = () => {
-    navigator.clipboard.writeText(pixCode);
-    setCopied(true);
-    toast.success('Código PIX copiado!');
-    setTimeout(() => setCopied(false), 3000);
-  };
-
-  const simulatePayment = async () => {
-    setPaymentStatus('checking');
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setPaymentStatus('paid');
-    toast.success('Pagamento confirmado!');
-    setTimeout(() => {
-      setStep('generating');
-      void generateImage();
-    }, 1000);
-  };
+  // Payment is handled via Stripe Checkout redirect
 
   const uploadPhotos = async (): Promise<string[]> => {
     const urls: string[] = [];
