@@ -8,8 +8,11 @@ import { Badge } from "@/components/ui/badge";
 import {
   X, Upload, User, AtSign, Sparkles, QrCode, Copy, Check, Download,
   Loader2, CheckCircle2, Clock, Pencil, Plus, Trash2,
-  RefreshCw, AlertTriangle, ImagePlus
+  RefreshCw, AlertTriangle, ImagePlus, Share2, MessageCircle, Eye
 } from "lucide-react";
+import { GenerationProgressBar } from "./GenerationProgressBar";
+import { ShareButtons } from "./ShareButtons";
+import { BeforeAfterSlider } from "./BeforeAfterSlider";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
