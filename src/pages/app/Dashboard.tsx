@@ -12,6 +12,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
+import { MemoryGallery } from "@/components/MemoryGallery";
 
 interface Prompt {
   id: string;
