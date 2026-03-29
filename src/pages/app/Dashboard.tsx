@@ -323,6 +323,11 @@ export default function Dashboard() {
         </motion.div>
       </div>
 
+      {/* ===== MEMORY GALLERY ===== */}
+      <motion.div {...fadeUp(0.45)}>
+        <MemoryGallery />
+      </motion.div>
+
       {/* ===== COMING SOON SECTION ===== */}
       <motion.div {...fadeUp(0.5)}>
         <div className="flex items-center gap-2 mb-4">
