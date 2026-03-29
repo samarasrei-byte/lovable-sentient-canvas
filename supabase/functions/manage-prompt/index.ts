@@ -47,6 +47,13 @@ serve(async (req) => {
 
     if (action === "delete") {
       if (!promptId) throw new Error("promptId is required for delete");
+      // Delete related prompt_purchases first (FK constraint)
+      const { error: purchasesError } = await supabaseAdmin
+        .from("prompt_purchases")
+        .delete()
+        .eq("prompt_id", promptId);
+      if (purchasesError) throw purchasesError;
+
       const { error } = await supabaseAdmin
         .from("prompts")
         .delete()
