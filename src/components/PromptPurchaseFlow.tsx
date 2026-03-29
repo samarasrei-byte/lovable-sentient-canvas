@@ -1094,35 +1094,28 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
 
             {step === 'generating' && (
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="py-6 sm:py-8 text-center">
-                <div className="relative w-24 h-24 sm:w-28 sm:h-28 mx-auto mb-5">
+                <div className="relative w-20 h-20 mx-auto mb-4">
                   <div className="absolute inset-0 rounded-full border-2 border-white/[0.06]" />
                   <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-primary animate-spin" style={{ animationDuration: '1.2s' }} />
-                  <div className="absolute inset-2 rounded-full border-2 border-transparent border-b-secondary animate-spin" style={{ animationDuration: '2s', animationDirection: 'reverse' }} />
-                  <div className="absolute inset-4 rounded-full bg-white/[0.03] backdrop-blur-sm flex items-center justify-center">
-                    <Sparkles className="w-7 h-7 text-primary animate-pulse" />
+                  <div className="absolute inset-2 rounded-full bg-white/[0.03] backdrop-blur-sm flex items-center justify-center">
+                    <Sparkles className="w-6 h-6 text-primary animate-pulse" />
                   </div>
                 </div>
 
                 <h3 className="text-base sm:text-lg font-semibold mb-1">
                   {qaStatus === 'checking' ? 'Validando qualidade...' : qaStatus === 'fixing' ? 'Corrigindo automaticamente...' : 'Gerando sua imagem...'}
                 </h3>
-                <p className="text-xs sm:text-sm text-muted-foreground mb-4">
+                <p className="text-xs text-muted-foreground mb-4">
                   {qaStatus === 'fixing'
                     ? 'Problemas detectados, gerando versão corrigida...'
-                    : `A IA está ${activePhotoCount > 1 ? `processando ${activePhotoCount} fotos` : 'criando sua arte'}. Até 30s.`}
+                    : `A IA está ${activePhotoCount > 1 ? `processando ${activePhotoCount} fotos` : 'criando sua arte'}.`}
                 </p>
 
-                <div className="space-y-1.5 text-left max-w-[260px] mx-auto mb-5">
-                  {[
-                    { label: 'Analisando traços faciais', delay: 0 },
-                    { label: activePhotoCount > 1 ? 'Comparando cada referência' : 'Aplicando estilo artístico', delay: 3 },
-                    { label: 'Refinando detalhes', delay: 8 },
-                    { label: 'Auditoria com imagem de referência', delay: 14, isQA: true },
-                    { label: 'Finalizando imagem', delay: 18 },
-                  ].map((item, index) => (
-                    <GeneratingStep key={index} label={item.label} delay={item.delay} isQA={item.isQA} />
-                  ))}
-                </div>
+                <GenerationProgressBar 
+                  isGenerating={step === 'generating'} 
+                  qaStatus={qaStatus} 
+                  photoCount={activePhotoCount || 1} 
+                />
 
                 {qaIssues.length > 0 && (
                   <div className="mb-4 p-3 rounded-lg bg-secondary/10 border border-secondary/30 text-left">
