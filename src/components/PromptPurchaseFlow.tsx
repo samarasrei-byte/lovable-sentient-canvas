@@ -11,6 +11,7 @@ import {
   Loader2, CheckCircle2, Clock, Pencil, Plus, Trash2,
   RefreshCw, AlertTriangle, ImagePlus, Share2, MessageCircle, Eye
 } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import { GenerationProgressBar } from "./GenerationProgressBar";
 import { ShareButtons } from "./ShareButtons";
 import { BeforeAfterSlider } from "./BeforeAfterSlider";
@@ -281,8 +282,25 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
     }
 
     try {
+      // Collect all custom fields for persistence
+      const customFields: Record<string, unknown> = {};
+      if (formData.age) customFields.age = formData.age;
+      if (formData.months) customFields.months = formData.months;
+      if (formData.displayName) customFields.displayName = formData.displayName;
+      if (formData.description) customFields.description = formData.description;
+      
+      // Save photo profiles analysis data
+      const validProfiles = photoProfiles.filter(Boolean);
+      if (validProfiles.length > 0) customFields.photoProfiles = validProfiles;
+
       const { data, error } = await supabase.functions.invoke('create-prompt-purchase', {
-        body: { promptId: prompt.id, userName: formData.name, userInstagram: formData.instagram, userEmail: formData.email },
+        body: { 
+          promptId: prompt.id, 
+          userName: formData.name, 
+          userInstagram: formData.instagram, 
+          userEmail: formData.email,
+          customFields: Object.keys(customFields).length > 0 ? customFields : undefined,
+        },
       });
 
       if (error) throw error;
@@ -296,7 +314,45 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
     }
   };
 
-  const pixCode = `00020126580014br.gov.bcb.pix0136${purchaseId?.slice(0, 32) || 'arcana-prompt-marketplace'}5204000053039865406${(prompt.price_cents / 100).toFixed(2)}5802BR5925ARCANA MARKETPLACE LTDA6009SAO PAULO62070503***6304`;
+  // Generate a proper PIX EMV QR code payload
+  const generatePixPayload = () => {
+    const value = (prompt.price_cents / 100).toFixed(2);
+    const merchantName = "ARCANA MARKETPLACE";
+    const merchantCity = "SAO PAULO";
+    const pixKey = purchaseId?.slice(0, 32) || "arcana-prompt";
+    
+    // Build EMV QR code fields
+    const buildField = (id: string, value: string) => `${id}${String(value.length).padStart(2, '0')}${value}`;
+    
+    const pixAccount = buildField("00", "br.gov.bcb.pix") + buildField("01", pixKey);
+    const merchantAccountInfo = buildField("26", pixAccount);
+    
+    let payload = "";
+    payload += buildField("00", "01"); // Payload Format Indicator
+    payload += merchantAccountInfo;
+    payload += buildField("52", "0000"); // Merchant Category Code
+    payload += buildField("53", "986"); // Currency (BRL)
+    payload += buildField("54", value); // Transaction Amount
+    payload += buildField("58", "BR"); // Country Code
+    payload += buildField("59", merchantName);
+    payload += buildField("60", merchantCity);
+    payload += buildField("62", buildField("05", "***")); // Additional Data
+    
+    // CRC16-CCITT calculation
+    payload += "6304";
+    let crc = 0xFFFF;
+    for (let i = 0; i < payload.length; i++) {
+      crc ^= payload.charCodeAt(i) << 8;
+      for (let j = 0; j < 8; j++) {
+        crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1);
+        crc &= 0xFFFF;
+      }
+    }
+    
+    return payload.slice(0, -4) + "6304" + crc.toString(16).toUpperCase().padStart(4, '0');
+  };
+
+  const pixCode = generatePixPayload();
 
   const handleCopyPix = () => {
     navigator.clipboard.writeText(pixCode);
@@ -1115,10 +1171,14 @@ Se houver bolo na cena, as velas ou topper DEVEM mostrar "${formData.age}".`;
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
                 <div className="text-center">
                   <p className="text-xs sm:text-sm text-muted-foreground mb-3">Escaneie o QR Code ou copie o código PIX</p>
-                  <div className="relative w-40 h-40 sm:w-48 sm:h-48 mx-auto bg-white rounded-xl p-3 mb-3">
-                    <div className="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg flex items-center justify-center">
-                      <QrCode className="w-20 h-20 sm:w-24 sm:h-24 text-white" />
-                    </div>
+                  <div className="relative w-48 h-48 sm:w-56 sm:h-56 mx-auto bg-white rounded-xl p-3 mb-3">
+                    <QRCodeSVG
+                      value={pixCode}
+                      size={192}
+                      level="M"
+                      includeMargin={false}
+                      className="w-full h-full"
+                    />
                     {paymentStatus === 'paid' && (
                       <div className="absolute inset-0 bg-primary/90 rounded-xl flex items-center justify-center">
                         <CheckCircle2 className="w-14 h-14 text-primary-foreground" />
