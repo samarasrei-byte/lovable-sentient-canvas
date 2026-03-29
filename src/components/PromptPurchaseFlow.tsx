@@ -142,6 +142,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const [qaIssues, setQaIssues] = useState<string[]>([]);
   const [exportFormat, setExportFormat] = useState<string>('original');
   const [generationCount, setGenerationCount] = useState(0);
+  const [showBeforeAfter, setShowBeforeAfter] = useState(false);
   const fileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const activePhotoCount = photos.filter((photo) => photo.file).length;
