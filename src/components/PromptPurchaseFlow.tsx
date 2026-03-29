@@ -1202,6 +1202,28 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                   </div>
                 </div>
 
+                {/* Before/After toggle */}
+                {photos[0]?.preview && (
+                  <div className="space-y-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowBeforeAfter(!showBeforeAfter)}
+                      className="w-full text-xs gap-2 rounded-xl"
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                      {showBeforeAfter ? 'Ver imagem gerada' : 'Comparar Antes/Depois'}
+                    </Button>
+                    {showBeforeAfter && (
+                      <BeforeAfterSlider
+                        beforeImage={photos[0].preview}
+                        afterImage={generatedImage}
+                        className="aspect-[4/5] w-full"
+                      />
+                    )}
+                  </div>
+                )}
+
                 <div className="grid grid-cols-3 gap-2">
                   <GlassButton onClick={handleDownloadAll} className="col-span-1" size="sm">
                     <Download className="w-3.5 h-3.5 sm:mr-1.5" />
@@ -1215,6 +1237,12 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                     {isGeneratingMore ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ImagePlus className="w-3.5 h-3.5 sm:mr-1.5" />}
                     <span className="hidden sm:inline">{isGeneratingMore ? '...' : '+Variação'}</span>
                   </GlassButton>
+                </div>
+
+                {/* Share buttons */}
+                <div className="space-y-1.5">
+                  <p className="text-[10px] text-muted-foreground font-medium">📤 Compartilhar:</p>
+                  <ShareButtons imageUrl={generatedImage} title={prompt.name} compact />
                 </div>
 
                 <p className="text-[10px] text-center text-muted-foreground">
