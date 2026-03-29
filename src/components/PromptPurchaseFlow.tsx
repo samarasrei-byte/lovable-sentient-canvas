@@ -410,7 +410,12 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
         .replace(/\[IDADE\]/g, formData.age)
         .replace(/\{idade\}/g, formData.age)
         .replace(/\{age\}/g, formData.age);
-      template += `\n\nIDADE OBRIGATÓRIA: A pessoa tem ${formData.age} anos. Exiba "${formData.age}" como idade/vela/número na imagem. NÃO use outra idade.`;
+      template += `\n\nIDADE OBRIGATÓRIA — INSTRUÇÃO CRÍTICA DE NÚMERO:
+O número "${formData.age}" DEVE aparecer VISÍVEL e LEGÍVEL na imagem. 
+Renderize o número "${formData.age}" de forma proeminente em pelo menos UM destes elementos: vela(s) no bolo mostrando "${formData.age}", balão metalizado dourado/prateado formando "${formData.age}", banner/faixa com "${formData.age}", topper de bolo com "${formData.age}".
+A pessoa aparenta ter ${formData.age} anos de idade.
+NÃO use outro número. NÃO omita o número. O número "${formData.age}" é o elemento central da composição.
+Se houver bolo na cena, as velas ou topper DEVEM mostrar "${formData.age}".`;
     }
 
     // Inject month for mesversário
