@@ -869,7 +869,7 @@ Se houver bolo na cena, as velas ou topper DEVEM mostrar "${formData.age}".`;
                     >
                       {index + 1}
                     </div>
-                    <span className="hidden sm:inline">{['Dados', 'PIX', 'Gerar', 'Pronto'][index]}</span>
+                    <span className="hidden sm:inline">{['Dados', 'Pagamento', 'Gerar', 'Pronto'][index]}</span>
                   </div>
                   {index < 3 && <div className="flex-1 h-px bg-white/10 mx-1 sm:mx-2 w-3 sm:w-8" />}
                 </div>
