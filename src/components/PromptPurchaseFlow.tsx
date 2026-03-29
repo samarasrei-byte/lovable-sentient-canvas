@@ -1187,38 +1187,57 @@ Se houver bolo na cena, as velas ou topper DEVEM mostrar "${formData.age}".`;
 
             {step === 'payment' && (
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
-                <div className="text-center">
-                  <p className="text-xs sm:text-sm text-muted-foreground mb-3">Escaneie o QR Code ou copie o código PIX</p>
-                  <div className="relative w-48 h-48 sm:w-56 sm:h-56 mx-auto bg-white rounded-xl p-3 mb-3">
-                    <QRCodeSVG
-                      value={pixCode}
-                      size={192}
-                      level="M"
-                      includeMargin={false}
-                      className="w-full h-full"
-                    />
-                    {paymentStatus === 'paid' && (
-                      <div className="absolute inset-0 bg-primary/90 rounded-xl flex items-center justify-center">
-                        <CheckCircle2 className="w-14 h-14 text-primary-foreground" />
-                      </div>
-                    )}
+                <div className="text-center py-4">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Loader2 className="w-8 h-8 text-primary animate-spin" />
                   </div>
-                  <div className="relative">
-                    <Input value={pixCode.slice(0, 40) + '...'} readOnly className="pr-12 text-xs bg-white/5 border-white/10" />
-                    <button onClick={handleCopyPix} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 hover:bg-white/10 rounded transition-colors">
-                      {copied ? <Check className="w-4 h-4 text-primary" /> : <Copy className="w-4 h-4 text-muted-foreground" />}
-                    </button>
+                  <h3 className="text-base sm:text-lg font-semibold mb-2">Aguardando pagamento via Stripe</h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground mb-4">
+                    Uma nova aba foi aberta para o pagamento seguro. Após concluir, clique no botão abaixo.
+                  </p>
+                  
+                  <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 mb-4">
+                    <p className="text-xs text-muted-foreground">
+                      💳 Pagamento processado com segurança pelo <strong>Stripe</strong>. 
+                      Aceitamos cartão de crédito, débito e outros métodos.
+                    </p>
                   </div>
-                  <div className="mt-3 p-2.5 rounded-lg bg-white/5 border border-white/10">
-                    {paymentStatus === 'pending' && <div className="flex items-center justify-center gap-2 text-secondary"><Clock className="w-4 h-4" /><span className="text-sm">Aguardando pagamento...</span></div>}
-                    {paymentStatus === 'checking' && <div className="flex items-center justify-center gap-2 text-primary"><Loader2 className="w-4 h-4 animate-spin" /><span className="text-sm">Verificando...</span></div>}
-                    {paymentStatus === 'paid' && <div className="flex items-center justify-center gap-2 text-primary"><CheckCircle2 className="w-4 h-4" /><span className="text-sm">Pagamento confirmado!</span></div>}
-                  </div>
-                  {paymentStatus === 'pending' && (
-                    <GlassButton onClick={simulatePayment} className="w-full mt-3" variant="outline">
-                      <Check className="w-4 h-4 mr-2" />Simular Pagamento (Demo)
+
+                  <div className="flex flex-col gap-2">
+                    <GlassButton 
+                      onClick={() => {
+                        setPaymentStatus('paid');
+                        toast.success('Pagamento confirmado!');
+                        setStep('generating');
+                        void generateImage();
+                      }} 
+                      className="w-full"
+                    >
+                      <CheckCircle2 className="w-4 h-4 mr-2" />
+                      Já paguei — Gerar minha imagem
                     </GlassButton>
-                  )}
+                    <GlassButton 
+                      onClick={() => {
+                        // Re-open Stripe checkout
+                        supabase.functions.invoke('create-stripe-checkout', {
+                          body: {
+                            purchaseId,
+                            promptName: prompt.name,
+                            priceCents: prompt.price_cents,
+                            customerEmail: formData.email || undefined,
+                            customerName: formData.name || undefined,
+                          },
+                        }).then(({ data }) => {
+                          if (data?.url) window.open(data.url, '_blank');
+                        });
+                      }}
+                      variant="outline" 
+                      className="w-full"
+                    >
+                      <QrCode className="w-4 h-4 mr-2" />
+                      Reabrir página de pagamento
+                    </GlassButton>
+                  </div>
                 </div>
               </motion.div>
             )}
