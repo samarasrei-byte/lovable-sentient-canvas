@@ -11,7 +11,6 @@ import {
   Loader2, CheckCircle2, Clock, Pencil, Plus, Trash2,
   RefreshCw, AlertTriangle, ImagePlus, Share2, MessageCircle, Eye
 } from "lucide-react";
-import { QRCodeSVG } from "qrcode.react";
 import { GenerationProgressBar } from "./GenerationProgressBar";
 import { ShareButtons } from "./ShareButtons";
 import { BeforeAfterSlider } from "./BeforeAfterSlider";
