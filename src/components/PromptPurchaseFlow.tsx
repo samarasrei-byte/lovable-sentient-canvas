@@ -3,13 +3,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import { GlassCard, GlassCardContent, GlassCardHeader, GlassCardTitle } from "@/components/ui/glass-card";
 import { GlassButton } from "@/components/ui/glass-button";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import {
   X, Upload, User, AtSign, Sparkles, QrCode, Copy, Check, Download,
   Loader2, CheckCircle2, Clock, Pencil, Plus, Trash2,
-  RefreshCw, AlertTriangle, ImagePlus
+  RefreshCw, AlertTriangle, ImagePlus, Share2, MessageCircle, Eye
 } from "lucide-react";
+import { GenerationProgressBar } from "./GenerationProgressBar";
+import { ShareButtons } from "./ShareButtons";
+import { BeforeAfterSlider } from "./BeforeAfterSlider";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -138,6 +142,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const [qaIssues, setQaIssues] = useState<string[]>([]);
   const [exportFormat, setExportFormat] = useState<string>('original');
   const [generationCount, setGenerationCount] = useState(0);
+  const [showBeforeAfter, setShowBeforeAfter] = useState(false);
   const fileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const activePhotoCount = photos.filter((photo) => photo.file).length;
@@ -1091,35 +1096,28 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
 
             {step === 'generating' && (
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="py-6 sm:py-8 text-center">
-                <div className="relative w-24 h-24 sm:w-28 sm:h-28 mx-auto mb-5">
+                <div className="relative w-20 h-20 mx-auto mb-4">
                   <div className="absolute inset-0 rounded-full border-2 border-white/[0.06]" />
                   <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-primary animate-spin" style={{ animationDuration: '1.2s' }} />
-                  <div className="absolute inset-2 rounded-full border-2 border-transparent border-b-secondary animate-spin" style={{ animationDuration: '2s', animationDirection: 'reverse' }} />
-                  <div className="absolute inset-4 rounded-full bg-white/[0.03] backdrop-blur-sm flex items-center justify-center">
-                    <Sparkles className="w-7 h-7 text-primary animate-pulse" />
+                  <div className="absolute inset-2 rounded-full bg-white/[0.03] backdrop-blur-sm flex items-center justify-center">
+                    <Sparkles className="w-6 h-6 text-primary animate-pulse" />
                   </div>
                 </div>
 
                 <h3 className="text-base sm:text-lg font-semibold mb-1">
                   {qaStatus === 'checking' ? 'Validando qualidade...' : qaStatus === 'fixing' ? 'Corrigindo automaticamente...' : 'Gerando sua imagem...'}
                 </h3>
-                <p className="text-xs sm:text-sm text-muted-foreground mb-4">
+                <p className="text-xs text-muted-foreground mb-4">
                   {qaStatus === 'fixing'
                     ? 'Problemas detectados, gerando versão corrigida...'
-                    : `A IA está ${activePhotoCount > 1 ? `processando ${activePhotoCount} fotos` : 'criando sua arte'}. Até 30s.`}
+                    : `A IA está ${activePhotoCount > 1 ? `processando ${activePhotoCount} fotos` : 'criando sua arte'}.`}
                 </p>
 
-                <div className="space-y-1.5 text-left max-w-[260px] mx-auto mb-5">
-                  {[
-                    { label: 'Analisando traços faciais', delay: 0 },
-                    { label: activePhotoCount > 1 ? 'Comparando cada referência' : 'Aplicando estilo artístico', delay: 3 },
-                    { label: 'Refinando detalhes', delay: 8 },
-                    { label: 'Auditoria com imagem de referência', delay: 14, isQA: true },
-                    { label: 'Finalizando imagem', delay: 18 },
-                  ].map((item, index) => (
-                    <GeneratingStep key={index} label={item.label} delay={item.delay} isQA={item.isQA} />
-                  ))}
-                </div>
+                <GenerationProgressBar 
+                  isGenerating={step === 'generating'} 
+                  qaStatus={qaStatus} 
+                  photoCount={activePhotoCount || 1} 
+                />
 
                 {qaIssues.length > 0 && (
                   <div className="mb-4 p-3 rounded-lg bg-secondary/10 border border-secondary/30 text-left">
@@ -1206,6 +1204,28 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                   </div>
                 </div>
 
+                {/* Before/After toggle */}
+                {photos[0]?.preview && (
+                  <div className="space-y-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowBeforeAfter(!showBeforeAfter)}
+                      className="w-full text-xs gap-2 rounded-xl"
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                      {showBeforeAfter ? 'Ver imagem gerada' : 'Comparar Antes/Depois'}
+                    </Button>
+                    {showBeforeAfter && (
+                      <BeforeAfterSlider
+                        beforeImage={photos[0].preview}
+                        afterImage={generatedImage}
+                        className="aspect-[4/5] w-full"
+                      />
+                    )}
+                  </div>
+                )}
+
                 <div className="grid grid-cols-3 gap-2">
                   <GlassButton onClick={handleDownloadAll} className="col-span-1" size="sm">
                     <Download className="w-3.5 h-3.5 sm:mr-1.5" />
@@ -1219,6 +1239,12 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                     {isGeneratingMore ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ImagePlus className="w-3.5 h-3.5 sm:mr-1.5" />}
                     <span className="hidden sm:inline">{isGeneratingMore ? '...' : '+Variação'}</span>
                   </GlassButton>
+                </div>
+
+                {/* Share buttons */}
+                <div className="space-y-1.5">
+                  <p className="text-[10px] text-muted-foreground font-medium">📤 Compartilhar:</p>
+                  <ShareButtons imageUrl={generatedImage} title={prompt.name} compact />
                 </div>
 
                 <p className="text-[10px] text-center text-muted-foreground">

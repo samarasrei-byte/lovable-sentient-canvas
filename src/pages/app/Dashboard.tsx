@@ -12,6 +12,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
+import { MemoryGallery } from "@/components/MemoryGallery";
 
 interface Prompt {
   id: string;
@@ -321,6 +322,11 @@ export default function Dashboard() {
           </Card>
         </motion.div>
       </div>
+
+      {/* ===== MEMORY GALLERY ===== */}
+      <motion.div {...fadeUp(0.45)}>
+        <MemoryGallery />
+      </motion.div>
 
       {/* ===== COMING SOON SECTION ===== */}
       <motion.div {...fadeUp(0.5)}>
