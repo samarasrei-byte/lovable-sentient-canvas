@@ -410,7 +410,12 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
         .replace(/\[IDADE\]/g, formData.age)
         .replace(/\{idade\}/g, formData.age)
         .replace(/\{age\}/g, formData.age);
-      template += `\n\nIDADE OBRIGATÓRIA: A pessoa tem ${formData.age} anos. Exiba "${formData.age}" como idade/vela/número na imagem. NÃO use outra idade.`;
+      template += `\n\nIDADE OBRIGATÓRIA — INSTRUÇÃO CRÍTICA DE NÚMERO:
+O número "${formData.age}" DEVE aparecer VISÍVEL e LEGÍVEL na imagem. 
+Renderize o número "${formData.age}" de forma proeminente em pelo menos UM destes elementos: vela(s) no bolo mostrando "${formData.age}", balão metalizado dourado/prateado formando "${formData.age}", banner/faixa com "${formData.age}", topper de bolo com "${formData.age}".
+A pessoa aparenta ter ${formData.age} anos de idade.
+NÃO use outro número. NÃO omita o número. O número "${formData.age}" é o elemento central da composição.
+Se houver bolo na cena, as velas ou topper DEVEM mostrar "${formData.age}".`;
     }
 
     // Inject month for mesversário
@@ -1032,24 +1037,70 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
                   </div>
                 )}
 
-                {/* Birthday age input */}
+                {/* Birthday age input with visual preview */}
                 {isBirthdayPrompt && (
-                  <div className="space-y-1.5">
+                  <div className="space-y-3">
                     <Label className="text-xs sm:text-sm flex items-center gap-2">
-                      🎂 Idade para a imagem
+                      🎂 Qual idade vai aparecer na imagem?
                     </Label>
-                    <Input
-                      value={formData.age}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, age: e.target.value.replace(/\D/g, '') }))}
-                      placeholder="Ex: 28"
-                      className="bg-white/5 border-white/10 text-sm"
-                      maxLength={3}
-                      type="text"
-                      inputMode="numeric"
-                    />
-                    <p className="text-[10px] text-muted-foreground">
-                      A idade informada será usada na imagem, independente da referência.
-                    </p>
+                    
+                    {/* Visual number preview */}
+                    <div className="flex items-center gap-4">
+                      <div className="relative flex-shrink-0">
+                        <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20 border-2 border-primary/30 flex items-center justify-center overflow-hidden">
+                          {formData.age ? (
+                            <motion.span
+                              key={formData.age}
+                              initial={{ scale: 0.5, opacity: 0 }}
+                              animate={{ scale: 1, opacity: 1 }}
+                              className="text-4xl sm:text-5xl font-black bg-gradient-to-b from-primary to-primary/70 bg-clip-text text-transparent"
+                            >
+                              {formData.age}
+                            </motion.span>
+                          ) : (
+                            <span className="text-3xl opacity-30">?</span>
+                          )}
+                        </div>
+                        {formData.age && (
+                          <div className="absolute -bottom-1 -right-1 bg-primary text-primary-foreground text-[9px] px-1.5 py-0.5 rounded-full font-bold">
+                            🎂
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="flex-1 space-y-2">
+                        <Input
+                          value={formData.age}
+                          onChange={(e) => setFormData((prev) => ({ ...prev, age: e.target.value.replace(/\D/g, '') }))}
+                          placeholder="Ex: 30"
+                          className="bg-white/5 border-white/10 text-lg font-bold text-center"
+                          maxLength={3}
+                          type="text"
+                          inputMode="numeric"
+                        />
+                        <p className="text-[10px] text-muted-foreground leading-tight">
+                          Este número aparecerá no bolo, velas, balões ou decoração da imagem — exatamente como você digitar.
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {/* Quick age buttons */}
+                    <div className="flex flex-wrap gap-1.5">
+                      {[1, 2, 3, 5, 10, 15, 18, 21, 25, 30, 40, 50].map((age) => (
+                        <button
+                          key={age}
+                          type="button"
+                          onClick={() => setFormData((prev) => ({ ...prev, age: String(age) }))}
+                          className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${
+                            formData.age === String(age)
+                              ? 'bg-primary text-primary-foreground scale-105'
+                              : 'bg-white/5 hover:bg-white/10 text-muted-foreground'
+                          }`}
+                        >
+                          {age}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 )}
 
