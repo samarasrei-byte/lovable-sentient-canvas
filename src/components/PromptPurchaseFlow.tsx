@@ -379,7 +379,8 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   };
 
   const isBirthdayPrompt = /aniversário|aniversario|birthday/i.test(prompt.category || '') || 
-    /aniversário|aniversario|birthday/i.test(prompt.name || '');
+    /aniversário|aniversario|birthday/i.test(prompt.name || '') ||
+    prompt.required_fields.includes('age');
 
   const isFamilyPrompt = /família|familia|family/i.test(prompt.category || '') || 
     /família|familia|family/i.test(prompt.name || '');
