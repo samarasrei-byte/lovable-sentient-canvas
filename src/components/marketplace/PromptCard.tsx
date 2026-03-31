@@ -80,19 +80,16 @@ export const PromptCard = ({ prompt, index, onSelect, variant = 'grid' }: Prompt
         {/* Image Container */}
         <div className={cn(
           "relative overflow-hidden",
-          isMobile ? "aspect-[3/4] w-full" : "aspect-[4/5]"
+          "aspect-[4/5] w-full"
         )}>
           {prompt.example_image_url ? (
             <img
               src={prompt.example_image_url}
               alt={`Exemplo do prompt ${prompt.name}`}
-              className={cn(
-                "w-full h-full transition-transform duration-700 ease-out group-hover:scale-[1.04]",
-                isMobile ? "object-contain bg-background/50" : "object-cover"
-              )}
+              className="w-full h-full transition-transform duration-700 ease-out group-hover:scale-[1.04] object-cover"
               loading="lazy"
               decoding="async"
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 33vw"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-secondary/10">
@@ -120,18 +117,6 @@ export const PromptCard = ({ prompt, index, onSelect, variant = 'grid' }: Prompt
             </div>
           </div>
 
-          {/* Hover CTA overlay */}
-          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-400 bg-background/20 backdrop-blur-[2px]">
-            <div className={cn(
-              "flex items-center gap-2 px-5 py-2.5 rounded-full",
-              "bg-primary text-primary-foreground font-medium text-sm",
-              "shadow-[0_0_20px_hsl(var(--primary)/0.5)]",
-              "scale-90 group-hover:scale-100 transition-transform duration-300"
-            )}>
-              <Eye className="w-4 h-4" />
-              Ver prompt
-            </div>
-          </div>
         </div>
 
         {/* Content Section */}
