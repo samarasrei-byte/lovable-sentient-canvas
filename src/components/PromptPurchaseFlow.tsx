@@ -395,6 +395,9 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
 
   const buildGenerationBody = (referencePhotoUrls: string[], overrides: Record<string, unknown> = {}) => {
     const sortedUrls = sortPhotosByAge(referencePhotoUrls);
+    const { promptTemplate: overridePromptTemplate, ...restOverrides } = overrides as Record<string, unknown> & {
+      promptTemplate?: string;
+    };
     
     // Build age/position context from rich analysis
     const photoContextLines: string[] = [];
@@ -414,7 +417,9 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       }
     });
 
-    let template = prompt.prompt_template || '';
+    let template = typeof overridePromptTemplate === 'string' && overridePromptTemplate.trim().length > 0
+      ? overridePromptTemplate
+      : (prompt.prompt_template || '');
 
     // Enrich with AI-generated prompt context if available
     const firstProfileWithPrompt = photoProfiles.find(p => p?.prompt_gerado);
@@ -433,7 +438,9 @@ O número "${formData.age}" DEVE aparecer VISÍVEL e LEGÍVEL na imagem.
 Renderize o número "${formData.age}" de forma proeminente em pelo menos UM destes elementos: vela(s) no bolo mostrando "${formData.age}", balão metalizado dourado/prateado formando "${formData.age}", banner/faixa com "${formData.age}", topper de bolo com "${formData.age}".
 A pessoa aparenta ter ${formData.age} anos de idade.
 NÃO use outro número. NÃO omita o número. O número "${formData.age}" é o elemento central da composição.
-Se houver bolo na cena, as velas ou topper DEVEM mostrar "${formData.age}".`;
+Se houver bolo na cena, as velas ou topper DEVEM mostrar "${formData.age}".
+IGNORE COMPLETAMENTE qualquer número, idade, texto, nome, letras ou símbolos que apareçam na imagem de exemplo/referência de estilo.
+Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a imagem final DEVE mostrar apenas "${formData.age}".`;
     }
 
     // Inject month for mesversário
@@ -472,7 +479,6 @@ Se houver bolo na cena, as velas ou topper DEVEM mostrar "${formData.age}".`;
 
     return {
       purchaseId,
-      promptTemplate: template,
       negativePrompt: prompt.negative_prompt,
       aiModel: prompt.ai_model,
       userName: formData.name,
@@ -481,7 +487,8 @@ Se houver bolo na cena, as velas ou topper DEVEM mostrar "${formData.age}".`;
       userPhotoUrl: sortedUrls[0] || null,
       userPhotoUrls: sortedUrls.length > 0 ? sortedUrls : undefined,
       exampleImageUrl: prompt.example_image_url,
-      ...overrides,
+      ...restOverrides,
+      promptTemplate: template,
     };
   };
 
@@ -494,6 +501,7 @@ Se houver bolo na cena, as velas ou topper DEVEM mostrar "${formData.age}".`;
           imageUrl,
           promptCategory: prompt.category,
           promptTemplate: prompt.prompt_template,
+          expectedAge: isBirthdayPrompt && formData.age ? formData.age : undefined,
           expectedName: formData.name,
           expectedDescription: formData.description,
           hasReferencePhoto: referenceImageUrls.length > 0,

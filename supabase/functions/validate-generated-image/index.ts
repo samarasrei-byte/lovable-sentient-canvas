@@ -15,6 +15,7 @@ serve(async (req) => {
       imageUrl,
       promptCategory,
       promptTemplate,
+      expectedAge,
       expectedName,
       expectedDescription,
       hasReferencePhoto,
@@ -35,13 +36,14 @@ serve(async (req) => {
 CHECK ALL ITEMS:
 1. FACE/BODY: Are there facial distortions, extra fingers, deformed hands, broken anatomy, or unnatural proportions?
 2. CROPPING: Is any important part (head, face, hands, body) cut off?
-3. TEXT: If text appears, is it correct, readable, well-positioned, and spelled exactly as expected? Expected name: "${expectedName || "N/A"}". Expected description: "${expectedDescription || "N/A"}".
-4. COMPOSITION: Is the composition centered, premium, and suitable for mobile vertical viewing?
-5. PROMPT CONSISTENCY: Does the final image visually match the requested prompt/theme/category?
-6. PEOPLE COUNT: Expected ${numberOfPeople || 1} person(s). Are they all present?
-7. STYLE REFERENCE: If a style reference image is provided, does the generated output follow its style/composition without copying the wrong identity?
-8. SUBJECT FIDELITY: ${hasReferencePhoto ? "Compare the generated subject(s) against the reference photo(s). Verify that identity, apparent age group, hair, face structure, and overall likeness are preserved." : "N/A"}
-9. QUALITY: Is the image high-resolution, well-lit, professional, and free from obvious AI artifacts?
+3. NUMBER / AGE: If this is a birthday or age-driven image, the visible number must match the expected age exactly. Expected age: "${expectedAge || "N/A"}". If the image shows a different number than the expected age, mark passed=false. If the style reference image contains another number, IGNORE the reference number and validate against the expected age only.
+4. TEXT: If text appears, is it correct, readable, well-positioned, and spelled exactly as expected? Expected name: "${expectedName || "N/A"}". Expected description: "${expectedDescription || "N/A"}".
+5. COMPOSITION: Is the composition centered, premium, and suitable for mobile vertical viewing?
+6. PROMPT CONSISTENCY: Does the final image visually match the requested prompt/theme/category?
+7. PEOPLE COUNT: Expected ${numberOfPeople || 1} person(s). Are they all present?
+8. STYLE REFERENCE: If a style reference image is provided, does the generated output follow its style/composition without copying the wrong identity, wrong number, or wrong text?
+9. SUBJECT FIDELITY: ${hasReferencePhoto ? "Compare the generated subject(s) against the reference photo(s). Verify that identity, apparent age group, hair, face structure, and overall likeness are preserved." : "N/A"}
+10. QUALITY: Is the image high-resolution, well-lit, professional, and free from obvious AI artifacts?
 
 Category: ${promptCategory || "general"}
 Prompt snippet: ${(promptTemplate || "").slice(0, 700)}
@@ -58,7 +60,7 @@ Respond in this EXACT JSON format:
   "score": 0-100
 }
 
-Only mark passed=false when there are significant issues such as wrong person, wrong age appearance, bad text, severe cropping, missing people, or strong distortions.`;
+Only mark passed=false when there are significant issues such as wrong person, wrong age appearance, wrong birthday number, bad text, severe cropping, missing people, or strong distortions.`;
 
     const content: Array<{ type: string; text?: string; image_url?: { url: string } }> = [
       { type: "text", text: qaPrompt },
