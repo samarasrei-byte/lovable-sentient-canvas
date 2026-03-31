@@ -1,57 +1,68 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-import Login from "./pages/Login";
-import TestLogin from "./pages/qa/TestLogin";
-import QADashboard from "./pages/qa/QADashboard";
-import { ProtectedRoute } from "./components/ProtectedRoute";
-import AppLayout, { RedirectToDashboard } from "./pages/app/AppLayout";
-import { DashboardRouter } from "./components/DashboardRouter";
-import { PerfilRouter } from "./components/PerfilRouter";
-import Talentos from "./pages/app/TalentosAprimorado";
-import { AdminLayout } from "./pages/admin/AdminLayout";
-import PerfilTalento from "./pages/app/PerfilTalento";
-import Planos from "./pages/app/Planos";
-import LiveShop from "./pages/app/LiveShop";
-import Consultoria from "./pages/app/Consultoria";
-import Campanhas from "./pages/app/Campanhas";
-import Contratos from "./pages/app/Contratos";
-import Pagamentos from "./pages/app/Pagamentos";
-import Monitoramento from "./pages/app/Monitoramento";
-import IAInsights from "./pages/app/IAInsights";
-import AvatarStudio from "./pages/app/AvatarStudio";
-import AIStudio from "./pages/app/AIStudio";
-import AdminDashboard from "./pages/admin/Dashboard";
-import AdminInfluencers from "./pages/admin/Influencers";
-import AdminBrands from "./pages/admin/Brands";
-import AdminCampaigns from "./pages/admin/Campaigns";
-import AdminFinancial from "./pages/admin/Financial";
-import AdminWhiteLabel from "./pages/admin/WhiteLabel";
-import AdminSupport from "./pages/admin/Support";
-import AdminLogs from "./pages/admin/Logs";
-import AdminSettings from "./pages/admin/Settings";
-import PromptsManager from "./pages/admin/PromptsManager";
-import AdminUsers from "./pages/admin/Users";
-import MarketplaceManager from "./pages/admin/MarketplaceManager";
-import FinancialDashboard from "./pages/admin/FinancialDashboard";
-import Chat from "./pages/app/Chat";
-import WhiteLabelDashboard from "./pages/app/WhiteLabelDashboard";
-import Analytics from "./pages/app/Analytics";
-import InfluencerContratos from "./pages/app/influencer/Contratos";
-import InfluencerPagamentos from "./pages/app/influencer/Pagamentos";
-import InfluencerMonitoramento from "./pages/app/influencer/Monitoramento";
-import InfluencerAnalytics from "./pages/app/influencer/Analytics";
-import AgencyDashboard from "./pages/app/agency/Dashboard";
-import Insights from "./pages/app/Insights";
-import MeusProdutos from "./pages/app/MeusProdutos";
-import VideoCreator from "./pages/app/VideoCreator";
-import PromptDashboard from "./pages/app/PromptDashboard";
+import { Loader2 } from "lucide-react";
+
+// Lazy load ALL routes except the landing page for instant FCP
+const NotFound = lazy(() => import("./pages/NotFound"));
+const Login = lazy(() => import("./pages/Login"));
+const TestLogin = lazy(() => import("./pages/qa/TestLogin"));
+const QADashboard = lazy(() => import("./pages/qa/QADashboard"));
+const ProtectedRoute = lazy(() => import("./components/ProtectedRoute").then(m => ({ default: m.ProtectedRoute })));
+const AppLayout = lazy(() => import("./pages/app/AppLayout"));
+const RedirectToDashboard = lazy(() => import("./pages/app/AppLayout").then(m => ({ default: m.RedirectToDashboard })));
+const DashboardRouter = lazy(() => import("./components/DashboardRouter").then(m => ({ default: m.DashboardRouter })));
+const PerfilRouter = lazy(() => import("./components/PerfilRouter").then(m => ({ default: m.PerfilRouter })));
+const Talentos = lazy(() => import("./pages/app/TalentosAprimorado"));
+const AdminLayout = lazy(() => import("./pages/admin/AdminLayout").then(m => ({ default: m.AdminLayout })));
+const PerfilTalento = lazy(() => import("./pages/app/PerfilTalento"));
+const Planos = lazy(() => import("./pages/app/Planos"));
+const LiveShop = lazy(() => import("./pages/app/LiveShop"));
+const Consultoria = lazy(() => import("./pages/app/Consultoria"));
+const Campanhas = lazy(() => import("./pages/app/Campanhas"));
+const Contratos = lazy(() => import("./pages/app/Contratos"));
+const Pagamentos = lazy(() => import("./pages/app/Pagamentos"));
+const Monitoramento = lazy(() => import("./pages/app/Monitoramento"));
+const IAInsights = lazy(() => import("./pages/app/IAInsights"));
+const AvatarStudio = lazy(() => import("./pages/app/AvatarStudio"));
+const AIStudio = lazy(() => import("./pages/app/AIStudio"));
+const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
+const AdminInfluencers = lazy(() => import("./pages/admin/Influencers"));
+const AdminBrands = lazy(() => import("./pages/admin/Brands"));
+const AdminCampaigns = lazy(() => import("./pages/admin/Campaigns"));
+const AdminFinancial = lazy(() => import("./pages/admin/Financial"));
+const AdminWhiteLabel = lazy(() => import("./pages/admin/WhiteLabel"));
+const AdminSupport = lazy(() => import("./pages/admin/Support"));
+const AdminLogs = lazy(() => import("./pages/admin/Logs"));
+const AdminSettings = lazy(() => import("./pages/admin/Settings"));
+const PromptsManager = lazy(() => import("./pages/admin/PromptsManager"));
+const AdminUsers = lazy(() => import("./pages/admin/Users"));
+const MarketplaceManager = lazy(() => import("./pages/admin/MarketplaceManager"));
+const FinancialDashboard = lazy(() => import("./pages/admin/FinancialDashboard"));
+const Chat = lazy(() => import("./pages/app/Chat"));
+const WhiteLabelDashboard = lazy(() => import("./pages/app/WhiteLabelDashboard"));
+const Analytics = lazy(() => import("./pages/app/Analytics"));
+const InfluencerContratos = lazy(() => import("./pages/app/influencer/Contratos"));
+const InfluencerPagamentos = lazy(() => import("./pages/app/influencer/Pagamentos"));
+const InfluencerMonitoramento = lazy(() => import("./pages/app/influencer/Monitoramento"));
+const InfluencerAnalytics = lazy(() => import("./pages/app/influencer/Analytics"));
+const AgencyDashboard = lazy(() => import("./pages/app/agency/Dashboard"));
+const Insights = lazy(() => import("./pages/app/Insights"));
+const MeusProdutos = lazy(() => import("./pages/app/MeusProdutos"));
+const VideoCreator = lazy(() => import("./pages/app/VideoCreator"));
+const PromptDashboard = lazy(() => import("./pages/app/PromptDashboard"));
 
 const queryClient = new QueryClient();
+
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-background">
+    <Loader2 className="w-6 h-6 animate-spin text-primary/50" />
+  </div>
+);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -59,71 +70,73 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/login" element={<Login />} />
-          
-          {/* QA Routes - Hidden from public */}
-          <Route path="/test-login" element={<TestLogin />} />
-          <Route path="/qa-dashboard" element={<QADashboard />} />
-          
-          {/* Admin Routes */}
-          <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<AdminDashboard />} />
-            <Route path="users" element={<AdminUsers />} />
-            <Route path="prompts" element={<PromptsManager />} />
-            <Route path="marketplace" element={<MarketplaceManager />} />
-            <Route path="influencers" element={<AdminInfluencers />} />
-            <Route path="brands" element={<AdminBrands />} />
-            <Route path="campaigns" element={<AdminCampaigns />} />
-            <Route path="financial" element={<AdminFinancial />} />
-            <Route path="financial-dashboard" element={<FinancialDashboard />} />
-            <Route path="whitelabel" element={<AdminWhiteLabel />} />
-            <Route path="support" element={<AdminSupport />} />
-            <Route path="logs" element={<AdminLogs />} />
-            <Route path="settings" element={<AdminSettings />} />
-          </Route>
-          
-          {/* App Routes */}
-          <Route path="/app" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-            <Route index element={<RedirectToDashboard />} />
-            <Route path="dashboard" element={<DashboardRouter />} />
-            <Route path="meus-produtos" element={<MeusProdutos />} />
-            <Route path="insights" element={<Insights />} />
-            <Route path="prompt-dashboard" element={<PromptDashboard />} />
-            <Route path="talentos" element={<Talentos />} />
-            <Route path="talentos/:id" element={<PerfilTalento />} />
-            <Route path="campanhas" element={<Campanhas />} />
-            <Route path="contratos" element={<Contratos />} />
-            <Route path="pagamentos" element={<Pagamentos />} />
-            <Route path="monitoramento" element={<Monitoramento />} />
-            <Route path="ia-insights" element={<IAInsights />} />
-            <Route path="avatar-studio" element={<AvatarStudio />} />
-            <Route path="ai-studio" element={<AIStudio />} />
-            <Route path="video-creator" element={<VideoCreator />} />
-            <Route path="liveshop" element={<LiveShop />} />
-            <Route path="consultoria" element={<Consultoria />} />
-            <Route path="planos" element={<Planos />} />
-            <Route path="perfil" element={<PerfilRouter />} />
-            <Route path="chat" element={<Chat />} />
-            <Route path="analytics" element={<Analytics />} />
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Login />} />
             
-            {/* Influencer Routes */}
-            <Route path="influencer/contratos" element={<InfluencerContratos />} />
-            <Route path="influencer/pagamentos" element={<InfluencerPagamentos />} />
-            <Route path="influencer/monitoramento" element={<InfluencerMonitoramento />} />
-            <Route path="influencer/analytics" element={<InfluencerAnalytics />} />
+            {/* QA Routes - Hidden from public */}
+            <Route path="/test-login" element={<TestLogin />} />
+            <Route path="/qa-dashboard" element={<QADashboard />} />
             
-            {/* Agency Routes */}
-            <Route path="agency/dashboard" element={<AgencyDashboard />} />
-          </Route>
+            {/* Admin Routes */}
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<AdminDashboard />} />
+              <Route path="users" element={<AdminUsers />} />
+              <Route path="prompts" element={<PromptsManager />} />
+              <Route path="marketplace" element={<MarketplaceManager />} />
+              <Route path="influencers" element={<AdminInfluencers />} />
+              <Route path="brands" element={<AdminBrands />} />
+              <Route path="campaigns" element={<AdminCampaigns />} />
+              <Route path="financial" element={<AdminFinancial />} />
+              <Route path="financial-dashboard" element={<FinancialDashboard />} />
+              <Route path="whitelabel" element={<AdminWhiteLabel />} />
+              <Route path="support" element={<AdminSupport />} />
+              <Route path="logs" element={<AdminLogs />} />
+              <Route path="settings" element={<AdminSettings />} />
+            </Route>
+            
+            {/* App Routes */}
+            <Route path="/app" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+              <Route index element={<RedirectToDashboard />} />
+              <Route path="dashboard" element={<DashboardRouter />} />
+              <Route path="meus-produtos" element={<MeusProdutos />} />
+              <Route path="insights" element={<Insights />} />
+              <Route path="prompt-dashboard" element={<PromptDashboard />} />
+              <Route path="talentos" element={<Talentos />} />
+              <Route path="talentos/:id" element={<PerfilTalento />} />
+              <Route path="campanhas" element={<Campanhas />} />
+              <Route path="contratos" element={<Contratos />} />
+              <Route path="pagamentos" element={<Pagamentos />} />
+              <Route path="monitoramento" element={<Monitoramento />} />
+              <Route path="ia-insights" element={<IAInsights />} />
+              <Route path="avatar-studio" element={<AvatarStudio />} />
+              <Route path="ai-studio" element={<AIStudio />} />
+              <Route path="video-creator" element={<VideoCreator />} />
+              <Route path="liveshop" element={<LiveShop />} />
+              <Route path="consultoria" element={<Consultoria />} />
+              <Route path="planos" element={<Planos />} />
+              <Route path="perfil" element={<PerfilRouter />} />
+              <Route path="chat" element={<Chat />} />
+              <Route path="analytics" element={<Analytics />} />
+              
+              {/* Influencer Routes */}
+              <Route path="influencer/contratos" element={<InfluencerContratos />} />
+              <Route path="influencer/pagamentos" element={<InfluencerPagamentos />} />
+              <Route path="influencer/monitoramento" element={<InfluencerMonitoramento />} />
+              <Route path="influencer/analytics" element={<InfluencerAnalytics />} />
+              
+              {/* Agency Routes */}
+              <Route path="agency/dashboard" element={<AgencyDashboard />} />
+            </Route>
 
-          {/* White Label Agency Routes */}
-          <Route path="/whitelabel/:domain" element={<WhiteLabelDashboard />} />
-          
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+            {/* White Label Agency Routes */}
+            <Route path="/whitelabel/:domain" element={<WhiteLabelDashboard />} />
+            
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
