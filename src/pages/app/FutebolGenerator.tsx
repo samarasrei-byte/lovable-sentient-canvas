@@ -167,7 +167,7 @@ INSTRUÇÕES OBRIGATÓRIAS:
           </button>
           <div className="absolute bottom-3 left-3 flex items-center gap-2">
             <CheckCircle2 className="w-5 h-5 text-green-400" />
-            <span className="text-white text-sm font-medium">{label}</span>
+            <span className="text-foreground text-sm font-medium">{label}</span>
           </div>
         </div>
       ) : (

@@ -114,6 +114,7 @@ const App = () => (
               <Route path="avatar-studio" element={<AvatarStudio />} />
               <Route path="ai-studio" element={<AIStudio />} />
               <Route path="video-creator" element={<VideoCreator />} />
+              <Route path="futebol" element={<FutebolGenerator />} />
               <Route path="liveshop" element={<LiveShop />} />
               <Route path="consultoria" element={<Consultoria />} />
               <Route path="planos" element={<Planos />} />
