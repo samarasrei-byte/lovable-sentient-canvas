@@ -230,7 +230,7 @@ INSTRUÇÕES OBRIGATÓRIAS:
 
         {/* Tip */}
         <div className="flex items-start gap-2.5 bg-muted/50 border border-border rounded-xl px-4 py-3 mb-6">
-          <Lightbulb className="w-4 h-4 text-yellow-400 mt-0.5 shrink-0" />
+          <Lightbulb className="w-4 h-4 text-accent mt-0.5 shrink-0" />
           <p className="text-xs text-muted-foreground">
             <strong className="text-foreground">Dica:</strong> quanto melhor a qualidade das imagens, mais realista será o resultado.
           </p>
