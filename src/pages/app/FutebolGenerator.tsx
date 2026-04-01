@@ -159,9 +159,9 @@ INSTRUÇÕES OBRIGATÓRIAS:
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-          <button
+      <button
             onClick={() => clearSlot(type)}
-            className="absolute top-2 right-2 bg-destructive/90 text-white rounded-full p-1.5 hover:bg-destructive transition-colors"
+            className="absolute top-2 right-2 bg-destructive/90 text-destructive-foreground rounded-full p-1.5 hover:bg-destructive transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
