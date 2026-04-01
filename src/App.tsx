@@ -55,6 +55,7 @@ const Insights = lazy(() => import("./pages/app/Insights"));
 const MeusProdutos = lazy(() => import("./pages/app/MeusProdutos"));
 const VideoCreator = lazy(() => import("./pages/app/VideoCreator"));
 const PromptDashboard = lazy(() => import("./pages/app/PromptDashboard"));
+const FutebolGenerator = lazy(() => import("./pages/app/FutebolGenerator"));
 
 const queryClient = new QueryClient();
 
