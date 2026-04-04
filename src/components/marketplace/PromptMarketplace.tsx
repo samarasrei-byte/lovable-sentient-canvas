@@ -28,26 +28,32 @@ interface Prompt {
   display_order?: number;
 }
 
+// Merge small categories into larger related ones for a cleaner layout
+const CATEGORY_MERGE: Record<string, string> = {
+  'Profissional': 'LinkedIn',
+  'Corporativo': 'LinkedIn',
+  'Social Media': 'Geral',
+  'Foto de casais': 'Geral',
+  'Mêsversário': 'Aniversário',
+  'Família': 'Aniversário',
+  'Kids': 'Aniversário',
+  'Copa do Mundo': 'Geral',
+  'Evento': 'Geral',
+};
+
 const CATEGORY_CONFIG: Record<string, { icon: string; label: string }> = {
-  'Hypados': { icon: '🔥', label: 'Hypados' },
-  'LinkedIn': { icon: '💼', label: 'LinkedIn' },
-  'Profissional': { icon: '📸', label: 'Fotos Profissionais' },
-  'Social Media': { icon: '📱', label: 'Social Media' },
-  'Aniversário': { icon: '🎂', label: 'Aniversário' },
-  'Família': { icon: '👨‍👩‍👧‍👦', label: 'Família' },
-  'Kids': { icon: '🧒', label: 'Kids' },
-  'Mêsversário': { icon: '👶', label: 'Mêsversário' },
+  'LinkedIn': { icon: '💼', label: 'LinkedIn & Profissional' },
+  'Aniversário': { icon: '🎂', label: 'Aniversário & Família' },
   'Fashion': { icon: '👗', label: 'Fashion' },
   'Anime': { icon: '🎌', label: 'Anime' },
   'Cyberpunk': { icon: '⚡', label: 'Cyberpunk' },
-  'Corporativo': { icon: '🏢', label: 'Corporativo' },
   'Arte': { icon: '🎨', label: 'Arte' },
+  'Política': { icon: '🏛️', label: 'Política' },
   'Geral': { icon: '✨', label: 'Geral' },
-  'Evento': { icon: '🎉', label: 'Evento' },
 };
 
 const MAX_FEATURED = 30;
-const MAX_PER_CATEGORY = 8;
+const MAX_PER_CATEGORY = 12;
 
 export const PromptMarketplace = () => {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
@@ -106,11 +112,13 @@ export const PromptMarketplace = () => {
   const categoryGroups = useMemo(() => {
     const groups: Record<string, Prompt[]> = {};
     for (const p of prompts) {
-      const cat = p.category || 'Outros';
+      let cat = p.category || 'Outros';
       // Skip "Hypando" category entirely — it's already the featured section
       if (cat.toLowerCase() === 'hypando') continue;
       // Skip prompts already shown in featured
       if (featuredIds.has(p.id)) continue;
+      // Merge small categories into larger ones
+      cat = CATEGORY_MERGE[cat] || cat;
       if (!groups[cat]) groups[cat] = [];
       if (groups[cat].length < MAX_PER_CATEGORY) {
         groups[cat].push(p);
@@ -118,14 +126,16 @@ export const PromptMarketplace = () => {
     }
     // Sort categories by config order, then alphabetical
     const configOrder = Object.keys(CATEGORY_CONFIG);
-    return Object.entries(groups).sort(([a], [b]) => {
-      const ai = configOrder.indexOf(a);
-      const bi = configOrder.indexOf(b);
-      if (ai !== -1 && bi !== -1) return ai - bi;
-      if (ai !== -1) return -1;
-      if (bi !== -1) return 1;
-      return a.localeCompare(b);
-    });
+    return Object.entries(groups)
+      .filter(([, items]) => items.length >= 3) // Hide categories with fewer than 3 prompts
+      .sort(([a], [b]) => {
+        const ai = configOrder.indexOf(a);
+        const bi = configOrder.indexOf(b);
+        if (ai !== -1 && bi !== -1) return ai - bi;
+        if (ai !== -1) return -1;
+        if (bi !== -1) return 1;
+        return a.localeCompare(b);
+      });
   }, [prompts, featuredIds]);
 
   // Search results
