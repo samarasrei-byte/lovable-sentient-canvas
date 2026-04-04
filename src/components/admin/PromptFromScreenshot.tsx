@@ -239,7 +239,7 @@ export const PromptFromScreenshot = ({ open, onClose, onPromptCreated }: PromptF
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Camera className="w-5 h-5 text-primary" />
-            Prompt a partir de Screenshot
+            Criar Prompt a partir de Imagem de Referência
           </DialogTitle>
         </DialogHeader>
 
@@ -254,7 +254,7 @@ export const PromptFromScreenshot = ({ open, onClose, onPromptCreated }: PromptF
               className="space-y-4"
             >
               <p className="text-sm text-muted-foreground">
-                Cole (Ctrl+V) ou arraste um print de prompt. A IA vai extrair o texto automaticamente.
+                Suba a <strong>imagem de referência</strong> do prompt. A IA vai extrair o texto e criar o prompt automaticamente.
               </p>
               
               <div
@@ -266,7 +266,7 @@ export const PromptFromScreenshot = ({ open, onClose, onPromptCreated }: PromptF
                 {loading ? (
                   <div className="flex flex-col items-center gap-3">
                     <Loader2 className="w-10 h-10 animate-spin text-primary" />
-                    <p className="text-sm text-muted-foreground">Extraindo texto do print...</p>
+                    <p className="text-sm text-muted-foreground">Extraindo texto da imagem de referência...</p>
                   </div>
                 ) : screenshotPreview ? (
                   <img src={screenshotPreview} alt="Screenshot" className="max-h-64 mx-auto rounded-lg" />
