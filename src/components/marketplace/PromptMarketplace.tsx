@@ -28,26 +28,32 @@ interface Prompt {
   display_order?: number;
 }
 
+// Merge small categories into larger related ones for a cleaner layout
+const CATEGORY_MERGE: Record<string, string> = {
+  'Profissional': 'LinkedIn',
+  'Corporativo': 'LinkedIn',
+  'Social Media': 'Geral',
+  'Foto de casais': 'Geral',
+  'Mêsversário': 'Aniversário',
+  'Família': 'Aniversário',
+  'Kids': 'Aniversário',
+  'Copa do Mundo': 'Geral',
+  'Evento': 'Geral',
+};
+
 const CATEGORY_CONFIG: Record<string, { icon: string; label: string }> = {
-  'Hypados': { icon: '🔥', label: 'Hypados' },
-  'LinkedIn': { icon: '💼', label: 'LinkedIn' },
-  'Profissional': { icon: '📸', label: 'Fotos Profissionais' },
-  'Social Media': { icon: '📱', label: 'Social Media' },
-  'Aniversário': { icon: '🎂', label: 'Aniversário' },
-  'Família': { icon: '👨‍👩‍👧‍👦', label: 'Família' },
-  'Kids': { icon: '🧒', label: 'Kids' },
-  'Mêsversário': { icon: '👶', label: 'Mêsversário' },
+  'LinkedIn': { icon: '💼', label: 'LinkedIn & Profissional' },
+  'Aniversário': { icon: '🎂', label: 'Aniversário & Família' },
   'Fashion': { icon: '👗', label: 'Fashion' },
   'Anime': { icon: '🎌', label: 'Anime' },
   'Cyberpunk': { icon: '⚡', label: 'Cyberpunk' },
-  'Corporativo': { icon: '🏢', label: 'Corporativo' },
   'Arte': { icon: '🎨', label: 'Arte' },
+  'Política': { icon: '🏛️', label: 'Política' },
   'Geral': { icon: '✨', label: 'Geral' },
-  'Evento': { icon: '🎉', label: 'Evento' },
 };
 
 const MAX_FEATURED = 30;
-const MAX_PER_CATEGORY = 8;
+const MAX_PER_CATEGORY = 12;
 
 export const PromptMarketplace = () => {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
