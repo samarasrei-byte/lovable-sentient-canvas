@@ -239,7 +239,7 @@ export const PromptFromScreenshot = ({ open, onClose, onPromptCreated }: PromptF
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Camera className="w-5 h-5 text-primary" />
-            Prompt a partir de Screenshot
+            Criar Prompt a partir de Imagem de Referência
           </DialogTitle>
         </DialogHeader>
 
