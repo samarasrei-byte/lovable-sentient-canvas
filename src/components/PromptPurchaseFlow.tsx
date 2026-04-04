@@ -123,7 +123,8 @@ const presentationLabel: Record<string, string> = {
 export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps) => {
   const [step, setStep] = useState<FlowStep>('form');
   const maxPhotos = prompt.min_photos && prompt.min_photos > 1 ? Math.min(prompt.min_photos, 5) : 5;
-  const [formData, setFormData] = useState({ name: '', instagram: '', email: '', description: '', age: '', displayName: '', months: '' });
+  const [formData, setFormData] = useState({ name: '', instagram: '', email: '', description: '', age: '', displayName: '', months: '', telefone: '', whatsapp: '', endereco: '', data: '', hora: '', extras: '' });
+  const [personNames, setPersonNames] = useState<string[]>([]);
   const isFamilyInit = /família|familia|family/i.test(prompt.category || '') || /família|familia|family/i.test(prompt.name || '');
   const initialPhotoSlots = isFamilyInit ? Math.max(prompt.min_photos || 2, 2) : 1;
   const [photos, setPhotos] = useState<PhotoSlot[]>(Array.from({ length: initialPhotoSlots }, () => ({ file: null, preview: '' })));
@@ -388,6 +389,14 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const isMesversarioPrompt = /mêsversário|mesversário|mesversario/i.test(prompt.category || '') || 
     /mêsversário|mesversário|mesversario/i.test(prompt.name || '');
 
+  const isEventPrompt = /evento|event|promoção|promocao|festa|party/i.test(prompt.category || '') ||
+    /evento|event|promoção|promocao|festa|party/i.test(prompt.name || '');
+
+  const needsContactInfo = prompt.required_fields.includes('telefone') || prompt.required_fields.includes('whatsapp') || 
+    prompt.required_fields.includes('endereco') || prompt.required_fields.includes('data') || prompt.required_fields.includes('hora');
+
+  const needsPersonNames = activePhotoCount > 1 || prompt.required_fields.includes('person_names');
+
   const hasNameInImage = /nome|name|\[NAME\]|\{nome\}/i.test(prompt.prompt_template || '') ||
     prompt.required_fields.includes('name');
 
@@ -477,6 +486,38 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       template += `\n\nDETALHES DAS PESSOAS E ELEMENTOS DETECTADOS:\n${photoContextLines.join('\n')}\nPosicione cada pessoa de acordo com sua faixa etária e gênero detectados.`;
     }
 
+    // Build flyerContext for Prompt Master
+    const flyerContext: Record<string, unknown> = {};
+    
+    // Detect context type from category
+    const categoryLower = (prompt.category || '').toLowerCase();
+    if (isBirthdayPrompt) flyerContext.contexto = 'Aniversário';
+    else if (isMesversarioPrompt) flyerContext.contexto = 'Mêsversário';
+    else if (/evento|event/i.test(categoryLower)) flyerContext.contexto = 'Evento';
+    else if (/promoção|promocao/i.test(categoryLower)) flyerContext.contexto = 'Promoção';
+    else if (/festa|party/i.test(categoryLower)) flyerContext.contexto = 'Festa';
+    else if (categoryLower) flyerContext.contexto = prompt.category;
+
+    // Names array
+    const allNames = personNames.filter(n => n.trim());
+    if (allNames.length > 0) flyerContext.nomes = allNames;
+    else if (nameForImage) flyerContext.nomes = [nameForImage];
+
+    // Ages
+    if (formData.age) flyerContext.idades = [formData.age];
+
+    // Contact info
+    if (formData.telefone) flyerContext.telefone = formData.telefone;
+    if (formData.whatsapp) flyerContext.whatsapp = formData.whatsapp;
+    if (formData.endereco) flyerContext.endereco = formData.endereco;
+    if (formData.instagram) flyerContext.instagram = formData.instagram;
+    if (formData.data) flyerContext.data = formData.data;
+    if (formData.hora) flyerContext.hora = formData.hora;
+    if (formData.extras) flyerContext.extras = formData.extras;
+    if (formData.description) flyerContext.tema = formData.description;
+
+    flyerContext.qtdPessoas = sortedUrls.length;
+
     return {
       purchaseId,
       negativePrompt: prompt.negative_prompt,
@@ -487,6 +528,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       userPhotoUrl: sortedUrls[0] || null,
       userPhotoUrls: sortedUrls.length > 0 ? sortedUrls : undefined,
       exampleImageUrl: prompt.example_image_url,
+      flyerContext: Object.keys(flyerContext).length > 0 ? flyerContext : undefined,
       ...restOverrides,
       promptTemplate: template,
     };
@@ -1127,6 +1169,128 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                         </button>
                       ))}
                     </div>
+                  </div>
+                )}
+
+                {/* Per-person naming for multi-photo uploads */}
+                {needsPersonNames && activePhotoCount > 1 && (
+                  <div className="space-y-2">
+                    <Label className="text-xs sm:text-sm flex items-center gap-2">
+                      👥 Nome de cada pessoa na imagem
+                    </Label>
+                    <div className="space-y-1.5">
+                      {photos.map((photo, idx) => {
+                        if (!photo.file) return null;
+                        const label = isFamilyPrompt ? (familyPhotoLabels[idx] || `Pessoa ${idx + 1}`) : `Pessoa ${idx + 1}`;
+                        return (
+                          <div key={idx} className="flex items-center gap-2">
+                            {photo.preview && (
+                              <img src={photo.preview} alt={label} className="w-8 h-8 rounded-lg object-cover shrink-0" />
+                            )}
+                            <Input
+                              value={personNames[idx] || ''}
+                              onChange={(e) => {
+                                setPersonNames(prev => {
+                                  const next = [...prev];
+                                  while (next.length <= idx) next.push('');
+                                  next[idx] = e.target.value;
+                                  return next;
+                                });
+                              }}
+                              placeholder={`Nome da ${label}`}
+                              className="bg-white/5 border-white/10 text-sm flex-1"
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">
+                      Os nomes aparecerão na imagem junto às respectivas pessoas.
+                    </p>
+                  </div>
+                )}
+
+                {/* Contact & Event Info fields */}
+                {(needsContactInfo || isEventPrompt) && (
+                  <div className="space-y-3">
+                    <Label className="text-xs sm:text-sm flex items-center gap-2">
+                      📋 Informações do flyer
+                    </Label>
+
+                    {(prompt.required_fields.includes('telefone') || isEventPrompt) && (
+                      <div className="space-y-1">
+                        <Label className="text-[10px] text-muted-foreground">📞 Telefone</Label>
+                        <Input
+                          value={formData.telefone}
+                          onChange={(e) => setFormData(prev => ({ ...prev, telefone: e.target.value }))}
+                          placeholder="(11) 99999-9999"
+                          className="bg-white/5 border-white/10 text-sm"
+                        />
+                      </div>
+                    )}
+
+                    {(prompt.required_fields.includes('whatsapp') || isEventPrompt) && (
+                      <div className="space-y-1">
+                        <Label className="text-[10px] text-muted-foreground">💬 WhatsApp</Label>
+                        <Input
+                          value={formData.whatsapp}
+                          onChange={(e) => setFormData(prev => ({ ...prev, whatsapp: e.target.value }))}
+                          placeholder="(11) 99999-9999"
+                          className="bg-white/5 border-white/10 text-sm"
+                        />
+                      </div>
+                    )}
+
+                    {(prompt.required_fields.includes('endereco') || isEventPrompt) && (
+                      <div className="space-y-1">
+                        <Label className="text-[10px] text-muted-foreground">📍 Endereço / Local</Label>
+                        <Input
+                          value={formData.endereco}
+                          onChange={(e) => setFormData(prev => ({ ...prev, endereco: e.target.value }))}
+                          placeholder="Rua, número, bairro..."
+                          className="bg-white/5 border-white/10 text-sm"
+                        />
+                      </div>
+                    )}
+
+                    {(prompt.required_fields.includes('data') || isEventPrompt) && (
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="space-y-1">
+                          <Label className="text-[10px] text-muted-foreground">📅 Data</Label>
+                          <Input
+                            value={formData.data}
+                            onChange={(e) => setFormData(prev => ({ ...prev, data: e.target.value }))}
+                            placeholder="25/12/2025"
+                            className="bg-white/5 border-white/10 text-sm"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-[10px] text-muted-foreground">🕐 Hora</Label>
+                          <Input
+                            value={formData.hora}
+                            onChange={(e) => setFormData(prev => ({ ...prev, hora: e.target.value }))}
+                            placeholder="19:00"
+                            className="bg-white/5 border-white/10 text-sm"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {(prompt.required_fields.includes('extras') || isEventPrompt) && (
+                      <div className="space-y-1">
+                        <Label className="text-[10px] text-muted-foreground">✨ Informações extras</Label>
+                        <textarea
+                          value={formData.extras}
+                          onChange={(e) => setFormData(prev => ({ ...prev, extras: e.target.value }))}
+                          placeholder="Traje: esporte fino, confirme presença, etc."
+                          className="w-full min-h-[50px] px-3 py-2 text-sm rounded-md bg-white/5 border border-white/10 focus:border-primary/50 focus:outline-none resize-none"
+                        />
+                      </div>
+                    )}
+
+                    <p className="text-[10px] text-muted-foreground">
+                      Todas as informações preenchidas serão exibidas no flyer gerado.
+                    </p>
                   </div>
                 )}
 
