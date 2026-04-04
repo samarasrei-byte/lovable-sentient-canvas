@@ -266,7 +266,7 @@ export const PromptFromScreenshot = ({ open, onClose, onPromptCreated }: PromptF
                 {loading ? (
                   <div className="flex flex-col items-center gap-3">
                     <Loader2 className="w-10 h-10 animate-spin text-primary" />
-                    <p className="text-sm text-muted-foreground">Extraindo texto do print...</p>
+                    <p className="text-sm text-muted-foreground">Extraindo texto da imagem de referência...</p>
                   </div>
                 ) : screenshotPreview ? (
                   <img src={screenshotPreview} alt="Screenshot" className="max-h-64 mx-auto rounded-lg" />
