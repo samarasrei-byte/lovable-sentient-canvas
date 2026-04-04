@@ -940,9 +940,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                       {photos.map((photo, index) => {
                         const photoProfile = photoProfiles[index];
                         const isAnalyzing = analyzingPhotoSlots.includes(index);
-                        const slotLabel = isFamilyPrompt 
-                          ? (familyPhotoLabels[index] || `Pessoa ${index + 1}`) 
-                          : `Pessoa ${index + 1}`;
+                        const slotLabel = getPhotoLabel(index);
 
                         return (
                           <div key={index} className="relative group space-y-1.5">
