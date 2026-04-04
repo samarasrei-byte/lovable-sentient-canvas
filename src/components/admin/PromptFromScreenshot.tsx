@@ -254,7 +254,7 @@ export const PromptFromScreenshot = ({ open, onClose, onPromptCreated }: PromptF
               className="space-y-4"
             >
               <p className="text-sm text-muted-foreground">
-                Cole (Ctrl+V) ou arraste um print de prompt. A IA vai extrair o texto automaticamente.
+                Suba a <strong>imagem de referência</strong> do prompt. A IA vai extrair o texto e criar o prompt automaticamente.
               </p>
               
               <div
