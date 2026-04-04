@@ -388,6 +388,9 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const isFamilyPrompt = /família|familia|family/i.test(prompt.category || '') || 
     /família|familia|family/i.test(prompt.name || '');
 
+  const isCouplePrompt = isCoupleInit || /casais|casal|couple/i.test(prompt.category || '') || 
+    /casais|casal|couple/i.test(prompt.name || '');
+
   const isMesversarioPrompt = /mêsversário|mesversário|mesversario/i.test(prompt.category || '') || 
     /mêsversário|mesversário|mesversario/i.test(prompt.name || '');
 
@@ -401,6 +404,28 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
 
   const hasNameInImage = /nome|name|\[NAME\]|\{nome\}/i.test(prompt.prompt_template || '') ||
     prompt.required_fields.includes('name');
+
+  // Smart photo labels based on prompt context
+  const getPhotoLabel = (index: number): string => {
+    if (isCouplePrompt) {
+      return ['👩 Ela (Mulher)', '👨 Ele (Homem)'][index] || `Pessoa ${index + 1}`;
+    }
+    if (isFamilyPrompt) {
+      const minPhotos = prompt.min_photos || 2;
+      if (minPhotos === 3) return ['👨 Pai', '👩 Mãe', '👶 Filho(a)'][index] || `Familiar ${index + 1}`;
+      if (minPhotos >= 4) return ['👨 Pai', '👩 Mãe', '👧 Filho(a) 1', '👦 Filho(a) 2', '👴 Outro familiar'][index] || `Familiar ${index + 1}`;
+      return ['👨 Pai/Mãe 1', '👩 Pai/Mãe 2'][index] || `Familiar ${index + 1}`;
+    }
+    // Detect children from prompt content
+    const promptText = (prompt.prompt_template || '').toLowerCase();
+    if (/criança|child|kid|menino|menina|bebê|baby|infant/.test(promptText) && index === 0) {
+      return '👶 Criança';
+    }
+    if (isMultiPersonPrompt) {
+      return `📸 Pessoa ${index + 1}`;
+    }
+    return `📸 Sua foto`;
+  };
 
   const familyPhotoLabels = ['Pai/Mãe', 'Filho(a) 1', 'Filho(a) 2', 'Filho(a) 3', 'Outro familiar'];
 
