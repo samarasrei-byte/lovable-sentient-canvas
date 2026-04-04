@@ -73,16 +73,18 @@ Respond in this EXACT JSON format:
       { type: "image_url", image_url: { url: imageUrl } },
     ];
 
-    if (styleReferenceImageUrl) {
-      content.push({ type: "text", text: "Style reference image:" });
-      content.push({ type: "image_url", image_url: { url: styleReferenceImageUrl } });
-    }
-
+    // Reference photos FIRST (identity truth)
     if (safeReferenceImages.length > 0) {
-      content.push({ type: "text", text: "Real subject reference images:" });
+      content.push({ type: "text", text: "Real subject reference photos (the person who MUST appear in the output):" });
       safeReferenceImages.forEach((url) => {
         content.push({ type: "image_url", image_url: { url } });
       });
+    }
+
+    // Style reference LAST (secondary context)
+    if (styleReferenceImageUrl) {
+      content.push({ type: "text", text: "Style reference image (for style/composition only — NOT identity):" });
+      content.push({ type: "image_url", image_url: { url: styleReferenceImageUrl } });
     }
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
