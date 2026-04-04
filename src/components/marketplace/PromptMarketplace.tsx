@@ -112,11 +112,13 @@ export const PromptMarketplace = () => {
   const categoryGroups = useMemo(() => {
     const groups: Record<string, Prompt[]> = {};
     for (const p of prompts) {
-      const cat = p.category || 'Outros';
+      let cat = p.category || 'Outros';
       // Skip "Hypando" category entirely — it's already the featured section
       if (cat.toLowerCase() === 'hypando') continue;
       // Skip prompts already shown in featured
       if (featuredIds.has(p.id)) continue;
+      // Merge small categories into larger ones
+      cat = CATEGORY_MERGE[cat] || cat;
       if (!groups[cat]) groups[cat] = [];
       if (groups[cat].length < MAX_PER_CATEGORY) {
         groups[cat].push(p);
@@ -124,14 +126,16 @@ export const PromptMarketplace = () => {
     }
     // Sort categories by config order, then alphabetical
     const configOrder = Object.keys(CATEGORY_CONFIG);
-    return Object.entries(groups).sort(([a], [b]) => {
-      const ai = configOrder.indexOf(a);
-      const bi = configOrder.indexOf(b);
-      if (ai !== -1 && bi !== -1) return ai - bi;
-      if (ai !== -1) return -1;
-      if (bi !== -1) return 1;
-      return a.localeCompare(b);
-    });
+    return Object.entries(groups)
+      .filter(([, items]) => items.length >= 3) // Hide categories with fewer than 3 prompts
+      .sort(([a], [b]) => {
+        const ai = configOrder.indexOf(a);
+        const bi = configOrder.indexOf(b);
+        if (ai !== -1 && bi !== -1) return ai - bi;
+        if (ai !== -1) return -1;
+        if (bi !== -1) return 1;
+        return a.localeCompare(b);
+      });
   }, [prompts, featuredIds]);
 
   // Search results
