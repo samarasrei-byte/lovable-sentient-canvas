@@ -1,6 +1,116 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 🧠 PROMPT MASTER PROFISSIONAL — Sistema dinâmico e escalável
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+interface PersonInfo {
+  index: number;
+  name?: string;
+  age?: string;
+}
+
+interface FlyerContext {
+  contexto?: string;    // aniversário, evento, promoção, festa, etc.
+  estilo?: string;      // moderno, vintage, neon, etc.
+  tema?: string;        // safari, princesa, futebol, etc.
+  nomes?: string[];     // nomes das pessoas
+  idades?: string[];    // idades
+  telefone?: string;
+  whatsapp?: string;
+  endereco?: string;
+  instagram?: string;
+  data?: string;
+  hora?: string;
+  extras?: string;
+  qtdPessoas?: number;
+}
+
+function buildPromptMaster(
+  baseTemplate: string,
+  flyerCtx: FlyerContext,
+  photoCount: number
+): string {
+  let masterBlock = "";
+
+  // ━━ CONTEXTO ━━
+  if (flyerCtx.contexto || flyerCtx.estilo || flyerCtx.tema) {
+    masterBlock += "\n\n━━━ CONTEXTO DO FLYER ━━━\n";
+    if (flyerCtx.contexto) masterBlock += `Tipo: ${flyerCtx.contexto}\n`;
+    if (flyerCtx.estilo) masterBlock += `Estilo: ${flyerCtx.estilo}\n`;
+    if (flyerCtx.tema) masterBlock += `Tema: ${flyerCtx.tema}\n`;
+  }
+
+  // ━━ PESSOAS ━━
+  if (photoCount > 0) {
+    masterBlock += `\n━━━ PESSOAS (${photoCount}) ━━━\n`;
+    for (let i = 0; i < photoCount; i++) {
+      const name = flyerCtx.nomes?.[i] || `Pessoa ${i + 1}`;
+      const age = flyerCtx.idades?.[i];
+      masterBlock += `Pessoa ${i + 1}: Nome="${name}"${age ? `, Idade=${age}` : ""} — Foto de referência ${i + 1}\n`;
+    }
+    masterBlock += "\nREGRAS DE PESSOAS:\n";
+    masterBlock += "- Use TODAS as fotos enviadas\n";
+    masterBlock += "- NÃO misturar rostos\n";
+    masterBlock += "- NÃO ignorar nenhuma pessoa\n";
+    masterBlock += "- Todas devem aparecer claramente\n";
+    masterBlock += "- Distribuição equilibrada no layout\n";
+  }
+
+  // ━━ INFORMAÇÕES OBRIGATÓRIAS ━━
+  const infoLines: string[] = [];
+  if (flyerCtx.nomes?.length) infoLines.push(`Nome(s): ${flyerCtx.nomes.join(", ")}`);
+  if (flyerCtx.idades?.length) infoLines.push(`Idade(s): ${flyerCtx.idades.join(", ")}`);
+  if (flyerCtx.telefone) infoLines.push(`Telefone: ${flyerCtx.telefone}`);
+  if (flyerCtx.whatsapp) infoLines.push(`WhatsApp: ${flyerCtx.whatsapp}`);
+  if (flyerCtx.endereco) infoLines.push(`Endereço: ${flyerCtx.endereco}`);
+  if (flyerCtx.instagram) infoLines.push(`Instagram: @${flyerCtx.instagram.replace("@", "")}`);
+  if (flyerCtx.data) infoLines.push(`Data: ${flyerCtx.data}`);
+  if (flyerCtx.hora) infoLines.push(`Hora: ${flyerCtx.hora}`);
+  if (flyerCtx.extras) infoLines.push(`Extras: ${flyerCtx.extras}`);
+
+  if (infoLines.length > 0) {
+    masterBlock += "\n━━━ INFORMAÇÕES OBRIGATÓRIAS NA IMAGEM ━━━\n";
+    masterBlock += infoLines.join("\n") + "\n";
+    masterBlock += "\nREGRAS CRÍTICAS:\n";
+    masterBlock += "- TODAS as informações devem aparecer VISÍVEIS e LEGÍVEIS na imagem\n";
+    masterBlock += "- Nenhuma pode ser omitida\n";
+    masterBlock += "- Não alterar dados fornecidos\n";
+    masterBlock += "- Não inventar informações\n";
+    masterBlock += "- Texto GRANDE, legível e correto — sem erros ortográficos\n";
+    masterBlock += "- Use banners, placas, letreiros, convites ou elementos gráficos para exibir as informações\n";
+  }
+
+  // ━━ REGRAS POR CONTEXTO ━━
+  const ctx = (flyerCtx.contexto || "").toLowerCase();
+  if (ctx.includes("aniversário") || ctx.includes("aniversario") || ctx.includes("birthday")) {
+    masterBlock += "\n━━━ CONTEXTO ANIVERSÁRIO ━━━\n";
+    masterBlock += "- Mostrar idade em DESTAQUE (bolo, topo, número grande, velas, balões)\n";
+    masterBlock += "- Elementos festivos: balões, bolo, luzes, confetes\n";
+  } else if (ctx.includes("evento") || ctx.includes("event")) {
+    masterBlock += "\n━━━ CONTEXTO EVENTO ━━━\n";
+    masterBlock += "- Destacar data, hora e local\n";
+    masterBlock += "- Visual promocional e chamativo\n";
+  } else if (ctx.includes("promoção") || ctx.includes("promocao")) {
+    masterBlock += "\n━━━ CONTEXTO PROMOÇÃO ━━━\n";
+    masterBlock += "- Destacar oferta e contato\n";
+  } else if (ctx.includes("festa") || ctx.includes("party")) {
+    masterBlock += "\n━━━ CONTEXTO FESTA ━━━\n";
+    masterBlock += "- Visual vibrante e dinâmico\n";
+  }
+
+  // ━━ DESIGN ━━
+  masterBlock += "\n━━━ REGRAS DE DESIGN ━━━\n";
+  masterBlock += "- Estilo moderno, profissional e chamativo\n";
+  masterBlock += "- Qualidade alta (nível publicitário)\n";
+  masterBlock += "- Iluminação realista\n";
+  masterBlock += "- Composição equilibrada\n";
+  masterBlock += "- Prioridade máxima: fidelidade visual + clareza das informações + qualidade publicitária\n";
+
+  return baseTemplate + masterBlock;
+}
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
@@ -43,6 +153,7 @@ serve(async (req) => {
       exampleImageUrl,
       editMode,
       sourceImageUrl,
+      flyerContext,
     } = await req.json();
 
     purchaseId = pId;
@@ -111,6 +222,11 @@ serve(async (req) => {
     if (userName) finalPrompt = finalPrompt.replace(/{name}/g, userName);
     if (userInstagram) finalPrompt = finalPrompt.replace(/{instagram}/g, `@${userInstagram.replace('@', '')}`);
     if (userDescription) finalPrompt = finalPrompt.replace(/{description}/g, userDescription);
+
+    // Apply Prompt Master if flyerContext is provided
+    if (flyerContext && typeof flyerContext === 'object') {
+      finalPrompt = buildPromptMaster(finalPrompt, flyerContext as FlyerContext, allPhotoUrls.length);
+    }
 
     finalPrompt += ". Ultra high resolution, professional photography, trending on artstation, 8K quality, masterful lighting.";
     if (negativePrompt) finalPrompt += ` Avoid: ${negativePrompt}`;
