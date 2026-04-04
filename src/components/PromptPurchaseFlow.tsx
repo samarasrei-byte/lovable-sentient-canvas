@@ -957,10 +957,10 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                           <div key={index} className="relative group space-y-1.5">
                             <div
                               onClick={() => fileInputRefs.current[index]?.click()}
-                              className="relative rounded-xl border-2 border-dashed border-white/20 hover:border-primary/50 transition-colors cursor-pointer overflow-hidden aspect-square"
+                              className="relative rounded-xl border-2 border-dashed border-white/20 hover:border-primary/50 transition-colors cursor-pointer overflow-hidden aspect-[3/4]"
                             >
                               {photo.preview ? (
-                                <img src={photo.preview} alt={slotLabel} className="w-full h-full object-cover" />
+                                <img src={photo.preview} alt={slotLabel} className="w-full h-full object-contain bg-black/20" />
                               ) : (
                                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-muted-foreground">
                                   <Upload className="w-5 h-5" />
@@ -1467,22 +1467,12 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                 </div>
 
                 <div 
-                  className="relative rounded-xl overflow-hidden border border-white/10 mx-auto transition-all duration-300"
+                  className="relative rounded-xl overflow-hidden border border-white/10 mx-auto transition-all duration-300 flex items-center justify-center bg-black/20"
                   style={{
-                    aspectRatio: (() => {
-                      const fmt = exportFormats.find(f => f.key === exportFormat);
-                      if (!fmt?.ratio) return '4/5';
-                      if (fmt.key === '1:1') return '1/1';
-                      if (fmt.key === '4:5') return '4/5';
-                      if (fmt.key === '9:16') return '9/16';
-                      if (fmt.key === '16:9') return '16/9';
-                      if (fmt.key === '3:4') return '3/4';
-                      return '4/5';
-                    })(),
-                    maxHeight: '420px',
+                    maxHeight: '55vh',
                   }}
                 >
-                  <img src={generatedImage} alt="Generated" className="w-full h-full object-cover" />
+                  <img src={generatedImage} alt="Generated" className="w-full h-auto max-h-[55vh] object-contain rounded-xl" />
                 </div>
 
                 {generatedVariants.length > 1 && (
