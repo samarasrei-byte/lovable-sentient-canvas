@@ -287,7 +287,8 @@ serve(async (req) => {
         "• BODY: exact proportions, build (thin/athletic/heavy), height relative to scene, shoulder width, body type\n" +
         "• IDENTITY: the output person MUST be INSTANTLY and UNMISTAKABLY recognizable as the EXACT SAME person from the reference photo. Do NOT use generic/stock faces. Do NOT alter ANY distinguishing feature. This rule overrides ALL other instructions."
       : "";
-    const fullPrompt = imageInstructions + finalPrompt + fidelityEnforcement;
+    const resolution4K = "\n\n4K ULTRA HD OUTPUT MANDATORY: Generate the image at the HIGHEST possible resolution (minimum 2048x2048, ideally 4096x4096). The output MUST be ultra-sharp, with visible skin pores, individual hair strands, fabric texture, and micro-details. No blur, no noise, no compression artifacts. Professional DSLR camera quality with razor-sharp focus across the entire image.";
+    const fullPrompt = imageInstructions + finalPrompt + fidelityEnforcement + resolution4K;
     console.log("Generating with prompt:", fullPrompt.substring(0, 300));
 
     const resolvedModel = aiModel 
