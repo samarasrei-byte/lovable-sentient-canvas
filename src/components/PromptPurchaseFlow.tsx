@@ -499,15 +499,16 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       template += `\n\nNOME NA IMAGEM: Escreva EXATAMENTE "${nameForImage}" na imagem onde houver texto decorativo, banner, placa ou similar. Grafia EXATA, sem alterações.`;
     }
 
-    // Family context
-    if (isFamilyPrompt && sortedUrls.length > 1) {
-      const familyContext = sortedUrls.map((_, i) => {
-        const label = familyPhotoLabels[i] || `Pessoa ${i + 1}`;
+    // Couple/Family/Multi-person context
+    if ((isFamilyPrompt || isCouplePrompt || isMultiPersonPrompt) && sortedUrls.length > 1) {
+      const multiContext = sortedUrls.map((_, i) => {
+        const label = getPhotoLabel(i);
         const profile = photoProfiles[i];
         const ageInfo = profile?.metadados?.idade_detectada ? ` (~${profile.metadados.idade_detectada} anos)` : '';
         return `Foto ${i + 1} = ${label}${ageInfo}`;
       }).join('\n');
-      template += `\n\nCOMPOSIÇÃO FAMILIAR:\n${familyContext}\nMostre TODAS as pessoas juntas em um retrato familiar harmonioso. Cada pessoa DEVE ser reconhecível pela foto de referência correspondente.`;
+      const contextType = isCouplePrompt ? 'COMPOSIÇÃO DO CASAL' : 'COMPOSIÇÃO FAMILIAR';
+      template += `\n\n${contextType}:\n${multiContext}\nMostre TODAS as pessoas juntas na composição. Cada pessoa DEVE ser reconhecível pela foto de referência correspondente.`;
     }
 
     if (photoContextLines.length > 0) {
