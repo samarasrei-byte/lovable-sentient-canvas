@@ -126,7 +126,9 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const [formData, setFormData] = useState({ name: '', instagram: '', email: '', description: '', age: '', displayName: '', months: '', telefone: '', whatsapp: '', endereco: '', data: '', hora: '', extras: '' });
   const [personNames, setPersonNames] = useState<string[]>([]);
   const isFamilyInit = /família|familia|family/i.test(prompt.category || '') || /família|familia|family/i.test(prompt.name || '');
-  const initialPhotoSlots = isFamilyInit ? Math.max(prompt.min_photos || 2, 2) : 1;
+  const isCoupleInit = /casais|casal|couple/i.test(prompt.category || '') || /casais|casal|couple/i.test(prompt.name || '');
+  const isMultiPersonPrompt = (prompt.min_photos || 1) >= 2;
+  const initialPhotoSlots = isMultiPersonPrompt ? Math.max(prompt.min_photos || 2, 2) : isFamilyInit ? Math.max(prompt.min_photos || 2, 2) : 1;
   const [photos, setPhotos] = useState<PhotoSlot[]>(Array.from({ length: initialPhotoSlots }, () => ({ file: null, preview: '' })));
   const [photoProfiles, setPhotoProfiles] = useState<(PhotoProfile | null)[]>(Array.from({ length: initialPhotoSlots }, () => null));
   const [analyzingPhotoSlots, setAnalyzingPhotoSlots] = useState<number[]>([]);
