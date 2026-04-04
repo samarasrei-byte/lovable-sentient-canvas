@@ -1467,22 +1467,12 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                 </div>
 
                 <div 
-                  className="relative rounded-xl overflow-hidden border border-white/10 mx-auto transition-all duration-300"
+                  className="relative rounded-xl overflow-hidden border border-white/10 mx-auto transition-all duration-300 flex items-center justify-center bg-black/20"
                   style={{
-                    aspectRatio: (() => {
-                      const fmt = exportFormats.find(f => f.key === exportFormat);
-                      if (!fmt?.ratio) return '4/5';
-                      if (fmt.key === '1:1') return '1/1';
-                      if (fmt.key === '4:5') return '4/5';
-                      if (fmt.key === '9:16') return '9/16';
-                      if (fmt.key === '16:9') return '16/9';
-                      if (fmt.key === '3:4') return '3/4';
-                      return '4/5';
-                    })(),
-                    maxHeight: '420px',
+                    maxHeight: '55vh',
                   }}
                 >
-                  <img src={generatedImage} alt="Generated" className="w-full h-full object-cover" />
+                  <img src={generatedImage} alt="Generated" className="w-full h-auto max-h-[55vh] object-contain rounded-xl" />
                 </div>
 
                 {generatedVariants.length > 1 && (
