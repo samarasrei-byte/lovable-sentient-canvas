@@ -126,7 +126,9 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const [formData, setFormData] = useState({ name: '', instagram: '', email: '', description: '', age: '', displayName: '', months: '', telefone: '', whatsapp: '', endereco: '', data: '', hora: '', extras: '' });
   const [personNames, setPersonNames] = useState<string[]>([]);
   const isFamilyInit = /família|familia|family/i.test(prompt.category || '') || /família|familia|family/i.test(prompt.name || '');
-  const initialPhotoSlots = isFamilyInit ? Math.max(prompt.min_photos || 2, 2) : 1;
+  const isCoupleInit = /casais|casal|couple/i.test(prompt.category || '') || /casais|casal|couple/i.test(prompt.name || '');
+  const isMultiPersonPrompt = (prompt.min_photos || 1) >= 2;
+  const initialPhotoSlots = isMultiPersonPrompt ? Math.max(prompt.min_photos || 2, 2) : isFamilyInit ? Math.max(prompt.min_photos || 2, 2) : 1;
   const [photos, setPhotos] = useState<PhotoSlot[]>(Array.from({ length: initialPhotoSlots }, () => ({ file: null, preview: '' })));
   const [photoProfiles, setPhotoProfiles] = useState<(PhotoProfile | null)[]>(Array.from({ length: initialPhotoSlots }, () => null));
   const [analyzingPhotoSlots, setAnalyzingPhotoSlots] = useState<number[]>([]);
@@ -261,8 +263,9 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       return;
     }
 
-    if (isFamilyPrompt && activePhotoCount < 2) {
-      toast.error('Para fotos de família, envie pelo menos 2 fotos (uma de cada membro).');
+    if ((isFamilyPrompt || isCouplePrompt || isMultiPersonPrompt) && activePhotoCount < (prompt.min_photos || 2)) {
+      const label = isCouplePrompt ? 'de casal' : isFamilyPrompt ? 'de família' : 'com múltiplas pessoas';
+      toast.error(`Para fotos ${label}, envie pelo menos ${prompt.min_photos || 2} fotos (uma de cada pessoa).`);
       return;
     }
 
@@ -386,6 +389,9 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const isFamilyPrompt = /família|familia|family/i.test(prompt.category || '') || 
     /família|familia|family/i.test(prompt.name || '');
 
+  const isCouplePrompt = isCoupleInit || /casais|casal|couple/i.test(prompt.category || '') || 
+    /casais|casal|couple/i.test(prompt.name || '');
+
   const isMesversarioPrompt = /mêsversário|mesversário|mesversario/i.test(prompt.category || '') || 
     /mêsversário|mesversário|mesversario/i.test(prompt.name || '');
 
@@ -399,6 +405,28 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
 
   const hasNameInImage = /nome|name|\[NAME\]|\{nome\}/i.test(prompt.prompt_template || '') ||
     prompt.required_fields.includes('name');
+
+  // Smart photo labels based on prompt context
+  const getPhotoLabel = (index: number): string => {
+    if (isCouplePrompt) {
+      return ['👩 Ela (Mulher)', '👨 Ele (Homem)'][index] || `Pessoa ${index + 1}`;
+    }
+    if (isFamilyPrompt) {
+      const minPhotos = prompt.min_photos || 2;
+      if (minPhotos === 3) return ['👨 Pai', '👩 Mãe', '👶 Filho(a)'][index] || `Familiar ${index + 1}`;
+      if (minPhotos >= 4) return ['👨 Pai', '👩 Mãe', '👧 Filho(a) 1', '👦 Filho(a) 2', '👴 Outro familiar'][index] || `Familiar ${index + 1}`;
+      return ['👨 Pai/Mãe 1', '👩 Pai/Mãe 2'][index] || `Familiar ${index + 1}`;
+    }
+    // Detect children from prompt content
+    const promptText = (prompt.prompt_template || '').toLowerCase();
+    if (/criança|child|kid|menino|menina|bebê|baby|infant/.test(promptText) && index === 0) {
+      return '👶 Criança';
+    }
+    if (isMultiPersonPrompt) {
+      return `📸 Pessoa ${index + 1}`;
+    }
+    return `📸 Sua foto`;
+  };
 
   const familyPhotoLabels = ['Pai/Mãe', 'Filho(a) 1', 'Filho(a) 2', 'Filho(a) 3', 'Outro familiar'];
 
@@ -471,15 +499,16 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       template += `\n\nNOME NA IMAGEM: Escreva EXATAMENTE "${nameForImage}" na imagem onde houver texto decorativo, banner, placa ou similar. Grafia EXATA, sem alterações.`;
     }
 
-    // Family context
-    if (isFamilyPrompt && sortedUrls.length > 1) {
-      const familyContext = sortedUrls.map((_, i) => {
-        const label = familyPhotoLabels[i] || `Pessoa ${i + 1}`;
+    // Couple/Family/Multi-person context
+    if ((isFamilyPrompt || isCouplePrompt || isMultiPersonPrompt) && sortedUrls.length > 1) {
+      const multiContext = sortedUrls.map((_, i) => {
+        const label = getPhotoLabel(i);
         const profile = photoProfiles[i];
         const ageInfo = profile?.metadados?.idade_detectada ? ` (~${profile.metadados.idade_detectada} anos)` : '';
         return `Foto ${i + 1} = ${label}${ageInfo}`;
       }).join('\n');
-      template += `\n\nCOMPOSIÇÃO FAMILIAR:\n${familyContext}\nMostre TODAS as pessoas juntas em um retrato familiar harmonioso. Cada pessoa DEVE ser reconhecível pela foto de referência correspondente.`;
+      const contextType = isCouplePrompt ? 'COMPOSIÇÃO DO CASAL' : 'COMPOSIÇÃO FAMILIAR';
+      template += `\n\n${contextType}:\n${multiContext}\nMostre TODAS as pessoas juntas na composição. Cada pessoa DEVE ser reconhecível pela foto de referência correspondente.`;
     }
 
     if (photoContextLines.length > 0) {
@@ -736,12 +765,12 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
   };
 
   const exportFormats = [
-    { key: 'original', label: 'Original', icon: '📐', ratio: null },
-    { key: '1:1', label: 'Feed 1:1', icon: '⬜', ratio: 1 },
-    { key: '4:5', label: 'Post 4:5', icon: '📱', ratio: 4 / 5 },
-    { key: '9:16', label: 'Stories', icon: '📲', ratio: 9 / 16 },
-    { key: '16:9', label: 'Cover', icon: '🖥️', ratio: 16 / 9 },
-    { key: '3:4', label: 'Retrato', icon: '🖼️', ratio: 3 / 4 },
+    { key: 'original', label: 'Original', ratio: null, w: 20, h: 20 },
+    { key: '1:1', label: 'Feed 1:1', ratio: 1, w: 18, h: 18 },
+    { key: '4:5', label: 'Post 4:5', ratio: 4 / 5, w: 16, h: 20 },
+    { key: '9:16', label: 'Stories', ratio: 9 / 16, w: 12, h: 20 },
+    { key: '16:9', label: 'Cover', ratio: 16 / 9, w: 20, h: 12 },
+    { key: '3:4', label: 'Retrato', ratio: 3 / 4, w: 15, h: 20 },
   ];
 
   const handleDownload = (url?: string) => {
@@ -877,13 +906,17 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                     <div className="flex items-center justify-between">
                       <Label className="text-xs sm:text-sm flex items-center gap-2">
                         <Upload className="w-4 h-4" />
-                        {isFamilyPrompt 
-                          ? `Fotos da Família (${activePhotoCount} de ${maxPhotos})`
-                          : activePhotoCount > 0 
-                            ? `Fotos (${activePhotoCount} enviada${activePhotoCount > 1 ? 's' : ''})` 
-                            : 'Suas fotos'}
+                        {isCouplePrompt
+                          ? `Fotos do Casal (${activePhotoCount} de ${prompt.min_photos || 2})`
+                          : isFamilyPrompt 
+                            ? `Fotos da Família (${activePhotoCount} de ${maxPhotos})`
+                            : isMultiPersonPrompt
+                              ? `Fotos das Pessoas (${activePhotoCount} de ${prompt.min_photos || 2})`
+                              : activePhotoCount > 0 
+                                ? `Fotos (${activePhotoCount} enviada${activePhotoCount > 1 ? 's' : ''})` 
+                                : 'Suas fotos'}
                       </Label>
-                      {photos.length < maxPhotos && (
+                      {photos.length < maxPhotos && !isMultiPersonPrompt && (
                         <button onClick={addPhotoSlot} className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors">
                           <Plus className="w-3.5 h-3.5" />
                           <span className="hidden sm:inline">{isFamilyPrompt ? 'Adicionar familiar' : 'Adicionar pessoa'}</span>
@@ -892,10 +925,14 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                       )}
                     </div>
 
-                    {isFamilyPrompt && (
+                    {(isFamilyPrompt || isCouplePrompt || isMultiPersonPrompt) && (
                       <div className="p-2.5 rounded-lg bg-primary/5 border border-primary/20">
                         <p className="text-[10px] sm:text-xs text-primary">
-                          👨‍👩‍👧‍👦 Envie uma foto separada de cada membro da família. A IA vai unir todos em uma composição familiar.
+                          {isCouplePrompt
+                            ? '💑 Envie uma foto de cada pessoa do casal. A IA vai unir os dois na composição.'
+                            : isFamilyPrompt
+                              ? '👨‍👩‍👧‍👦 Envie uma foto separada de cada membro da família. A IA vai unir todos em uma composição familiar.'
+                              : `👥 Este prompt precisa de ${prompt.min_photos || 2} fotos — uma de cada pessoa que aparecerá na imagem.`}
                         </p>
                       </div>
                     )}
@@ -904,9 +941,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                       {photos.map((photo, index) => {
                         const photoProfile = photoProfiles[index];
                         const isAnalyzing = analyzingPhotoSlots.includes(index);
-                        const slotLabel = isFamilyPrompt 
-                          ? (familyPhotoLabels[index] || `Pessoa ${index + 1}`) 
-                          : `Pessoa ${index + 1}`;
+                        const slotLabel = getPhotoLabel(index);
 
                         return (
                           <div key={index} className="relative group space-y-1.5">
@@ -1455,13 +1490,20 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                       <button
                         key={fmt.key}
                         onClick={() => setExportFormat(fmt.key)}
-                        className={`flex flex-col items-center gap-0.5 p-2 rounded-lg text-[10px] font-medium transition-all ${
+                        className={`flex flex-col items-center gap-1 p-2.5 rounded-xl text-[10px] font-medium transition-all ${
                           exportFormat === fmt.key
-                            ? 'bg-primary text-primary-foreground shadow-lg ring-2 ring-primary/30'
-                            : 'bg-white/5 border border-white/10 hover:border-primary/50 text-foreground'
+                            ? 'bg-primary text-primary-foreground shadow-lg ring-2 ring-primary/30 scale-105'
+                            : 'bg-white/5 border border-white/10 hover:border-primary/50 hover:bg-white/10 text-foreground'
                         }`}
                       >
-                        <span className="text-sm">{fmt.icon}</span>
+                        <div className="flex items-center justify-center w-8 h-8">
+                          <div
+                            className={`rounded-sm border-2 transition-colors ${
+                              exportFormat === fmt.key ? 'border-primary-foreground/70' : 'border-muted-foreground/40'
+                            }`}
+                            style={{ width: fmt.w, height: fmt.h }}
+                          />
+                        </div>
                         <span>{fmt.label}</span>
                       </button>
                     ))}
