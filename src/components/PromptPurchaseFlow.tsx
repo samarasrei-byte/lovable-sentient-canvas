@@ -957,10 +957,10 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                           <div key={index} className="relative group space-y-1.5">
                             <div
                               onClick={() => fileInputRefs.current[index]?.click()}
-                              className="relative rounded-xl border-2 border-dashed border-white/20 hover:border-primary/50 transition-colors cursor-pointer overflow-hidden aspect-square"
+                              className="relative rounded-xl border-2 border-dashed border-white/20 hover:border-primary/50 transition-colors cursor-pointer overflow-hidden aspect-[3/4]"
                             >
                               {photo.preview ? (
-                                <img src={photo.preview} alt={slotLabel} className="w-full h-full object-cover" />
+                                <img src={photo.preview} alt={slotLabel} className="w-full h-full object-contain bg-black/20" />
                               ) : (
                                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-muted-foreground">
                                   <Upload className="w-5 h-5" />
