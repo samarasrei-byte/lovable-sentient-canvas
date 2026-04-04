@@ -205,7 +205,7 @@ export const PromptFromScreenshot = ({ open, onClose, onPromptCreated }: PromptF
         price_cents: promptPrice,
         status: "active",
         required_fields: requiredFields,
-        ai_model: "gemini-2.5-flash-image",
+        ai_model: "google/gemini-2.5-flash-image",
         min_photos: 1,
         is_influencer_prompt: false,
       };

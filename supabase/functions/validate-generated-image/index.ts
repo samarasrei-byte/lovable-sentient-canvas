@@ -31,52 +31,60 @@ serve(async (req) => {
       ? referenceImageUrls.filter((url) => typeof url === "string" && url.length > 0)
       : [];
 
-    const qaPrompt = `Analyze this AI-generated image with a strict premium QA process.
+    const qaPrompt = `You are a STRICT premium image QA inspector. Analyze this AI-generated image rigorously.
 
-CHECK ALL ITEMS:
-1. FACE/BODY: Are there facial distortions, extra fingers, deformed hands, broken anatomy, or unnatural proportions?
-2. CROPPING: Is any important part (head, face, hands, body) cut off?
-3. NUMBER / AGE: If this is a birthday or age-driven image, the visible number must match the expected age exactly. Expected age: "${expectedAge || "N/A"}". If the image shows a different number than the expected age, mark passed=false. If the style reference image contains another number, IGNORE the reference number and validate against the expected age only.
-4. TEXT: If text appears, is it correct, readable, well-positioned, and spelled exactly as expected? Expected name: "${expectedName || "N/A"}". Expected description: "${expectedDescription || "N/A"}".
-5. COMPOSITION: Is the composition centered, premium, and suitable for mobile vertical viewing?
-6. PROMPT CONSISTENCY: Does the final image visually match the requested prompt/theme/category?
-7. PEOPLE COUNT: Expected ${numberOfPeople || 1} person(s). Are they all present?
-8. STYLE REFERENCE: If a style reference image is provided, does the generated output follow its style/composition without copying the wrong identity, wrong number, or wrong text?
-9. SUBJECT FIDELITY: ${hasReferencePhoto ? "Compare the generated subject(s) against the reference photo(s). Verify that identity, apparent age group, hair, face structure, and overall likeness are preserved." : "N/A"}
-10. QUALITY: Is the image high-resolution, well-lit, professional, and free from obvious AI artifacts?
+CHECK ALL ITEMS — mark passed=false if ANY significant issue is found:
+
+1. FACIAL FIDELITY (MOST IMPORTANT): Compare the generated subject against the reference photos. The person MUST be INSTANTLY recognizable — same eye shape, nose, mouth, jawline, skin tone, hair color/style, body type. If the generated person looks like a DIFFERENT person, this is an AUTOMATIC FAIL.
+
+2. FACE/BODY ANATOMY: Extra fingers, deformed hands, broken anatomy, unnatural proportions? FAIL.
+
+3. AGE/NUMBER: If birthday/age image, the visible number MUST match expected age EXACTLY. Expected age: "${expectedAge || "N/A"}". Wrong number = AUTOMATIC FAIL. IGNORE any number from the style reference — only validate against the expected age.
+
+4. TEXT: If text appears, is it correct and spelled exactly? Expected name: "${expectedName || "N/A"}". Wrong text = FAIL.
+
+5. CROPPING: Is the person's head, face, or body cut off? FAIL.
+
+6. PEOPLE COUNT: Expected ${numberOfPeople || 1} person(s). Missing people = FAIL.
+
+7. STYLE vs IDENTITY CONTAMINATION: Did the AI copy the WRONG person's face from the style reference instead of the user's photo? This is an AUTOMATIC FAIL.
+
+8. QUALITY: Professional resolution, well-lit, no obvious AI artifacts? Low quality = FAIL.
 
 Category: ${promptCategory || "general"}
-Prompt snippet: ${(promptTemplate || "").slice(0, 700)}
+Prompt snippet: ${(promptTemplate || "").slice(0, 500)}
 
 IMPORTANT IMAGE ORDER:
 - First image = generated output to audit
-- Second image (if present) = style reference
-- Remaining images (if present) = real subject reference photos
+- Then: real subject reference photos (if present)
+- Last: style reference image (if present)
+
+BE STRICT. When in doubt, FAIL. It's better to regenerate than deliver a bad image.
 
 Respond in this EXACT JSON format:
 {
   "passed": true/false,
   "issues": ["issue 1", "issue 2"],
   "score": 0-100
-}
-
-Only mark passed=false when there are significant issues such as wrong person, wrong age appearance, wrong birthday number, bad text, severe cropping, missing people, or strong distortions.`;
+}`;
 
     const content: Array<{ type: string; text?: string; image_url?: { url: string } }> = [
       { type: "text", text: qaPrompt },
       { type: "image_url", image_url: { url: imageUrl } },
     ];
 
-    if (styleReferenceImageUrl) {
-      content.push({ type: "text", text: "Style reference image:" });
-      content.push({ type: "image_url", image_url: { url: styleReferenceImageUrl } });
-    }
-
+    // Reference photos FIRST (identity truth)
     if (safeReferenceImages.length > 0) {
-      content.push({ type: "text", text: "Real subject reference images:" });
+      content.push({ type: "text", text: "Real subject reference photos (the person who MUST appear in the output):" });
       safeReferenceImages.forEach((url) => {
         content.push({ type: "image_url", image_url: { url } });
       });
+    }
+
+    // Style reference LAST (secondary context)
+    if (styleReferenceImageUrl) {
+      content.push({ type: "text", text: "Style reference image (for style/composition only — NOT identity):" });
+      content.push({ type: "image_url", image_url: { url: styleReferenceImageUrl } });
     }
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
