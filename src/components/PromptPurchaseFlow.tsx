@@ -1489,13 +1489,20 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                       <button
                         key={fmt.key}
                         onClick={() => setExportFormat(fmt.key)}
-                        className={`flex flex-col items-center gap-0.5 p-2 rounded-lg text-[10px] font-medium transition-all ${
+                        className={`flex flex-col items-center gap-1 p-2.5 rounded-xl text-[10px] font-medium transition-all ${
                           exportFormat === fmt.key
-                            ? 'bg-primary text-primary-foreground shadow-lg ring-2 ring-primary/30'
-                            : 'bg-white/5 border border-white/10 hover:border-primary/50 text-foreground'
+                            ? 'bg-primary text-primary-foreground shadow-lg ring-2 ring-primary/30 scale-105'
+                            : 'bg-white/5 border border-white/10 hover:border-primary/50 hover:bg-white/10 text-foreground'
                         }`}
                       >
-                        <span className="text-sm">{fmt.icon}</span>
+                        <div className="flex items-center justify-center w-8 h-8">
+                          <div
+                            className={`rounded-sm border-2 transition-colors ${
+                              exportFormat === fmt.key ? 'border-primary-foreground/70' : 'border-muted-foreground/40'
+                            }`}
+                            style={{ width: fmt.w, height: fmt.h }}
+                          />
+                        </div>
                         <span>{fmt.label}</span>
                       </button>
                     ))}
