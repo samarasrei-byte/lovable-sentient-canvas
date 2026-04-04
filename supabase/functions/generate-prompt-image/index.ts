@@ -223,6 +223,10 @@ serve(async (req) => {
     if (userInstagram) finalPrompt = finalPrompt.replace(/{instagram}/g, `@${userInstagram.replace('@', '')}`);
     if (userDescription) finalPrompt = finalPrompt.replace(/{description}/g, userDescription);
 
+    // Determine all user photo URLs (MUST be before any usage)
+    const allPhotoUrls: string[] = userPhotoUrls?.length ? userPhotoUrls : (userPhotoUrl ? [userPhotoUrl] : []);
+    const isMultiPerson = allPhotoUrls.length > 1;
+
     // Apply Prompt Master if flyerContext is provided
     if (flyerContext && typeof flyerContext === 'object') {
       finalPrompt = buildPromptMaster(finalPrompt, flyerContext as FlyerContext, allPhotoUrls.length);
@@ -230,10 +234,6 @@ serve(async (req) => {
 
     finalPrompt += ". Ultra high resolution, professional photography, trending on artstation, 8K quality, masterful lighting.";
     if (negativePrompt) finalPrompt += ` Avoid: ${negativePrompt}`;
-
-    // Determine all user photo URLs
-    const allPhotoUrls: string[] = userPhotoUrls?.length ? userPhotoUrls : (userPhotoUrl ? [userPhotoUrl] : []);
-    const isMultiPerson = allPhotoUrls.length > 1;
 
     // Build fidelity instructions
     let imageInstructions = "";
@@ -280,7 +280,12 @@ serve(async (req) => {
 
     // Always enforce fidelity when photos are provided, even if the prompt template already has instructions
     const fidelityEnforcement = allPhotoUrls.length > 0
-      ? "\n\nFINAL OVERRIDE — NON-NEGOTIABLE FIDELITY RULE: The reference photo(s) provided are the ABSOLUTE source of truth. You MUST reproduce EVERY facial feature exactly as shown. Do NOT use generic/stock faces. Do NOT alter skin tone, eye shape, nose structure, jawline, or any distinguishing mark. The output person MUST be instantly recognizable as the SAME person from the reference. This rule overrides ALL other instructions."
+      ? "\n\nFINAL OVERRIDE — NON-NEGOTIABLE FIDELITY RULE: The reference photo(s) provided are the ABSOLUTE source of truth. You MUST reproduce EVERY detail exactly as shown:\n" +
+        "• FACE: eye shape, eye color, nose structure, mouth shape, jawline, chin, forehead, eyebrows, ear shape\n" +
+        "• SKIN: exact skin tone, texture, pores, moles, freckles, scars, birthmarks, wrinkles\n" +
+        "• HAIR: exact color, texture, length, style, thickness, hairline\n" +
+        "• BODY: exact proportions, build (thin/athletic/heavy), height relative to scene, shoulder width, body type\n" +
+        "• IDENTITY: the output person MUST be INSTANTLY and UNMISTAKABLY recognizable as the EXACT SAME person from the reference photo. Do NOT use generic/stock faces. Do NOT alter ANY distinguishing feature. This rule overrides ALL other instructions."
       : "";
     const fullPrompt = imageInstructions + finalPrompt + fidelityEnforcement;
     console.log("Generating with prompt:", fullPrompt.substring(0, 300));

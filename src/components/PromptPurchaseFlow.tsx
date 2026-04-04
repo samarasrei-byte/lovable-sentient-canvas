@@ -807,9 +807,19 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
         sy = (img.height - sh) / 2;
       }
 
-      canvas.width = Math.min(sw, 2048);
-      canvas.height = Math.min(sh, 2048);
-      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+      // Proportional clamping to max 2048 without breaking aspect ratio
+      const maxDim = 2048;
+      let outW = sw;
+      let outH = sh;
+      if (outW > maxDim || outH > maxDim) {
+        const scale = Math.min(maxDim / outW, maxDim / outH);
+        outW = Math.round(outW * scale);
+        outH = Math.round(outH * scale);
+      }
+
+      canvas.width = outW;
+      canvas.height = outH;
+      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, outW, outH);
 
       canvas.toBlob((blob) => {
         if (!blob) return;
@@ -1456,7 +1466,22 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   <h3 className="text-base sm:text-lg font-medium">Imagem gerada!</h3>
                 </div>
 
-                <div className="relative aspect-[4/5] rounded-xl overflow-hidden border border-white/10">
+                <div 
+                  className="relative rounded-xl overflow-hidden border border-white/10 mx-auto transition-all duration-300"
+                  style={{
+                    aspectRatio: (() => {
+                      const fmt = exportFormats.find(f => f.key === exportFormat);
+                      if (!fmt?.ratio) return '4/5';
+                      if (fmt.key === '1:1') return '1/1';
+                      if (fmt.key === '4:5') return '4/5';
+                      if (fmt.key === '9:16') return '9/16';
+                      if (fmt.key === '16:9') return '16/9';
+                      if (fmt.key === '3:4') return '3/4';
+                      return '4/5';
+                    })(),
+                    maxHeight: '420px',
+                  }}
+                >
                   <img src={generatedImage} alt="Generated" className="w-full h-full object-cover" />
                 </div>
 
