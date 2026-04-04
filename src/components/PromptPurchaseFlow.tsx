@@ -807,9 +807,19 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
         sy = (img.height - sh) / 2;
       }
 
-      canvas.width = Math.min(sw, 2048);
-      canvas.height = Math.min(sh, 2048);
-      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+      // Proportional clamping to max 2048 without breaking aspect ratio
+      const maxDim = 2048;
+      let outW = sw;
+      let outH = sh;
+      if (outW > maxDim || outH > maxDim) {
+        const scale = Math.min(maxDim / outW, maxDim / outH);
+        outW = Math.round(outW * scale);
+        outH = Math.round(outH * scale);
+      }
+
+      canvas.width = outW;
+      canvas.height = outH;
+      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, outW, outH);
 
       canvas.toBlob((blob) => {
         if (!blob) return;

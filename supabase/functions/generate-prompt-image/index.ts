@@ -223,6 +223,10 @@ serve(async (req) => {
     if (userInstagram) finalPrompt = finalPrompt.replace(/{instagram}/g, `@${userInstagram.replace('@', '')}`);
     if (userDescription) finalPrompt = finalPrompt.replace(/{description}/g, userDescription);
 
+    // Determine all user photo URLs (MUST be before any usage)
+    const allPhotoUrls: string[] = userPhotoUrls?.length ? userPhotoUrls : (userPhotoUrl ? [userPhotoUrl] : []);
+    const isMultiPerson = allPhotoUrls.length > 1;
+
     // Apply Prompt Master if flyerContext is provided
     if (flyerContext && typeof flyerContext === 'object') {
       finalPrompt = buildPromptMaster(finalPrompt, flyerContext as FlyerContext, allPhotoUrls.length);
@@ -230,10 +234,6 @@ serve(async (req) => {
 
     finalPrompt += ". Ultra high resolution, professional photography, trending on artstation, 8K quality, masterful lighting.";
     if (negativePrompt) finalPrompt += ` Avoid: ${negativePrompt}`;
-
-    // Determine all user photo URLs
-    const allPhotoUrls: string[] = userPhotoUrls?.length ? userPhotoUrls : (userPhotoUrl ? [userPhotoUrl] : []);
-    const isMultiPerson = allPhotoUrls.length > 1;
 
     // Build fidelity instructions
     let imageInstructions = "";
