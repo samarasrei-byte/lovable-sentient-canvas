@@ -764,12 +764,12 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
   };
 
   const exportFormats = [
-    { key: 'original', label: 'Original', icon: '📐', ratio: null },
-    { key: '1:1', label: 'Feed 1:1', icon: '⬜', ratio: 1 },
-    { key: '4:5', label: 'Post 4:5', icon: '📱', ratio: 4 / 5 },
-    { key: '9:16', label: 'Stories', icon: '📲', ratio: 9 / 16 },
-    { key: '16:9', label: 'Cover', icon: '🖥️', ratio: 16 / 9 },
-    { key: '3:4', label: 'Retrato', icon: '🖼️', ratio: 3 / 4 },
+    { key: 'original', label: 'Original', ratio: null, w: 20, h: 20 },
+    { key: '1:1', label: 'Feed 1:1', ratio: 1, w: 18, h: 18 },
+    { key: '4:5', label: 'Post 4:5', ratio: 4 / 5, w: 16, h: 20 },
+    { key: '9:16', label: 'Stories', ratio: 9 / 16, w: 12, h: 20 },
+    { key: '16:9', label: 'Cover', ratio: 16 / 9, w: 20, h: 12 },
+    { key: '3:4', label: 'Retrato', ratio: 3 / 4, w: 15, h: 20 },
   ];
 
   const handleDownload = (url?: string) => {
