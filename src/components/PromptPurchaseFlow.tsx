@@ -905,13 +905,17 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                     <div className="flex items-center justify-between">
                       <Label className="text-xs sm:text-sm flex items-center gap-2">
                         <Upload className="w-4 h-4" />
-                        {isFamilyPrompt 
-                          ? `Fotos da Família (${activePhotoCount} de ${maxPhotos})`
-                          : activePhotoCount > 0 
-                            ? `Fotos (${activePhotoCount} enviada${activePhotoCount > 1 ? 's' : ''})` 
-                            : 'Suas fotos'}
+                        {isCouplePrompt
+                          ? `Fotos do Casal (${activePhotoCount} de ${prompt.min_photos || 2})`
+                          : isFamilyPrompt 
+                            ? `Fotos da Família (${activePhotoCount} de ${maxPhotos})`
+                            : isMultiPersonPrompt
+                              ? `Fotos das Pessoas (${activePhotoCount} de ${prompt.min_photos || 2})`
+                              : activePhotoCount > 0 
+                                ? `Fotos (${activePhotoCount} enviada${activePhotoCount > 1 ? 's' : ''})` 
+                                : 'Suas fotos'}
                       </Label>
-                      {photos.length < maxPhotos && (
+                      {photos.length < maxPhotos && !isMultiPersonPrompt && (
                         <button onClick={addPhotoSlot} className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors">
                           <Plus className="w-3.5 h-3.5" />
                           <span className="hidden sm:inline">{isFamilyPrompt ? 'Adicionar familiar' : 'Adicionar pessoa'}</span>
@@ -920,10 +924,14 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                       )}
                     </div>
 
-                    {isFamilyPrompt && (
+                    {(isFamilyPrompt || isCouplePrompt || isMultiPersonPrompt) && (
                       <div className="p-2.5 rounded-lg bg-primary/5 border border-primary/20">
                         <p className="text-[10px] sm:text-xs text-primary">
-                          👨‍👩‍👧‍👦 Envie uma foto separada de cada membro da família. A IA vai unir todos em uma composição familiar.
+                          {isCouplePrompt
+                            ? '💑 Envie uma foto de cada pessoa do casal. A IA vai unir os dois na composição.'
+                            : isFamilyPrompt
+                              ? '👨‍👩‍👧‍👦 Envie uma foto separada de cada membro da família. A IA vai unir todos em uma composição familiar.'
+                              : `👥 Este prompt precisa de ${prompt.min_photos || 2} fotos — uma de cada pessoa que aparecerá na imagem.`}
                         </p>
                       </div>
                     )}
