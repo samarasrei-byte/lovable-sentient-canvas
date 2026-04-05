@@ -139,6 +139,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const [generatedVariants, setGeneratedVariants] = useState<GeneratedVariant[]>([]);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [pixCopied, setPixCopied] = useState(false);
   const [purchaseId, setPurchaseId] = useState<string | null>(null);
   const [editInstruction, setEditInstruction] = useState('');
   const [isEditing, setIsEditing] = useState(false);
