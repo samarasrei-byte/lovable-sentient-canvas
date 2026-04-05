@@ -967,16 +967,16 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-black/80 backdrop-blur-sm overflow-y-auto overscroll-contain"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <motion.div
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
-        className="w-full max-w-lg my-2 sm:my-4"
+        className="w-full max-w-lg px-2 sm:px-4 py-3 sm:py-4 min-h-0"
       >
-        <GlassCard className="relative overflow-hidden max-h-[90vh] overflow-y-auto">
+        <GlassCard className="relative overflow-hidden max-h-[calc(100dvh-1.5rem)] sm:max-h-[90vh] overflow-y-auto overscroll-contain">
           <button onClick={onClose} className="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors">
             <X className="w-4 h-4" />
           </button>
@@ -1601,17 +1601,18 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
             {step === 'complete' && generatedImage && (
               <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="space-y-3 sm:space-y-4">
                 <div className="text-center mb-2">
-                  <CheckCircle2 className="w-10 h-10 text-primary mx-auto mb-1.5" />
+                  <CheckCircle2 className="w-8 h-8 sm:w-10 sm:h-10 text-primary mx-auto mb-1.5" />
                   <h3 className="text-base sm:text-lg font-medium">Imagem gerada!</h3>
                 </div>
 
                 <div 
                   className="relative rounded-xl overflow-hidden border border-white/10 mx-auto transition-all duration-300 flex items-center justify-center bg-black/20"
-                  style={{
-                    maxHeight: '55vh',
-                  }}
                 >
-                  <img src={generatedImage} alt="Generated" className="w-full h-auto max-h-[55vh] object-contain rounded-xl" />
+                  <img 
+                    src={generatedImage} 
+                    alt="Generated" 
+                    className="w-full h-auto max-h-[40vh] sm:max-h-[50vh] object-contain rounded-xl" 
+                  />
                 </div>
 
                 {generatedVariants.length > 1 && (
@@ -1639,25 +1640,23 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                 {/* Export Format Selector */}
                 <div className="space-y-2">
                   <p className="text-xs font-medium text-muted-foreground">📐 Formato de exportação:</p>
-                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
+                  <div className="flex flex-wrap gap-1.5 justify-center">
                     {exportFormats.map((fmt) => (
                       <button
                         key={fmt.key}
                         onClick={() => setExportFormat(fmt.key)}
-                        className={`flex flex-col items-center gap-1 p-2.5 rounded-xl text-[10px] font-medium transition-all ${
+                        className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-[10px] sm:text-xs font-medium transition-all whitespace-nowrap ${
                           exportFormat === fmt.key
-                            ? 'bg-primary text-primary-foreground shadow-lg ring-2 ring-primary/30 scale-105'
+                            ? 'bg-primary text-primary-foreground shadow-lg ring-2 ring-primary/30'
                             : 'bg-white/5 border border-white/10 hover:border-primary/50 hover:bg-white/10 text-foreground'
                         }`}
                       >
-                        <div className="flex items-center justify-center w-8 h-8">
-                          <div
-                            className={`rounded-sm border-2 transition-colors ${
-                              exportFormat === fmt.key ? 'border-primary-foreground/70' : 'border-muted-foreground/40'
-                            }`}
-                            style={{ width: fmt.w, height: fmt.h }}
-                          />
-                        </div>
+                        <div
+                          className={`rounded-sm border-[1.5px] transition-colors flex-shrink-0 ${
+                            exportFormat === fmt.key ? 'border-primary-foreground/70' : 'border-muted-foreground/40'
+                          }`}
+                          style={{ width: Math.round(fmt.w * 0.7), height: Math.round(fmt.h * 0.7) }}
+                        />
                         <span>{fmt.label}</span>
                       </button>
                     ))}
@@ -1688,16 +1687,16 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
 
                 <div className="grid grid-cols-3 gap-2">
                   <GlassButton onClick={handleDownloadAll} className="col-span-1" size="sm">
-                    <Download className="w-3.5 h-3.5 sm:mr-1.5" />
-                    <span className="hidden sm:inline">Baixar</span>
+                    <Download className="w-3.5 h-3.5 mr-1" />
+                    <span className="text-[10px] sm:text-xs">Baixar</span>
                   </GlassButton>
                   <GlassButton onClick={() => setStep('editing')} variant="outline" size="sm">
-                    <Pencil className="w-3.5 h-3.5 sm:mr-1.5" />
-                    <span className="hidden sm:inline">Editar</span>
+                    <Pencil className="w-3.5 h-3.5 mr-1" />
+                    <span className="text-[10px] sm:text-xs">Editar</span>
                   </GlassButton>
                   <GlassButton onClick={generateMoreVariants} variant="outline" size="sm" disabled={isGeneratingMore || generatedVariants.length >= MAX_VARIANTS}>
-                    {isGeneratingMore ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ImagePlus className="w-3.5 h-3.5 sm:mr-1.5" />}
-                    <span className="hidden sm:inline">{isGeneratingMore ? '...' : '+Variação'}</span>
+                    {isGeneratingMore ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> : <ImagePlus className="w-3.5 h-3.5 mr-1" />}
+                    <span className="text-[10px] sm:text-xs">{isGeneratingMore ? '...' : '+Variação'}</span>
                   </GlassButton>
                 </div>
 
@@ -1722,8 +1721,8 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   <h3 className="text-base font-medium">Editar sua imagem</h3>
                   <p className="text-[10px] sm:text-xs text-muted-foreground">Descreva o que deseja alterar</p>
                 </div>
-                <div className="relative aspect-video rounded-xl overflow-hidden border border-white/10">
-                  <img src={generatedImage} alt="Current" className="w-full h-full object-contain bg-black/50" />
+                <div className="relative rounded-xl overflow-hidden border border-white/10 bg-black/50">
+                  <img src={generatedImage} alt="Current" className="w-full h-auto max-h-[35vh] sm:max-h-[40vh] object-contain" />
                 </div>
                 <textarea
                   value={editInstruction}
