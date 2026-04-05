@@ -155,6 +155,55 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
 
   const formatPrice = (cents: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cents / 100);
 
+  // Generate PIX EMV payload (static PIX)
+  const pixPayload = useMemo(() => {
+    const valor = (prompt.price_cents / 100).toFixed(2);
+    const pixKey = '11999999999'; // Replace with real PIX key
+    const merchantName = 'ARCANA AI';
+    const merchantCity = 'SAO PAULO';
+    const txId = purchaseId ? purchaseId.slice(0, 25) : 'ARCANA' + Date.now().toString(36);
+    
+    const pad = (id: string, val: string) => id + String(val.length).padStart(2, '0') + val;
+    
+    const gui = pad('00', 'br.gov.bcb.pix');
+    const chave = pad('01', pixKey);
+    const mAI = pad('26', gui + chave);
+    
+    let payload = '';
+    payload += pad('00', '01'); // format indicator
+    payload += mAI;
+    payload += pad('52', '0000'); // merchant category
+    payload += pad('53', '986'); // BRL
+    payload += pad('54', valor);
+    payload += pad('58', 'BR');
+    payload += pad('59', merchantName.slice(0, 25));
+    payload += pad('60', merchantCity.slice(0, 15));
+    payload += pad('62', pad('05', txId));
+    
+    // CRC16 placeholder — add '6304' then compute
+    payload += '6304';
+    
+    // CRC-CCITT (0xFFFF)
+    let crc = 0xFFFF;
+    for (let i = 0; i < payload.length; i++) {
+      crc ^= payload.charCodeAt(i) << 8;
+      for (let j = 0; j < 8; j++) {
+        if (crc & 0x8000) crc = (crc << 1) ^ 0x1021;
+        else crc <<= 1;
+      }
+      crc &= 0xFFFF;
+    }
+    
+    return payload + crc.toString(16).toUpperCase().padStart(4, '0');
+  }, [prompt.price_cents, purchaseId]);
+
+  const handleCopyPix = () => {
+    navigator.clipboard.writeText(pixPayload);
+    setPixCopied(true);
+    toast.success('Código PIX copiado!');
+    setTimeout(() => setPixCopied(false), 3000);
+  };
+
   const analyzeUploadedPhoto = async (index: number, imageDataUrl: string) => {
     setAnalyzingPhotoSlots((prev) => [...prev.filter((slot) => slot !== index), index]);
 
