@@ -223,6 +223,10 @@ serve(async (req) => {
     if (userInstagram) finalPrompt = finalPrompt.replace(/{instagram}/g, `@${userInstagram.replace('@', '')}`);
     if (userDescription) finalPrompt = finalPrompt.replace(/{description}/g, userDescription);
 
+    // Extract age from custom_fields or flyerContext and replace {age} placeholder
+    const userAge = flyerContext?.idades?.[0] || "";
+    if (userAge) finalPrompt = finalPrompt.replace(/{age}/g, userAge);
+
     // Determine all user photo URLs (MUST be before any usage)
     const allPhotoUrls: string[] = userPhotoUrls?.length ? userPhotoUrls : (userPhotoUrl ? [userPhotoUrl] : []);
     const isMultiPerson = allPhotoUrls.length > 1;
