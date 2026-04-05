@@ -1417,10 +1417,10 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   </div>
                 </div>
 
-                <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+                <div className="p-3 rounded-lg bg-accent/10 border border-accent/20">
                   <div className="flex items-center gap-2 mb-1">
-                    <Smartphone className="w-4 h-4 text-green-500" />
-                    <span className="text-xs font-semibold text-green-500">Pagamento via PIX</span>
+                    <Smartphone className="w-4 h-4 text-accent" />
+                    <span className="text-xs font-semibold text-accent">Pagamento via PIX</span>
                   </div>
                   <p className="text-[10px] text-muted-foreground">
                     Pagamento instantâneo, sem redirecionamento. Após pagar, clique em "Já paguei" para gerar sua imagem.
