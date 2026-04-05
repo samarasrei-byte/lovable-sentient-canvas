@@ -48,7 +48,7 @@ const CATEGORY_HERO: Record<string, {
     icon: <Briefcase className="w-6 h-6" />,
     badge: "PREMIUM CORPORATE",
     bgPattern: "radial-gradient(ellipse at 20% 50%, hsl(210 80% 50% / 0.15), transparent 50%), radial-gradient(ellipse at 80% 20%, hsl(185 60% 50% / 0.1), transparent 50%)",
-    relatedCategories: ["LinkedIn", "Profissional", "Corporativo"],
+    relatedCategories: ["LinkedIn", "Corporativo"],
   },
   fashion: {
     title: "Fashion & Editorial",
