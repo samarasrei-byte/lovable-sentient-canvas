@@ -1484,64 +1484,54 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                       <span className="text-xl font-bold text-primary">{formatPrice(prompt.price_cents)}</span>
                     </div>
 
-                    {/* PIX QR Code */}
-                    <div className="flex flex-col items-center gap-3 py-3">
-                      <div className="p-3 bg-white rounded-2xl shadow-lg">
-                        <QRCodeSVG value={pixPayload} size={180} level="M" />
-                      </div>
-                      <p className="text-xs text-muted-foreground text-center">
-                        Escaneie o QR Code com o app do seu banco
-                      </p>
-                    </div>
-
-                    {/* Copy PIX code */}
-                    <div className="space-y-2">
-                      <Label className="text-xs text-muted-foreground">Ou copie o código PIX:</Label>
-                      <div className="relative">
-                        <Input 
-                          value={pixPayload} 
-                          readOnly 
-                          className="bg-white/5 border-white/10 text-[10px] pr-20 font-mono truncate" 
-                        />
-                        <button
-                          onClick={handleCopyPix}
-                          className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors"
-                        >
-                          {pixCopied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                          {pixCopied ? 'Copiado!' : 'Copiar'}
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="p-3 rounded-lg bg-accent/10 border border-accent/20">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Smartphone className="w-4 h-4 text-accent" />
-                        <span className="text-xs font-semibold text-accent">Pagamento via PIX</span>
-                      </div>
-                      <p className="text-[10px] text-muted-foreground">
-                        Pagamento instantâneo, sem redirecionamento. Após pagar, clique em "Já paguei" para gerar sua imagem.
-                      </p>
-                    </div>
-
-                    <div className="flex flex-col gap-2">
-                      <GlassButton 
-                        onClick={() => {
-                          setPaymentStatus('paid');
-                          toast.success('Pagamento confirmado!');
-                          setTimeout(() => {
-                            setStep('generating');
-                            void generateImage();
-                          }, 2000);
-                        }} 
+                    {/* Stripe Checkout Button */}
+                    {stripeCheckoutUrl && (
+                      <GlassButton
+                        onClick={() => window.open(stripeCheckoutUrl, '_blank')}
                         className="w-full"
                       >
-                        <CheckCircle2 className="w-4 h-4 mr-2" />
-                        Já paguei — Gerar minha imagem
+                        <CreditCard className="w-4 h-4 mr-2" />
+                        Pagar com Cartão / PIX via Stripe
                       </GlassButton>
+                    )}
+
+                    {/* Verification status */}
+                    <div className="p-3 rounded-lg bg-accent/10 border border-accent/20">
+                      <div className="flex items-center gap-2 mb-1">
+                        {verifyingPayment ? (
+                          <Loader2 className="w-4 h-4 text-accent animate-spin" />
+                        ) : (
+                          <Clock className="w-4 h-4 text-accent" />
+                        )}
+                        <span className="text-xs font-semibold text-accent">
+                          {verifyingPayment ? 'Aguardando confirmação do pagamento...' : 'Pagamento Seguro via Stripe'}
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground">
+                        Clique no botão acima para pagar. Após a confirmação do Stripe, sua imagem será gerada automaticamente.
+                      </p>
+                    </div>
+
+                    {verifyingPayment && (
+                      <div className="flex items-center justify-center gap-2 py-2">
+                        <div className="flex gap-1">
+                          <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0s' }} />
+                          <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0.15s' }} />
+                          <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0.3s' }} />
+                        </div>
+                        <span className="text-xs text-muted-foreground">Verificando pagamento no Stripe...</span>
+                      </div>
+                    )}
+
+                    <div className="flex flex-col gap-2">
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => setStep('form')}
+                        onClick={() => {
+                          if (paymentPollRef.current) clearInterval(paymentPollRef.current);
+                          setVerifyingPayment(false);
+                          setStep('form');
+                        }}
                         className="w-full text-xs"
                       >
                         Voltar
