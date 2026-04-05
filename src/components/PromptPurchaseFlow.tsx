@@ -10,7 +10,7 @@ import {
   X, Upload, User, AtSign, Sparkles, QrCode, Copy, Check, Download,
   Loader2, CheckCircle2, Clock, Pencil, Plus, Trash2,
   RefreshCw, AlertTriangle, ImagePlus, Share2, MessageCircle, Eye,
-  Smartphone
+  Smartphone, CreditCard
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { GenerationProgressBar } from "./GenerationProgressBar";
