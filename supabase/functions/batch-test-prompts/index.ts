@@ -6,8 +6,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-// A generic test photo URL (public domain face for testing)
-const TEST_PHOTO_URL = "https://nvmvyjajmasaksyffemu.supabase.co/storage/v1/object/public/prompt-images/test-reference.png";
+// Use an existing prompt example image as test reference
+const TEST_PHOTO_URL = "https://nvmvyjajmasaksyffemu.supabase.co/storage/v1/object/public/prompt-images/screenshot-gen-1775314140311.png";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
