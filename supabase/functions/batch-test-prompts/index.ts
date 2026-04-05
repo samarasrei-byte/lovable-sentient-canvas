@@ -177,30 +177,27 @@ serve(async (req) => {
           throw new Error(`API error ${response.status}: ${JSON.stringify(data).substring(0, 200)}`);
         }
 
-        // Extract image URL from response
-        const content = data?.choices?.[0]?.message?.content;
-        if (Array.isArray(content)) {
-          const imgPart = content.find((p: any) => p.type === "image_url");
-          if (imgPart?.image_url?.url) {
-            imageUrl = imgPart.image_url.url;
-            status = "pass";
-          } else {
-            status = "no_image";
-            errorMessage = "API returned content but no image";
-          }
-        } else if (typeof content === "string") {
-          // Check for base64 or URL in text
-          const urlMatch = content.match(/https?:\/\/[^\s"]+\.(png|jpg|jpeg|webp)/i);
-          if (urlMatch) {
-            imageUrl = urlMatch[0];
-            status = "pass";
-          } else {
-            status = "no_image";
-            errorMessage = "Response was text-only, no image generated";
-          }
+        // Extract image URL from response (matches generate-prompt-image extraction)
+        const choice = data?.choices?.[0]?.message;
+        const content = choice?.content;
+        
+        // Try multiple extraction patterns
+        const extracted = 
+          choice?.images?.[0]?.image_url?.url ||
+          (Array.isArray(content) ? content.find((c: any) => c.type === "image_url")?.image_url?.url : null) ||
+          (Array.isArray(content) ? (() => {
+            const img = content.find((c: any) => c.type === "image" || c.inline_data);
+            if (img?.inline_data) return `data:${img.inline_data.mime_type || "image/png"};base64,${img.inline_data.data}`;
+            if (img?.image?.url) return img.image.url;
+            return null;
+          })() : null);
+
+        if (extracted) {
+          imageUrl = extracted;
+          status = "pass";
         } else {
-          status = "error";
-          errorMessage = "Unexpected response format";
+          status = "no_image";
+          errorMessage = "API responded but no image extracted. Content type: " + (Array.isArray(content) ? "array" : typeof content);
         }
       } catch (e) {
         status = "error";
