@@ -312,24 +312,6 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       if (!data?.purchaseId) throw new Error('Compra não criada corretamente');
 
       setPurchaseId(data.purchaseId);
-
-      // Redirect to Stripe Checkout
-      toast.info('Redirecionando para o pagamento...');
-      const { data: stripeData, error: stripeError } = await supabase.functions.invoke('create-stripe-checkout', {
-        body: {
-          purchaseId: data.purchaseId,
-          promptName: prompt.name,
-          priceCents: prompt.price_cents,
-          customerEmail: formData.email || undefined,
-          customerName: formData.name || undefined,
-        },
-      });
-
-      if (stripeError) throw stripeError;
-      if (!stripeData?.url) throw new Error('Erro ao criar sessão de pagamento');
-
-      // Open Stripe Checkout in new tab
-      window.open(stripeData.url, '_blank');
       setStep('payment');
     } catch (error) {
       console.error('Error creating purchase:', error);
