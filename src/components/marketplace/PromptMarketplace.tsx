@@ -289,16 +289,21 @@ export const PromptMarketplace = () => {
 
             {/* 🔥 HYPADOS Section — Top 20 */}
             <div className="mb-16">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500/20 to-red-500/20 flex items-center justify-center">
-                  <Flame className="w-4 h-4 text-orange-400" />
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500/20 to-red-500/20 flex items-center justify-center">
+                    <Flame className="w-4 h-4 text-orange-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl md:text-2xl font-bold text-foreground tracking-tight">
+                      Hypados
+                    </h3>
+                    <p className="text-xs text-muted-foreground/60">Os prompts mais populares</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-xl md:text-2xl font-bold text-foreground tracking-tight">
-                    Hypados
-                  </h3>
-                  <p className="text-xs text-muted-foreground/60">Os prompts mais populares</p>
-                </div>
+                <Link to="/categoria/hypados" className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors font-medium">
+                  Ver tudo <ChevronRight className="w-3.5 h-3.5" />
+                </Link>
               </div>
 
               <div className={cn(
@@ -332,6 +337,11 @@ export const PromptMarketplace = () => {
                         <p className="text-[11px] text-muted-foreground/50">{catPrompts.length} prompts</p>
                       </div>
                     </div>
+                    {config?.slug && (
+                      <Link to={`/categoria/${config.slug}`} className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors font-medium">
+                        Ver tudo <ChevronRight className="w-3.5 h-3.5" />
+                      </Link>
+                    )}
                   </div>
 
                   {isMobile ? (
