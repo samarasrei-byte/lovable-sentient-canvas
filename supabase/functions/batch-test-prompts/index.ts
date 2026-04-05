@@ -152,12 +152,11 @@ serve(async (req) => {
           ? prompt.ai_model 
           : `google/${prompt.ai_model || "gemini-2.5-flash-image"}`;
 
-        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
           method: "POST",
           headers: {
             Authorization: `Bearer ${apiKey}`,
             "Content-Type": "application/json",
-            "HTTP-Referer": "https://arcanaappmarketpkacelk.lovable.app",
           },
           body: JSON.stringify({
             model,
@@ -168,7 +167,7 @@ serve(async (req) => {
               },
               { role: "user", content: contentParts }
             ],
-            max_tokens: 4096,
+            modalities: ["image", "text"],
           }),
         });
 
