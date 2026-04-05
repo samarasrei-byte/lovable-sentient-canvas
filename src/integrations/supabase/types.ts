@@ -1515,6 +1515,47 @@ export type Database = {
           },
         ]
       }
+      prompt_test_results: {
+        Row: {
+          ai_model: string | null
+          error_message: string | null
+          execution_time_ms: number | null
+          id: string
+          prompt_id: string
+          status: string
+          test_image_url: string | null
+          tested_at: string
+        }
+        Insert: {
+          ai_model?: string | null
+          error_message?: string | null
+          execution_time_ms?: number | null
+          id?: string
+          prompt_id: string
+          status?: string
+          test_image_url?: string | null
+          tested_at?: string
+        }
+        Update: {
+          ai_model?: string | null
+          error_message?: string | null
+          execution_time_ms?: number | null
+          id?: string
+          prompt_id?: string
+          status?: string
+          test_image_url?: string | null
+          tested_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prompt_test_results_prompt_id_fkey"
+            columns: ["prompt_id"]
+            isOneToOne: false
+            referencedRelation: "prompts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       prompts: {
         Row: {
           ai_model: string | null
