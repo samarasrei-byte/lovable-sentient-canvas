@@ -56,6 +56,7 @@ const MeusProdutos = lazy(() => import("./pages/app/MeusProdutos"));
 const VideoCreator = lazy(() => import("./pages/app/VideoCreator"));
 const PromptDashboard = lazy(() => import("./pages/app/PromptDashboard"));
 const FutebolGenerator = lazy(() => import("./pages/app/FutebolGenerator"));
+const CategoryPage = lazy(() => import("./pages/CategoryPage"));
 
 const queryClient = new QueryClient();
 
@@ -131,6 +132,9 @@ const App = () => (
               {/* Agency Routes */}
               <Route path="agency/dashboard" element={<AgencyDashboard />} />
             </Route>
+
+            {/* Category Landing Pages */}
+            <Route path="/categoria/:slug" element={<CategoryPage />} />
 
             {/* White Label Agency Routes */}
             <Route path="/whitelabel/:domain" element={<WhiteLabelDashboard />} />

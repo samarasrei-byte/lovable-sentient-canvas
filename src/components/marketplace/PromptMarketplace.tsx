@@ -7,6 +7,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Input } from "@/components/ui/input";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import { Link } from "react-router-dom";
 
 interface Prompt {
   id: string;
@@ -41,15 +42,15 @@ const CATEGORY_MERGE: Record<string, string> = {
   'Evento': 'Geral',
 };
 
-const CATEGORY_CONFIG: Record<string, { icon: string; label: string }> = {
-  'LinkedIn': { icon: '💼', label: 'LinkedIn & Profissional' },
-  'Aniversário': { icon: '🎂', label: 'Aniversário & Família' },
-  'Fashion': { icon: '👗', label: 'Fashion' },
-  'Anime': { icon: '🎌', label: 'Anime' },
-  'Cyberpunk': { icon: '⚡', label: 'Cyberpunk' },
-  'Arte': { icon: '🎨', label: 'Arte' },
-  'Política': { icon: '🏛️', label: 'Política' },
-  'Geral': { icon: '✨', label: 'Geral' },
+const CATEGORY_CONFIG: Record<string, { icon: string; label: string; slug: string }> = {
+  'LinkedIn': { icon: '💼', label: 'LinkedIn & Profissional', slug: 'linkedin' },
+  'Aniversário': { icon: '🎂', label: 'Aniversário & Família', slug: 'aniversario' },
+  'Fashion': { icon: '👗', label: 'Fashion', slug: 'fashion' },
+  'Anime': { icon: '🎌', label: 'Anime', slug: 'anime' },
+  'Cyberpunk': { icon: '⚡', label: 'Cyberpunk', slug: 'cyberpunk' },
+  'Arte': { icon: '🎨', label: 'Arte', slug: 'arte' },
+  'Política': { icon: '🏛️', label: 'Política', slug: 'politica' },
+  'Geral': { icon: '✨', label: 'Geral', slug: 'geral' },
 };
 
 const MAX_FEATURED = 30;
@@ -288,16 +289,21 @@ export const PromptMarketplace = () => {
 
             {/* 🔥 HYPADOS Section — Top 20 */}
             <div className="mb-16">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500/20 to-red-500/20 flex items-center justify-center">
-                  <Flame className="w-4 h-4 text-orange-400" />
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500/20 to-red-500/20 flex items-center justify-center">
+                    <Flame className="w-4 h-4 text-orange-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl md:text-2xl font-bold text-foreground tracking-tight">
+                      Hypados
+                    </h3>
+                    <p className="text-xs text-muted-foreground/60">Os prompts mais populares</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-xl md:text-2xl font-bold text-foreground tracking-tight">
-                    Hypados
-                  </h3>
-                  <p className="text-xs text-muted-foreground/60">Os prompts mais populares</p>
-                </div>
+                <Link to="/categoria/hypados" className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors font-medium">
+                  Ver tudo <ChevronRight className="w-3.5 h-3.5" />
+                </Link>
               </div>
 
               <div className={cn(
@@ -331,6 +337,11 @@ export const PromptMarketplace = () => {
                         <p className="text-[11px] text-muted-foreground/50">{catPrompts.length} prompts</p>
                       </div>
                     </div>
+                    {config?.slug && (
+                      <Link to={`/categoria/${config.slug}`} className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors font-medium">
+                        Ver tudo <ChevronRight className="w-3.5 h-3.5" />
+                      </Link>
+                    )}
                   </div>
 
                   {isMobile ? (
