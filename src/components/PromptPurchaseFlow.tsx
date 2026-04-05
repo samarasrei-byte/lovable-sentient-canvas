@@ -1382,57 +1382,72 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
 
             {step === 'payment' && (
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
-                <div className="text-center py-4">
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Loader2 className="w-8 h-8 text-primary animate-spin" />
-                  </div>
-                  <h3 className="text-base sm:text-lg font-semibold mb-2">Aguardando pagamento via Stripe</h3>
-                  <p className="text-xs sm:text-sm text-muted-foreground mb-4">
-                    Uma nova aba foi aberta para o pagamento seguro. Após concluir, clique no botão abaixo.
-                  </p>
-                  
-                  <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 mb-4">
-                    <p className="text-xs text-muted-foreground">
-                      💳 Pagamento processado com segurança pelo <strong>Stripe</strong>. 
-                      Aceitamos cartão de crédito, débito e outros métodos.
-                    </p>
-                  </div>
+                {/* Price summary */}
+                <div className="flex items-center justify-between p-3 rounded-xl bg-primary/5 border border-primary/20">
+                  <span className="text-sm font-medium">Total</span>
+                  <span className="text-xl font-bold text-primary">{formatPrice(prompt.price_cents)}</span>
+                </div>
 
-                  <div className="flex flex-col gap-2">
-                    <GlassButton 
-                      onClick={() => {
-                        setPaymentStatus('paid');
-                        toast.success('Pagamento confirmado!');
-                        setStep('generating');
-                        void generateImage();
-                      }} 
-                      className="w-full"
-                    >
-                      <CheckCircle2 className="w-4 h-4 mr-2" />
-                      Já paguei — Gerar minha imagem
-                    </GlassButton>
-                    <GlassButton 
-                      onClick={() => {
-                        // Re-open Stripe checkout
-                        supabase.functions.invoke('create-stripe-checkout', {
-                          body: {
-                            purchaseId,
-                            promptName: prompt.name,
-                            priceCents: prompt.price_cents,
-                            customerEmail: formData.email || undefined,
-                            customerName: formData.name || undefined,
-                          },
-                        }).then(({ data }) => {
-                          if (data?.url) window.open(data.url, '_blank');
-                        });
-                      }}
-                      variant="outline" 
-                      className="w-full"
-                    >
-                      <QrCode className="w-4 h-4 mr-2" />
-                      Reabrir página de pagamento
-                    </GlassButton>
+                {/* PIX QR Code */}
+                <div className="flex flex-col items-center gap-3 py-3">
+                  <div className="p-3 bg-white rounded-2xl shadow-lg">
+                    <QRCodeSVG value={pixPayload} size={180} level="M" />
                   </div>
+                  <p className="text-xs text-muted-foreground text-center">
+                    Escaneie o QR Code com o app do seu banco
+                  </p>
+                </div>
+
+                {/* Copy PIX code */}
+                <div className="space-y-2">
+                  <Label className="text-xs text-muted-foreground">Ou copie o código PIX:</Label>
+                  <div className="relative">
+                    <Input 
+                      value={pixPayload} 
+                      readOnly 
+                      className="bg-white/5 border-white/10 text-[10px] pr-20 font-mono truncate" 
+                    />
+                    <button
+                      onClick={handleCopyPix}
+                      className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors"
+                    >
+                      {pixCopied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                      {pixCopied ? 'Copiado!' : 'Copiar'}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Smartphone className="w-4 h-4 text-green-500" />
+                    <span className="text-xs font-semibold text-green-500">Pagamento via PIX</span>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground">
+                    Pagamento instantâneo, sem redirecionamento. Após pagar, clique em "Já paguei" para gerar sua imagem.
+                  </p>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <GlassButton 
+                    onClick={() => {
+                      setPaymentStatus('paid');
+                      toast.success('Pagamento confirmado!');
+                      setStep('generating');
+                      void generateImage();
+                    }} 
+                    className="w-full"
+                  >
+                    <CheckCircle2 className="w-4 h-4 mr-2" />
+                    Já paguei — Gerar minha imagem
+                  </GlassButton>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setStep('form')}
+                    className="w-full text-xs"
+                  >
+                    Voltar
+                  </Button>
                 </div>
               </motion.div>
             )}
