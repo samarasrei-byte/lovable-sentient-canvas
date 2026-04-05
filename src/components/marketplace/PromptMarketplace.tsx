@@ -42,15 +42,15 @@ const CATEGORY_MERGE: Record<string, string> = {
   'Evento': 'Geral',
 };
 
-const CATEGORY_CONFIG: Record<string, { icon: string; label: string }> = {
-  'LinkedIn': { icon: '💼', label: 'LinkedIn & Profissional' },
-  'Aniversário': { icon: '🎂', label: 'Aniversário & Família' },
-  'Fashion': { icon: '👗', label: 'Fashion' },
-  'Anime': { icon: '🎌', label: 'Anime' },
-  'Cyberpunk': { icon: '⚡', label: 'Cyberpunk' },
-  'Arte': { icon: '🎨', label: 'Arte' },
-  'Política': { icon: '🏛️', label: 'Política' },
-  'Geral': { icon: '✨', label: 'Geral' },
+const CATEGORY_CONFIG: Record<string, { icon: string; label: string; slug: string }> = {
+  'LinkedIn': { icon: '💼', label: 'LinkedIn & Profissional', slug: 'linkedin' },
+  'Aniversário': { icon: '🎂', label: 'Aniversário & Família', slug: 'aniversario' },
+  'Fashion': { icon: '👗', label: 'Fashion', slug: 'fashion' },
+  'Anime': { icon: '🎌', label: 'Anime', slug: 'anime' },
+  'Cyberpunk': { icon: '⚡', label: 'Cyberpunk', slug: 'cyberpunk' },
+  'Arte': { icon: '🎨', label: 'Arte', slug: 'arte' },
+  'Política': { icon: '🏛️', label: 'Política', slug: 'politica' },
+  'Geral': { icon: '✨', label: 'Geral', slug: 'geral' },
 };
 
 const MAX_FEATURED = 30;
