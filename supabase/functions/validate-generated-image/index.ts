@@ -5,10 +5,22 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+function getQaFallback(strictIdentityCheck: boolean) {
+  return strictIdentityCheck
+    ? {
+        passed: false,
+        issues: ["A validação automática de fidelidade falhou; gere novamente para evitar trocar o rosto da pessoa."],
+        score: 0,
+      }
+    : { passed: true, issues: [], score: 70 };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
+
+  let strictIdentityCheck = false;
 
   try {
     const {
@@ -30,6 +42,7 @@ serve(async (req) => {
     const safeReferenceImages = Array.isArray(referenceImageUrls)
       ? referenceImageUrls.filter((url) => typeof url === "string" && url.length > 0)
       : [];
+    strictIdentityCheck = safeReferenceImages.length > 0 || Boolean(hasReferencePhoto);
 
     const qaPrompt = `You are a STRICT premium image QA inspector. Analyze this AI-generated image rigorously.
 
@@ -111,7 +124,7 @@ Respond in this EXACT JSON format:
     if (!response.ok) {
       console.error("QA API error:", response.status);
       return new Response(
-        JSON.stringify({ passed: true, issues: [], score: 80 }),
+        JSON.stringify(getQaFallback(strictIdentityCheck)),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
@@ -122,7 +135,7 @@ Respond in this EXACT JSON format:
 
     if (!jsonMatch) {
       return new Response(
-        JSON.stringify({ passed: true, issues: [], score: 80 }),
+        JSON.stringify(getQaFallback(strictIdentityCheck)),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
@@ -140,7 +153,7 @@ Respond in this EXACT JSON format:
   } catch (error) {
     console.error("QA validation error:", error);
     return new Response(
-      JSON.stringify({ passed: true, issues: [], score: 70 }),
+      JSON.stringify(getQaFallback(strictIdentityCheck)),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   }

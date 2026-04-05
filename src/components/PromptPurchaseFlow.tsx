@@ -466,8 +466,13 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
 
   const buildGenerationBody = (referencePhotoUrls: string[], overrides: Record<string, unknown> = {}) => {
     const sortedUrls = sortPhotosByAge(referencePhotoUrls);
-    const { promptTemplate: overridePromptTemplate, ...restOverrides } = overrides as Record<string, unknown> & {
+    const {
+      promptTemplate: overridePromptTemplate,
+      exampleImageUrl: overrideExampleImageUrl,
+      ...restOverrides
+    } = overrides as Record<string, unknown> & {
       promptTemplate?: string;
+      exampleImageUrl?: string | null;
     };
     
     // Build age/position context from rich analysis
@@ -581,6 +586,13 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
 
     flyerContext.qtdPessoas = sortedUrls.length;
 
+    const safeExampleImageUrl =
+      typeof overrideExampleImageUrl !== 'undefined'
+        ? (overrideExampleImageUrl as string | null)
+        : sortedUrls.length > 0
+          ? null
+          : (prompt.example_image_url || null);
+
     return {
       purchaseId,
       negativePrompt: prompt.negative_prompt,
@@ -590,7 +602,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       userDescription: formData.description,
       userPhotoUrl: sortedUrls[0] || null,
       userPhotoUrls: sortedUrls.length > 0 ? sortedUrls : undefined,
-      exampleImageUrl: prompt.example_image_url,
+      exampleImageUrl: safeExampleImageUrl || undefined,
       flyerContext: Object.keys(flyerContext).length > 0 ? flyerContext : undefined,
       ...restOverrides,
       promptTemplate: template,
@@ -677,14 +689,16 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
         }
       }
 
+      if (!qa.passed) {
+        setQaStatus('idle');
+        setQaIssues(qa.issues);
+        throw new Error('A auditoria detectou que a imagem ainda não ficou fiel à sua foto. Gere novamente.');
+      }
+
       setGeneratedImage(finalImageUrl);
       setGeneratedVariants([{ url: finalImageUrl, selected: true }]);
       setQaStatus('passed');
-      setQaIssues(qa.passed ? [] : qa.issues);
-
-      if (!qa.passed) {
-        toast.warning('A auditoria encontrou pontos de atenção; revise a versão final antes de baixar.');
-      }
+      setQaIssues([]);
 
       setStep('complete');
     } catch (error) {
@@ -738,14 +752,16 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
         }
       }
 
+      if (!qa.passed) {
+        setQaStatus('idle');
+        setQaIssues(qa.issues);
+        throw new Error('A nova variação ainda não ficou fiel às fotos enviadas. Tente gerar novamente.');
+      }
+
       setGeneratedVariants((prev) => [...prev, { url: finalVariantUrl, selected: false }]);
       setQaStatus('passed');
       setQaIssues([]);
       toast.success('Nova variação gerada!');
-
-      if (!qa.passed) {
-        toast.warning('Essa variação passou por correção automática; revise antes de baixar.');
-      }
     } catch (error) {
       console.error('Error generating more variants:', error);
       toast.error('Erro ao gerar variação.');
