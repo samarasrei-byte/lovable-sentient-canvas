@@ -364,13 +364,70 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       if (error) throw error;
       if (!data?.purchaseId) throw new Error('Compra não criada corretamente');
 
-      setPurchaseId(data.purchaseId);
+      const newPurchaseId = data.purchaseId;
+      setPurchaseId(newPurchaseId);
+
+      // Create Stripe Checkout session
+      try {
+        const { data: stripeData, error: stripeError } = await supabase.functions.invoke('create-stripe-checkout', {
+          body: {
+            purchaseId: newPurchaseId,
+            promptName: prompt.name,
+            priceCents: prompt.price_cents,
+            customerEmail: formData.email || undefined,
+            customerName: formData.name || undefined,
+          },
+        });
+
+        if (!stripeError && stripeData?.url) {
+          setStripeCheckoutUrl(stripeData.url);
+        }
+      } catch (e) {
+        console.error('Stripe checkout creation failed:', e);
+      }
+
       setStep('payment');
+      // Start polling for payment verification
+      startPaymentPolling(newPurchaseId);
     } catch (error) {
       console.error('Error creating purchase:', error);
       toast.error('Erro ao processar. Tente novamente.');
     }
   };
+
+  const startPaymentPolling = (pId: string) => {
+    // Clear any existing poll
+    if (paymentPollRef.current) clearInterval(paymentPollRef.current);
+    
+    setVerifyingPayment(true);
+    paymentPollRef.current = setInterval(async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('verify-prompt-payment', {
+          body: { purchaseId: pId },
+        });
+
+        if (!error && data?.paid) {
+          if (paymentPollRef.current) clearInterval(paymentPollRef.current);
+          setVerifyingPayment(false);
+          setPaymentStatus('paid');
+          toast.success('Pagamento confirmado pelo Stripe!');
+          setTimeout(() => {
+            setStep('generating');
+            void generateImage();
+          }, 1500);
+        }
+      } catch (e) {
+        console.error('Payment verification poll error:', e);
+      }
+    }, 4000); // Poll every 4 seconds
+  };
+
+  // Cleanup polling on unmount
+  useEffect(() => {
+    return () => {
+      if (paymentPollRef.current) clearInterval(paymentPollRef.current);
+    };
+  }, []);
 
   // Payment is handled via Stripe Checkout redirect
 
