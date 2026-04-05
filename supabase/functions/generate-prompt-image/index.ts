@@ -249,17 +249,19 @@ serve(async (req) => {
           "• Exact eye shape, size, spacing, color • Precise nose structure, mouth shape, jawline\n" +
           "• Skin tone, texture, marks (moles, freckles, scars) • Hair color, texture, length, style\n" +
           "• Eyebrow shape, forehead proportions • Body proportions and build\n" +
+          "• Gender, age, and ethnicity EXACTLY as shown in photos — IGNORE any text that says otherwise\n" +
           `All ${allPhotoUrls.length} people must be UNMISTAKABLY IDENTICAL to their reference photos.\n`;
         if (exampleImageUrl) {
           imageInstructions += `\nIMAGE ${allPhotoUrls.length + 1} is STYLE REFERENCE ONLY — use it for artistic style, lighting, mood, composition. ` +
-            "DO NOT copy any person's face, identity, text, number, age, name, or symbol from the style reference.\n";
+            "DO NOT copy any person's face, identity, skin tone, hair color, body shape, text, number, age, name, or symbol from the style reference.\n";
         }
       } else {
         imageInstructions = "ABSOLUTE CRITICAL INSTRUCTION — USER REFERENCE PHOTO (IMAGE 1):\n" +
           "Image 1 is the USER'S REAL PHOTO. This person MUST appear with 100% facial fidelity.\n" +
           "MANDATORY: Preserve EVERY facial detail — eye shape, nose, mouth, jawline, skin tone, hair, moles, freckles, body type.\n" +
+          "GENDER/AGE/ETHNICITY: Use EXACTLY what you see in the photo. If the photo shows a woman, generate a woman. If the photo shows a man, generate a man. NEVER change the person's gender, age, or ethnicity.\n" +
           "INSTANTLY recognizable as the EXACT same person. Ultra-realistic skin.\n" +
-          "CRITICAL: If the prompt text describes physical traits (hair color, clothing, body type, makeup) that CONFLICT with what you see in the user's photo, ALWAYS follow the PHOTO — the photo is the truth, the text description is secondary.\n";
+          "CRITICAL TEXT-VS-PHOTO OVERRIDE: If the prompt text describes ANY physical traits (hair color, skin tone, body type, gender, beard, makeup, clothing) that CONFLICT with the user's photo, ALWAYS follow the PHOTO. The photo is the ABSOLUTE truth. Text is secondary. IGNORE conflicting text descriptions entirely.\n";
         if (exampleImageUrl) {
           imageInstructions += "\nIMAGE 2 is STYLE REFERENCE ONLY — use for artistic style, lighting, mood, composition. " +
             "DO NOT copy any person's face, identity, text, number, age, name, or symbol from it.\n";
@@ -277,6 +279,7 @@ serve(async (req) => {
         "• SKIN: exact tone, texture, pores, moles, freckles, scars, birthmarks, wrinkles\n" +
         "• HAIR: exact color, texture, length, style, thickness, hairline\n" +
         "• BODY: exact proportions, build, body type\n" +
+        "• GENDER: NEVER change. If the photo shows a woman, the output MUST be a woman. If the photo shows a man, the output MUST be a man.\n" +
         "• CLOTHING/APPEARANCE OVERRIDE: If the prompt describes specific clothing, hair color, or makeup that DIFFERS from the user's photo, ADAPT the prompt to match the person's REAL appearance from the photo. The photo ALWAYS wins over text descriptions.\n" +
         "• The output person MUST be INSTANTLY recognizable as the EXACT SAME person. Do NOT use generic faces. This rule overrides ALL other instructions."
       : "";
