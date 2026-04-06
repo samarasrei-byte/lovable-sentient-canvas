@@ -1522,15 +1522,125 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                       <span className="text-xl font-bold text-primary">{formatPrice(prompt.price_cents)}</span>
                     </div>
 
-                    {/* Stripe Checkout Button */}
-                    {stripeCheckoutUrl && (
-                      <GlassButton
-                        onClick={() => window.open(stripeCheckoutUrl, '_blank')}
-                        className="w-full"
+                    {/* Payment method tabs */}
+                    <div className="flex gap-1 p-1 rounded-lg bg-white/5 border border-white/10">
+                      <button
+                        onClick={() => setPaymentTab('pix')}
+                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-md text-xs font-medium transition-all ${
+                          paymentTab === 'pix'
+                            ? 'bg-primary text-primary-foreground shadow-sm'
+                            : 'text-muted-foreground hover:text-foreground'
+                        }`}
                       >
-                        <CreditCard className="w-4 h-4 mr-2" />
-                        Pagar com Cartão / PIX via Stripe
-                      </GlassButton>
+                        <QrCode className="w-4 h-4" />
+                        PIX (Instantâneo)
+                      </button>
+                      <button
+                        onClick={() => setPaymentTab('card')}
+                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-md text-xs font-medium transition-all ${
+                          paymentTab === 'card'
+                            ? 'bg-primary text-primary-foreground shadow-sm'
+                            : 'text-muted-foreground hover:text-foreground'
+                        }`}
+                      >
+                        <CreditCard className="w-4 h-4" />
+                        Cartão
+                      </button>
+                    </div>
+
+                    {/* PIX Tab */}
+                    {paymentTab === 'pix' && (
+                      <div className="space-y-3">
+                        {pixLoading ? (
+                          <div className="py-8 flex flex-col items-center gap-3">
+                            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                            <p className="text-xs text-muted-foreground">Gerando QR Code PIX...</p>
+                          </div>
+                        ) : pixError ? (
+                          <div className="py-6 text-center space-y-3">
+                            <AlertTriangle className="w-8 h-8 mx-auto text-yellow-500" />
+                            <p className="text-xs text-muted-foreground">PIX indisponível no momento. Use cartão de crédito.</p>
+                            <Button size="sm" variant="outline" onClick={() => setPaymentTab('card')}>
+                              <CreditCard className="w-3.5 h-3.5 mr-1.5" />
+                              Pagar com Cartão
+                            </Button>
+                          </div>
+                        ) : pixData ? (
+                          <>
+                            {/* QR Code */}
+                            <div className="flex flex-col items-center gap-3">
+                              <div className="bg-white p-3 rounded-xl shadow-lg">
+                                {pixData.qrCodeUrl ? (
+                                  <img 
+                                    src={pixData.qrCodeUrl} 
+                                    alt="QR Code PIX" 
+                                    className="w-48 h-48 sm:w-56 sm:h-56"
+                                  />
+                                ) : (
+                                  <QRCodeSVG value={pixData.copiaECola} size={224} />
+                                )}
+                              </div>
+                              <p className="text-[10px] text-muted-foreground text-center">
+                                Escaneie o QR Code com o app do seu banco
+                              </p>
+                            </div>
+
+                            {/* Copia e Cola */}
+                            <div className="space-y-2">
+                              <Label className="text-[10px] text-muted-foreground">Ou copie o código PIX:</Label>
+                              <div className="relative">
+                                <div className="p-2.5 pr-12 rounded-lg bg-white/5 border border-white/10 text-[10px] font-mono break-all max-h-16 overflow-y-auto">
+                                  {pixData.copiaECola}
+                                </div>
+                                <button
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(pixData.copiaECola);
+                                    setPixCopied(true);
+                                    toast.success('Código PIX copiado!');
+                                    setTimeout(() => setPixCopied(false), 3000);
+                                  }}
+                                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md bg-primary/10 hover:bg-primary/20 transition-colors"
+                                >
+                                  {pixCopied ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5 text-primary" />}
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Expiration countdown */}
+                            {pixData.expiresAt && (
+                              <div className="text-center">
+                                <p className="text-[10px] text-muted-foreground">
+                                  ⏱ Expira em {Math.max(0, Math.floor((pixData.expiresAt * 1000 - Date.now()) / 60000))} minutos
+                                </p>
+                              </div>
+                            )}
+                          </>
+                        ) : null}
+                      </div>
+                    )}
+
+                    {/* Card Tab */}
+                    {paymentTab === 'card' && (
+                      <div className="space-y-3">
+                        {stripeCheckoutUrl ? (
+                          <GlassButton
+                            onClick={() => window.open(stripeCheckoutUrl, '_blank')}
+                            className="w-full"
+                          >
+                            <CreditCard className="w-4 h-4 mr-2" />
+                            Pagar com Cartão via Stripe
+                          </GlassButton>
+                        ) : pixLoading ? (
+                          <div className="py-6 flex flex-col items-center gap-3">
+                            <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                            <p className="text-xs text-muted-foreground">Preparando pagamento...</p>
+                          </div>
+                        ) : (
+                          <div className="py-6 text-center">
+                            <p className="text-xs text-muted-foreground">Cartão indisponível. Tente PIX.</p>
+                          </div>
+                        )}
+                      </div>
                     )}
 
                     {/* Verification status */}
@@ -1546,7 +1656,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                         </span>
                       </div>
                       <p className="text-[10px] text-muted-foreground">
-                        Clique no botão acima para pagar. Após a confirmação do Stripe, sua imagem será gerada automaticamente.
+                        Após a confirmação do pagamento, sua imagem será gerada automaticamente.
                       </p>
                     </div>
 
