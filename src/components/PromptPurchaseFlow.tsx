@@ -343,6 +343,13 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       return;
     }
 
+    // Show payment step immediately while loading
+    setStep('payment');
+    setPixLoading(true);
+    setPixError(null);
+    setPixData(null);
+    setStripeCheckoutUrl(null);
+
     try {
       // Collect all custom fields for persistence
       const customFields: Record<string, unknown> = {};
@@ -355,6 +362,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       const validProfiles = photoProfiles.filter(Boolean);
       if (validProfiles.length > 0) customFields.photoProfiles = validProfiles;
 
+      // Step 1: Create purchase record
       const { data, error } = await supabase.functions.invoke('create-prompt-purchase', {
         body: { 
           promptId: prompt.id, 
@@ -371,9 +379,17 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       const newPurchaseId = data.purchaseId;
       setPurchaseId(newPurchaseId);
 
-      // Create Stripe Checkout session
-      try {
-        const { data: stripeData, error: stripeError } = await supabase.functions.invoke('create-stripe-checkout', {
+      // Step 2: Create PIX + Stripe Checkout in parallel
+      const [pixResult, stripeResult] = await Promise.allSettled([
+        supabase.functions.invoke('create-pix-payment', {
+          body: {
+            purchaseId: newPurchaseId,
+            priceCents: prompt.price_cents,
+            customerEmail: formData.email || undefined,
+            customerName: formData.name || undefined,
+          },
+        }),
+        supabase.functions.invoke('create-stripe-checkout', {
           body: {
             purchaseId: newPurchaseId,
             promptName: prompt.name,
@@ -381,21 +397,39 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
             customerEmail: formData.email || undefined,
             customerName: formData.name || undefined,
           },
-        });
+        }),
+      ]);
 
-        if (!stripeError && stripeData?.url) {
-          setStripeCheckoutUrl(stripeData.url);
-        }
-      } catch (e) {
-        console.error('Stripe checkout creation failed:', e);
+      // Handle PIX result
+      if (pixResult.status === 'fulfilled' && !pixResult.value.error && pixResult.value.data?.pixCopiaECola) {
+        setPixData({
+          copiaECola: pixResult.value.data.pixCopiaECola,
+          qrCodeUrl: pixResult.value.data.qrCodeUrl,
+          expiresAt: pixResult.value.data.expiresAt,
+        });
+      } else {
+        const errMsg = pixResult.status === 'fulfilled' 
+          ? (pixResult.value.data?.error || 'PIX indisponível')
+          : 'PIX indisponível';
+        console.error('PIX creation failed:', errMsg);
+        setPixError(errMsg);
+        setPaymentTab('card'); // Fallback to card
       }
 
-      setStep('payment');
+      // Handle Stripe Checkout result (for card payments)
+      if (stripeResult.status === 'fulfilled' && !stripeResult.value.error && stripeResult.value.data?.url) {
+        setStripeCheckoutUrl(stripeResult.value.data.url);
+      }
+
+      setPixLoading(false);
+
       // Start polling for payment verification
       startPaymentPolling(newPurchaseId);
     } catch (error) {
       console.error('Error creating purchase:', error);
       toast.error('Erro ao processar. Tente novamente.');
+      setStep('form');
+      setPixLoading(false);
     }
   };
 
