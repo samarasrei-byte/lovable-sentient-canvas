@@ -223,10 +223,13 @@ async function callGateway(model: string, messages: any[], apiKey: string): Prom
   });
   if (!response.ok) {
     const errorText = await response.text();
-    console.error("AI gateway error:", response.status, errorText);
+    console.error("AI gateway error:", response.status, errorText.substring(0, 300));
     if (response.status === 401) throw new Error("AUTH_INVALID");
     if (response.status === 429) throw new Error("Rate limit exceeded.");
     if (response.status === 402) throw new Error("Service temporarily unavailable.");
+    if (response.status === 400 && errorText.includes("fetching image from URL")) {
+      throw new Error("INVALID_IMAGE_URL");
+    }
     return null;
   }
   return response.json();
