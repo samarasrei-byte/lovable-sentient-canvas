@@ -267,7 +267,8 @@ async function tryGenerateWithRetry(primaryModel: string, messages: any[], apiKe
         if (imageUrl) { console.log(`[${keyLabel}] ✅ Success with ${model}`); return imageUrl; }
         console.warn(`[${keyLabel}] No image in response from ${model}`);
       } catch (e: any) {
-        if (e.message === "AUTH_INVALID") { authFailed = true; break; }
+        if (e.message === "AUTH_INVALID") { console.warn(`[${keyLabel}] Auth invalid, skipping key`); authFailed = true; break; }
+        if (e.message === "INVALID_IMAGE_URL") { console.error(`[${keyLabel}] User photo URL is unreachable`); throw new Error("A URL da foto enviada não pôde ser acessada. Tente fazer upload novamente."); }
         if (e.message.includes("Rate limit") || e.message.includes("temporarily")) throw e;
         console.error(`[${keyLabel}] ${model} failed:`, e.message);
       }
