@@ -141,10 +141,20 @@ serve(async (req) => {
 
     if (negativePrompt) prompt += ` Avoid: ${negativePrompt}`;
 
-    // Build compact image instruction prefix
+    // Build compact image instruction prefix with positional mapping
     let prefix = "";
     if (allPhotoUrls.length > 1) {
-      prefix = `[IMAGES 1-${allPhotoUrls.length}: REAL PEOPLE — clone each face with 100% fidelity. Gender/age/ethnicity from photos override text.]`;
+      const positionLabels = ["LEFT/FRONT/TOP", "RIGHT/BACK/MIDDLE", "BOTTOM/THIRD"];
+      let mapping = `[${allPhotoUrls.length} REAL PEOPLE — clone each face with 100% fidelity. Gender/age/ethnicity from photos override text.]\n`;
+      mapping += `[IDENTITY MAPPING:\n`;
+      for (let i = 0; i < allPhotoUrls.length; i++) {
+        const label = positionLabels[i] || `POSITION ${i + 1}`;
+        const name = flyerContext?.nomes?.[i] || `Person ${i + 1}`;
+        mapping += `  IMAGE ${i + 1} = ${name} → appears at ${label} of composition. Clone this exact face.\n`;
+      }
+      mapping += `]\n`;
+      mapping += `[CRITICAL: Do NOT swap faces between positions. Each person MUST appear ONLY at their assigned position.]`;
+      prefix = mapping;
       if (exampleImageUrl) prefix += ` [IMAGE ${allPhotoUrls.length + 1}: STYLE ONLY — do NOT copy any face/identity/text from it.]`;
     } else if (allPhotoUrls.length === 1) {
       prefix = `[IMAGE 1: USER PHOTO — clone this face exactly. Photo overrides ALL text descriptions for appearance.]`;
