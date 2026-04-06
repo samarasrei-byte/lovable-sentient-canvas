@@ -74,9 +74,16 @@ const corsHeaders = {
 function getApiKeys(): { primary: string; fallback: string | null } {
   const lovableKey = Deno.env.get("LOVABLE_API_KEY");
   const nanoBananaKey = Deno.env.get("NANO_BANANA_API_KEY");
-  if (!lovableKey && !nanoBananaKey) throw new Error("No AI API keys configured");
-  if (lovableKey && nanoBananaKey) return { primary: lovableKey, fallback: nanoBananaKey };
-  return { primary: (lovableKey || nanoBananaKey)!, fallback: null };
+  
+  // Validate key format — the AI gateway requires keys starting with specific prefixes
+  const isValidKey = (k: string | undefined): k is string => !!k && k.length > 10;
+  
+  const validLovable = isValidKey(lovableKey) ? lovableKey : null;
+  const validNano = isValidKey(nanoBananaKey) ? nanoBananaKey : null;
+  
+  if (!validLovable && !validNano) throw new Error("No AI API keys configured");
+  if (validLovable && validNano) return { primary: validLovable, fallback: validNano };
+  return { primary: (validLovable || validNano)!, fallback: null };
 }
 
 serve(async (req) => {
