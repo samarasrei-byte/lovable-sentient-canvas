@@ -74,9 +74,16 @@ const corsHeaders = {
 function getApiKeys(): { primary: string; fallback: string | null } {
   const lovableKey = Deno.env.get("LOVABLE_API_KEY");
   const nanoBananaKey = Deno.env.get("NANO_BANANA_API_KEY");
-  if (!lovableKey && !nanoBananaKey) throw new Error("No AI API keys configured");
-  if (lovableKey && nanoBananaKey) return { primary: lovableKey, fallback: nanoBananaKey };
-  return { primary: (lovableKey || nanoBananaKey)!, fallback: null };
+  
+  // Validate key format — the AI gateway requires keys starting with specific prefixes
+  const isValidKey = (k: string | undefined): k is string => !!k && k.length > 10;
+  
+  const validLovable = isValidKey(lovableKey) ? lovableKey : null;
+  const validNano = isValidKey(nanoBananaKey) ? nanoBananaKey : null;
+  
+  if (!validLovable && !validNano) throw new Error("No AI API keys configured");
+  if (validLovable && validNano) return { primary: validLovable, fallback: validNano };
+  return { primary: (validLovable || validNano)!, fallback: null };
 }
 
 serve(async (req) => {
@@ -216,10 +223,13 @@ async function callGateway(model: string, messages: any[], apiKey: string): Prom
   });
   if (!response.ok) {
     const errorText = await response.text();
-    console.error("AI gateway error:", response.status, errorText);
+    console.error("AI gateway error:", response.status, errorText.substring(0, 300));
     if (response.status === 401) throw new Error("AUTH_INVALID");
     if (response.status === 429) throw new Error("Rate limit exceeded.");
     if (response.status === 402) throw new Error("Service temporarily unavailable.");
+    if (response.status === 400 && errorText.includes("fetching image from URL")) {
+      throw new Error("INVALID_IMAGE_URL");
+    }
     return null;
   }
   return response.json();
@@ -257,7 +267,8 @@ async function tryGenerateWithRetry(primaryModel: string, messages: any[], apiKe
         if (imageUrl) { console.log(`[${keyLabel}] ✅ Success with ${model}`); return imageUrl; }
         console.warn(`[${keyLabel}] No image in response from ${model}`);
       } catch (e: any) {
-        if (e.message === "AUTH_INVALID") { authFailed = true; break; }
+        if (e.message === "AUTH_INVALID") { console.warn(`[${keyLabel}] Auth invalid, skipping key`); authFailed = true; break; }
+        if (e.message === "INVALID_IMAGE_URL") { console.error(`[${keyLabel}] User photo URL is unreachable`); throw new Error("A URL da foto enviada não pôde ser acessada. Tente fazer upload novamente."); }
         if (e.message.includes("Rate limit") || e.message.includes("temporarily")) throw e;
         console.error(`[${keyLabel}] ${model} failed:`, e.message);
       }
