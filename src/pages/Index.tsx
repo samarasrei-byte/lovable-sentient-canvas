@@ -5,6 +5,7 @@ import { UpdatePrompt } from "@/components/pwa/UpdatePrompt";
 
 // Lazy load below-the-fold sections
 const PromptMarketplace = lazy(() => import("@/components/marketplace/PromptMarketplace").then(m => ({ default: m.PromptMarketplace })));
+const MassiveGallery = lazy(() => import("@/components/MassiveGallery").then(m => ({ default: m.MassiveGallery })));
 const UpgradeUpsell = lazy(() => import("@/components/landing/UpgradeUpsell").then(m => ({ default: m.UpgradeUpsell })));
 const PhotoServicesSection = lazy(() => import("@/components/photo-services/PhotoServicesSection").then(m => ({ default: m.PhotoServicesSection })));
 const ValueProposition = lazy(() => import("@/components/landing/ValueProposition").then(m => ({ default: m.ValueProposition })));
@@ -31,6 +32,9 @@ const Index = () => {
         <PromptMarketplace />
       </Suspense>
       
+      <Suspense fallback={<SectionFallback />}>
+        <MassiveGallery />
+      </Suspense>
       <Suspense fallback={<SectionFallback />}>
         <UpgradeUpsell />
       </Suspense>
