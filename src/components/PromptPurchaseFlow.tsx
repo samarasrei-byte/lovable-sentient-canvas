@@ -693,9 +693,13 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       }
 
       if (!qa.passed) {
+        // QA warns but does NOT block — show issues as warning, deliver the image anyway
         setQaStatus('idle');
         setQaIssues(qa.issues);
-        throw new Error('A auditoria detectou que a imagem ainda não ficou fiel à sua foto. Gere novamente.');
+        toast.warning('A auditoria encontrou possíveis ajustes, mas sua imagem foi entregue. Você pode gerar novamente se desejar.');
+      } else {
+        setQaStatus('passed');
+        setQaIssues([]);
       }
 
       setGeneratedImage(finalImageUrl);
