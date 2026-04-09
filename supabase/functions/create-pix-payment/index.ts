@@ -42,19 +42,47 @@ serve(async (req) => {
     }
 
     // Create PaymentIntent with PIX + confirm immediately
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: priceCents,
-      currency: "brl",
-      payment_method_types: ["pix"],
-      payment_method_data: { type: "pix" },
-      confirm: true,
-      customer: customerId,
-      metadata: {
-        purchase_id: purchaseId,
-        customer_name: customerName || "",
-        customer_email: customerEmail || "",
-      },
-    });
+    let paymentIntent;
+
+    try {
+      paymentIntent = await stripe.paymentIntents.create({
+        amount: priceCents,
+        currency: "brl",
+        payment_method_types: ["pix"],
+        payment_method_data: { type: "pix" },
+        confirm: true,
+        customer: customerId,
+        metadata: {
+          purchase_id: purchaseId,
+          customer_name: customerName || "",
+          customer_email: customerEmail || "",
+        },
+      });
+    } catch (error) {
+      const stripeError = error as {
+        code?: string;
+        param?: string;
+        message?: string;
+      };
+
+      const isPixUnavailable =
+        stripeError.code === "payment_intent_invalid_parameter" &&
+        stripeError.param === "payment_method_types";
+
+      if (isPixUnavailable) {
+        console.warn("PIX unavailable for this Stripe account");
+        return new Response(JSON.stringify({
+          error: "PIX is not enabled for this Stripe account.",
+          code: "pix_unavailable",
+          fallback: "card",
+        }), {
+          status: 409,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      throw error;
+    }
 
     // Extract PIX QR code info from next_action
     const pixAction = paymentIntent.next_action?.pix_display_qr_code;

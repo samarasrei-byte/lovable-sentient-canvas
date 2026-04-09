@@ -6,6 +6,7 @@ import { useRegisterSW } from "virtual:pwa-register/react";
 
 export const UpdatePrompt = () => {
   const [showUpdate, setShowUpdate] = useState(false);
+  const isLovablePreview = typeof window !== "undefined" && window.location.hostname.endsWith(".lovable.app") && window.location.hostname.includes("--");
 
   const {
     needRefresh: [needRefresh, setNeedRefresh],
@@ -20,10 +21,15 @@ export const UpdatePrompt = () => {
   });
 
   useEffect(() => {
-    if (needRefresh) {
-      setShowUpdate(true);
+    if (!needRefresh) return;
+
+    if (isLovablePreview) {
+      void updateServiceWorker(true);
+      return;
     }
-  }, [needRefresh]);
+
+    setShowUpdate(true);
+  }, [isLovablePreview, needRefresh, updateServiceWorker]);
 
   const handleUpdate = () => {
     updateServiceWorker(true);
