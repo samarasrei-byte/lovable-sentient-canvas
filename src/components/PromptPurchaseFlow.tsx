@@ -704,8 +704,6 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
 
       setGeneratedImage(finalImageUrl);
       setGeneratedVariants([{ url: finalImageUrl, selected: true }]);
-      setQaStatus('passed');
-      setQaIssues([]);
 
       setStep('complete');
     } catch (error) {
