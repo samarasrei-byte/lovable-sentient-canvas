@@ -329,7 +329,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       // Ir direto para geração (sem pagamento)
       toast.success('Modo teste ativo — gerando imagem sem pagamento!');
       setStep('generating');
-      void generateImage();
+      void generateImage(newPurchaseId);
     } catch (error) {
       console.error('Error creating purchase:', error);
       toast.error('Erro ao processar. Tente novamente.');
@@ -642,17 +642,20 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
     }
   };
 
-  const generateImage = async () => {
+  const generateImage = async (overridePurchaseId?: string) => {
     try {
-      if (!purchaseId) throw new Error('Compra não iniciada corretamente');
+      const effectivePurchaseId = overridePurchaseId || purchaseId;
+      if (!effectivePurchaseId) throw new Error('Compra não iniciada corretamente');
 
       const referencePhotoUrls = await ensureUploadedPhotoUrls();
       if (prompt.required_fields.includes('photo') && referencePhotoUrls.length === 0) {
         throw new Error('Nenhuma foto de referência válida foi enviada');
       }
 
+      const body = buildGenerationBody(referencePhotoUrls);
+      body.purchaseId = effectivePurchaseId;
       const { data, error } = await supabase.functions.invoke('generate-prompt-image', {
-        body: buildGenerationBody(referencePhotoUrls),
+        body,
       });
 
       if (error) throw error;
@@ -692,15 +695,17 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       }
 
       if (!qa.passed) {
+        // QA warns but does NOT block — show issues as warning, deliver the image anyway
         setQaStatus('idle');
         setQaIssues(qa.issues);
-        throw new Error('A auditoria detectou que a imagem ainda não ficou fiel à sua foto. Gere novamente.');
+        toast.warning('A auditoria encontrou possíveis ajustes, mas sua imagem foi entregue. Você pode gerar novamente se desejar.');
+      } else {
+        setQaStatus('passed');
+        setQaIssues([]);
       }
 
       setGeneratedImage(finalImageUrl);
       setGeneratedVariants([{ url: finalImageUrl, selected: true }]);
-      setQaStatus('passed');
-      setQaIssues([]);
 
       setStep('complete');
     } catch (error) {
