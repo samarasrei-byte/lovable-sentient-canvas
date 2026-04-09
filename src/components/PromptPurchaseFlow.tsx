@@ -329,7 +329,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       // Ir direto para geração (sem pagamento)
       toast.success('Modo teste ativo — gerando imagem sem pagamento!');
       setStep('generating');
-      void generateImage();
+      void generateImage(newPurchaseId);
     } catch (error) {
       console.error('Error creating purchase:', error);
       toast.error('Erro ao processar. Tente novamente.');
@@ -642,9 +642,10 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
     }
   };
 
-  const generateImage = async () => {
+  const generateImage = async (overridePurchaseId?: string) => {
     try {
-      if (!purchaseId) throw new Error('Compra não iniciada corretamente');
+      const effectivePurchaseId = overridePurchaseId || purchaseId;
+      if (!effectivePurchaseId) throw new Error('Compra não iniciada corretamente');
 
       const referencePhotoUrls = await ensureUploadedPhotoUrls();
       if (prompt.required_fields.includes('photo') && referencePhotoUrls.length === 0) {
