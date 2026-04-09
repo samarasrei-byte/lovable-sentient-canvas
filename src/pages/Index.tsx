@@ -33,6 +33,9 @@ const Index = () => {
       </Suspense>
       
       <Suspense fallback={<SectionFallback />}>
+        <MassiveGallery />
+      
+      <Suspense fallback={<SectionFallback />}>
         <UpgradeUpsell />
       </Suspense>
       
