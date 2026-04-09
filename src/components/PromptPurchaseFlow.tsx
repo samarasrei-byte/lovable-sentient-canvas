@@ -652,8 +652,10 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
         throw new Error('Nenhuma foto de referência válida foi enviada');
       }
 
+      const body = buildGenerationBody(referencePhotoUrls);
+      body.purchaseId = effectivePurchaseId;
       const { data, error } = await supabase.functions.invoke('generate-prompt-image', {
-        body: buildGenerationBody(referencePhotoUrls),
+        body,
       });
 
       if (error) throw error;
