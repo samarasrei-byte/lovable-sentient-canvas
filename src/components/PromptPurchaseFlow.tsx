@@ -296,7 +296,6 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       return;
     }
 
-    // === MODO TESTE: Pular pagamento e ir direto para geração ===
     try {
       // Collect all custom fields for persistence
       const customFields: Record<string, unknown> = {};
@@ -309,7 +308,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       const validProfiles = photoProfiles.filter(Boolean);
       if (validProfiles.length > 0) customFields.photoProfiles = validProfiles;
 
-      // Step 1: Create purchase record (sem pagamento)
+      // Step 1: Create purchase record
       const { data, error } = await supabase.functions.invoke('create-prompt-purchase', {
         body: { 
           promptId: prompt.id, 
@@ -326,8 +325,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       const newPurchaseId = data.purchaseId;
       setPurchaseId(newPurchaseId);
 
-      // Ir direto para geração (sem pagamento)
-      toast.success('Modo teste ativo — gerando imagem sem pagamento!');
+      // Go directly to generation (payment integration pending)
       setStep('generating');
       void generateImage(newPurchaseId);
     } catch (error) {
@@ -355,7 +353,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
           toast.success('Pagamento confirmado pelo Stripe!');
           setTimeout(() => {
             setStep('generating');
-            void generateImage();
+            void generateImage(pId);
           }, 1500);
         }
       } catch (e) {
@@ -373,7 +371,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
 
   // Payment is handled via Stripe Checkout redirect
 
-  const uploadPhotos = async (): Promise<string[]> => {
+  const uploadPhotos = async (effectivePurchaseId: string): Promise<string[]> => {
     const urls: string[] = [];
 
     for (let i = 0; i < photos.length; i++) {
@@ -381,7 +379,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       if (!photo.file) continue;
 
       const fileExt = photo.file.name.split('.').pop();
-      const filePath = `purchases/${purchaseId}-photo${i + 1}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+      const filePath = `purchases/${effectivePurchaseId}-photo${i + 1}-${Math.random().toString(36).slice(2)}.${fileExt}`;
 
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('user-photos')
@@ -398,11 +396,11 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
     return urls;
   };
 
-  const ensureUploadedPhotoUrls = async (): Promise<string[]> => {
+  const ensureUploadedPhotoUrls = async (effectivePurchaseId: string): Promise<string[]> => {
     if (!prompt.required_fields.includes('photo')) return [];
     if (uploadedPhotoUrls.length > 0) return uploadedPhotoUrls;
 
-    const urls = await uploadPhotos();
+    const urls = await uploadPhotos(effectivePurchaseId);
     setUploadedPhotoUrls(urls);
     return urls;
   };
