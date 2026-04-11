@@ -158,6 +158,18 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const [showBeforeAfter, setShowBeforeAfter] = useState(false);
   const fileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
+  // Cleanup object URLs on unmount to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      photos.forEach(photo => {
+        if (photo.preview && photo.preview.startsWith('blob:')) {
+          URL.revokeObjectURL(photo.preview);
+        }
+      });
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const activePhotoCount = photos.filter((photo) => photo.file).length;
 
   const formatPrice = (cents: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cents / 100);
@@ -406,10 +418,20 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   };
 
   // Sort photos by age group: adults first, then children/babies (matching typical prompt layout)
+  // Sort photos by age group but preserve index mapping for photoProfiles
   const sortPhotosByAge = (urls: string[]): string[] => {
     if (urls.length <= 1) return urls;
     
-    const indexed = urls.map((url, i) => ({ url, profile: photoProfiles[i] }));
+    // Build indexed pairs using the photo slot index (not url array index)
+    // so that photoProfiles[i] still maps correctly after sorting
+    const activeSlots = photos
+      .map((photo, i) => ({ index: i, hasFile: !!photo.file }))
+      .filter(s => s.hasFile);
+    
+    const indexed = urls.map((url, i) => ({ 
+      url, 
+      profile: photoProfiles[activeSlots[i]?.index ?? i] 
+    }));
     const adults = indexed.filter(p => !p.profile || p.profile.ageGroup === 'adulto' || p.profile.ageGroup === 'adolescente');
     const children = indexed.filter(p => p.profile && (p.profile.ageGroup === 'crianca' || p.profile.ageGroup === 'bebe'));
     
@@ -724,7 +746,11 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
     setIsGeneratingMore(true);
 
     try {
-      const referencePhotoUrls = await ensureUploadedPhotoUrls(purchaseId || '');
+      if (!purchaseId) {
+        toast.error('Erro: compra não encontrada. Tente gerar novamente.');
+        return;
+      }
+      const referencePhotoUrls = await ensureUploadedPhotoUrls(purchaseId);
       const variationIndex = generatedVariants.length + 1;
 
       const { data, error } = await supabase.functions.invoke('generate-prompt-image', {
@@ -942,26 +968,33 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
           </GlassCardHeader>
 
           <GlassCardContent className="space-y-4 sm:space-y-6">
+            {/* Progress steps — payment is skipped so show 3 steps */}
             <div className="flex items-center justify-between text-[10px] sm:text-xs text-muted-foreground">
-              {['form', 'payment', 'generating', 'complete'].map((status, index) => (
-                <div key={status} className="flex items-center">
-                  <div className={`flex items-center gap-0.5 sm:gap-1 ${step === status || (step === 'editing' && status === 'complete') ? 'text-primary' : ''}`}>
-                    <div
-                      className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-medium ${
-                        step === status || (step === 'editing' && status === 'complete')
-                          ? 'bg-primary text-primary-foreground'
-                          : ['form', 'payment', 'generating', 'complete'].indexOf(step === 'editing' ? 'complete' : step) > index
-                            ? 'bg-primary/20 text-primary'
-                            : 'bg-white/10'
-                      }`}
-                    >
-                      {index + 1}
+              {(['form', 'generating', 'complete'] as const).map((status, index) => {
+                const labels = ['Dados', 'Gerar', 'Pronto'];
+                const currentStepIndex = step === 'editing' ? 2 : ['form', 'generating', 'complete'].indexOf(step);
+                const isActive = currentStepIndex >= index;
+                const isCurrent = (step === status) || (step === 'editing' && status === 'complete');
+                return (
+                  <div key={status} className="flex items-center">
+                    <div className={`flex items-center gap-0.5 sm:gap-1 ${isCurrent ? 'text-primary' : ''}`}>
+                      <div
+                        className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-medium ${
+                          isCurrent
+                            ? 'bg-primary text-primary-foreground'
+                            : isActive
+                              ? 'bg-primary/20 text-primary'
+                              : 'bg-white/10'
+                        }`}
+                      >
+                        {index + 1}
+                      </div>
+                      <span className="hidden sm:inline">{labels[index]}</span>
                     </div>
-                    <span className="hidden sm:inline">{['Dados', 'Pagamento', 'Gerar', 'Pronto'][index]}</span>
+                    {index < 2 && <div className="flex-1 h-px bg-white/10 mx-1 sm:mx-2 w-3 sm:w-8" />}
                   </div>
-                  {index < 3 && <div className="flex-1 h-px bg-white/10 mx-1 sm:mx-2 w-3 sm:w-8" />}
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {step === 'form' && (
