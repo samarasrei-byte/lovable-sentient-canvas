@@ -195,17 +195,30 @@ export const PromptFromScreenshot = ({ open, onClose, onPromptCreated }: PromptF
       const hypeTexts = ["🔥 +500k gerações", "⚡ Trending", "💎 Premium", "🚀 Viral", "✨ Top Creator"];
       const hypeText = hypeTexts[Math.floor(Math.random() * hypeTexts.length)];
 
+      // Auto-apply fidelity rules if not already present
+      const FIDELITY_MARKER = "REGRAS ABSOLUTAS";
+      const FIDELITY_BLOCK = `\n\nREGRAS ABSOLUTAS:
+- Coloque a pessoa da foto de referência EXATAMENTE no cenário descrito
+- NÃO altere NENHUM traço facial da pessoa da foto
+- NÃO invente características — use SOMENTE o que a foto mostra
+- Clone 100% do rosto, tom de pele, cabelo e proporções
+- Qualidade fotorrealista profissional, 4K`;
+
+      const finalTemplate = extractedText.includes(FIDELITY_MARKER)
+        ? extractedText
+        : extractedText.trimEnd() + FIDELITY_BLOCK;
+
       const promptData = {
         name: promptName || "Prompt from Screenshot",
-        description: `Gerado automaticamente a partir de screenshot. ${extractedText.substring(0, 100)}...`,
+        description: `Gerado automaticamente a partir de imagem de referência. ${extractedText.substring(0, 100)}...`,
         category: promptCategory,
         hype_text: hypeText,
         example_image_url: finalImageUrl,
-        prompt_template: extractedText,
+        prompt_template: finalTemplate,
         price_cents: promptPrice,
         status: "active",
         required_fields: requiredFields,
-        ai_model: "google/gemini-2.5-flash-image",
+        ai_model: "google/gemini-3.1-flash-image-preview",
         min_photos: 1,
         is_influencer_prompt: false,
       };
