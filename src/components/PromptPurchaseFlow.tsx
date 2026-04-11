@@ -158,6 +158,18 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const [showBeforeAfter, setShowBeforeAfter] = useState(false);
   const fileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
+  // Cleanup object URLs on unmount to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      photos.forEach(photo => {
+        if (photo.preview && photo.preview.startsWith('blob:')) {
+          URL.revokeObjectURL(photo.preview);
+        }
+      });
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const activePhotoCount = photos.filter((photo) => photo.file).length;
 
   const formatPrice = (cents: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cents / 100);
