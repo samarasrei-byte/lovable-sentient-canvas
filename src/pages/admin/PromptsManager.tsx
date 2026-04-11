@@ -560,6 +560,20 @@ const PromptsManager = () => {
     // Auto-fill missing fields
     const analyzed = analyzePrompt(editingPrompt.prompt_template);
     
+    // Auto-apply fidelity rules if prompt doesn't already include them
+    let finalTemplate = editingPrompt.prompt_template;
+    const FIDELITY_MARKER = "REGRAS ABSOLUTAS";
+    const FIDELITY_BLOCK = `\n\nREGRAS ABSOLUTAS:
+- Coloque a pessoa da foto de referência EXATAMENTE no cenário descrito
+- NÃO altere NENHUM traço facial da pessoa da foto
+- NÃO invente características — use SOMENTE o que a foto mostra
+- Clone 100% do rosto, tom de pele, cabelo e proporções
+- Qualidade fotorrealista profissional, 4K`;
+
+    if (finalTemplate && !finalTemplate.includes(FIDELITY_MARKER)) {
+      finalTemplate = finalTemplate.trimEnd() + FIDELITY_BLOCK;
+    }
+
     setSaving(true);
     try {
       const promptData = {
@@ -568,7 +582,7 @@ const PromptsManager = () => {
         category: editingPrompt.category || analyzed.category || "Geral",
         hype_text: editingPrompt.hype_text || analyzed.hype_text || "🔥 Novo",
         example_image_url: editingPrompt.example_image_url,
-        prompt_template: editingPrompt.prompt_template,
+        prompt_template: finalTemplate,
         price_cents: editingPrompt.price_cents || 2100,
         status: editingPrompt.status || "active",
         is_influencer_prompt: false,
