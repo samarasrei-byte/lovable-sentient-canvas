@@ -645,7 +645,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       const effectivePurchaseId = overridePurchaseId || purchaseId;
       if (!effectivePurchaseId) throw new Error('Compra não iniciada corretamente');
 
-      const referencePhotoUrls = await ensureUploadedPhotoUrls();
+      const referencePhotoUrls = await ensureUploadedPhotoUrls(effectivePurchaseId);
       if (prompt.required_fields.includes('photo') && referencePhotoUrls.length === 0) {
         throw new Error('Nenhuma foto de referência válida foi enviada');
       }
@@ -724,7 +724,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
     setIsGeneratingMore(true);
 
     try {
-      const referencePhotoUrls = await ensureUploadedPhotoUrls();
+      const referencePhotoUrls = await ensureUploadedPhotoUrls(purchaseId || '');
       const variationIndex = generatedVariants.length + 1;
 
       const { data, error } = await supabase.functions.invoke('generate-prompt-image', {
@@ -1633,7 +1633,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   </div>
                 )}
 
-                <GlassButton onClick={() => { setStep('generating'); void generateImage(); }} variant="outline" className="mt-2" size="sm">
+                <GlassButton onClick={() => { setStep('generating'); void generateImage(purchaseId || undefined); }} variant="outline" className="mt-2" size="sm">
                   <RefreshCw className="w-4 h-4 mr-2" />Tentar novamente
                 </GlassButton>
 
