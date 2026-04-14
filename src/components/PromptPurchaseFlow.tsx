@@ -425,11 +425,9 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
 
   // Sort photos by age group: adults first, then children/babies (matching typical prompt layout)
   // Sort photos by age group but preserve index mapping for photoProfiles
-  const sortPhotosByAge = (urls: string[]): string[] => {
-    if (urls.length <= 1) return urls;
+  const sortPhotosByAge = (urls: string[]): { sortedUrls: string[]; sortedProfiles: typeof photoProfiles } => {
+    if (urls.length <= 1) return { sortedUrls: urls, sortedProfiles: photoProfiles };
     
-    // Build indexed pairs using the photo slot index (not url array index)
-    // so that photoProfiles[i] still maps correctly after sorting
     const activeSlots = photos
       .map((photo, i) => ({ index: i, hasFile: !!photo.file }))
       .filter(s => s.hasFile);
@@ -441,7 +439,8 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
     const adults = indexed.filter(p => !p.profile || p.profile.ageGroup === 'adulto' || p.profile.ageGroup === 'adolescente');
     const children = indexed.filter(p => p.profile && (p.profile.ageGroup === 'crianca' || p.profile.ageGroup === 'bebe'));
     
-    return [...adults, ...children].map(p => p.url);
+    const sorted = [...adults, ...children];
+    return { sortedUrls: sorted.map(p => p.url), sortedProfiles: sorted.map(p => p.profile) };
   };
 
   const isBirthdayPrompt = /aniversário|aniversario|birthday/i.test(prompt.category || '') || 
