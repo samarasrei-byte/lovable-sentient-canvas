@@ -44,11 +44,34 @@ const HOW_IT_WORKS = [
   { step: "3", title: "Receba a Magia", desc: "Nossa IA coloca seu filho no cenário escolhido" },
 ];
 
+const FILTERS = [
+  { key: 'todos', label: 'Todos' },
+  { key: 'popular', label: '🔥 Populares' },
+  { key: 'personagens', label: '🎭 Personagens' },
+  { key: 'newborn', label: '👶 Newborn' },
+  { key: 'temas', label: '🎨 Temas' },
+];
+
+const CHARACTER_NAMES = ['mario', 'toy story', 'bob esponja', 'mcqueen', 'patrulha', 'barbie', 'branca de neve', 'shrek', 'aranha', 'super-herói', 'dinossauro', 'princesa', 'gelo', 'sereia', 'rei da selva'];
+const NEWBORN_NAMES = ['newborn', 'bebê', 'dormindo', 'caminha', 'cestinha', 'pureza', 'anjo', 'rústico', 'arte de estúdio', 'vintage', 'sonho', 'elegante', 'elefante', 'ursinho', 'banho', 'spa', 'boho', 'profissional'];
+
 const Mesversario = () => {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
   const [loading, setLoading] = useState(true);
+  const [activeFilter, setActiveFilter] = useState('todos');
   const isMobile = useIsMobile();
+
+  const filteredPrompts = prompts.filter((p) => {
+    if (activeFilter === 'todos') return true;
+    if (activeFilter === 'popular') return p.is_featured;
+    const nameLower = p.name.toLowerCase();
+    if (activeFilter === 'personagens') return CHARACTER_NAMES.some(c => nameLower.includes(c));
+    if (activeFilter === 'newborn') return NEWBORN_NAMES.some(n => nameLower.includes(n));
+    if (activeFilter === 'temas') return !CHARACTER_NAMES.some(c => nameLower.includes(c)) && !NEWBORN_NAMES.some(n => nameLower.includes(n));
+    return true;
+  });
+
 
   useEffect(() => {
     window.scrollTo(0, 0);
