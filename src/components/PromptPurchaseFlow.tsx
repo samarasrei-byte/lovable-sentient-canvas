@@ -453,8 +453,8 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const isCouplePrompt = isCoupleInit || /casais|casal|couple/i.test(prompt.category || '') || 
     /casais|casal|couple/i.test(prompt.name || '');
 
-  const isMesversarioPrompt = /mêsversário|mesversário|mesversario/i.test(prompt.category || '') || 
-    /mêsversário|mesversário|mesversario/i.test(prompt.name || '');
+  const isMesversarioPrompt = /foto infantil|mêsversário|mesversário|mesversario/i.test(prompt.category || '') || 
+    /foto infantil|mêsversário|mesversário|mesversario/i.test(prompt.name || '');
 
   const isEventPrompt = /evento|event|promoção|promocao|festa|party/i.test(prompt.category || '') ||
     /evento|event|promoção|promocao|festa|party/i.test(prompt.name || '');
