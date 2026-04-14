@@ -131,7 +131,7 @@ const analyzePrompt = (promptText: string): Partial<Prompt> => {
     required_fields: requiredFields,
     price_cents: 2100,
     status: "active",
-    ai_model: "gemini-2.5-flash-image",
+    ai_model: "google/gemini-3.1-flash-image-preview",
     min_photos: 1,
   };
 };
@@ -592,7 +592,7 @@ const PromptsManager = () => {
         influencer_name: null,
         required_fields: editingPrompt.required_fields || analyzed.required_fields || ["photo", "name"],
         negative_prompt: editingPrompt.negative_prompt || null,
-        ai_model: editingPrompt.ai_model || "gemini-2.5-flash-image",
+        ai_model: editingPrompt.ai_model || "google/gemini-3.1-flash-image-preview",
         min_photos: editingPrompt.min_photos || 1,
       };
 
@@ -906,7 +906,7 @@ const PromptsManager = () => {
       price_cents: preset?.defaultPrice || 2100,
       status: "active",
       required_fields: ["photo", "name"],
-      ai_model: "gemini-2.5-flash-image",
+      ai_model: "google/gemini-3.1-flash-image-preview",
       min_photos: 1,
     });
     setShowAdvanced(false);
