@@ -131,11 +131,11 @@ const Mesversario = () => {
 
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tight mb-5 leading-[1.05]">
                 <span className="bg-gradient-to-r from-pink-400 via-rose-300 to-amber-300 bg-clip-text text-transparent">
-                  Foto Infantil
+                  Ensaio Fotográfico
                 </span>
                 <br />
                 <span className="text-foreground/90 text-3xl md:text-4xl lg:text-5xl font-light">
-                  do seu Bebê
+                  Infantil
                 </span>
               </h1>
 
