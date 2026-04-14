@@ -19,7 +19,7 @@ interface PhotoService {
 
 const getCategoryIcon = (category: string) => {
   switch (category) {
-    case 'mesversario': return Baby;
+    case 'mesversario': case 'foto_infantil': return Baby;
     case 'profissional': return Briefcase;
     default: return Camera;
   }
@@ -101,7 +101,7 @@ export const PhotoServicesSection = () => {
         <div className="grid md:grid-cols-2 gap-6 lg:gap-8 mb-10">
           {services.map((service) => {
             const Icon = getCategoryIcon(service.category);
-            const isMesversario = service.category === 'mesversario';
+            const isMesversario = service.category === 'mesversario' || service.category === 'foto_infantil';
             
             return (
               <GlassCard key={service.id} className="h-full group hover:border-secondary/40 transition-all duration-300 overflow-hidden">
@@ -153,7 +153,7 @@ export const PhotoServicesSection = () => {
 
                   <GlassButton variant="neon" className="w-full" onClick={() => setSelectedService(service)}>
                     <Upload className="w-4 h-4 mr-2" />
-                    {isMesversario ? 'Criar Minha Foto de Aniversário' : 'Gerar Minha Foto Profissional'}
+                    {isMesversario ? 'Criar Minha Foto Infantil' : 'Gerar Minha Foto Profissional'}
                   </GlassButton>
                 </GlassCardContent>
               </GlassCard>

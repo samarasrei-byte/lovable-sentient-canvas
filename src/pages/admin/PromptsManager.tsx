@@ -294,8 +294,8 @@ const CATEGORY_PRESETS: Record<string, { label: string; defaultPrice: number; ic
   "Profissional": { label: "Profissional", defaultPrice: 7000, icon: "📸" },
   "Corporativo": { label: "Corporativo", defaultPrice: 7000, icon: "🏢" },
   "Família": { label: "Família", defaultPrice: 5800, icon: "👨‍👩‍👧‍👦" },
-  "Mêsversário": { label: "Mêsversário", defaultPrice: 5800, icon: "👶" },
-  "Mêsversário & Aniversário": { label: "Mêsversário & Aniversário", defaultPrice: 5800, icon: "🎂" },
+  "Foto Infantil": { label: "Foto Infantil", defaultPrice: 5800, icon: "👶" },
+  "Foto Infantil & Aniversário": { label: "Foto Infantil & Aniversário", defaultPrice: 5800, icon: "🎂" },
   "Aniversário": { label: "Aniversário", defaultPrice: 2100, icon: "🎉" },
   "Fotografia Profissional": { label: "Fotografia Profissional", defaultPrice: 7000, icon: "📷" },
   "Hypando": { label: "Hypando", defaultPrice: 2100, icon: "🔥" },
@@ -790,7 +790,7 @@ const PromptsManager = () => {
 
       // Map analysis to prompt fields
       const categoryMap: Record<string, string> = {
-        aniversario: "Mêsversário & Aniversário",
+        aniversario: "Foto Infantil & Aniversário",
         linkedin: "LinkedIn",
         profissional: "Profissional",
         corporativo: "Corporativo",
@@ -802,11 +802,11 @@ const PromptsManager = () => {
       };
 
       const suggestedCatMap: Record<string, string> = {
-        mesversario: "Mêsversário",
-        infantil: "Mêsversário & Aniversário",
+        mesversario: "Foto Infantil",
+        infantil: "Foto Infantil & Aniversário",
         retrato_pessoal: "Geral",
         linkedin_profissional: "LinkedIn",
-        aniversario: "Mêsversário & Aniversário",
+        aniversario: "Foto Infantil & Aniversário",
         familia: "Família",
         casal: "Geral",
       };
