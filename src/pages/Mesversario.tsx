@@ -329,7 +329,7 @@ const Mesversario = () => {
       <footer className="py-8 border-t border-border/50">
         <div className="max-w-6xl mx-auto px-4 text-center">
           <p className="text-xs text-muted-foreground/50">
-            © {new Date().getFullYear()} Arcana — Foto Infantil IA. Todos os direitos reservados.
+            © {new Date().getFullYear()} Arcana · Foto Infantil IA. Todos os direitos reservados.
           </p>
         </div>
       </footer>
