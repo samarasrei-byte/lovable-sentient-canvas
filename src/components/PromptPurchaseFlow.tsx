@@ -125,7 +125,7 @@ const presentationLabel: Record<string, string> = {
 export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps) => {
   const [step, setStep] = useState<FlowStep>('form');
   const maxPhotos = prompt.min_photos && prompt.min_photos > 1 ? Math.min(prompt.min_photos, 5) : 5;
-  const [formData, setFormData] = useState({ name: '', instagram: '', email: '', description: '', age: '', displayName: '', months: '', telefone: '', whatsapp: '', endereco: '', data: '', hora: '', extras: '' });
+  const [formData, setFormData] = useState({ name: '', instagram: '', email: '', description: '', age: '', displayName: '', months: '', telefone: '', whatsapp: '', endereco: '', data: '', hora: '', extras: '', team_name: '' });
   const [personNames, setPersonNames] = useState<string[]>([]);
   const isFamilyInit = /família|familia|family/i.test(prompt.category || '') || /família|familia|family/i.test(prompt.name || '');
   const isCoupleInit = /casais|casal|couple/i.test(prompt.category || '') || /casais|casal|couple/i.test(prompt.name || '');
@@ -303,6 +303,11 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       return;
     }
 
+    if (prompt.required_fields.includes('team_name') && !formData.team_name.trim()) {
+      toast.error('Por favor, informe o nome do time.');
+      return;
+    }
+
     if (prompt.required_fields.includes('name') && !formData.name.trim()) {
       toast.error('Por favor, informe seu nome.');
       return;
@@ -315,6 +320,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       if (formData.months) customFields.months = formData.months;
       if (formData.displayName) customFields.displayName = formData.displayName;
       if (formData.description) customFields.description = formData.description;
+      if (formData.team_name) customFields.team_name = formData.team_name;
       
       // Save photo profiles analysis data
       const validProfiles = photoProfiles.filter(Boolean);
