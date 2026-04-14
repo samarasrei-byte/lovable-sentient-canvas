@@ -575,7 +575,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
     if ((isFamilyPrompt || isCouplePrompt || isMultiPersonPrompt) && sortedUrls.length > 1) {
       const multiContext = sortedUrls.map((_, i) => {
         const label = getPhotoLabel(i);
-        const profile = photoProfiles[i];
+        const profile = sortedProfiles[i];
         const ageInfo = profile?.metadados?.idade_detectada ? ` (~${profile.metadados.idade_detectada} anos)` : '';
         return `Foto ${i + 1} = ${label}${ageInfo}`;
       }).join('\n');
