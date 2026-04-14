@@ -92,20 +92,62 @@ serve(async (req) => {
   let purchaseId: string | undefined;
   let supabaseAdmin: any = null;
 
+  // Always create admin client for error logging, even if purchaseId comes later
+  const initAdmin = () => {
+    if (!supabaseAdmin) {
+      try {
+        supabaseAdmin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+      } catch (e) {
+        console.error("Failed to init admin client:", e);
+      }
+    }
+    return supabaseAdmin;
+  };
+
+  const markFailed = async (errorMsg: string) => {
+    if (!purchaseId) return;
+    const admin = initAdmin();
+    if (!admin) return;
+    try {
+      const existing = await getExistingCustomFields(admin, purchaseId);
+      await admin.from("prompt_purchases").update({
+        generation_status: "failed",
+        custom_fields: {
+          ...existing,
+          generation_error: errorMsg,
+          failed_at: new Date().toISOString(),
+          error_source: "edge_function",
+        }
+      }).eq("id", purchaseId);
+      console.log(`[FAIL-LOGGED] Purchase ${purchaseId}: ${errorMsg}`);
+    } catch (e) {
+      console.error(`[FAIL-LOG-ERROR] Could not save error for ${purchaseId}:`, e);
+    }
+  };
+
   try {
+    let body: any;
+    try {
+      body = await req.json();
+    } catch (parseErr) {
+      console.error("Failed to parse request body:", parseErr);
+      return new Response(
+        JSON.stringify({ error: "Invalid request body" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const { 
       purchaseId: pId, promptTemplate, negativePrompt, aiModel,
       userName, userInstagram, userDescription,
       userPhotoUrl, userPhotoUrls, exampleImageUrl,
       editMode, sourceImageUrl, flyerContext,
-    } = await req.json();
+    } = body;
 
     purchaseId = pId;
     const apiKeys = getApiKeys();
 
-    supabaseAdmin = purchaseId
-      ? createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!)
-      : null;
+    if (purchaseId) initAdmin();
 
     if (purchaseId && supabaseAdmin && !editMode) {
       await supabaseAdmin.from("prompt_purchases").update({
@@ -124,7 +166,10 @@ serve(async (req) => {
         ]}
       ];
       const imageUrl = await tryGenerateWithRetry(aiModel || "google/gemini-3.1-flash-image-preview", editMessages, apiKeys);
-      if (!imageUrl) throw new Error("Edit failed after multiple attempts.");
+      if (!imageUrl) {
+        await markFailed("Edit failed after multiple attempts");
+        throw new Error("Edit failed after multiple attempts.");
+      }
       if (purchaseId && supabaseAdmin) {
         await supabaseAdmin.from("prompt_purchases").update({ generated_image_url: imageUrl, generation_status: "completed" }).eq("id", purchaseId);
       }
@@ -171,7 +216,7 @@ serve(async (req) => {
     }
 
     const fullPrompt = prefix + "\n\n" + prompt;
-    console.log("Prompt length:", fullPrompt.length, "| Photos:", allPhotoUrls.length);
+    console.log("Prompt length:", fullPrompt.length, "| Photos:", allPhotoUrls.length, "| PurchaseID:", purchaseId || "none");
 
     const resolvedModel = aiModel 
       ? (aiModel.includes('/') ? aiModel : `google/${aiModel}`)
@@ -193,7 +238,10 @@ serve(async (req) => {
     ];
 
     const imageUrl = await tryGenerateWithRetry(resolvedModel, messages, apiKeys);
-    if (!imageUrl) throw new Error("Image generation failed after multiple attempts. Please try again.");
+    if (!imageUrl) {
+      await markFailed("All generation attempts failed (no image returned)");
+      throw new Error("Image generation failed after multiple attempts. Please try again.");
+    }
 
     if (purchaseId && supabaseAdmin) {
       await supabaseAdmin.from("prompt_purchases").update({
@@ -204,14 +252,13 @@ serve(async (req) => {
 
     return new Response(JSON.stringify({ success: true, imageUrl }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : "Unknown error";
-    console.error("Error generating image:", errorMsg);
-    if (purchaseId && supabaseAdmin) {
-      await supabaseAdmin.from("prompt_purchases").update({ 
-        generation_status: "failed",
-        custom_fields: { ...(await getExistingCustomFields(supabaseAdmin, purchaseId)), generation_error: errorMsg, failed_at: new Date().toISOString() }
-      }).eq("id", purchaseId);
-    }
+    const errorMsg = error instanceof Error ? error.message : String(error) || "Unknown error";
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    console.error("Error generating image:", errorMsg, errorStack ? `\nStack: ${errorStack}` : "");
+    
+    // Always try to log the error, even if markFailed was already called
+    await markFailed(errorMsg);
+    
     return new Response(
       JSON.stringify({ error: errorMsg }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
