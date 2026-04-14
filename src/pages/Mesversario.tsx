@@ -54,7 +54,41 @@ const Mesversario = () => {
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('todos');
+  const [whatsapp, setWhatsapp] = useState('');
+  const [whatsappSent, setWhatsappSent] = useState(false);
+  const [whatsappLoading, setWhatsappLoading] = useState(false);
   const isMobile = useIsMobile();
+
+  const handleWhatsappSubmit = async () => {
+    const cleaned = whatsapp.replace(/\D/g, '');
+    if (cleaned.length < 10) {
+      toast.error('Digite um WhatsApp válido com DDD');
+      return;
+    }
+    setWhatsappLoading(true);
+    try {
+      await supabase.from('notifications').insert({
+        user_id: '00000000-0000-0000-0000-000000000000',
+        type: 'whatsapp_lead',
+        title: 'Novo lead WhatsApp - Foto Infantil',
+        message: `WhatsApp: ${cleaned}`,
+        metadata: { whatsapp: cleaned, source: 'fotoinfantil_cta' }
+      });
+      setWhatsappSent(true);
+      toast.success('Pronto! Você será o primeiro a saber das novidades 🎉');
+    } catch {
+      toast.error('Erro ao salvar. Tente novamente.');
+    } finally {
+      setWhatsappLoading(false);
+    }
+  };
+
+  const formatWhatsapp = (value: string) => {
+    const digits = value.replace(/\D/g, '').slice(0, 11);
+    if (digits.length <= 2) return digits;
+    if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+  };
 
   const filteredPrompts = prompts.filter((p) => {
     if (activeFilter === 'todos') return true;
