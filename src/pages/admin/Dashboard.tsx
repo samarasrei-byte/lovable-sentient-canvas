@@ -232,6 +232,40 @@ const AdminDashboard = () => {
           onClick={() => navigate("/admin/users")}
         />
       </div>
+
+      {/* Top Prompts Ranking */}
+      {topPrompts.length > 0 && (
+        <Card className="p-5 border-border/40">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-primary" />
+                Ranking de Prompts — Top {topPrompts.length}
+              </h3>
+              <p className="text-[11px] text-muted-foreground mt-0.5">Prompts com mais gerações (todas as categorias)</p>
+            </div>
+            <Button variant="ghost" size="sm" onClick={() => navigate("/admin/prompts")} className="text-xs">
+              Ver todos
+            </Button>
+          </div>
+          <div className="space-y-2">
+            {topPrompts.map((p, i) => (
+              <div key={p.id} className="flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-muted/40 transition-colors">
+                <span className={`text-xs font-black w-6 text-center ${i === 0 ? 'text-amber-500' : i === 1 ? 'text-gray-400' : i === 2 ? 'text-amber-700' : 'text-muted-foreground'}`}>
+                  {i + 1}º
+                </span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground truncate">{p.name}</p>
+                  <p className="text-[10px] text-muted-foreground">{p.category}</p>
+                </div>
+                <Badge variant="secondary" className="text-[10px] font-bold shrink-0">
+                  {p.count} {p.count === 1 ? 'venda' : 'vendas'}
+                </Badge>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
     </div>
   );
 };
