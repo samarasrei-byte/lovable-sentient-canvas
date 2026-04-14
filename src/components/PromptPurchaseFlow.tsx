@@ -1014,16 +1014,17 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-black/80 backdrop-blur-sm overflow-y-auto overscroll-contain"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm overflow-hidden overscroll-contain"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <motion.div
-        initial={{ scale: 0.95, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.95, opacity: 0 }}
-        className="w-full max-w-lg px-2 sm:px-4 py-3 sm:py-4 min-h-0"
+        initial={{ y: "100%", opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: "100%", opacity: 0 }}
+        transition={{ type: "spring", damping: 30, stiffness: 300 }}
+        className="w-full sm:max-w-lg sm:px-4 sm:py-4 min-h-0"
       >
-        <GlassCard className="relative overflow-hidden max-h-[calc(100dvh-1.5rem)] sm:max-h-[90vh] overflow-y-auto overscroll-contain">
+        <GlassCard className="relative overflow-hidden max-h-[100dvh] sm:max-h-[90vh] overflow-y-auto overscroll-contain rounded-b-none sm:rounded-b-xl">
           <button onClick={onClose} className="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors">
             <X className="w-4 h-4" />
           </button>
@@ -1034,7 +1035,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                 <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
               </div>
               <div className="min-w-0">
-                <GlassCardTitle className="text-base sm:text-lg truncate">{prompt.name}</GlassCardTitle>
+                <GlassCardTitle className="text-base sm:text-lg leading-tight">{prompt.name}</GlassCardTitle>
                 <p className="text-xs sm:text-sm text-muted-foreground">{prompt.category}</p>
               </div>
             </div>
@@ -1065,7 +1066,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                       >
                         {index + 1}
                       </div>
-                      <span className="hidden sm:inline">{labels[index]}</span>
+                      <span className="text-[9px] sm:text-xs">{labels[index]}</span>
                     </div>
                     {index < 2 && <div className="flex-1 h-px bg-white/10 mx-1 sm:mx-2 w-3 sm:w-8" />}
                   </div>
