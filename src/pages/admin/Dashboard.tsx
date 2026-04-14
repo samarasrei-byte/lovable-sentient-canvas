@@ -53,6 +53,7 @@ const AdminDashboard = () => {
     totalPrompts: 0, totalPurchases: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [topPrompts, setTopPrompts] = useState<TopPrompt[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => { loadStats(); }, []);
