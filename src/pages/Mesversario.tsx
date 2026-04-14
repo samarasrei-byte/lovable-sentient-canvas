@@ -7,8 +7,9 @@ import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft, Baby, Sparkles, Heart, Camera, Star, Shield,
-  Loader2, CheckCircle2
+  Loader2, CheckCircle2, MessageCircle, ArrowRight, Zap, Bell
 } from "lucide-react";
+import { toast } from "sonner";
 
 interface Prompt {
   id: string;
