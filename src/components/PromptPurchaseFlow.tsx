@@ -156,6 +156,8 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const [exportFormat, setExportFormat] = useState<string>('original');
   const [generationCount, setGenerationCount] = useState(0);
   const [showBeforeAfter, setShowBeforeAfter] = useState(false);
+  const [whatsapp, setWhatsapp] = useState('');
+  const [whatsappSaved, setWhatsappSaved] = useState(false);
   const fileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // Cleanup object URLs on unmount to prevent memory leaks
@@ -965,6 +967,10 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
   };
 
   const handleDownloadAll = () => {
+    if (!whatsappSaved) {
+      toast.error('Deixe seu WhatsApp para baixar a imagem!');
+      return;
+    }
     const selected = generatedVariants.filter((variant) => variant.selected);
     if (selected.length === 0) {
       handleDownload();
@@ -974,6 +980,33 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
     selected.forEach((variant, index) => {
       setTimeout(() => handleDownload(variant.url), index * 500);
     });
+  };
+
+  const handleSaveWhatsapp = async () => {
+    const cleaned = whatsapp.replace(/\D/g, '');
+    if (cleaned.length < 10) {
+      toast.error('Digite um número de WhatsApp válido');
+      return;
+    }
+    try {
+      if (purchaseId) {
+        await supabase
+          .from('prompt_purchases')
+          .update({ custom_fields: { whatsapp: cleaned } } as any)
+          .eq('id', purchaseId);
+      }
+      setWhatsappSaved(true);
+      toast.success('WhatsApp salvo! Agora você pode baixar sua imagem 🎉');
+    } catch {
+      setWhatsappSaved(true);
+    }
+  };
+
+  const formatWhatsapp = (value: string) => {
+    const numbers = value.replace(/\D/g, '').slice(0, 11);
+    if (numbers.length <= 2) return numbers;
+    if (numbers.length <= 7) return `(${numbers.slice(0, 2)}) ${numbers.slice(2)}`;
+    return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 7)}-${numbers.slice(7)}`;
   };
 
   return (
@@ -1834,8 +1867,39 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   </div>
                 )}
 
+                {/* WhatsApp capture */}
+                {!whatsappSaved ? (
+                  <div className="space-y-2 p-3 rounded-xl bg-primary/5 border border-primary/20">
+                    <div className="flex items-center gap-2 text-sm font-medium">
+                      <MessageCircle className="w-4 h-4 text-primary" />
+                      <span>Deixe seu WhatsApp para baixar</span>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">
+                      Fique por dentro das novidades e promoções do Arcana! 🚀
+                    </p>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="(11) 99999-9999"
+                        value={whatsapp}
+                        onChange={(e) => setWhatsapp(formatWhatsapp(e.target.value))}
+                        className="flex-1 text-sm bg-background/50"
+                        maxLength={16}
+                      />
+                      <GlassButton onClick={handleSaveWhatsapp} size="sm" disabled={whatsapp.replace(/\D/g, '').length < 10}>
+                        <Check className="w-3.5 h-3.5 mr-1" />
+                        OK
+                      </GlassButton>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-xs text-primary p-2 rounded-lg bg-primary/5">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>WhatsApp salvo! Obrigado 💚</span>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-3 gap-2">
-                  <GlassButton onClick={handleDownloadAll} className="col-span-1" size="sm">
+                  <GlassButton onClick={handleDownloadAll} className="col-span-1" size="sm" disabled={!whatsappSaved}>
                     <Download className="w-3.5 h-3.5 mr-1" />
                     <span className="text-[10px] sm:text-xs">Baixar</span>
                   </GlassButton>
