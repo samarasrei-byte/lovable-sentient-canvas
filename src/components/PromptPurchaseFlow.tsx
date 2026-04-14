@@ -425,11 +425,9 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
 
   // Sort photos by age group: adults first, then children/babies (matching typical prompt layout)
   // Sort photos by age group but preserve index mapping for photoProfiles
-  const sortPhotosByAge = (urls: string[]): string[] => {
-    if (urls.length <= 1) return urls;
+  const sortPhotosByAge = (urls: string[]): { sortedUrls: string[]; sortedProfiles: typeof photoProfiles } => {
+    if (urls.length <= 1) return { sortedUrls: urls, sortedProfiles: photoProfiles };
     
-    // Build indexed pairs using the photo slot index (not url array index)
-    // so that photoProfiles[i] still maps correctly after sorting
     const activeSlots = photos
       .map((photo, i) => ({ index: i, hasFile: !!photo.file }))
       .filter(s => s.hasFile);
@@ -441,7 +439,8 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
     const adults = indexed.filter(p => !p.profile || p.profile.ageGroup === 'adulto' || p.profile.ageGroup === 'adolescente');
     const children = indexed.filter(p => p.profile && (p.profile.ageGroup === 'crianca' || p.profile.ageGroup === 'bebe'));
     
-    return [...adults, ...children].map(p => p.url);
+    const sorted = [...adults, ...children];
+    return { sortedUrls: sorted.map(p => p.url), sortedProfiles: sorted.map(p => p.profile) };
   };
 
   const isBirthdayPrompt = /aniversário|aniversario|birthday/i.test(prompt.category || '') || 
@@ -493,7 +492,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const familyPhotoLabels = ['Pai/Mãe', 'Filho(a) 1', 'Filho(a) 2', 'Filho(a) 3', 'Outro familiar'];
 
   const buildGenerationBody = (referencePhotoUrls: string[], overrides: Record<string, unknown> = {}) => {
-    const sortedUrls = sortPhotosByAge(referencePhotoUrls);
+    const { sortedUrls, sortedProfiles } = sortPhotosByAge(referencePhotoUrls);
     const {
       promptTemplate: overridePromptTemplate,
       exampleImageUrl: overrideExampleImageUrl,
@@ -506,7 +505,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
     // Build age/position context from rich analysis
     const photoContextLines: string[] = [];
     sortedUrls.forEach((_, i) => {
-      const profile = photoProfiles[i];
+      const profile = sortedProfiles[i];
       if (profile?.analise?.pessoas?.length) {
         profile.analise.pessoas.forEach((p, j) => {
           photoContextLines.push(`Foto ${i + 1} Pessoa ${j + 1}: ${p.tipo}${p.genero !== 'indefinido' ? ` ${p.genero}` : ''}${p.idade_aproximada ? ` ~${p.idade_aproximada} anos` : ''}`);
@@ -576,7 +575,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
     if ((isFamilyPrompt || isCouplePrompt || isMultiPersonPrompt) && sortedUrls.length > 1) {
       const multiContext = sortedUrls.map((_, i) => {
         const label = getPhotoLabel(i);
-        const profile = photoProfiles[i];
+        const profile = sortedProfiles[i];
         const ageInfo = profile?.metadados?.idade_detectada ? ` (~${profile.metadados.idade_detectada} anos)` : '';
         return `Foto ${i + 1} = ${label}${ageInfo}`;
       }).join('\n');
