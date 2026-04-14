@@ -254,29 +254,47 @@ function extractImageUrl(data: any): string | null {
   );
 }
 
+async function getExistingCustomFields(supabaseAdmin: any, purchaseId: string): Promise<Record<string, unknown>> {
+  try {
+    const { data } = await supabaseAdmin.from("prompt_purchases").select("custom_fields").eq("id", purchaseId).maybeSingle();
+    return (data?.custom_fields && typeof data.custom_fields === 'object') ? data.custom_fields : {};
+  } catch { return {}; }
+}
+
+function delay(ms: number): Promise<void> { return new Promise(r => setTimeout(r, ms)); }
+
 async function tryGenerateWithRetry(primaryModel: string, messages: any[], apiKeys: { primary: string; fallback: string | null }): Promise<string | null> {
-  const modelsToTry = [primaryModel, "google/gemini-3-pro-image-preview", "google/gemini-2.5-flash-image"];
+  const modelsToTry = [primaryModel, "google/gemini-3-pro-image-preview", "google/gemini-3.1-flash-image-preview"];
+  // Deduplicate if primary is already in fallback list
+  const uniqueModels = [...new Set(modelsToTry)];
   const keysToTry = apiKeys.fallback ? [apiKeys.primary, apiKeys.fallback] : [apiKeys.primary];
+  const errors: string[] = [];
 
   for (const apiKey of keysToTry) {
     const keyLabel = apiKey === apiKeys.primary ? "PRIMARY" : "FALLBACK";
     let authFailed = false;
-    for (const model of modelsToTry) {
+    for (let mi = 0; mi < uniqueModels.length; mi++) {
+      const model = uniqueModels[mi];
       if (authFailed) break;
       try {
+        // Add delay between retries to avoid cascading rate limits
+        if (mi > 0) await delay(2000);
         console.log(`[${keyLabel}] Attempting: ${model}`);
         const data = await callGateway(model, messages, apiKey);
-        if (!data) continue;
+        if (!data) { errors.push(`${model}: empty response`); continue; }
         const imageUrl = extractImageUrl(data);
         if (imageUrl) { console.log(`[${keyLabel}] ✅ Success with ${model}`); return imageUrl; }
+        errors.push(`${model}: no image in response`);
         console.warn(`[${keyLabel}] No image in response from ${model}`);
       } catch (e: any) {
-        if (e.message === "AUTH_INVALID") { console.warn(`[${keyLabel}] Auth invalid, skipping key`); authFailed = true; break; }
+        if (e.message === "AUTH_INVALID") { console.warn(`[${keyLabel}] Auth invalid, skipping key`); authFailed = true; errors.push(`${keyLabel}: auth invalid`); break; }
         if (e.message === "INVALID_IMAGE_URL") { console.error(`[${keyLabel}] User photo URL is unreachable`); throw new Error("A URL da foto enviada não pôde ser acessada. Tente fazer upload novamente."); }
-        if (e.message.includes("Rate limit") || e.message.includes("temporarily")) throw e;
+        if (e.message.includes("Rate limit") || e.message.includes("temporarily")) { errors.push(`${model}: ${e.message}`); throw e; }
+        errors.push(`${model}: ${e.message}`);
         console.error(`[${keyLabel}] ${model} failed:`, e.message);
       }
     }
   }
+  console.error("All generation attempts failed:", errors.join(" | "));
   return null;
 }
