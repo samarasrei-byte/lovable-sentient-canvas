@@ -177,7 +177,7 @@ const Mesversario = () => {
           </div>
         ) : (
           <div className={cn(
-            "grid gap-4 md:gap-5",
+            "grid gap-3 md:gap-4",
             isMobile ? "grid-cols-2" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
           )}>
             {prompts.map((prompt, index) => (
@@ -185,9 +185,9 @@ const Mesversario = () => {
                 key={prompt.id}
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.08 }}
+                transition={{ duration: 0.5, delay: index * 0.06 }}
                 onClick={() => setSelectedPrompt(prompt)}
-                className="group relative rounded-2xl overflow-hidden border border-white/[0.06] bg-card hover:border-pink-500/30 transition-all duration-300 text-left focus:outline-none focus:ring-2 focus:ring-pink-500/40"
+                className="group relative rounded-2xl overflow-hidden border border-white/[0.06] bg-card active:scale-[0.97] hover:border-pink-500/30 transition-all duration-300 text-left focus:outline-none focus:ring-2 focus:ring-pink-500/40 shadow-lg shadow-black/20"
               >
                 {/* Image */}
                 <div className="aspect-[3/4] relative overflow-hidden bg-muted/20">
@@ -195,7 +195,7 @@ const Mesversario = () => {
                     <img
                       src={prompt.example_image_url}
                       alt={prompt.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-full object-cover scale-[1.02] group-hover:scale-[1.08] group-active:scale-[1.04] transition-transform duration-500"
                       loading="lazy"
                     />
                   ) : (
@@ -205,23 +205,32 @@ const Mesversario = () => {
                   )}
                   
                   {/* Overlay gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                   
+                  {/* Featured badge */}
+                  {prompt.is_featured && (
+                    <div className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 shadow-lg shadow-amber-500/30">
+                      <span className="text-[9px] font-black text-white tracking-wider uppercase">🔥 Popular</span>
+                    </div>
+                  )}
+
                   {/* Price badge */}
-                  <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-sm border border-white/10">
-                    <span className="text-[11px] font-bold text-white">
+                  <div className="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-full bg-gradient-to-r from-primary/90 to-primary shadow-lg shadow-primary/30 border border-white/20">
+                    <span className="text-[11px] font-black text-primary-foreground">
                       R$ {(prompt.price_cents / 100).toFixed(0)}
                     </span>
                   </div>
 
                   {/* Bottom info */}
                   <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4">
-                    <h3 className="text-sm md:text-base font-bold text-white mb-1 leading-tight">
+                    <h3 className="text-sm md:text-base font-bold text-white mb-1.5 leading-tight drop-shadow-lg">
                       {prompt.name}
                     </h3>
-                    <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <Upload className="w-3 h-3 text-pink-300" />
-                      <span className="text-[10px] text-pink-200 font-medium">Criar agora</span>
+                    <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/15 backdrop-blur-sm">
+                        <Camera className="w-2.5 h-2.5 text-pink-300" />
+                        <span className="text-[9px] text-white/90 font-medium">Toque para criar</span>
+                      </div>
                     </div>
                   </div>
                 </div>
