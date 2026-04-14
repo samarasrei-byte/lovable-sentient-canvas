@@ -4,12 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { PromptPurchaseFlow } from "@/components/PromptPurchaseFlow";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft, Baby, Sparkles, Heart, Camera, Star, Shield,
-  Loader2, Upload, CheckCircle2
+  Loader2, CheckCircle2
 } from "lucide-react";
-import { GlassButton } from "@/components/ui/glass-button";
 
 interface Prompt {
   id: string;
@@ -32,24 +31,18 @@ interface Prompt {
 }
 
 const BENEFITS = [
-  { icon: Camera, title: "Foto Profissional", desc: "Qualidade de estúdio premium para todas as idades" },
-  { icon: Shield, title: "Fidelidade 100%", desc: "O rosto do seu filho preservado perfeitamente" },
-  { icon: Star, title: "Dezenas de Cenários", desc: "Temas para bebês e crianças até 10 anos" },
-  { icon: Heart, title: "Memória Eterna", desc: "Eternize cada fase do seu filho" },
-];
-
-const HOW_IT_WORKS = [
-  { step: "1", title: "Escolha o Tema", desc: "Selecione entre dezenas de cenários encantadores" },
-  { step: "2", title: "Envie a Foto", desc: "Suba uma foto nítida do rosto do seu filho" },
-  { step: "3", title: "Receba a Magia", desc: "Nossa IA coloca seu filho no cenário escolhido" },
+  { icon: Camera, title: "Foto Profissional", desc: "Qualidade de estúdio premium" },
+  { icon: Shield, title: "Fidelidade 100%", desc: "Rosto preservado perfeitamente" },
+  { icon: Star, title: "Dezenas de Cenários", desc: "Temas para todas as idades" },
+  { icon: Heart, title: "Memória Eterna", desc: "Eternize cada fase" },
 ];
 
 const FILTERS = [
-  { key: 'todos', label: 'Todos' },
-  { key: 'popular', label: '🔥 Populares' },
-  { key: 'personagens', label: '🎭 Personagens' },
-  { key: 'newborn', label: '👶 Newborn' },
-  { key: 'temas', label: '🎨 Temas' },
+  { key: 'todos', label: 'Todos', emoji: '' },
+  { key: 'popular', label: 'Populares', emoji: '🔥' },
+  { key: 'personagens', label: 'Personagens', emoji: '🎭' },
+  { key: 'newborn', label: 'Newborn', emoji: '👶' },
+  { key: 'temas', label: 'Temas', emoji: '🎨' },
 ];
 
 const CHARACTER_NAMES = ['mario', 'toy story', 'bob esponja', 'mcqueen', 'patrulha', 'barbie', 'branca de neve', 'shrek', 'aranha', 'super-herói', 'dinossauro', 'princesa', 'gelo', 'sereia', 'rei da selva'];
@@ -71,7 +64,6 @@ const Mesversario = () => {
     if (activeFilter === 'temas') return !CHARACTER_NAMES.some(c => nameLower.includes(c)) && !NEWBORN_NAMES.some(n => nameLower.includes(n));
     return true;
   });
-
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -105,305 +97,280 @@ const Mesversario = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
-      {/* ═══════════ TOP NAV ═══════════ */}
-      <nav className="sticky top-0 z-50 w-full px-4 md:px-6 pt-5 pb-3 safe-area-top bg-background/80 backdrop-blur-xl border-b border-white/[0.06]">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 px-3 py-1.5 bg-white/[0.04] rounded-xl border border-white/[0.08]">
-            <Sparkles className="w-4 h-4 text-primary" />
-            <span className="text-base font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+      {/* ═══════════ TOP NAV — Apple-clean ═══════════ */}
+      <nav className="sticky top-0 z-50 w-full safe-area-top">
+        <div className="absolute inset-0 bg-background/60 backdrop-blur-2xl border-b border-white/[0.04]" />
+        <div className="relative max-w-6xl mx-auto px-5 md:px-8 flex items-center justify-between h-14">
+          <Link to="/" className="flex items-center gap-2 group">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary/80 to-secondary/80 flex items-center justify-center">
+              <Sparkles className="w-3.5 h-3.5 text-white" />
+            </div>
+            <span className="text-sm font-semibold tracking-tight text-foreground/90 group-hover:text-foreground transition-colors">
               ARCANA
             </span>
           </Link>
           <Link
             to="/"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors group"
+            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/70 hover:text-foreground transition-colors"
           >
             Voltar
-            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+            <ArrowLeft className="w-3.5 h-3.5" />
           </Link>
         </div>
       </nav>
 
-      {/* ═══════════ HERO ═══════════ */}
+      {/* ═══════════ HERO — Minimal & Clean ═══════════ */}
       <section className="relative overflow-hidden">
-        {/* Warm gradient background */}
-        <div className="absolute inset-0" style={{
-          background: "radial-gradient(ellipse at 30% 20%, hsl(330 60% 50% / 0.12), transparent 55%), radial-gradient(ellipse at 70% 70%, hsl(40 80% 60% / 0.1), transparent 50%), radial-gradient(ellipse at 50% 50%, hsl(280 40% 50% / 0.06), transparent 60%)"
+        <div className="absolute inset-0 opacity-40" style={{
+          background: "radial-gradient(ellipse at 50% 0%, hsl(330 50% 50% / 0.12), transparent 60%)"
         }} />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
 
-        {/* Floating decorative elements */}
-        <motion.div
-          className="absolute top-16 left-[10%] w-3 h-3 rounded-full bg-pink-400/30"
-          animate={{ y: [0, -15, 0], opacity: [0.3, 0.7, 0.3] }}
-          transition={{ duration: 4, repeat: Infinity }}
-        />
-        <motion.div
-          className="absolute top-32 right-[15%] w-2 h-2 rounded-full bg-yellow-400/40"
-          animate={{ y: [0, -10, 0], opacity: [0.4, 0.8, 0.4] }}
-          transition={{ duration: 3, repeat: Infinity, delay: 1 }}
-        />
-        <motion.div
-          className="absolute bottom-20 left-[20%] w-4 h-4 rounded-full bg-purple-400/20"
-          animate={{ y: [0, -20, 0], opacity: [0.2, 0.5, 0.2] }}
-          transition={{ duration: 5, repeat: Infinity, delay: 0.5 }}
-        />
-
-        <div className="relative z-10 max-w-6xl mx-auto px-4 md:px-6 pt-8 pb-20 md:pt-14 md:pb-28">
-
-          <div className="text-center max-w-3xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-            >
-              <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-pink-500/10 border border-pink-500/20 mb-6">
-                <Baby className="w-4 h-4 text-pink-400" />
-                <span className="text-xs font-bold tracking-[0.2em] uppercase text-pink-400">
-                  ENSAIO INFANTIL IA
-                </span>
-              </div>
-
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tight mb-5 leading-[1.05]">
-                <span className="bg-gradient-to-r from-pink-400 via-rose-300 to-amber-300 bg-clip-text text-transparent">
-                  Ensaio Fotográfico
-                </span>
-                <br />
-                <span className="text-foreground/90 text-3xl md:text-4xl lg:text-5xl font-light">
-                  Infantil
-                </span>
-              </h1>
-
-              <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto mb-8 leading-relaxed">
-                Envie uma foto do seu filho, de recém-nascido a 10 anos, e nossa IA 
-                cria ensaios fotográficos profissionais em cenários encantadores, 
-                preservando cada detalhe do rostinho que você ama.
-              </p>
-
-              <div className="flex flex-wrap justify-center gap-3 mb-6">
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/20">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-green-400" />
-                  <span className="text-xs text-green-400 font-medium">Fidelidade facial 100%</span>
-                </div>
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20">
-                  <Sparkles className="w-3.5 h-3.5 text-blue-400" />
-                  <span className="text-xs text-blue-400 font-medium">Qualidade 4K</span>
-                </div>
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20">
-                  <Star className="w-3.5 h-3.5 text-amber-400" />
-                  <span className="text-xs text-amber-400 font-medium">Bebês e crianças até 10 anos</span>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════ GALERIA DE TEMAS ═══════════ */}
-      <section className="max-w-6xl mx-auto px-4 md:px-6 -mt-10 md:-mt-14 relative z-20 pb-16">
-        <div className="text-center mb-6">
-          <h2 className="text-2xl md:text-3xl font-bold mb-2">Escolha o Cenário Perfeito</h2>
-          <p className="text-muted-foreground text-sm mb-6">
-            {activeFilter === 'todos' ? `${prompts.length} temas disponíveis` : `${filteredPrompts.length} de ${prompts.length} temas`}. Toque para criar.
-          </p>
-
-          {/* Filter chips */}
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide justify-start md:justify-center px-1">
-            {FILTERS.map((f) => (
-              <button
-                key={f.key}
-                onClick={() => setActiveFilter(f.key)}
-                className={cn(
-                  "px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 shrink-0",
-                  activeFilter === f.key
-                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30"
-                    : "bg-white/[0.06] text-muted-foreground hover:bg-white/[0.1] border border-white/[0.08]"
-                )}
-              >
-                {f.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-8 h-8 animate-spin text-pink-400/40" />
-          </div>
-        ) : filteredPrompts.length === 0 ? (
-          <div className="text-center py-16">
-            <Baby className="w-10 h-10 mx-auto mb-3 text-muted-foreground/30" />
-            <p className="text-muted-foreground text-sm">Nenhum tema encontrado nessa categoria.</p>
-          </div>
-        ) : (
-          <div className={cn(
-            "grid gap-3 md:gap-4",
-            isMobile ? "grid-cols-2" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
-          )}>
-            {filteredPrompts.map((prompt, index) => (
-              <motion.button
-                key={prompt.id}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.06 }}
-                onClick={() => setSelectedPrompt(prompt)}
-                className={cn(
-                  "group relative rounded-2xl overflow-hidden bg-card active:scale-[0.97] transition-all duration-300 text-left focus:outline-none focus:ring-2 focus:ring-pink-500/40 shadow-lg shadow-black/20",
-                  prompt.is_featured
-                    ? "border-2 border-amber-500/40 shadow-amber-500/10"
-                    : "border border-white/[0.06] hover:border-pink-500/30"
-                )}
-              >
-                {/* Image */}
-                <div className="aspect-[3/4] relative overflow-hidden bg-muted/20">
-                  {prompt.example_image_url ? (
-                    <img
-                      src={prompt.example_image_url}
-                      alt={prompt.name}
-                      className="w-full h-full object-cover scale-[1.02] group-hover:scale-[1.08] group-active:scale-[1.04] transition-transform duration-500"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-pink-500/10 to-amber-500/10">
-                      <Baby className="w-12 h-12 text-pink-400/30" />
-                    </div>
-                  )}
-                  
-                  {/* Overlay gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                  
-                  {/* Featured badge */}
-                  {prompt.is_featured && (
-                    <div className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 shadow-lg shadow-amber-500/30">
-                      <span className="text-[9px] font-black text-white tracking-wider uppercase">🔥 Popular</span>
-                    </div>
-                  )}
-
-                  {/* Price badge */}
-                  <div className="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-full bg-gradient-to-r from-primary/90 to-primary shadow-lg shadow-primary/30 border border-white/20">
-                    <span className="text-[11px] font-black text-primary-foreground">
-                      R$ {(prompt.price_cents / 100).toFixed(0)}
-                    </span>
-                  </div>
-
-                  {/* Bottom info */}
-                  <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4">
-                    <h3 className="text-sm md:text-base font-bold text-white mb-1.5 leading-tight drop-shadow-lg">
-                      {prompt.name}
-                    </h3>
-                    <div className="flex items-center gap-1.5">
-                      <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/15 backdrop-blur-sm">
-                        <Camera className="w-2.5 h-2.5 text-pink-300" />
-                        <span className="text-[9px] text-white/90 font-medium">Toque para criar</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </motion.button>
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* ═══════════ COMO FUNCIONA ═══════════ */}
-      <section className="py-16 md:py-24 relative">
-        <div className="absolute inset-0" style={{
-          background: "radial-gradient(ellipse at 50% 50%, hsl(330 50% 50% / 0.05), transparent 60%)"
-        }} />
-        <div className="max-w-4xl mx-auto px-4 md:px-6 relative z-10">
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-12">
-            Como Funciona
-          </h2>
-          <div className="grid md:grid-cols-3 gap-6 md:gap-8">
-            {HOW_IT_WORKS.map((item, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.15 }}
-                className="text-center"
-              >
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-500/20 to-amber-500/20 border border-pink-500/20 flex items-center justify-center mx-auto mb-4">
-                  <span className="text-xl font-black bg-gradient-to-r from-pink-400 to-amber-300 bg-clip-text text-transparent">
-                    {item.step}
-                  </span>
-                </div>
-                <h3 className="font-bold text-foreground mb-1">{item.title}</h3>
-                <p className="text-sm text-muted-foreground">{item.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════ BENEFÍCIOS ═══════════ */}
-      <section className="py-16 md:py-20">
-        <div className="max-w-5xl mx-auto px-4 md:px-6">
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-10">
-            Por que escolher nosso{" "}
-            <span className="bg-gradient-to-r from-pink-400 to-amber-300 bg-clip-text text-transparent">
-              Foto Infantil IA
-            </span>
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-            {BENEFITS.map((b, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="text-center p-5 rounded-2xl bg-card border border-border hover:border-pink-500/20 transition-colors"
-              >
-                <b.icon className="w-7 h-7 mx-auto mb-3 text-pink-400" />
-                <h3 className="font-bold text-sm text-foreground mb-1">{b.title}</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">{b.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════ CTA FINAL ═══════════ */}
-      <section className="py-16 md:py-24">
-        <div className="max-w-3xl mx-auto px-4 md:px-6 text-center">
+        <div className="relative z-10 max-w-3xl mx-auto px-5 md:px-8 pt-16 pb-20 md:pt-24 md:pb-28 text-center">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           >
-            <Baby className="w-10 h-10 mx-auto mb-4 text-pink-400/60" />
-            <h2 className="text-3xl md:text-4xl font-black mb-4">
-              Eternize cada{" "}
-              <span className="bg-gradient-to-r from-pink-400 to-amber-300 bg-clip-text text-transparent">
-                fase
-              </span>{" "}
-              do seu filho
-            </h2>
-            <p className="text-muted-foreground mb-8 max-w-lg mx-auto">
-              De recém-nascido a 10 anos, cada fase é única e passa rápido. 
-              Crie memórias profissionais que você vai guardar para sempre.
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.06] mb-8">
+              <Baby className="w-3.5 h-3.5 text-pink-400/80" />
+              <span className="text-[10px] font-medium tracking-[0.2em] uppercase text-muted-foreground">
+                Ensaio Infantil IA
+              </span>
+            </div>
+
+            <h1 className="text-4xl md:text-6xl font-bold tracking-[-0.03em] mb-4 leading-[1.1]">
+              <span className="bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-transparent">
+                Ensaio Fotográfico
+              </span>
+              <br />
+              <span className="bg-gradient-to-r from-pink-400/90 via-rose-300/90 to-amber-300/80 bg-clip-text text-transparent">
+                Infantil
+              </span>
+            </h1>
+
+            <p className="text-sm md:text-base text-muted-foreground/70 max-w-md mx-auto mb-10 leading-relaxed font-light">
+              Envie uma foto do seu filho e nossa IA cria ensaios profissionais 
+              em cenários encantadores, preservando cada detalhe.
             </p>
-            <GlassButton
-              variant="neon"
-              size="lg"
-              onClick={() => {
-                document.querySelector('.grid.gap-4')?.scrollIntoView({ behavior: 'smooth' });
-              }}
-            >
-              <Sparkles className="w-5 h-5 mr-2" />
-              Escolher um Tema
-            </GlassButton>
+
+            <div className="flex flex-wrap justify-center gap-2">
+              {[
+                { icon: CheckCircle2, text: "Fidelidade facial 100%", color: "text-emerald-400/70" },
+                { icon: Sparkles, text: "Qualidade 4K", color: "text-blue-400/70" },
+                { icon: Star, text: "0 a 10 anos", color: "text-amber-400/70" },
+              ].map((badge, i) => (
+                <div key={i} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.05]">
+                  <badge.icon className={cn("w-3 h-3", badge.color)} />
+                  <span className="text-[10px] text-muted-foreground/60 font-medium">{badge.text}</span>
+                </div>
+              ))}
+            </div>
           </motion.div>
         </div>
       </section>
 
-      {/* ═══════════ FOOTER MINIMAL ═══════════ */}
-      <footer className="py-8 border-t border-border/50">
-        <div className="max-w-6xl mx-auto px-4 text-center">
-          <p className="text-xs text-muted-foreground/50">
-            © {new Date().getFullYear()} Arcana · Foto Infantil IA. Todos os direitos reservados.
+      {/* ═══════════ FILTER BAR — Liquid Glass Bottom ═══════════ */}
+      <div className="sticky top-14 z-40">
+        <div className="relative">
+          <div className="absolute inset-0 bg-background/50 backdrop-blur-2xl" />
+          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
+          <div className="relative max-w-6xl mx-auto px-5 md:px-8 py-3">
+            <div className="flex gap-1.5 overflow-x-auto scrollbar-hide justify-start md:justify-center">
+              {FILTERS.map((f) => (
+                <button
+                  key={f.key}
+                  onClick={() => setActiveFilter(f.key)}
+                  className={cn(
+                    "relative px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all duration-300 shrink-0",
+                    activeFilter === f.key
+                      ? "text-foreground"
+                      : "text-muted-foreground/50 hover:text-muted-foreground/80"
+                  )}
+                >
+                  {/* Liquid glass active indicator */}
+                  {activeFilter === f.key && (
+                    <motion.div
+                      layoutId="activeFilter"
+                      className="absolute inset-0 rounded-full bg-white/[0.08] border border-white/[0.1] shadow-[0_0_20px_-4px_hsl(var(--primary)/0.15)]"
+                      transition={{ type: "spring", bounce: 0.15, duration: 0.5 }}
+                    />
+                  )}
+                  <span className="relative z-10 flex items-center gap-1.5">
+                    {f.emoji && <span className="text-[11px]">{f.emoji}</span>}
+                    {f.label}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ═══════════ GALLERY — Apple-style Cards ═══════════ */}
+      <section className="max-w-6xl mx-auto px-5 md:px-8 pt-6 pb-20 relative z-10">
+        <div className="flex items-baseline justify-between mb-5">
+          <h2 className="text-lg md:text-xl font-semibold tracking-tight">Cenários</h2>
+          <span className="text-xs text-muted-foreground/40 font-medium">
+            {filteredPrompts.length} {filteredPrompts.length === 1 ? 'tema' : 'temas'}
+          </span>
+        </div>
+
+        {loading ? (
+          <div className="flex items-center justify-center py-24">
+            <Loader2 className="w-5 h-5 animate-spin text-muted-foreground/20" />
+          </div>
+        ) : filteredPrompts.length === 0 ? (
+          <div className="text-center py-20">
+            <Baby className="w-8 h-8 mx-auto mb-3 text-muted-foreground/20" />
+            <p className="text-muted-foreground/40 text-sm">Nenhum tema nessa categoria.</p>
+          </div>
+        ) : (
+          <AnimatePresence mode="popLayout">
+            <motion.div
+              key={activeFilter}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className={cn(
+                "grid gap-3 md:gap-4",
+                isMobile ? "grid-cols-2" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+              )}
+            >
+              {filteredPrompts.map((prompt, index) => (
+                <motion.button
+                  key={prompt.id}
+                  initial={{ opacity: 0, scale: 0.96 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.4, delay: index * 0.03, ease: [0.22, 1, 0.36, 1] }}
+                  onClick={() => setSelectedPrompt(prompt)}
+                  className={cn(
+                    "group relative rounded-2xl overflow-hidden text-left focus:outline-none",
+                    "bg-white/[0.02] border border-white/[0.06]",
+                    "hover:border-white/[0.12] hover:bg-white/[0.04]",
+                    "active:scale-[0.98] transition-all duration-300",
+                    "shadow-[0_2px_20px_-4px_rgba(0,0,0,0.3)]",
+                    "hover:shadow-[0_8px_40px_-8px_rgba(0,0,0,0.4)]"
+                  )}
+                >
+                  {/* Image */}
+                  <div className="aspect-[3/4] relative overflow-hidden">
+                    {prompt.example_image_url ? (
+                      <img
+                        src={prompt.example_image_url}
+                        alt={prompt.name}
+                        className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700 ease-out"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-pink-500/5 to-amber-500/5">
+                        <Baby className="w-10 h-10 text-muted-foreground/10" />
+                      </div>
+                    )}
+                    
+                    {/* Subtle bottom gradient */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300" />
+
+                    {/* Featured */}
+                    {prompt.is_featured && (
+                      <div className="absolute top-2.5 left-2.5">
+                        <div className="px-2 py-0.5 rounded-full bg-white/10 backdrop-blur-xl border border-white/10">
+                          <span className="text-[9px] font-semibold text-white/90 tracking-wide">🔥 Popular</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Price — liquid pill */}
+                    <div className="absolute top-2.5 right-2.5">
+                      <div className="px-2.5 py-1 rounded-full bg-white/10 backdrop-blur-xl border border-white/10">
+                        <span className="text-[11px] font-semibold text-white/95">
+                          R$ {(prompt.price_cents / 100).toFixed(0)}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Bottom content */}
+                    <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4">
+                      <h3 className="text-sm font-semibold text-white/95 mb-1 leading-snug tracking-tight">
+                        {prompt.name}
+                      </h3>
+                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <Camera className="w-2.5 h-2.5 text-white/50" />
+                        <span className="text-[9px] text-white/50 font-medium">Toque para criar</span>
+                      </div>
+                    </div>
+                  </div>
+                </motion.button>
+              ))}
+            </motion.div>
+          </AnimatePresence>
+        )}
+      </section>
+
+      {/* ═══════════ BENEFITS — Minimal grid ═══════════ */}
+      <section className="py-20 md:py-28">
+        <div className="max-w-4xl mx-auto px-5 md:px-8">
+          <h2 className="text-lg md:text-xl font-semibold text-center mb-12 tracking-tight">
+            Por que escolher{" "}
+            <span className="bg-gradient-to-r from-pink-400/80 to-amber-300/80 bg-clip-text text-transparent">
+              Foto Infantil IA
+            </span>
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+            {BENEFITS.map((b, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 12 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
+                className="text-center p-5 rounded-2xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.1] hover:bg-white/[0.04] transition-all duration-300"
+              >
+                <b.icon className="w-5 h-5 mx-auto mb-3 text-muted-foreground/40" />
+                <h3 className="font-medium text-xs text-foreground/80 mb-1">{b.title}</h3>
+                <p className="text-[10px] text-muted-foreground/40 leading-relaxed">{b.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════ CTA — Clean ═══════════ */}
+      <section className="py-20 md:py-28">
+        <div className="max-w-2xl mx-auto px-5 md:px-8 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ ease: [0.22, 1, 0.36, 1] }}
+          >
+            <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-4">
+              Eternize cada{" "}
+              <span className="bg-gradient-to-r from-pink-400/80 to-amber-300/80 bg-clip-text text-transparent">
+                fase
+              </span>
+            </h2>
+            <p className="text-sm text-muted-foreground/50 mb-8 max-w-sm mx-auto leading-relaxed font-light">
+              De recém-nascido a 10 anos. Crie memórias profissionais que você vai guardar para sempre.
+            </p>
+            <button
+              onClick={() => {
+                document.querySelector('.grid.gap-3')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/[0.06] border border-white/[0.08] text-sm font-medium text-foreground/80 hover:bg-white/[0.1] hover:border-white/[0.12] transition-all duration-300 hover:shadow-[0_0_30px_-6px_hsl(var(--primary)/0.2)]"
+            >
+              <Sparkles className="w-4 h-4 text-primary/60" />
+              Escolher um Tema
+            </button>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ═══════════ FOOTER ═══════════ */}
+      <footer className="py-8 border-t border-white/[0.04]">
+        <div className="max-w-6xl mx-auto px-5 text-center">
+          <p className="text-[10px] text-muted-foreground/30 tracking-wide">
+            © {new Date().getFullYear()} Arcana · Foto Infantil IA
           </p>
         </div>
       </footer>
