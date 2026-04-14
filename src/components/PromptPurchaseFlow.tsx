@@ -555,7 +555,13 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       template += `\n\nMESES DO BEBÊ: O bebê tem ${formData.months} meses. Exiba o número "${formData.months}" como decoração/tema na imagem (vela, balão, banner, etc). NÃO use outro número.`;
     }
 
-    // Inject display name for prompts with text in image
+    // Inject team name for football/team prompts
+    if (formData.team_name) {
+      template = template
+        .replace(/\{team_name\}/g, formData.team_name);
+      template += `\n\nTIME OBRIGATÓRIO: O time é "${formData.team_name}". Use as cores oficiais, escudo e uniforme do ${formData.team_name}. NÃO use cores ou escudo de outro time.`;
+    }
+
     const nameForImage = formData.displayName || formData.name;
     if (hasNameInImage && nameForImage) {
       template = template
