@@ -1867,8 +1867,39 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   </div>
                 )}
 
+                {/* WhatsApp capture */}
+                {!whatsappSaved ? (
+                  <div className="space-y-2 p-3 rounded-xl bg-primary/5 border border-primary/20">
+                    <div className="flex items-center gap-2 text-sm font-medium">
+                      <MessageCircle className="w-4 h-4 text-primary" />
+                      <span>Deixe seu WhatsApp para baixar</span>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">
+                      Fique por dentro das novidades e promoções do Arcana! 🚀
+                    </p>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="(11) 99999-9999"
+                        value={whatsapp}
+                        onChange={(e) => setWhatsapp(formatWhatsapp(e.target.value))}
+                        className="flex-1 text-sm bg-background/50"
+                        maxLength={16}
+                      />
+                      <GlassButton onClick={handleSaveWhatsapp} size="sm" disabled={whatsapp.replace(/\D/g, '').length < 10}>
+                        <Check className="w-3.5 h-3.5 mr-1" />
+                        OK
+                      </GlassButton>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-xs text-primary p-2 rounded-lg bg-primary/5">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>WhatsApp salvo! Obrigado 💚</span>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-3 gap-2">
-                  <GlassButton onClick={handleDownloadAll} className="col-span-1" size="sm">
+                  <GlassButton onClick={handleDownloadAll} className="col-span-1" size="sm" disabled={!whatsappSaved}>
                     <Download className="w-3.5 h-3.5 mr-1" />
                     <span className="text-[10px] sm:text-xs">Baixar</span>
                   </GlassButton>
