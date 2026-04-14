@@ -204,12 +204,16 @@ serve(async (req) => {
 
     return new Response(JSON.stringify({ success: true, imageUrl }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (error) {
-    console.error("Error generating image:", error);
+    const errorMsg = error instanceof Error ? error.message : "Unknown error";
+    console.error("Error generating image:", errorMsg);
     if (purchaseId && supabaseAdmin) {
-      await supabaseAdmin.from("prompt_purchases").update({ generation_status: "failed" }).eq("id", purchaseId);
+      await supabaseAdmin.from("prompt_purchases").update({ 
+        generation_status: "failed",
+        custom_fields: { ...(await getExistingCustomFields(supabaseAdmin, purchaseId)), generation_error: errorMsg, failed_at: new Date().toISOString() }
+      }).eq("id", purchaseId);
     }
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
+      JSON.stringify({ error: errorMsg }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
