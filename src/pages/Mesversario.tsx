@@ -131,7 +131,7 @@ const Mesversario = () => {
 
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tight mb-5 leading-[1.05]">
                 <span className="bg-gradient-to-r from-pink-400 via-rose-300 to-amber-300 bg-clip-text text-transparent">
-                  Mêsversário
+                  Foto Infantil
                 </span>
                 <br />
                 <span className="text-foreground/90 text-3xl md:text-4xl lg:text-5xl font-light">
@@ -269,7 +269,7 @@ const Mesversario = () => {
           <h2 className="text-2xl md:text-3xl font-bold text-center mb-10">
             Por que escolher nosso{" "}
             <span className="bg-gradient-to-r from-pink-400 to-amber-300 bg-clip-text text-transparent">
-              Mêsversário IA
+              Foto Infantil IA
             </span>
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
@@ -329,7 +329,7 @@ const Mesversario = () => {
       <footer className="py-8 border-t border-border/50">
         <div className="max-w-6xl mx-auto px-4 text-center">
           <p className="text-xs text-muted-foreground/50">
-            © {new Date().getFullYear()} Arcana — Mêsversário IA. Todos os direitos reservados.
+            © {new Date().getFullYear()} Arcana — Foto Infantil IA. Todos os direitos reservados.
           </p>
         </div>
       </footer>
