@@ -296,10 +296,13 @@ const CATEGORY_PRESETS: Record<string, { label: string; defaultPrice: number; ic
   "Família": { label: "Família", defaultPrice: 5800, icon: "👨‍👩‍👧‍👦" },
   "Mêsversário": { label: "Mêsversário", defaultPrice: 5800, icon: "👶" },
   "Mêsversário & Aniversário": { label: "Mêsversário & Aniversário", defaultPrice: 5800, icon: "🎂" },
+  "Aniversário": { label: "Aniversário", defaultPrice: 2100, icon: "🎉" },
   "Fotografia Profissional": { label: "Fotografia Profissional", defaultPrice: 7000, icon: "📷" },
   "Hypando": { label: "Hypando", defaultPrice: 2100, icon: "🔥" },
   "Copa do Mundo": { label: "Copa do Mundo", defaultPrice: 2100, icon: "⚽" },
   "Animais": { label: "Animais", defaultPrice: 2100, icon: "🐾" },
+  "Política": { label: "Política", defaultPrice: 2100, icon: "🏛️" },
+  "Foto de casais": { label: "Foto de casais", defaultPrice: 5800, icon: "💑" },
 };
 
 const PromptsManager = () => {
