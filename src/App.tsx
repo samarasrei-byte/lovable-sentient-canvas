@@ -57,7 +57,7 @@ const VideoCreator = lazy(() => import("./pages/app/VideoCreator"));
 const PromptDashboard = lazy(() => import("./pages/app/PromptDashboard"));
 const FutebolGenerator = lazy(() => import("./pages/app/FutebolGenerator"));
 const CategoryPage = lazy(() => import("./pages/CategoryPage"));
-const Mesversario = lazy(() => import("./pages/Mesversario"));
+const FotoInfantil = lazy(() => import("./pages/Mesversario"));
 
 const queryClient = new QueryClient();
 
@@ -135,7 +135,7 @@ const App = () => (
             </Route>
 
             {/* Category Landing Pages */}
-            <Route path="/mesversario" element={<Mesversario />} />
+            <Route path="/fotoinfantil" element={<FotoInfantil />} />
             <Route path="/categoria/:slug" element={<CategoryPage />} />
 
             {/* White Label Agency Routes */}
