@@ -1967,7 +1967,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
               </motion.div>
             )}
           </GlassCardContent>
-        </GlassCard>
+        </div>
       </motion.div>
     </motion.div>
   );
