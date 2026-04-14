@@ -103,7 +103,7 @@ const Login = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
-  const [mode, setMode] = useState<"login" | "signup">("signup");
+  const [mode, setMode] = useState<"login" | "signup">("login");
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
@@ -324,10 +324,10 @@ const Login = () => {
           {/* Header */}
           <div className="mb-6 md:mb-8">
             <h2 className="text-xl md:text-2xl font-black text-foreground">
-              {mode === "signup" ? "Crie sua conta" : "Bem-vindo de volta"}
+              Bem-vindo de volta
             </h2>
             <p className="text-sm text-muted-foreground mt-1">
-              {mode === "signup" ? "Comece a criar imagens incríveis com IA" : "Entre para continuar criando"}
+              Entre para continuar criando
             </p>
           </div>
 
@@ -336,63 +336,8 @@ const Login = () => {
             <div className="absolute -inset-px rounded-2xl bg-gradient-to-b from-white/[0.08] to-transparent" />
             <div className="relative rounded-2xl bg-white/[0.03] backdrop-blur-2xl border border-white/[0.06] p-6 md:p-7">
 
-              {/* Mode toggle */}
-              <div className="flex rounded-xl bg-white/[0.04] border border-white/[0.06] p-1 mb-6">
-                {(["signup", "login"] as const).map((m) => (
-                  <button
-                    key={m}
-                    onClick={() => setMode(m)}
-                    className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 ${
-                      mode === m
-                        ? "bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    {m === "signup" ? "Criar conta" : "Entrar"}
-                  </button>
-                ))}
-              </div>
-
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={mode}
-                  initial={{ opacity: 0, x: mode === "signup" ? -20 : 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: mode === "signup" ? 20 : -20 }}
-                  transition={{ duration: 0.25 }}
-                >
-                  {mode === "signup" ? (
-                    <form onSubmit={handleSignup} className="space-y-4">
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Nome</label>
-                        <Input name="fullName" placeholder="Seu nome" required
-                          className="h-12 bg-white/[0.04] border-white/[0.08] rounded-xl text-foreground placeholder:text-muted-foreground/40 focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all" />
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Email</label>
-                        <Input name="email" type="email" placeholder="seu@email.com" required
-                          className="h-12 bg-white/[0.04] border-white/[0.08] rounded-xl text-foreground placeholder:text-muted-foreground/40 focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all" />
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Senha</label>
-                        <div className="relative">
-                          <Input name="password" type={showPassword ? "text" : "password"} placeholder="Min. 6 caracteres" required minLength={6}
-                            className="h-12 bg-white/[0.04] border-white/[0.08] rounded-xl text-foreground placeholder:text-muted-foreground/40 focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all pr-12" />
-                          <button type="button" onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-muted-foreground transition-colors">
-                            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                          </button>
-                        </div>
-                      </div>
-                      <button type="submit" disabled={loading}
-                        className="w-full h-12 rounded-xl bg-gradient-to-r from-primary to-primary/80 text-primary-foreground font-semibold text-sm flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-primary/25 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 disabled:opacity-50 group mt-2">
-                        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (
-                          <>Criar conta gratuita <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" /></>
-                        )}
-                      </button>
-                    </form>
-                  ) : (
-                    <form onSubmit={handleLogin} className="space-y-4">
+              {/* Login form only */}
+              <form onSubmit={handleLogin} className="space-y-4">
                       <div className="space-y-1.5">
                         <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Email</label>
                         <Input name="email" type="email" placeholder="seu@email.com" required
@@ -415,10 +360,7 @@ const Login = () => {
                           <>Entrar <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" /></>
                         )}
                       </button>
-                    </form>
-                  )}
-                </motion.div>
-              </AnimatePresence>
+              </form>
 
               {/* Divider */}
               <div className="relative my-5">
@@ -428,24 +370,8 @@ const Login = () => {
                 </div>
               </div>
 
-              {/* Demo buttons */}
+              {/* Admin button */}
               <div className="flex gap-2">
-                <button
-                  onClick={async () => {
-                    setLoading(true);
-                    const creds = { email: "marca@demo.com", password: "demo123" };
-                    const res = await supabase.auth.signInWithPassword(creds);
-                    if (res.error) {
-                      await supabase.auth.signUp({ email: creds.email, password: creds.password, options: { data: { full_name: "Demo User", user_type: "brand" } } });
-                      await supabase.auth.signInWithPassword(creds);
-                    }
-                    setLoading(false);
-                  }}
-                  disabled={loading}
-                  className="flex-1 h-11 rounded-xl border border-white/[0.08] bg-white/[0.02] text-muted-foreground text-sm font-medium hover:bg-white/[0.05] hover:border-white/[0.12] transition-all duration-300"
-                >
-                  Acessar demo
-                </button>
                 <button
                   onClick={async () => {
                     setLoading(true);
@@ -469,7 +395,7 @@ const Login = () => {
                     setLoading(false);
                   }}
                   disabled={loading}
-                  className="flex-1 h-11 rounded-xl border border-primary/20 bg-primary/[0.05] text-primary text-sm font-medium hover:bg-primary/[0.1] hover:border-primary/30 transition-all duration-300"
+                  className="w-full h-11 rounded-xl border border-primary/20 bg-primary/[0.05] text-primary text-sm font-medium hover:bg-primary/[0.1] hover:border-primary/30 transition-all duration-300"
                 >
                   <Shield className="w-3.5 h-3.5 inline mr-1.5" />
                   Admin
@@ -480,7 +406,7 @@ const Login = () => {
 
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
             className="text-center text-[11px] text-muted-foreground/40 mt-6">
-            Ao criar conta, você concorda com nossos Termos de Uso
+            Acesso restrito à administração
           </motion.p>
         </motion.div>
       </div>
