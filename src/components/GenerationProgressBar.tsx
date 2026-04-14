@@ -16,12 +16,12 @@ interface GenerationProgressBarProps {
 }
 
 const getSteps = (photoCount: number): ProgressStep[] => [
-  { label: "Carregando foto de referência", icon: <Scan className="w-3.5 h-3.5" />, duration: 2 },
-  { label: photoCount > 1 ? `Analisando ${photoCount} rostos` : "Mapeando traços faciais", icon: <Eye className="w-3.5 h-3.5" />, duration: 4 },
-  { label: "Aplicando estilo artístico", icon: <Palette className="w-3.5 h-3.5" />, duration: 6 },
-  { label: "Renderizando imagem em alta resolução", icon: <Wand2 className="w-3.5 h-3.5" />, duration: 8 },
-  { label: "Auditoria de fidelidade facial (QA)", icon: <Shield className="w-3.5 h-3.5" />, duration: 5 },
-  { label: "Finalizando e otimizando", icon: <Sparkles className="w-3.5 h-3.5" />, duration: 3 },
+  { label: "Recebendo sua foto...", icon: <Scan className="w-3.5 h-3.5" />, duration: 3 },
+  { label: photoCount > 1 ? `Identificando ${photoCount} rostos` : "Analisando cada detalhe do rosto", icon: <Eye className="w-3.5 h-3.5" />, duration: 5 },
+  { label: "Criando o cenário mágico ✨", icon: <Palette className="w-3.5 h-3.5" />, duration: 8 },
+  { label: "Encaixando seu filho no cenário", icon: <Wand2 className="w-3.5 h-3.5" />, duration: 10 },
+  { label: "Verificando fidelidade do rosto", icon: <Shield className="w-3.5 h-3.5" />, duration: 6 },
+  { label: "Quase lá! Últimos retoques...", icon: <Sparkles className="w-3.5 h-3.5" />, duration: 4 },
 ];
 
 export const GenerationProgressBar = ({ isGenerating, qaStatus = 'idle', photoCount = 1 }: GenerationProgressBarProps) => {
