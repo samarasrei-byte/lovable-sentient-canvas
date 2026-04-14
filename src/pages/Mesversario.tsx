@@ -44,11 +44,34 @@ const HOW_IT_WORKS = [
   { step: "3", title: "Receba a Magia", desc: "Nossa IA coloca seu filho no cenário escolhido" },
 ];
 
+const FILTERS = [
+  { key: 'todos', label: 'Todos' },
+  { key: 'popular', label: '🔥 Populares' },
+  { key: 'personagens', label: '🎭 Personagens' },
+  { key: 'newborn', label: '👶 Newborn' },
+  { key: 'temas', label: '🎨 Temas' },
+];
+
+const CHARACTER_NAMES = ['mario', 'toy story', 'bob esponja', 'mcqueen', 'patrulha', 'barbie', 'branca de neve', 'shrek', 'aranha', 'super-herói', 'dinossauro', 'princesa', 'gelo', 'sereia', 'rei da selva'];
+const NEWBORN_NAMES = ['newborn', 'bebê', 'dormindo', 'caminha', 'cestinha', 'pureza', 'anjo', 'rústico', 'arte de estúdio', 'vintage', 'sonho', 'elegante', 'elefante', 'ursinho', 'banho', 'spa', 'boho', 'profissional'];
+
 const Mesversario = () => {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
   const [loading, setLoading] = useState(true);
+  const [activeFilter, setActiveFilter] = useState('todos');
   const isMobile = useIsMobile();
+
+  const filteredPrompts = prompts.filter((p) => {
+    if (activeFilter === 'todos') return true;
+    if (activeFilter === 'popular') return p.is_featured;
+    const nameLower = p.name.toLowerCase();
+    if (activeFilter === 'personagens') return CHARACTER_NAMES.some(c => nameLower.includes(c));
+    if (activeFilter === 'newborn') return NEWBORN_NAMES.some(n => nameLower.includes(n));
+    if (activeFilter === 'temas') return !CHARACTER_NAMES.some(c => nameLower.includes(c)) && !NEWBORN_NAMES.some(n => nameLower.includes(n));
+    return true;
+  });
+
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -166,28 +189,58 @@ const Mesversario = () => {
 
       {/* ═══════════ GALERIA DE TEMAS ═══════════ */}
       <section className="max-w-6xl mx-auto px-4 md:px-6 -mt-10 md:-mt-14 relative z-20 pb-16">
-        <div className="text-center mb-10">
+        <div className="text-center mb-6">
           <h2 className="text-2xl md:text-3xl font-bold mb-2">Escolha o Cenário Perfeito</h2>
-          <p className="text-muted-foreground text-sm">Cada tema é um ensaio fotográfico completo. Toque para criar.</p>
+          <p className="text-muted-foreground text-sm mb-6">
+            {activeFilter === 'todos' ? `${prompts.length} temas disponíveis` : `${filteredPrompts.length} de ${prompts.length} temas`}. Toque para criar.
+          </p>
+
+          {/* Filter chips */}
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide justify-start md:justify-center px-1">
+            {FILTERS.map((f) => (
+              <button
+                key={f.key}
+                onClick={() => setActiveFilter(f.key)}
+                className={cn(
+                  "px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 shrink-0",
+                  activeFilter === f.key
+                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30"
+                    : "bg-white/[0.06] text-muted-foreground hover:bg-white/[0.1] border border-white/[0.08]"
+                )}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="w-8 h-8 animate-spin text-pink-400/40" />
           </div>
+        ) : filteredPrompts.length === 0 ? (
+          <div className="text-center py-16">
+            <Baby className="w-10 h-10 mx-auto mb-3 text-muted-foreground/30" />
+            <p className="text-muted-foreground text-sm">Nenhum tema encontrado nessa categoria.</p>
+          </div>
         ) : (
           <div className={cn(
             "grid gap-3 md:gap-4",
             isMobile ? "grid-cols-2" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
           )}>
-            {prompts.map((prompt, index) => (
+            {filteredPrompts.map((prompt, index) => (
               <motion.button
                 key={prompt.id}
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.06 }}
                 onClick={() => setSelectedPrompt(prompt)}
-                className="group relative rounded-2xl overflow-hidden border border-white/[0.06] bg-card active:scale-[0.97] hover:border-pink-500/30 transition-all duration-300 text-left focus:outline-none focus:ring-2 focus:ring-pink-500/40 shadow-lg shadow-black/20"
+                className={cn(
+                  "group relative rounded-2xl overflow-hidden bg-card active:scale-[0.97] transition-all duration-300 text-left focus:outline-none focus:ring-2 focus:ring-pink-500/40 shadow-lg shadow-black/20",
+                  prompt.is_featured
+                    ? "border-2 border-amber-500/40 shadow-amber-500/10"
+                    : "border border-white/[0.06] hover:border-pink-500/30"
+                )}
               >
                 {/* Image */}
                 <div className="aspect-[3/4] relative overflow-hidden bg-muted/20">
