@@ -125,7 +125,7 @@ const presentationLabel: Record<string, string> = {
 export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps) => {
   const [step, setStep] = useState<FlowStep>('form');
   const maxPhotos = prompt.min_photos && prompt.min_photos > 1 ? Math.min(prompt.min_photos, 5) : 5;
-  const [formData, setFormData] = useState({ name: '', instagram: '', email: '', description: '', age: '', displayName: '', months: '', telefone: '', whatsapp: '', endereco: '', data: '', hora: '', extras: '' });
+  const [formData, setFormData] = useState({ name: '', instagram: '', email: '', description: '', age: '', displayName: '', months: '', telefone: '', whatsapp: '', endereco: '', data: '', hora: '', extras: '', team_name: '' });
   const [personNames, setPersonNames] = useState<string[]>([]);
   const isFamilyInit = /família|familia|family/i.test(prompt.category || '') || /família|familia|family/i.test(prompt.name || '');
   const isCoupleInit = /casais|casal|couple/i.test(prompt.category || '') || /casais|casal|couple/i.test(prompt.name || '');
@@ -303,6 +303,11 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       return;
     }
 
+    if (prompt.required_fields.includes('team_name') && !formData.team_name.trim()) {
+      toast.error('Por favor, informe o nome do time.');
+      return;
+    }
+
     if (prompt.required_fields.includes('name') && !formData.name.trim()) {
       toast.error('Por favor, informe seu nome.');
       return;
@@ -315,6 +320,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       if (formData.months) customFields.months = formData.months;
       if (formData.displayName) customFields.displayName = formData.displayName;
       if (formData.description) customFields.description = formData.description;
+      if (formData.team_name) customFields.team_name = formData.team_name;
       
       // Save photo profiles analysis data
       const validProfiles = photoProfiles.filter(Boolean);
@@ -549,7 +555,13 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       template += `\n\nMESES DO BEBÊ: O bebê tem ${formData.months} meses. Exiba o número "${formData.months}" como decoração/tema na imagem (vela, balão, banner, etc). NÃO use outro número.`;
     }
 
-    // Inject display name for prompts with text in image
+    // Inject team name for football/team prompts
+    if (formData.team_name) {
+      template = template
+        .replace(/\{team_name\}/g, formData.team_name);
+      template += `\n\nTIME OBRIGATÓRIO: O time é "${formData.team_name}". Use as cores oficiais, escudo e uniforme do ${formData.team_name}. NÃO use cores ou escudo de outro time.`;
+    }
+
     const nameForImage = formData.displayName || formData.name;
     if (hasNameInImage && nameForImage) {
       template = template
@@ -1174,6 +1186,24 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                     )}
                     <p className="text-[10px] text-muted-foreground">
                       Este nome será escrito EXATAMENTE como digitado na imagem gerada (banners, placas, decorações).
+                    </p>
+                  </div>
+                )}
+
+                {/* Team name field */}
+                {prompt.required_fields.includes('team_name') && (
+                  <div className="space-y-1.5">
+                    <Label className="text-xs sm:text-sm flex items-center gap-2">
+                      ⚽ Nome do Time
+                    </Label>
+                    <Input
+                      value={formData.team_name}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, team_name: e.target.value }))}
+                      placeholder="Ex: Flamengo, Corinthians, Palmeiras..."
+                      className="bg-white/5 border-white/10 text-sm font-medium"
+                    />
+                    <p className="text-[10px] text-muted-foreground">
+                      O uniforme, cores e escudo do time serão aplicados automaticamente.
                     </p>
                   </div>
                 )}
