@@ -130,14 +130,23 @@ const Mesversario = () => {
           transition={{ duration: 5, repeat: Infinity, delay: 0.5 }}
         />
 
-        <div className="relative z-10 max-w-6xl mx-auto px-4 md:px-6 pt-8 pb-20 md:pt-14 md:pb-28">
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-10 group"
-          >
-            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-            Voltar
-          </Link>
+        <div className="relative z-10 max-w-6xl mx-auto px-4 md:px-6 pt-6 pb-20 md:pt-10 md:pb-28">
+          {/* Top bar with logo + back */}
+          <div className="flex items-center justify-between mb-10">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors group"
+            >
+              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+              Voltar
+            </Link>
+            <Link to="/" className="flex items-center gap-2 px-3 py-1.5 bg-white/[0.04] rounded-xl border border-white/[0.08]">
+              <Sparkles className="w-4 h-4 text-primary" />
+              <span className="text-base font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                ARCANA
+              </span>
+            </Link>
+          </div>
 
           <div className="text-center max-w-3xl mx-auto">
             <motion.div
