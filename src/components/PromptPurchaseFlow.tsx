@@ -1022,9 +1022,9 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: "100%", opacity: 0 }}
         transition={{ type: "spring", damping: 30, stiffness: 300 }}
-        className="w-full h-[100dvh] sm:h-auto sm:max-w-lg sm:px-4 sm:py-4 min-h-0"
+        className="w-full h-full sm:h-auto sm:max-w-lg sm:px-4 sm:py-4"
       >
-        <GlassCard className="relative overflow-hidden h-full sm:h-auto sm:max-h-[90vh] overflow-y-auto overscroll-contain rounded-none sm:rounded-xl bg-background/95 backdrop-blur-xl">
+        <div className="relative overflow-hidden h-full sm:h-auto sm:max-h-[90vh] overflow-y-auto overscroll-contain sm:rounded-xl border border-white/[0.06] bg-[hsl(var(--background))] sm:bg-white/[0.02] sm:backdrop-blur-md">
           <button onClick={onClose} className="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors">
             <X className="w-4 h-4" />
           </button>
