@@ -492,7 +492,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const familyPhotoLabels = ['Pai/Mãe', 'Filho(a) 1', 'Filho(a) 2', 'Filho(a) 3', 'Outro familiar'];
 
   const buildGenerationBody = (referencePhotoUrls: string[], overrides: Record<string, unknown> = {}) => {
-    const sortedUrls = sortPhotosByAge(referencePhotoUrls);
+    const { sortedUrls, sortedProfiles } = sortPhotosByAge(referencePhotoUrls);
     const {
       promptTemplate: overridePromptTemplate,
       exampleImageUrl: overrideExampleImageUrl,
@@ -505,7 +505,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
     // Build age/position context from rich analysis
     const photoContextLines: string[] = [];
     sortedUrls.forEach((_, i) => {
-      const profile = photoProfiles[i];
+      const profile = sortedProfiles[i];
       if (profile?.analise?.pessoas?.length) {
         profile.analise.pessoas.forEach((p, j) => {
           photoContextLines.push(`Foto ${i + 1} Pessoa ${j + 1}: ${p.tipo}${p.genero !== 'indefinido' ? ` ${p.genero}` : ''}${p.idade_aproximada ? ` ~${p.idade_aproximada} anos` : ''}`);
