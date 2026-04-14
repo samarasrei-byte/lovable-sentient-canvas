@@ -593,7 +593,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
     // Detect context type from category
     const categoryLower = (prompt.category || '').toLowerCase();
     if (isBirthdayPrompt) flyerContext.contexto = 'Aniversário';
-    else if (isMesversarioPrompt) flyerContext.contexto = 'Mêsversário';
+    else if (isMesversarioPrompt) flyerContext.contexto = 'Foto Infantil';
     else if (/evento|event/i.test(categoryLower)) flyerContext.contexto = 'Evento';
     else if (/promoção|promocao/i.test(categoryLower)) flyerContext.contexto = 'Promoção';
     else if (/festa|party/i.test(categoryLower)) flyerContext.contexto = 'Festa';
