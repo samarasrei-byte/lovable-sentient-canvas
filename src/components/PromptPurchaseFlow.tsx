@@ -156,6 +156,8 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const [exportFormat, setExportFormat] = useState<string>('original');
   const [generationCount, setGenerationCount] = useState(0);
   const [showBeforeAfter, setShowBeforeAfter] = useState(false);
+  const [whatsapp, setWhatsapp] = useState('');
+  const [whatsappSaved, setWhatsappSaved] = useState(false);
   const fileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // Cleanup object URLs on unmount to prevent memory leaks
