@@ -37,6 +37,13 @@ interface Stats {
   totalPurchases: number;
 }
 
+interface TopPrompt {
+  id: string;
+  name: string;
+  category: string;
+  count: number;
+}
+
 const AdminDashboard = () => {
   const [stats, setStats] = useState<Stats>({
     totalUsers: 0, totalInfluencers: 0, activeInfluencers: 0,
@@ -46,6 +53,7 @@ const AdminDashboard = () => {
     totalPrompts: 0, totalPurchases: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [topPrompts, setTopPrompts] = useState<TopPrompt[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => { loadStats(); }, []);
@@ -96,6 +104,34 @@ const AdminDashboard = () => {
       totalPrompts: totalPrompts || 0,
       totalPurchases: totalPurchases || 0,
     });
+
+    // Load top prompts ranking
+    const { data: purchases } = await supabase
+      .from("prompt_purchases")
+      .select("prompt_id");
+    
+    if (purchases && purchases.length > 0) {
+      const countMap: Record<string, number> = {};
+      purchases.forEach((p) => { countMap[p.prompt_id] = (countMap[p.prompt_id] || 0) + 1; });
+      
+      const topIds = Object.entries(countMap)
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 10);
+      
+      const { data: promptsData } = await supabase
+        .from("prompts")
+        .select("id, name, category")
+        .in("id", topIds.map(([id]) => id));
+      
+      if (promptsData) {
+        const ranked = topIds.map(([id, count]) => {
+          const p = promptsData.find((pr) => pr.id === id);
+          return { id, name: p?.name || "—", category: p?.category || "—", count };
+        });
+        setTopPrompts(ranked);
+      }
+    }
+
     setLoading(false);
   };
 
@@ -196,6 +232,40 @@ const AdminDashboard = () => {
           onClick={() => navigate("/admin/users")}
         />
       </div>
+
+      {/* Top Prompts Ranking */}
+      {topPrompts.length > 0 && (
+        <Card className="p-5 border-border/40">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-primary" />
+                Ranking de Prompts — Top {topPrompts.length}
+              </h3>
+              <p className="text-[11px] text-muted-foreground mt-0.5">Prompts com mais gerações (todas as categorias)</p>
+            </div>
+            <Button variant="ghost" size="sm" onClick={() => navigate("/admin/prompts")} className="text-xs">
+              Ver todos
+            </Button>
+          </div>
+          <div className="space-y-2">
+            {topPrompts.map((p, i) => (
+              <div key={p.id} className="flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-muted/40 transition-colors">
+                <span className={`text-xs font-black w-6 text-center ${i === 0 ? 'text-amber-500' : i === 1 ? 'text-gray-400' : i === 2 ? 'text-amber-700' : 'text-muted-foreground'}`}>
+                  {i + 1}º
+                </span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground truncate">{p.name}</p>
+                  <p className="text-[10px] text-muted-foreground">{p.category}</p>
+                </div>
+                <Badge variant="secondary" className="text-[10px] font-bold shrink-0">
+                  {p.count} {p.count === 1 ? 'venda' : 'vendas'}
+                </Badge>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
     </div>
   );
 };
