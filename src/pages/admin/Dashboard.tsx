@@ -37,6 +37,13 @@ interface Stats {
   totalPurchases: number;
 }
 
+interface TopPrompt {
+  id: string;
+  name: string;
+  category: string;
+  count: number;
+}
+
 const AdminDashboard = () => {
   const [stats, setStats] = useState<Stats>({
     totalUsers: 0, totalInfluencers: 0, activeInfluencers: 0,
