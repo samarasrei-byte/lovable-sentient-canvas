@@ -192,7 +192,7 @@ const Mesversario = () => {
         <div className="text-center mb-6">
           <h2 className="text-2xl md:text-3xl font-bold mb-2">Escolha o Cenário Perfeito</h2>
           <p className="text-muted-foreground text-sm mb-6">
-            {prompts.length} temas disponíveis. Toque para criar.
+            {activeFilter === 'todos' ? `${prompts.length} temas disponíveis` : `${filteredPrompts.length} de ${prompts.length} temas`}. Toque para criar.
           </p>
 
           {/* Filter chips */}
