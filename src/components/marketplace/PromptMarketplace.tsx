@@ -35,7 +35,7 @@ const CATEGORY_MERGE: Record<string, string> = {
   'Corporativo': 'LinkedIn',
   'Social Media': 'Geral',
   'Foto de casais': 'Geral',
-  'Mêsversário': 'Aniversário',
+  'Foto Infantil': 'Aniversário',
   'Família': 'Aniversário',
   'Kids': 'Aniversário',
   'Copa do Mundo': 'Geral',

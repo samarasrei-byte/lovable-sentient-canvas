@@ -97,13 +97,13 @@ const CATEGORY_HERO: Record<string, {
   aniversario: {
     title: "Aniversário & Família",
     subtitle: "Momentos que duram para sempre",
-    description: "Convites, cards temáticos e fotos especiais para aniversários, mesversários e momentos em família. Designs encantadores que eternizam cada celebração.",
+    description: "Convites, cards temáticos e fotos especiais para aniversários, fotos infantis e momentos em família. Designs encantadores que eternizam cada celebração.",
     gradient: "from-yellow-400 via-orange-300 to-pink-400",
     accentGlow: "bg-yellow-500/20",
     icon: <Heart className="w-6 h-6" />,
     badge: "CELEBRATION",
     bgPattern: "radial-gradient(ellipse at 40% 50%, hsl(40 80% 50% / 0.12), transparent 50%), radial-gradient(ellipse at 70% 30%, hsl(330 60% 50% / 0.08), transparent 50%)",
-    relatedCategories: ["Aniversário", "Família", "Mêsversário", "Kids"],
+    relatedCategories: ["Aniversário", "Família", "Foto Infantil", "Kids"],
   },
   politica: {
     title: "Política & Campanha",

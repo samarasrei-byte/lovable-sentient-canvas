@@ -60,7 +60,7 @@ const Mesversario = () => {
       const { data, error } = await supabase
         .from("prompts")
         .select("*")
-        .eq("category", "Mêsversário")
+        .eq("category", "Foto Infantil")
         .eq("status", "active")
         .order("display_order", { ascending: true });
 
