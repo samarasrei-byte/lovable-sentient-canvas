@@ -10,7 +10,7 @@ import {
   X, Upload, User, AtSign, Sparkles, QrCode, Copy, Check, Download,
   Loader2, CheckCircle2, Clock, Pencil, Plus, Trash2,
   RefreshCw, AlertTriangle, ImagePlus, Share2, MessageCircle, Eye,
-  Smartphone, CreditCard
+  Smartphone, CreditCard, Camera
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { GenerationProgressBar } from "./GenerationProgressBar";
@@ -455,8 +455,8 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const isCouplePrompt = isCoupleInit || /casais|casal|couple/i.test(prompt.category || '') || 
     /casais|casal|couple/i.test(prompt.name || '');
 
-  const isMesversarioPrompt = /foto infantil|mêsversário|mesversário|mesversario/i.test(prompt.category || '') || 
-    /foto infantil|mêsversário|mesversário|mesversario/i.test(prompt.name || '');
+  const isMesversarioPrompt = /mêsversário|mesversário|mesversario|newborn/i.test(prompt.name || '') ||
+    /mêsversário|mesversário|mesversario/i.test(prompt.category || '');
 
   const isEventPrompt = /evento|event|promoção|promocao|festa|party/i.test(prompt.category || '') ||
     /evento|event|promoção|promocao|festa|party/i.test(prompt.name || '');
@@ -1077,17 +1077,38 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
                 {prompt.required_fields.includes('photo') && (
                   <div className="space-y-3">
+                    {/* Upload lead/instruction */}
+                    <div className="p-4 rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-secondary/10 border border-primary/20">
+                      <div className="flex items-start gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
+                          <Camera className="w-5 h-5 text-primary" />
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-semibold text-foreground mb-1">
+                            {isCouplePrompt ? 'Envie as fotos do casal' : isFamilyPrompt ? 'Envie as fotos da família' : 'Envie uma foto nítida do rosto'}
+                          </h4>
+                          <p className="text-xs text-muted-foreground leading-relaxed">
+                            {isCouplePrompt
+                              ? 'Uma foto de cada pessoa. A IA vai unir os dois na composição.'
+                              : isFamilyPrompt
+                                ? 'Uma foto separada de cada membro da família.'
+                                : 'Foto de frente, boa iluminação e rosto visível. A IA preserva cada detalhe.'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
                     <div className="flex items-center justify-between">
                       <Label className="text-xs sm:text-sm flex items-center gap-2">
-                        <Upload className="w-4 h-4" />
+                        <ImagePlus className="w-4 h-4 text-primary" />
                         {isCouplePrompt
-                          ? `Fotos do Casal (${activePhotoCount} de ${prompt.min_photos || 2})`
+                          ? `Fotos do Casal (${activePhotoCount}/${prompt.min_photos || 2})`
                           : isFamilyPrompt 
-                            ? `Fotos da Família (${activePhotoCount} de ${maxPhotos})`
+                            ? `Fotos da Família (${activePhotoCount}/${maxPhotos})`
                             : isMultiPersonPrompt
-                              ? `Fotos das Pessoas (${activePhotoCount} de ${prompt.min_photos || 2})`
+                              ? `Fotos das Pessoas (${activePhotoCount}/${prompt.min_photos || 2})`
                               : activePhotoCount > 0 
-                                ? `Fotos (${activePhotoCount} enviada${activePhotoCount > 1 ? 's' : ''})` 
+                                ? `${activePhotoCount} foto${activePhotoCount > 1 ? 's' : ''} enviada${activePhotoCount > 1 ? 's' : ''}` 
                                 : 'Suas fotos'}
                       </Label>
                       {photos.length < maxPhotos && !isMultiPersonPrompt && (
@@ -1099,18 +1120,6 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                       )}
                     </div>
 
-                    {(isFamilyPrompt || isCouplePrompt || isMultiPersonPrompt) && (
-                      <div className="p-2.5 rounded-lg bg-primary/5 border border-primary/20">
-                        <p className="text-[10px] sm:text-xs text-primary">
-                          {isCouplePrompt
-                            ? '💑 Envie uma foto de cada pessoa do casal. A IA vai unir os dois na composição.'
-                            : isFamilyPrompt
-                              ? '👨‍👩‍👧‍👦 Envie uma foto separada de cada membro da família. A IA vai unir todos em uma composição familiar.'
-                              : `👥 Este prompt precisa de ${prompt.min_photos || 2} fotos — uma de cada pessoa que aparecerá na imagem.`}
-                        </p>
-                      </div>
-                    )}
-
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
                       {photos.map((photo, index) => {
                         const photoProfile = photoProfiles[index];
@@ -1121,14 +1130,21 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                           <div key={index} className="relative group space-y-1.5">
                             <div
                               onClick={() => fileInputRefs.current[index]?.click()}
-                              className="relative rounded-xl border-2 border-dashed border-white/20 hover:border-primary/50 transition-colors cursor-pointer overflow-hidden aspect-[3/4]"
+                              className={`relative rounded-2xl border-2 border-dashed transition-all cursor-pointer overflow-hidden aspect-[3/4] ${
+                                photo.preview 
+                                  ? 'border-primary/30 bg-black/20' 
+                                  : 'border-white/20 hover:border-primary/50 bg-gradient-to-br from-white/[0.03] to-white/[0.01]'
+                              }`}
                             >
                               {photo.preview ? (
-                                <img src={photo.preview} alt={slotLabel} className="w-full h-full object-contain bg-black/20" />
+                                <img src={photo.preview} alt={slotLabel} className="w-full h-full object-contain" />
                               ) : (
-                                <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-muted-foreground">
-                                  <Upload className="w-5 h-5" />
-                                  <span className="text-[9px] sm:text-[10px] text-center px-1">{slotLabel}</span>
+                                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-muted-foreground p-3">
+                                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                                    <Upload className="w-5 h-5 text-primary/60" />
+                                  </div>
+                                  <span className="text-[10px] sm:text-xs text-center font-medium text-muted-foreground/70">{slotLabel}</span>
+                                  <span className="text-[9px] text-muted-foreground/40">Toque para enviar</span>
                                 </div>
                               )}
                               {photo.preview && (
@@ -1203,14 +1219,11 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                       })}
                     </div>
 
-                    <div className="space-y-1 text-center">
-                      <p className="text-[10px] text-muted-foreground">
-                        {isFamilyPrompt 
-                          ? `Envie de 2 a ${maxPhotos} fotos • Uma foto por membro da família`
-                          : `Envie de 1 a ${maxPhotos} fotos • Cada foto = uma pessoa na imagem`}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground">A auditoria compara a imagem final com a referência antes de liberar o resultado</p>
-                    </div>
+                    <p className="text-[10px] text-muted-foreground text-center">
+                      {isFamilyPrompt 
+                        ? `Envie de 2 a ${maxPhotos} fotos · Uma foto por membro da família`
+                        : `Envie de 1 a ${maxPhotos} fotos · Cada foto = uma pessoa na imagem`}
+                    </p>
                   </div>
                 )}
 
@@ -1523,7 +1536,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
 
                 <GlassButton onClick={handleSubmitForm} className="w-full">
                   <Sparkles className="w-4 h-4 mr-2" />
-                  Gerar imagem — {formatPrice(prompt.price_cents)}
+                  Gerar imagem {formatPrice(prompt.price_cents)}
                 </GlassButton>
               </motion.div>
             )}

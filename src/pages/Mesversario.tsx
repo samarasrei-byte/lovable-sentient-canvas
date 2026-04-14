@@ -140,7 +140,7 @@ const Mesversario = () => {
               </h1>
 
               <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto mb-8 leading-relaxed">
-                Envie uma foto do seu filho — de recém-nascido a 10 anos — e nossa IA 
+                Envie uma foto do seu filho, de recém-nascido a 10 anos, e nossa IA 
                 cria ensaios fotográficos profissionais em cenários encantadores, 
                 preservando cada detalhe do rostinho que você ama.
               </p>
@@ -308,7 +308,7 @@ const Mesversario = () => {
               do seu filho
             </h2>
             <p className="text-muted-foreground mb-8 max-w-lg mx-auto">
-              De recém-nascido a 10 anos — cada fase é única e passa rápido. 
+              De recém-nascido a 10 anos, cada fase é única e passa rápido. 
               Crie memórias profissionais que você vai guardar para sempre.
             </p>
             <GlassButton
@@ -329,7 +329,7 @@ const Mesversario = () => {
       <footer className="py-8 border-t border-border/50">
         <div className="max-w-6xl mx-auto px-4 text-center">
           <p className="text-xs text-muted-foreground/50">
-            © {new Date().getFullYear()} Arcana — Foto Infantil IA. Todos os direitos reservados.
+            © {new Date().getFullYear()} Arcana · Foto Infantil IA. Todos os direitos reservados.
           </p>
         </div>
       </footer>
