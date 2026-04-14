@@ -104,6 +104,34 @@ const AdminDashboard = () => {
       totalPrompts: totalPrompts || 0,
       totalPurchases: totalPurchases || 0,
     });
+
+    // Load top prompts ranking
+    const { data: purchases } = await supabase
+      .from("prompt_purchases")
+      .select("prompt_id");
+    
+    if (purchases && purchases.length > 0) {
+      const countMap: Record<string, number> = {};
+      purchases.forEach((p) => { countMap[p.prompt_id] = (countMap[p.prompt_id] || 0) + 1; });
+      
+      const topIds = Object.entries(countMap)
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 10);
+      
+      const { data: promptsData } = await supabase
+        .from("prompts")
+        .select("id, name, category")
+        .in("id", topIds.map(([id]) => id));
+      
+      if (promptsData) {
+        const ranked = topIds.map(([id, count]) => {
+          const p = promptsData.find((pr) => pr.id === id);
+          return { id, name: p?.name || "—", category: p?.category || "—", count };
+        });
+        setTopPrompts(ranked);
+      }
+    }
+
     setLoading(false);
   };
 
