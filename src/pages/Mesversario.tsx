@@ -32,16 +32,16 @@ interface Prompt {
 }
 
 const BENEFITS = [
-  { icon: Camera, title: "Foto Profissional", desc: "Qualidade de estúdio newborn premium" },
-  { icon: Shield, title: "Fidelidade 100%", desc: "O rosto do seu bebê preservado perfeitamente" },
-  { icon: Star, title: "8 Cenários", desc: "Temas únicos e encantadores" },
-  { icon: Heart, title: "Memória Eterna", desc: "Eternize cada mês do seu bebê" },
+  { icon: Camera, title: "Foto Profissional", desc: "Qualidade de estúdio premium para todas as idades" },
+  { icon: Shield, title: "Fidelidade 100%", desc: "O rosto do seu filho preservado perfeitamente" },
+  { icon: Star, title: "Dezenas de Cenários", desc: "Temas para bebês e crianças até 10 anos" },
+  { icon: Heart, title: "Memória Eterna", desc: "Eternize cada fase do seu filho" },
 ];
 
 const HOW_IT_WORKS = [
-  { step: "1", title: "Escolha o Tema", desc: "Selecione entre 8 cenários encantadores" },
-  { step: "2", title: "Envie a Foto", desc: "Suba uma foto nítida do rosto do seu bebê" },
-  { step: "3", title: "Receba a Magia", desc: "Nossa IA coloca seu bebê no cenário escolhido" },
+  { step: "1", title: "Escolha o Tema", desc: "Selecione entre dezenas de cenários encantadores" },
+  { step: "2", title: "Envie a Foto", desc: "Suba uma foto nítida do rosto do seu filho" },
+  { step: "3", title: "Receba a Magia", desc: "Nossa IA coloca seu filho no cenário escolhido" },
 ];
 
 const Mesversario = () => {
@@ -125,7 +125,7 @@ const Mesversario = () => {
               <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-pink-500/10 border border-pink-500/20 mb-6">
                 <Baby className="w-4 h-4 text-pink-400" />
                 <span className="text-xs font-bold tracking-[0.2em] uppercase text-pink-400">
-                  ENSAIO NEWBORN IA
+                  ENSAIO INFANTIL IA
                 </span>
               </div>
 
@@ -140,9 +140,9 @@ const Mesversario = () => {
               </h1>
 
               <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto mb-8 leading-relaxed">
-                Envie uma foto do seu bebê e nossa IA cria ensaios fotográficos 
-                profissionais em cenários encantadores — preservando cada detalhe 
-                do rostinho que você ama.
+                Envie uma foto do seu filho — de recém-nascido a 10 anos — e nossa IA 
+                cria ensaios fotográficos profissionais em cenários encantadores, 
+                preservando cada detalhe do rostinho que você ama.
               </p>
 
               <div className="flex flex-wrap justify-center gap-3 mb-6">
@@ -156,7 +156,7 @@ const Mesversario = () => {
                 </div>
                 <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20">
                   <Star className="w-3.5 h-3.5 text-amber-400" />
-                  <span className="text-xs text-amber-400 font-medium">8 temas exclusivos</span>
+                  <span className="text-xs text-amber-400 font-medium">Bebês e crianças até 10 anos</span>
                 </div>
               </div>
             </motion.div>
@@ -303,13 +303,13 @@ const Mesversario = () => {
             <h2 className="text-3xl md:text-4xl font-black mb-4">
               Eternize cada{" "}
               <span className="bg-gradient-to-r from-pink-400 to-amber-300 bg-clip-text text-transparent">
-                mês
+                fase
               </span>{" "}
-              do seu bebê
+              do seu filho
             </h2>
             <p className="text-muted-foreground mb-8 max-w-lg mx-auto">
-              Cada fase é única e passa rápido. Crie memórias profissionais que você 
-              vai guardar para sempre — com a tecnologia mais avançada de IA.
+              De recém-nascido a 10 anos — cada fase é única e passa rápido. 
+              Crie memórias profissionais que você vai guardar para sempre.
             </p>
             <GlassButton
               variant="neon"
