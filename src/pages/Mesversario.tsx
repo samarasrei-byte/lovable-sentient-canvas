@@ -370,33 +370,99 @@ const Mesversario = () => {
         </div>
       </section>
 
-      {/* ═══════════ CTA — Clean ═══════════ */}
-      <section className="py-20 md:py-28">
-        <div className="max-w-2xl mx-auto px-5 md:px-8 text-center">
+      {/* ═══════════ WHATSAPP CTA — Epic ═══════════ */}
+      <section className="py-20 md:py-28 relative overflow-hidden">
+        {/* Background glow */}
+        <div className="absolute inset-0" style={{
+          background: "radial-gradient(ellipse at 50% 50%, hsl(270 60% 50% / 0.08), transparent 60%)"
+        }} />
+        
+        <div className="relative z-10 max-w-lg mx-auto px-5 md:px-8">
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="relative rounded-3xl overflow-hidden"
           >
-            <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-4">
-              Eternize cada{" "}
-              <span className="bg-gradient-to-r from-pink-400/80 to-amber-300/80 bg-clip-text text-transparent">
-                fase
-              </span>
-            </h2>
-            <p className="text-sm text-muted-foreground/50 mb-8 max-w-sm mx-auto leading-relaxed font-light">
-              De recém-nascido a 10 anos. Crie memórias profissionais que você vai guardar para sempre.
-            </p>
-            <button
-              onClick={() => {
-                document.querySelector('.grid.gap-3')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-              }}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/[0.06] border border-white/[0.08] text-sm font-medium text-foreground/80 hover:bg-white/[0.1] hover:border-white/[0.12] transition-all duration-300 hover:shadow-[0_0_30px_-6px_hsl(var(--primary)/0.2)]"
-            >
-              <Sparkles className="w-4 h-4 text-primary/60" />
-              Escolher um Tema
-            </button>
+            {/* Card with gradient border */}
+            <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-primary/20 via-purple-500/10 to-pink-500/20 p-px">
+              <div className="w-full h-full rounded-3xl bg-background" />
+            </div>
+            
+            <div className="relative p-8 md:p-10 text-center">
+              {/* Animated icon */}
+              <motion.div
+                animate={{ scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] }}
+                transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
+                className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-emerald-400/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-6"
+              >
+                <MessageCircle className="w-6 h-6 text-emerald-400" />
+              </motion.div>
+
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 mb-5">
+                <Zap className="w-3 h-3 text-primary" />
+                <span className="text-[10px] font-semibold tracking-wider uppercase text-primary">Em breve</span>
+              </div>
+
+              <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-3">
+                Algo{" "}
+                <span className="bg-gradient-to-r from-emerald-400 to-primary bg-clip-text text-transparent">
+                  incrível
+                </span>
+                {" "}vem aí
+              </h2>
+              
+              <p className="text-sm text-muted-foreground/60 mb-8 leading-relaxed max-w-sm mx-auto">
+                Estamos preparando novidades que vão transformar a forma como você 
+                cria fotos do seu filho. Deixe seu WhatsApp e seja o primeiro a saber.
+              </p>
+
+              {whatsappSent ? (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="flex flex-col items-center gap-3"
+                >
+                  <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                    <CheckCircle2 className="w-6 h-6 text-emerald-400" />
+                  </div>
+                  <p className="text-sm font-medium text-foreground/80">Você está na lista VIP!</p>
+                  <p className="text-xs text-muted-foreground/50">Avisaremos assim que as novidades estiverem prontas</p>
+                </motion.div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="relative">
+                    <MessageCircle className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/30" />
+                    <input
+                      type="tel"
+                      placeholder="(11) 99999-9999"
+                      value={whatsapp}
+                      onChange={(e) => setWhatsapp(formatWhatsapp(e.target.value))}
+                      className="w-full pl-11 pr-4 py-3.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-foreground placeholder:text-muted-foreground/30 focus:outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all"
+                    />
+                  </div>
+                  <button
+                    onClick={handleWhatsappSubmit}
+                    disabled={whatsappLoading}
+                    className="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-sm font-semibold flex items-center justify-center gap-2 hover:from-emerald-400 hover:to-emerald-500 transition-all duration-300 active:scale-[0.98] disabled:opacity-50 shadow-lg shadow-emerald-500/20"
+                  >
+                    {whatsappLoading ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <>
+                        <Bell className="w-4 h-4" />
+                        Quero ser avisado
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    )}
+                  </button>
+                  <p className="text-[10px] text-muted-foreground/30">
+                    Sem spam. Só novidades exclusivas.
+                  </p>
+                </div>
+              )}
+            </div>
           </motion.div>
         </div>
       </section>
