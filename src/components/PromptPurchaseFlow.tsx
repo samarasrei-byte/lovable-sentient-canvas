@@ -1190,6 +1190,24 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   </div>
                 )}
 
+                {/* Team name field */}
+                {prompt.required_fields.includes('team_name') && (
+                  <div className="space-y-1.5">
+                    <Label className="text-xs sm:text-sm flex items-center gap-2">
+                      ⚽ Nome do Time
+                    </Label>
+                    <Input
+                      value={formData.team_name}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, team_name: e.target.value }))}
+                      placeholder="Ex: Flamengo, Corinthians, Palmeiras..."
+                      className="bg-white/5 border-white/10 text-sm font-medium"
+                    />
+                    <p className="text-[10px] text-muted-foreground">
+                      O uniforme, cores e escudo do time serão aplicados automaticamente.
+                    </p>
+                  </div>
+                )}
+
                 {/* Instagram field */}
                 {prompt.required_fields.includes('instagram') && (
                   <div className="space-y-1.5">
