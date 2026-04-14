@@ -546,11 +546,13 @@ IGNORE COMPLETAMENTE qualquer número, idade, texto, nome, letras ou símbolos q
 Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a imagem final DEVE mostrar apenas "${formData.age}".`;
     }
 
-    // Inject month for mesversário
+    // Inject month for foto infantil
     if (isMesversarioPrompt && formData.months) {
       template = template
         .replace(/\[MESES\]/g, formData.months)
-        .replace(/\{meses\}/g, formData.months);
+        .replace(/\{meses\}/g, formData.months)
+        .replace(/\{age\}/g, formData.months)
+        .replace(/\[IDADE\]/g, formData.months);
       template += `\n\nMESES DO BEBÊ: O bebê tem ${formData.months} meses. Exiba o número "${formData.months}" como decoração/tema na imagem (vela, balão, banner, etc). NÃO use outro número.`;
     }
 
