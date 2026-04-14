@@ -967,6 +967,10 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
   };
 
   const handleDownloadAll = () => {
+    if (!whatsappSaved) {
+      toast.error('Deixe seu WhatsApp para baixar a imagem!');
+      return;
+    }
     const selected = generatedVariants.filter((variant) => variant.selected);
     if (selected.length === 0) {
       handleDownload();
@@ -976,6 +980,33 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
     selected.forEach((variant, index) => {
       setTimeout(() => handleDownload(variant.url), index * 500);
     });
+  };
+
+  const handleSaveWhatsapp = async () => {
+    const cleaned = whatsapp.replace(/\D/g, '');
+    if (cleaned.length < 10) {
+      toast.error('Digite um número de WhatsApp válido');
+      return;
+    }
+    try {
+      if (purchaseId) {
+        await supabase
+          .from('prompt_purchases')
+          .update({ custom_fields: { whatsapp: cleaned } } as any)
+          .eq('id', purchaseId);
+      }
+      setWhatsappSaved(true);
+      toast.success('WhatsApp salvo! Agora você pode baixar sua imagem 🎉');
+    } catch {
+      setWhatsappSaved(true);
+    }
+  };
+
+  const formatWhatsapp = (value: string) => {
+    const numbers = value.replace(/\D/g, '').slice(0, 11);
+    if (numbers.length <= 2) return numbers;
+    if (numbers.length <= 7) return `(${numbers.slice(0, 2)}) ${numbers.slice(2)}`;
+    return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 7)}-${numbers.slice(7)}`;
   };
 
   return (
