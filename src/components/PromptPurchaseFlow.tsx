@@ -136,7 +136,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const [analyzingPhotoSlots, setAnalyzingPhotoSlots] = useState<number[]>([]);
   const [uploadedPhotoUrls, setUploadedPhotoUrls] = useState<string[]>([]);
   const [paymentStatus, setPaymentStatus] = useState<'pending' | 'checking' | 'paid'>('pending');
-  const [stripeCheckoutUrl, setStripeCheckoutUrl] = useState<string | null>(null);
+  
   const [verifyingPayment, setVerifyingPayment] = useState(false);
   const paymentPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [paymentTab, setPaymentTab] = useState<'pix' | 'card'>('pix');
@@ -1716,29 +1716,6 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                       </div>
                     )}
 
-                    {/* Card Tab */}
-                    {paymentTab === 'card' && (
-                      <div className="space-y-3">
-                        {stripeCheckoutUrl ? (
-                          <GlassButton
-                            onClick={() => window.open(stripeCheckoutUrl, '_blank')}
-                            className="w-full"
-                          >
-                            <CreditCard className="w-4 h-4 mr-2" />
-                            Pagar com Cartão via Stripe
-                          </GlassButton>
-                        ) : pixLoading ? (
-                          <div className="py-6 flex flex-col items-center gap-3">
-                            <Loader2 className="w-6 h-6 animate-spin text-primary" />
-                            <p className="text-xs text-muted-foreground">Preparando pagamento...</p>
-                          </div>
-                        ) : (
-                          <div className="py-6 text-center">
-                            <p className="text-xs text-muted-foreground">Cartão indisponível. Tente PIX.</p>
-                          </div>
-                        )}
-                      </div>
-                    )}
 
                     {/* Verification status */}
                     <div className="p-3 rounded-lg bg-accent/10 border border-accent/20">
@@ -1749,7 +1726,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                           <Clock className="w-4 h-4 text-accent" />
                         )}
                         <span className="text-xs font-semibold text-accent">
-                          {verifyingPayment ? 'Aguardando confirmação do pagamento...' : 'Pagamento Seguro via Stripe'}
+                          {verifyingPayment ? 'Aguardando confirmação do pagamento...' : 'Pagamento Seguro via Mercado Pago'}
                         </span>
                       </div>
                       <p className="text-[10px] text-muted-foreground">
@@ -1764,7 +1741,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                           <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0.15s' }} />
                           <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0.3s' }} />
                         </div>
-                        <span className="text-xs text-muted-foreground">Verificando pagamento no Stripe...</span>
+                        <span className="text-xs text-muted-foreground">Verificando pagamento...</span>
                       </div>
                     )}
 
