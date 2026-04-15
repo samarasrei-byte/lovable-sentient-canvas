@@ -1,4 +1,5 @@
 import { Star, Quote } from "lucide-react";
+import { motion } from "framer-motion";
 
 const testimonials = [
   {
@@ -33,59 +34,62 @@ const testimonials = [
 
 export const TestimonialsSection = () => {
   return (
-    <section className="relative py-28 px-6 overflow-hidden">
-      <div className="max-w-5xl mx-auto relative z-10">
-        <div className="text-center mb-14">
-          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.06] text-sm font-medium text-muted-foreground mb-6">
-            <Star className="w-3.5 h-3.5 text-primary fill-current" />
-            +10.000 clientes satisfeitos
-          </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 tracking-tight">
+    <section className="py-20 md:py-28 px-5 md:px-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-12">
+          <h2 className="text-lg md:text-xl font-semibold tracking-tight mb-2">
             O que dizem os{" "}
             <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
               creators
             </span>
           </h2>
+          <p className="text-sm text-muted-foreground/50 font-light">
+            Milhares de clientes satisfeitos
+          </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid md:grid-cols-2 gap-3 md:gap-4">
           {testimonials.map((t, index) => (
-            <div
+            <motion.div
               key={index}
-              className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.1] transition-all duration-300 group"
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
+              className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.1] transition-all duration-300"
             >
-              <div className="flex items-start gap-4 mb-4">
+              <div className="flex items-start gap-3 mb-3">
                 <img
                   src={t.avatar}
                   alt={t.name}
-                  className="w-10 h-10 rounded-full object-cover border border-white/[0.1]"
+                  className="w-9 h-9 rounded-full object-cover border border-white/[0.1]"
                   loading="lazy"
                   decoding="async"
-                  width={40}
-                  height={40}
+                  width={36}
+                  height={36}
                 />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <h4 className="font-medium text-sm">{t.name}</h4>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary/80">
+                    <h4 className="font-medium text-xs text-foreground/80">{t.name}</h4>
+                    <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary/70">
                       {t.followers}
                     </span>
                   </div>
-                  <p className="text-xs text-muted-foreground/60">{t.handle}</p>
+                  <p className="text-[10px] text-muted-foreground/40">{t.handle}</p>
                 </div>
-                <Quote className="w-5 h-5 text-white/[0.06] flex-shrink-0" />
+                <Quote className="w-4 h-4 text-white/[0.04] flex-shrink-0" />
               </div>
 
-              <p className="text-foreground/80 text-sm leading-relaxed">
+              <p className="text-foreground/70 text-xs leading-relaxed">
                 "{t.content}"
               </p>
 
-              <div className="flex gap-0.5 mt-4">
+              <div className="flex gap-0.5 mt-3">
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-3 h-3 text-primary/60 fill-current" />
+                  <Star key={i} className="w-2.5 h-2.5 text-primary/50 fill-current" />
                 ))}
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
