@@ -22,7 +22,7 @@ export const HeroArcana2 = () => {
         <div className="absolute inset-0 bg-background/60 backdrop-blur-2xl border-b border-white/[0.04]" />
         <div className="relative max-w-6xl mx-auto px-5 md:px-8 flex items-center justify-between h-14">
           <Link to="/" className="flex items-center gap-2 group">
-            <img src={arcanaLogo} alt="ARCANA" className="h-8 w-auto object-contain" />
+            <img src={arcanaLogo} alt="ARCANA" className="h-10 w-auto object-contain" />
           </Link>
 
           {/* Desktop nav */}
