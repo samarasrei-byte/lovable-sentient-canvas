@@ -51,9 +51,7 @@ const Index = () => {
         <TestimonialsSection />
       </Suspense>
       
-      <Suspense fallback={<SectionFallback />}>
-        <PlansSection />
-      </Suspense>
+      {/* PlansSection oculta — assinaturas serão lançadas depois */}
       
       <Suspense fallback={<SectionFallback />}>
         <HowItWorksNew />
