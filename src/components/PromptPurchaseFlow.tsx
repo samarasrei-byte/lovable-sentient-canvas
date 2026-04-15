@@ -1710,7 +1710,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                     </div>
 
                     {/* Test simulation button - only in preview/dev */}
-                    {(window.location.hostname.includes('lovable.app') || window.location.hostname === 'localhost') && (
+                    {(window.location.hostname.includes('lovable.app') || window.location.hostname === 'localhost' || window.location.hostname.includes('arcana.app.br')) && (
                       <Button
                         variant="outline"
                         size="sm"
