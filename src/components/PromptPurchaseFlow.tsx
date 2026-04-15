@@ -345,9 +345,14 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       const newPurchaseId = data.purchaseId;
       setPurchaseId(newPurchaseId);
 
-      // Go directly to generation (payment integration pending)
-      setStep('generating');
-      void generateImage(newPurchaseId);
+      // Go to payment step with Mercado Pago PIX
+      if (prompt.price_cents > 0) {
+        setStep('payment');
+        void initMercadoPagoPayment(newPurchaseId);
+      } else {
+        setStep('generating');
+        void generateImage(newPurchaseId);
+      }
     } catch (error) {
       console.error('Error creating purchase:', error);
       toast.error('Erro ao processar. Tente novamente.');
@@ -362,7 +367,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
     setVerifyingPayment(true);
     paymentPollRef.current = setInterval(async () => {
       try {
-        const { data, error } = await supabase.functions.invoke('verify-prompt-payment', {
+        const { data, error } = await supabase.functions.invoke('verify-mercadopago-payment', {
           body: { purchaseId: pId },
         });
 
@@ -370,7 +375,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
           if (paymentPollRef.current) clearInterval(paymentPollRef.current);
           setVerifyingPayment(false);
           setPaymentStatus('paid');
-          toast.success('Pagamento confirmado pelo Stripe!');
+          toast.success('Pagamento confirmado!');
           setTimeout(() => {
             setStep('generating');
             void generateImage(pId);
@@ -379,7 +384,51 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       } catch (e) {
         console.error('Payment verification poll error:', e);
       }
-    }, 4000); // Poll every 4 seconds
+    }, 4000);
+  };
+
+  const initMercadoPagoPayment = async (pId: string) => {
+    setPixLoading(true);
+    setPixError(null);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-mercadopago-payment', {
+        body: {
+          purchaseId: pId,
+          priceCents: prompt.price_cents,
+          customerEmail: formData.email || undefined,
+          customerName: formData.name || undefined,
+          paymentMethod: 'pix',
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.status === 'approved') {
+        setPaymentStatus('paid');
+        toast.success('Pagamento aprovado!');
+        setTimeout(() => {
+          setStep('generating');
+          void generateImage(pId);
+        }, 1000);
+        return;
+      }
+
+      if (data?.pixCopiaECola) {
+        setPixData({
+          copiaECola: data.pixCopiaECola,
+          qrCodeUrl: data.qrCodeBase64 ? `data:image/png;base64,${data.qrCodeBase64}` : '',
+          expiresAt: data.expiresAt ? new Date(data.expiresAt).getTime() / 1000 : Date.now() / 1000 + 1800,
+        });
+        startPaymentPolling(pId);
+      } else {
+        setPixError('Não foi possível gerar o QR Code PIX. Tente novamente.');
+      }
+    } catch (err) {
+      console.error('Mercado Pago payment error:', err);
+      setPixError('Erro ao gerar pagamento. Tente novamente.');
+    } finally {
+      setPixLoading(false);
+    }
   };
 
   // Cleanup polling on unmount
@@ -389,7 +438,6 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
     };
   }, []);
 
-  // Payment is handled via Stripe Checkout redirect
 
   const uploadPhotos = async (effectivePurchaseId: string): Promise<string[]> => {
     const urls: string[] = [];
@@ -1045,11 +1093,12 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
           </GlassCardHeader>
 
           <GlassCardContent className="space-y-4 sm:space-y-6">
-            {/* Progress steps — payment is skipped so show 3 steps */}
+            {/* Progress steps */}
             <div className="flex items-center justify-between text-[10px] sm:text-xs text-muted-foreground">
-              {(['form', 'generating', 'complete'] as const).map((status, index) => {
-                const labels = ['Dados', 'Gerar', 'Pronto'];
-                const currentStepIndex = step === 'editing' ? 2 : ['form', 'generating', 'complete'].indexOf(step);
+              {(['form', 'payment', 'generating', 'complete'] as const).map((status, index) => {
+                const labels = ['Dados', 'Pagar', 'Gerar', 'Pronto'];
+                const stepOrder = ['form', 'payment', 'generating', 'complete'];
+                const currentStepIndex = step === 'editing' ? 3 : stepOrder.indexOf(step);
                 const isActive = currentStepIndex >= index;
                 const isCurrent = (step === status) || (step === 'editing' && status === 'complete');
                 return (
@@ -1068,7 +1117,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                       </div>
                       <span className="text-[9px] sm:text-xs">{labels[index]}</span>
                     </div>
-                    {index < 2 && <div className="flex-1 h-px bg-white/10 mx-1 sm:mx-2 w-3 sm:w-8" />}
+                    {index < 3 && <div className="flex-1 h-px bg-white/10 mx-1 sm:mx-2 w-3 sm:w-8" />}
                   </div>
                 );
               })}
@@ -1734,6 +1783,94 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                       </Button>
                     </div>
                   </>
+                )}
+              </motion.div>
+            )}
+
+            {step === 'payment' && (
+              <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
+                <div className="text-center mb-2">
+                  <QrCode className="w-8 h-8 text-primary mx-auto mb-2" />
+                  <h3 className="text-base sm:text-lg font-semibold">Pagamento via PIX</h3>
+                  <p className="text-xs text-muted-foreground">Escaneie o QR Code ou copie o código PIX</p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-primary/10 border border-primary/20 text-center">
+                  <span className="text-2xl font-bold text-primary">{formatPrice(prompt.price_cents)}</span>
+                </div>
+
+                {pixLoading && (
+                  <div className="flex flex-col items-center gap-3 py-8">
+                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                    <p className="text-sm text-muted-foreground">Gerando QR Code PIX...</p>
+                  </div>
+                )}
+
+                {pixError && (
+                  <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/20 text-center space-y-3">
+                    <AlertTriangle className="w-6 h-6 text-destructive mx-auto" />
+                    <p className="text-sm text-destructive">{pixError}</p>
+                    <GlassButton onClick={() => purchaseId && initMercadoPagoPayment(purchaseId)} size="sm">
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      Tentar novamente
+                    </GlassButton>
+                  </div>
+                )}
+
+                {pixData && !pixLoading && (
+                  <div className="space-y-4">
+                    {pixData.qrCodeUrl && (
+                      <div className="flex justify-center">
+                        <div className="bg-white p-3 rounded-xl">
+                          <img src={pixData.qrCodeUrl} alt="QR Code PIX" className="w-48 h-48" />
+                        </div>
+                      </div>
+                    )}
+
+                    {!pixData.qrCodeUrl && pixData.copiaECola && (
+                      <div className="flex justify-center">
+                        <div className="bg-white p-3 rounded-xl">
+                          <QRCodeSVG value={pixData.copiaECola} size={192} />
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Código PIX (Copia e Cola)</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          readOnly
+                          value={pixData.copiaECola}
+                          className="bg-white/5 border-white/10 text-xs font-mono"
+                        />
+                        <GlassButton
+                          size="sm"
+                          onClick={() => {
+                            navigator.clipboard.writeText(pixData.copiaECola);
+                            setPixCopied(true);
+                            toast.success('Código PIX copiado!');
+                            setTimeout(() => setPixCopied(false), 3000);
+                          }}
+                        >
+                          {pixCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                        </GlassButton>
+                      </div>
+                    </div>
+
+                    {verifyingPayment && (
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground p-3 rounded-lg bg-white/5 justify-center">
+                        <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
+                        <span>Aguardando confirmação do pagamento...</span>
+                      </div>
+                    )}
+
+                    {paymentStatus === 'paid' && (
+                      <div className="flex items-center gap-2 text-xs text-primary p-3 rounded-lg bg-primary/10 justify-center">
+                        <CheckCircle2 className="w-4 h-4" />
+                        <span className="font-medium">Pagamento confirmado! Gerando sua imagem...</span>
+                      </div>
+                    )}
+                  </div>
                 )}
               </motion.div>
             )}
