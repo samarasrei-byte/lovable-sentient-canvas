@@ -345,9 +345,14 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       const newPurchaseId = data.purchaseId;
       setPurchaseId(newPurchaseId);
 
-      // Go directly to generation (payment integration pending)
-      setStep('generating');
-      void generateImage(newPurchaseId);
+      // Go to payment step with Mercado Pago PIX
+      if (prompt.price_cents > 0) {
+        setStep('payment');
+        void initMercadoPagoPayment(newPurchaseId);
+      } else {
+        setStep('generating');
+        void generateImage(newPurchaseId);
+      }
     } catch (error) {
       console.error('Error creating purchase:', error);
       toast.error('Erro ao processar. Tente novamente.');
