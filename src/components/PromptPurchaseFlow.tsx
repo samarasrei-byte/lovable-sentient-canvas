@@ -1093,11 +1093,12 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
           </GlassCardHeader>
 
           <GlassCardContent className="space-y-4 sm:space-y-6">
-            {/* Progress steps — payment is skipped so show 3 steps */}
+            {/* Progress steps */}
             <div className="flex items-center justify-between text-[10px] sm:text-xs text-muted-foreground">
-              {(['form', 'generating', 'complete'] as const).map((status, index) => {
-                const labels = ['Dados', 'Gerar', 'Pronto'];
-                const currentStepIndex = step === 'editing' ? 2 : ['form', 'generating', 'complete'].indexOf(step);
+              {(['form', 'payment', 'generating', 'complete'] as const).map((status, index) => {
+                const labels = ['Dados', 'Pagar', 'Gerar', 'Pronto'];
+                const stepOrder = ['form', 'payment', 'generating', 'complete'];
+                const currentStepIndex = step === 'editing' ? 3 : stepOrder.indexOf(step);
                 const isActive = currentStepIndex >= index;
                 const isCurrent = (step === status) || (step === 'editing' && status === 'complete');
                 return (
@@ -1116,7 +1117,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                       </div>
                       <span className="text-[9px] sm:text-xs">{labels[index]}</span>
                     </div>
-                    {index < 2 && <div className="flex-1 h-px bg-white/10 mx-1 sm:mx-2 w-3 sm:w-8" />}
+                    {index < 3 && <div className="flex-1 h-px bg-white/10 mx-1 sm:mx-2 w-3 sm:w-8" />}
                   </div>
                 );
               })}
