@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import arcanaLogo from "@/assets/arcana-logo-hd.png";
+import { ArcanaLogo } from "@/components/ArcanaLogo";
 
 export const HeroArcana2 = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -22,7 +22,7 @@ export const HeroArcana2 = () => {
         <div className="absolute inset-0 bg-background/60 backdrop-blur-2xl border-b border-white/[0.04]" />
         <div className="relative max-w-6xl mx-auto px-5 md:px-8 flex items-center justify-between h-14">
           <Link to="/" className="flex items-center gap-2 group">
-            <img src={arcanaLogo} alt="ARCANA" className="h-10 w-auto object-contain" />
+            <ArcanaLogo iconSize={20} textSize="text-xl" />
           </Link>
 
           {/* Desktop nav */}
