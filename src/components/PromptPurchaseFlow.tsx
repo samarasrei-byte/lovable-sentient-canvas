@@ -1266,37 +1266,39 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                               transition={{ delay: index * 0.05 }}
                               className="relative group space-y-1.5"
                             >
-                              <div
-                                onClick={() => fileInputRefs.current[index]?.click()}
-                                className={`relative rounded-2xl border-2 transition-all cursor-pointer overflow-hidden aspect-[3/4] active:scale-[0.97] ${
+                              <label
+                                htmlFor={`photo-slot-upload-${index}`}
+                                className={`relative block rounded-2xl border transition-all cursor-pointer overflow-hidden aspect-[3/4] active:scale-[0.97] touch-manipulation ${
                                   photo.preview 
-                                    ? 'border-primary/30 bg-black/20 shadow-lg shadow-primary/5' 
-                                    : 'border-dashed border-white/20 hover:border-primary/40 bg-gradient-to-br from-white/[0.04] to-white/[0.01]'
+                                    ? 'border-white/[0.08] bg-black/20 shadow-[0_4px_24px_-8px_hsl(0_0%_0%/0.5)]' 
+                                    : 'border-dashed border-white/[0.12] hover:border-primary/30 bg-gradient-to-b from-white/[0.03] to-transparent'
                                 }`}
                               >
                                 {photo.preview ? (
                                   <>
                                     <img src={photo.preview} alt={slotLabel} className="w-full h-full object-contain" />
-                                    {/* Success checkmark */}
-                                    <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-green-500/90 flex items-center justify-center shadow-md">
-                                      <Check className="w-3.5 h-3.5 text-white" />
+                                    {/* Success indicator — subtle ring */}
+                                    <div className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full bg-green-500/90 flex items-center justify-center shadow-sm ring-2 ring-background">
+                                      <Check className="w-3 h-3 text-white" />
                                     </div>
                                   </>
                                 ) : (
-                                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-2.5 text-muted-foreground p-3">
-                                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/10">
-                                      <Upload className="w-5 h-5 text-primary/50" />
+                                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-muted-foreground p-3">
+                                    <div className="w-11 h-11 rounded-xl bg-white/[0.06] flex items-center justify-center border border-white/[0.08]">
+                                      <ImagePlus className="w-5 h-5 text-muted-foreground/40" />
                                     </div>
-                                    <span className="text-[11px] text-center font-medium text-muted-foreground/70">{slotLabel}</span>
-                                    <span className="text-[9px] text-primary/50 font-medium">Toque aqui</span>
+                                    <div className="text-center space-y-0.5">
+                                      <span className="block text-[11px] font-medium text-muted-foreground/60">{slotLabel}</span>
+                                      <span className="block text-[9px] text-primary/40 font-medium tracking-wide uppercase">Toque</span>
+                                    </div>
                                   </div>
                                 )}
                                 {photo.preview && (
-                                  <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2">
-                                    <span className="text-[10px] text-white/90 font-medium">{slotLabel}</span>
+                                  <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent p-2.5">
+                                    <span className="text-[10px] text-white/80 font-medium tracking-tight">{slotLabel}</span>
                                   </div>
                                 )}
-                              </div>
+                              </label>
 
                               {photos.length > 1 && (
                                 <button
@@ -1304,13 +1306,14 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                     e.stopPropagation();
                                     removePhotoSlot(index);
                                   }}
-                                  className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 sm:opacity-0 active:opacity-100 transition-opacity shadow-md"
+                                  className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 sm:opacity-0 active:opacity-100 transition-opacity shadow-md z-10"
                                 >
                                   <Trash2 className="w-3 h-3" />
                                 </button>
                               )}
 
                               <input
+                                id={`photo-slot-upload-${index}`}
                                 ref={(el) => {
                                   fileInputRefs.current[index] = el;
                                 }}
