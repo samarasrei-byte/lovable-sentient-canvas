@@ -367,7 +367,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
     setVerifyingPayment(true);
     paymentPollRef.current = setInterval(async () => {
       try {
-        const { data, error } = await supabase.functions.invoke('verify-prompt-payment', {
+        const { data, error } = await supabase.functions.invoke('verify-mercadopago-payment', {
           body: { purchaseId: pId },
         });
 
@@ -375,7 +375,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
           if (paymentPollRef.current) clearInterval(paymentPollRef.current);
           setVerifyingPayment(false);
           setPaymentStatus('paid');
-          toast.success('Pagamento confirmado pelo Stripe!');
+          toast.success('Pagamento confirmado!');
           setTimeout(() => {
             setStep('generating');
             void generateImage(pId);
@@ -384,7 +384,51 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       } catch (e) {
         console.error('Payment verification poll error:', e);
       }
-    }, 4000); // Poll every 4 seconds
+    }, 4000);
+  };
+
+  const initMercadoPagoPayment = async (pId: string) => {
+    setPixLoading(true);
+    setPixError(null);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-mercadopago-payment', {
+        body: {
+          purchaseId: pId,
+          priceCents: prompt.price_cents,
+          customerEmail: formData.email || undefined,
+          customerName: formData.name || undefined,
+          paymentMethod: 'pix',
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.status === 'approved') {
+        setPaymentStatus('paid');
+        toast.success('Pagamento aprovado!');
+        setTimeout(() => {
+          setStep('generating');
+          void generateImage(pId);
+        }, 1000);
+        return;
+      }
+
+      if (data?.pixCopiaECola) {
+        setPixData({
+          copiaECola: data.pixCopiaECola,
+          qrCodeUrl: data.qrCodeBase64 ? `data:image/png;base64,${data.qrCodeBase64}` : '',
+          expiresAt: data.expiresAt ? new Date(data.expiresAt).getTime() / 1000 : Date.now() / 1000 + 1800,
+        });
+        startPaymentPolling(pId);
+      } else {
+        setPixError('Não foi possível gerar o QR Code PIX. Tente novamente.');
+      }
+    } catch (err) {
+      console.error('Mercado Pago payment error:', err);
+      setPixError('Erro ao gerar pagamento. Tente novamente.');
+    } finally {
+      setPixLoading(false);
+    }
   };
 
   // Cleanup polling on unmount
@@ -394,7 +438,6 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
     };
   }, []);
 
-  // Payment is handled via Stripe Checkout redirect
 
   const uploadPhotos = async (effectivePurchaseId: string): Promise<string[]> => {
     const urls: string[] = [];
