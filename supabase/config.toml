@@ -41,3 +41,9 @@ verify_jwt = false
 
 [functions.create-stripe-checkout]
 verify_jwt = false
+
+[functions.create-mercadopago-payment]
+verify_jwt = false
+
+[functions.verify-mercadopago-payment]
+verify_jwt = false
