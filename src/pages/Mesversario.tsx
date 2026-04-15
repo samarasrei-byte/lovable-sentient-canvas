@@ -7,9 +7,10 @@ import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft, Baby, Sparkles, Heart, Camera, Star, Shield,
-  Loader2, CheckCircle2, MessageCircle, ArrowRight, Zap, Bell
+  Loader2, CheckCircle2, MessageCircle, ArrowRight, Bell
 } from "lucide-react";
 import { toast } from "sonner";
+import arcanaLogo from "@/assets/arcana-logo-cropped.png";
 
 interface Prompt {
   id: string;
@@ -137,12 +138,7 @@ const Mesversario = () => {
         <div className="absolute inset-0 bg-background/60 backdrop-blur-2xl border-b border-white/[0.04]" />
         <div className="relative max-w-6xl mx-auto px-5 md:px-8 flex items-center justify-between h-14">
           <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary/80 to-secondary/80 flex items-center justify-center">
-              <Sparkles className="w-3.5 h-3.5 text-white" />
-            </div>
-            <span className="text-sm font-semibold tracking-tight text-foreground/90 group-hover:text-foreground transition-colors">
-              ARCANA
-            </span>
+            <img src={arcanaLogo} alt="ARCANA" className="h-8 w-auto object-contain" />
           </Link>
           <Link
             to="/"
@@ -401,7 +397,7 @@ const Mesversario = () => {
               </motion.div>
 
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 mb-5">
-                <Zap className="w-3 h-3 text-primary" />
+                <Sparkles className="w-3 h-3 text-primary" />
                 <span className="text-[10px] font-semibold tracking-wider uppercase text-primary">Em breve</span>
               </div>
 

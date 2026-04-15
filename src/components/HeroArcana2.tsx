@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Sparkles, Menu, ArrowRight, CheckCircle2, Zap } from "lucide-react";
+import { Sparkles, Menu, ArrowRight, CheckCircle2 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import arcanaLogo from "@/assets/arcana-logo-cropped.png";
 
 export const HeroArcana2 = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -21,12 +22,7 @@ export const HeroArcana2 = () => {
         <div className="absolute inset-0 bg-background/60 backdrop-blur-2xl border-b border-white/[0.04]" />
         <div className="relative max-w-6xl mx-auto px-5 md:px-8 flex items-center justify-between h-14">
           <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary/80 to-secondary/80 flex items-center justify-center">
-              <Zap className="w-3.5 h-3.5 text-white" />
-            </div>
-            <span className="text-sm font-semibold tracking-tight text-foreground/90 group-hover:text-foreground transition-colors">
-              ARCANA
-            </span>
+            <img src={arcanaLogo} alt="ARCANA" className="h-10 w-auto object-contain" />
           </Link>
 
           {/* Desktop nav */}
