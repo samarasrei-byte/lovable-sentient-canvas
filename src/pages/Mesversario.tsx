@@ -397,7 +397,7 @@ const Mesversario = () => {
               </motion.div>
 
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 mb-5">
-                <Zap className="w-3 h-3 text-primary" />
+                <Sparkles className="w-3 h-3 text-primary" />
                 <span className="text-[10px] font-semibold tracking-wider uppercase text-primary">Em breve</span>
               </div>
 
