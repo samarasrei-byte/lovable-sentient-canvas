@@ -1154,154 +1154,204 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
             {step === 'form' && (
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
                 {prompt.required_fields.includes('photo') && (
-                  <div className="space-y-3">
-                    {/* Upload lead/instruction */}
-                    <div className="p-4 rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-secondary/10 border border-primary/20">
-                      <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
-                          <Camera className="w-5 h-5 text-primary" />
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-semibold text-foreground mb-1">
-                            {isCouplePrompt ? 'Envie as fotos do casal' : isFamilyPrompt ? 'Envie as fotos da família' : 'Envie uma foto nítida do rosto'}
-                          </h4>
-                          <p className="text-xs text-muted-foreground leading-relaxed">
-                            {isCouplePrompt
-                              ? 'Uma foto de cada pessoa. A IA vai unir os dois na composição.'
-                              : isFamilyPrompt
-                                ? 'Uma foto separada de cada membro da família.'
-                                : 'Foto de frente, boa iluminação e rosto visível. A IA preserva cada detalhe.'}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <Label className="text-xs sm:text-sm flex items-center gap-2">
-                        <ImagePlus className="w-4 h-4 text-primary" />
-                        {isCouplePrompt
-                          ? `Fotos do Casal (${activePhotoCount}/${prompt.min_photos || 2})`
-                          : isFamilyPrompt 
-                            ? `Fotos da Família (${activePhotoCount}/${maxPhotos})`
-                            : isMultiPersonPrompt
-                              ? `Fotos das Pessoas (${activePhotoCount}/${prompt.min_photos || 2})`
-                              : activePhotoCount > 0 
-                                ? `${activePhotoCount} foto${activePhotoCount > 1 ? 's' : ''} enviada${activePhotoCount > 1 ? 's' : ''}` 
-                                : 'Suas fotos'}
-                      </Label>
-                      {photos.length < maxPhotos && !isMultiPersonPrompt && (
-                        <button onClick={addPhotoSlot} className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors">
-                          <Plus className="w-3.5 h-3.5" />
-                          <span className="hidden sm:inline">{isFamilyPrompt ? 'Adicionar familiar' : 'Adicionar pessoa'}</span>
-                          <span className="sm:hidden">{isFamilyPrompt ? '+Familiar' : '+Pessoa'}</span>
-                        </button>
-                      )}
-                    </div>
-
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
-                      {photos.map((photo, index) => {
-                        const photoProfile = photoProfiles[index];
-                        const isAnalyzing = analyzingPhotoSlots.includes(index);
-                        const slotLabel = getPhotoLabel(index);
-
-                        return (
-                          <div key={index} className="relative group space-y-1.5">
-                            <div
-                              onClick={() => fileInputRefs.current[index]?.click()}
-                              className={`relative rounded-2xl border-2 border-dashed transition-all cursor-pointer overflow-hidden aspect-[3/4] ${
-                                photo.preview 
-                                  ? 'border-primary/30 bg-black/20' 
-                                  : 'border-white/20 hover:border-primary/50 bg-gradient-to-br from-white/[0.03] to-white/[0.01]'
-                              }`}
-                            >
-                              {photo.preview ? (
-                                <img src={photo.preview} alt={slotLabel} className="w-full h-full object-contain" />
-                              ) : (
-                                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-muted-foreground p-3">
-                                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                                    <Upload className="w-5 h-5 text-primary/60" />
-                                  </div>
-                                  <span className="text-[10px] sm:text-xs text-center font-medium text-muted-foreground/70">{slotLabel}</span>
-                                  <span className="text-[9px] text-muted-foreground/40">Toque para enviar</span>
-                                </div>
-                              )}
-                              {photo.preview && (
-                                <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/70 to-transparent p-1.5">
-                                  <span className="text-[9px] text-white font-medium">{slotLabel}</span>
-                                </div>
-                              )}
-                            </div>
-
-                            {photos.length > 1 && (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  removePhotoSlot(index);
-                                }}
-                                className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-[10px]"
-                              >
-                                <Trash2 className="w-2.5 h-2.5" />
-                              </button>
-                            )}
-
-                            <input
-                              ref={(el) => {
-                                fileInputRefs.current[index] = el;
-                              }}
-                              type="file"
-                              accept="image/*"
-                              onChange={(e) => handlePhotoUpload(index, e)}
-                              className="hidden"
-                            />
-
-                            <div className="min-h-10 flex flex-wrap gap-1">
-                              {isAnalyzing && (
-                                <Badge variant="outline" className="text-[10px] border-primary/30 bg-primary/10 text-primary">
-                                  <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-                                  Analisando
-                                </Badge>
-                              )}
-                              {photoProfile?.ageGroup && (
-                                <Badge variant="outline" className="text-[10px] border-border/60 bg-background/70">
-                                  {ageGroupLabel[photoProfile.ageGroup] || photoProfile.ageGroup}
-                                </Badge>
-                              )}
-                              {photoProfile?.presentation && photoProfile.presentation !== 'indefinida' && (
-                                <Badge variant="outline" className="text-[10px] border-border/60 bg-background/70">
-                                  {presentationLabel[photoProfile.presentation] || photoProfile.presentation}
-                                </Badge>
-                              )}
-                              {photoProfile?.categoria && (
-                                <Badge variant="outline" className="text-[10px] border-secondary/30 bg-secondary/10 text-secondary">
-                                  {photoProfile.categoria.replace(/_/g, ' ')}
-                                </Badge>
-                              )}
-                              {photoProfile?.metadados?.animal && (
-                                <Badge variant="outline" className="text-[10px] border-border/60 bg-background/70">
-                                  🐾 {photoProfile.metadados.animal}
-                                </Badge>
-                              )}
-                              {photoProfile?.metadados?.idade_detectada && (
-                                <Badge variant="outline" className="text-[10px] border-primary/30 bg-primary/10 text-primary">
-                                  ~{photoProfile.metadados.idade_detectada} anos
-                                </Badge>
-                              )}
-                              {photoProfile?.analise && photoProfile.analise.quantidade_pessoas > 1 && (
-                                <Badge variant="outline" className="text-[10px] border-border/60 bg-background/70">
-                                  👥 {photoProfile.analise.quantidade_pessoas} pessoas
-                                </Badge>
-                              )}
-                            </div>
+                  <div className="space-y-4">
+                    {/* Hero upload CTA — mobile-first prominence */}
+                    {activePhotoCount === 0 ? (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.97 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="relative overflow-hidden rounded-3xl border-2 border-dashed border-primary/40 bg-gradient-to-br from-primary/[0.08] via-primary/[0.04] to-secondary/[0.06] p-6 sm:p-8 cursor-pointer active:scale-[0.98] transition-transform"
+                        onClick={() => fileInputRefs.current[0]?.click()}
+                      >
+                        {/* Animated glow ring */}
+                        <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-primary/10 blur-2xl animate-pulse" />
+                        <div className="absolute -bottom-8 -left-8 w-24 h-24 rounded-full bg-secondary/10 blur-2xl animate-pulse" style={{ animationDelay: '1s' }} />
+                        
+                        <div className="relative flex flex-col items-center gap-4 text-center">
+                          <motion.div
+                            animate={{ y: [0, -6, 0] }}
+                            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                            className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-primary/25 to-primary/10 flex items-center justify-center backdrop-blur-sm border border-primary/20 shadow-lg shadow-primary/10"
+                          >
+                            <Camera className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
+                          </motion.div>
+                          
+                          <div className="space-y-1.5">
+                            <h4 className="text-base sm:text-lg font-bold text-foreground tracking-[-0.03em]">
+                              {isCouplePrompt ? 'Envie as fotos do casal' : isFamilyPrompt ? 'Envie as fotos da família' : 'Envie sua melhor foto'}
+                            </h4>
+                            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-[250px] mx-auto">
+                              {isCouplePrompt
+                                ? 'Uma foto de cada pessoa. A IA vai unir os dois.'
+                                : isFamilyPrompt
+                                  ? 'Uma foto separada de cada membro da família.'
+                                  : 'Foto de frente, boa iluminação e rosto visível.'}
+                            </p>
                           </div>
-                        );
-                      })}
-                    </div>
 
-                    <p className="text-[10px] text-muted-foreground text-center">
-                      {isFamilyPrompt 
-                        ? `Envie de 2 a ${maxPhotos} fotos · Uma foto por membro da família`
-                        : `Envie de 1 a ${maxPhotos} fotos · Cada foto = uma pessoa na imagem`}
-                    </p>
+                          <div className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/25 mt-1">
+                            <Upload className="w-4 h-4" />
+                            Escolher foto
+                          </div>
+
+                          <div className="flex items-center gap-4 text-[10px] text-muted-foreground/60 mt-1">
+                            <span className="flex items-center gap-1">✓ JPG, PNG, HEIC</span>
+                            <span className="flex items-center gap-1">✓ Até 20MB</span>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ) : (
+                      /* Compact header after first upload */
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-xl bg-primary/15 flex items-center justify-center">
+                            <Camera className="w-4 h-4 text-primary" />
+                          </div>
+                          <div>
+                            <Label className="text-xs sm:text-sm font-semibold">
+                              {isCouplePrompt
+                                ? `Fotos do Casal`
+                                : isFamilyPrompt 
+                                  ? `Fotos da Família`
+                                  : isMultiPersonPrompt
+                                    ? `Fotos das Pessoas`
+                                    : `Sua foto`}
+                            </Label>
+                            <p className="text-[10px] text-muted-foreground">
+                              {activePhotoCount} de {isMultiPersonPrompt ? (prompt.min_photos || 2) : maxPhotos} enviada{activePhotoCount > 1 ? 's' : ''}
+                            </p>
+                          </div>
+                        </div>
+                        {photos.length < maxPhotos && !isMultiPersonPrompt && (
+                          <button onClick={addPhotoSlot} className="flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors font-medium px-3 py-1.5 rounded-full bg-primary/10 active:scale-95">
+                            <Plus className="w-3.5 h-3.5" />
+                            {isFamilyPrompt ? 'Familiar' : 'Pessoa'}
+                          </button>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Photo grid — only show when there are photos or multi-person */}
+                    {(activePhotoCount > 0 || isMultiPersonPrompt) && (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        {photos.map((photo, index) => {
+                          const photoProfile = photoProfiles[index];
+                          const isAnalyzing = analyzingPhotoSlots.includes(index);
+                          const slotLabel = getPhotoLabel(index);
+
+                          return (
+                            <motion.div
+                              key={index}
+                              initial={{ opacity: 0, scale: 0.9 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              transition={{ delay: index * 0.05 }}
+                              className="relative group space-y-1.5"
+                            >
+                              <div
+                                onClick={() => fileInputRefs.current[index]?.click()}
+                                className={`relative rounded-2xl border-2 transition-all cursor-pointer overflow-hidden aspect-[3/4] active:scale-[0.97] ${
+                                  photo.preview 
+                                    ? 'border-primary/30 bg-black/20 shadow-lg shadow-primary/5' 
+                                    : 'border-dashed border-white/20 hover:border-primary/40 bg-gradient-to-br from-white/[0.04] to-white/[0.01]'
+                                }`}
+                              >
+                                {photo.preview ? (
+                                  <>
+                                    <img src={photo.preview} alt={slotLabel} className="w-full h-full object-contain" />
+                                    {/* Success checkmark */}
+                                    <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-green-500/90 flex items-center justify-center shadow-md">
+                                      <Check className="w-3.5 h-3.5 text-white" />
+                                    </div>
+                                  </>
+                                ) : (
+                                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-2.5 text-muted-foreground p-3">
+                                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/10">
+                                      <Upload className="w-5 h-5 text-primary/50" />
+                                    </div>
+                                    <span className="text-[11px] text-center font-medium text-muted-foreground/70">{slotLabel}</span>
+                                    <span className="text-[9px] text-primary/50 font-medium">Toque aqui</span>
+                                  </div>
+                                )}
+                                {photo.preview && (
+                                  <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2">
+                                    <span className="text-[10px] text-white/90 font-medium">{slotLabel}</span>
+                                  </div>
+                                )}
+                              </div>
+
+                              {photos.length > 1 && (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    removePhotoSlot(index);
+                                  }}
+                                  className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 sm:opacity-0 active:opacity-100 transition-opacity shadow-md"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </button>
+                              )}
+
+                              <input
+                                ref={(el) => {
+                                  fileInputRefs.current[index] = el;
+                                }}
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => handlePhotoUpload(index, e)}
+                                className="hidden"
+                              />
+
+                              <div className="min-h-8 flex flex-wrap gap-1">
+                                {isAnalyzing && (
+                                  <Badge variant="outline" className="text-[10px] border-primary/30 bg-primary/10 text-primary">
+                                    <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                                    Analisando
+                                  </Badge>
+                                )}
+                                {photoProfile?.ageGroup && (
+                                  <Badge variant="outline" className="text-[10px] border-border/60 bg-background/70">
+                                    {ageGroupLabel[photoProfile.ageGroup] || photoProfile.ageGroup}
+                                  </Badge>
+                                )}
+                                {photoProfile?.presentation && photoProfile.presentation !== 'indefinida' && (
+                                  <Badge variant="outline" className="text-[10px] border-border/60 bg-background/70">
+                                    {presentationLabel[photoProfile.presentation] || photoProfile.presentation}
+                                  </Badge>
+                                )}
+                                {photoProfile?.categoria && (
+                                  <Badge variant="outline" className="text-[10px] border-secondary/30 bg-secondary/10 text-secondary">
+                                    {photoProfile.categoria.replace(/_/g, ' ')}
+                                  </Badge>
+                                )}
+                                {photoProfile?.metadados?.animal && (
+                                  <Badge variant="outline" className="text-[10px] border-border/60 bg-background/70">
+                                    🐾 {photoProfile.metadados.animal}
+                                  </Badge>
+                                )}
+                                {photoProfile?.metadados?.idade_detectada && (
+                                  <Badge variant="outline" className="text-[10px] border-primary/30 bg-primary/10 text-primary">
+                                    ~{photoProfile.metadados.idade_detectada} anos
+                                  </Badge>
+                                )}
+                                {photoProfile?.analise && photoProfile.analise.quantidade_pessoas > 1 && (
+                                  <Badge variant="outline" className="text-[10px] border-border/60 bg-background/70">
+                                    👥 {photoProfile.analise.quantidade_pessoas} pessoas
+                                  </Badge>
+                                )}
+                              </div>
+                            </motion.div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {activePhotoCount > 0 && (
+                      <p className="text-[10px] text-muted-foreground/50 text-center">
+                        {isFamilyPrompt 
+                          ? `${activePhotoCount} de ${maxPhotos} · Uma foto por membro da família`
+                          : `${activePhotoCount} foto${activePhotoCount > 1 ? 's' : ''} enviada${activePhotoCount > 1 ? 's' : ''} · A IA preserva cada detalhe`}
+                      </p>
+                    )}
                   </div>
                 )}
 
