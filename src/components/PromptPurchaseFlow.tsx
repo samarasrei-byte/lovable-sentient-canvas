@@ -139,7 +139,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   
   const [verifyingPayment, setVerifyingPayment] = useState(false);
   const paymentPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const [paymentTab, setPaymentTab] = useState<'pix' | 'card'>('pix');
+  
   const [pixData, setPixData] = useState<{ copiaECola: string; qrCodeUrl: string; expiresAt: number } | null>(null);
   const [pixLoading, setPixLoading] = useState(false);
   const [pixError, setPixError] = useState<string | null>(null);
