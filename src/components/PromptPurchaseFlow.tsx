@@ -439,6 +439,33 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   }, []);
 
 
+  const convertToJpeg = (file: File): Promise<File> => {
+    return new Promise((resolve, reject) => {
+      const supportedFormats = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+      if (supportedFormats.includes(file.type)) {
+        resolve(file);
+        return;
+      }
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) { reject(new Error('Canvas not supported')); return; }
+        ctx.drawImage(img, 0, 0);
+        canvas.toBlob((blob) => {
+          URL.revokeObjectURL(url);
+          if (!blob) { reject(new Error('Conversion failed')); return; }
+          resolve(new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' }));
+        }, 'image/jpeg', 0.92);
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Failed to load image')); };
+      img.src = url;
+    });
+  };
+
   const uploadPhotos = async (effectivePurchaseId: string): Promise<string[]> => {
     const urls: string[] = [];
 
@@ -446,12 +473,13 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       const photo = photos[i];
       if (!photo.file) continue;
 
-      const fileExt = photo.file.name.split('.').pop();
+      const convertedFile = await convertToJpeg(photo.file);
+      const fileExt = convertedFile.name.split('.').pop() || 'jpg';
       const filePath = `purchases/${effectivePurchaseId}-photo${i + 1}-${Math.random().toString(36).slice(2)}.${fileExt}`;
 
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('user-photos')
-        .upload(filePath, photo.file, { cacheControl: '3600', upsert: false });
+        .upload(filePath, convertedFile, { cacheControl: '3600', upsert: false });
 
       if (uploadError) throw uploadError;
 
