@@ -1155,50 +1155,69 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
                 {prompt.required_fields.includes('photo') && (
                   <div className="space-y-4">
-                    {/* Hero upload CTA — mobile-first prominence */}
+                    {/* Hero upload CTA — mobile-first, iOS-safe with <label> */}
                     {activePhotoCount === 0 ? (
                       <motion.div
                         initial={{ opacity: 0, scale: 0.97 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="relative overflow-hidden rounded-3xl border-2 border-dashed border-primary/40 bg-gradient-to-br from-primary/[0.08] via-primary/[0.04] to-secondary/[0.06] p-6 sm:p-8 cursor-pointer active:scale-[0.98] transition-transform"
-                        onClick={() => fileInputRefs.current[0]?.click()}
+                        className="relative"
                       >
-                        {/* Animated glow ring */}
-                        <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-primary/10 blur-2xl animate-pulse" />
-                        <div className="absolute -bottom-8 -left-8 w-24 h-24 rounded-full bg-secondary/10 blur-2xl animate-pulse" style={{ animationDelay: '1s' }} />
-                        
-                        <div className="relative flex flex-col items-center gap-4 text-center">
-                          <motion.div
-                            animate={{ y: [0, -6, 0] }}
-                            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                            className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-primary/25 to-primary/10 flex items-center justify-center backdrop-blur-sm border border-primary/20 shadow-lg shadow-primary/10"
-                          >
-                            <Camera className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
-                          </motion.div>
-                          
-                          <div className="space-y-1.5">
-                            <h4 className="text-base sm:text-lg font-bold text-foreground tracking-[-0.03em]">
-                              {isCouplePrompt ? 'Envie as fotos do casal' : isFamilyPrompt ? 'Envie as fotos da família' : 'Envie sua melhor foto'}
-                            </h4>
-                            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-[250px] mx-auto">
-                              {isCouplePrompt
-                                ? 'Uma foto de cada pessoa. A IA vai unir os dois.'
-                                : isFamilyPrompt
-                                  ? 'Uma foto separada de cada membro da família.'
-                                  : 'Foto de frente, boa iluminação e rosto visível.'}
-                            </p>
-                          </div>
+                        <label
+                          htmlFor="hero-photo-upload-0"
+                          className="relative block overflow-hidden rounded-3xl border border-white/[0.08] bg-gradient-to-b from-white/[0.04] to-transparent p-8 sm:p-10 cursor-pointer active:scale-[0.98] transition-all duration-300 touch-manipulation"
+                        >
+                          {/* Soft ambient glow */}
+                          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full bg-primary/8 blur-3xl pointer-events-none" />
 
-                          <div className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/25 mt-1">
-                            <Upload className="w-4 h-4" />
-                            Escolher foto
-                          </div>
+                          <div className="relative flex flex-col items-center gap-5 text-center">
+                            {/* Floating icon with ring */}
+                            <motion.div
+                              animate={{ y: [0, -5, 0] }}
+                              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                              className="relative"
+                            >
+                              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-[1.25rem] bg-gradient-to-b from-primary/20 to-primary/5 flex items-center justify-center border border-primary/15 shadow-[0_8px_32px_-8px_hsl(var(--primary)/0.25)]">
+                                <Camera className="w-9 h-9 sm:w-11 sm:h-11 text-primary" />
+                              </div>
+                              {/* Live dot */}
+                              <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-green-500 border-2 border-background animate-pulse" />
+                            </motion.div>
 
-                          <div className="flex items-center gap-4 text-[10px] text-muted-foreground/60 mt-1">
-                            <span className="flex items-center gap-1">✓ JPG, PNG, HEIC</span>
-                            <span className="flex items-center gap-1">✓ Até 20MB</span>
+                            <div className="space-y-2">
+                              <h4 className="text-lg sm:text-xl font-bold text-foreground tracking-[-0.04em] leading-tight">
+                                {isCouplePrompt ? 'Fotos do casal' : isFamilyPrompt ? 'Fotos da família' : 'Sua melhor foto'}
+                              </h4>
+                              <p className="text-[13px] sm:text-sm text-muted-foreground/80 leading-relaxed max-w-[260px] mx-auto">
+                                {isCouplePrompt
+                                  ? 'Uma foto de cada pessoa. A IA vai unir vocês.'
+                                  : isFamilyPrompt
+                                    ? 'Uma foto separada de cada membro.'
+                                    : 'Rosto visível, boa luz, de frente.'}
+                              </p>
+                            </div>
+
+                            {/* CTA pill */}
+                            <div className="flex items-center gap-2.5 px-6 py-3 rounded-2xl bg-primary text-primary-foreground font-semibold text-[15px] shadow-[0_4px_24px_-4px_hsl(var(--primary)/0.4)] mt-1 active:scale-95 transition-transform">
+                              <Upload className="w-4.5 h-4.5" />
+                              Escolher foto
+                            </div>
+
+                            {/* Trust signals */}
+                            <div className="flex items-center gap-3 text-[11px] text-muted-foreground/50 mt-0.5">
+                              <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-green-500/50" /> JPG, PNG, HEIC</span>
+                              <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-green-500/50" /> Até 20MB</span>
+                            </div>
                           </div>
-                        </div>
+                        </label>
+
+                        {/* Hidden file input linked by htmlFor — iOS safe */}
+                        <input
+                          id="hero-photo-upload-0"
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handlePhotoUpload(0, e)}
+                          className="hidden"
+                        />
                       </motion.div>
                     ) : (
                       /* Compact header after first upload */
