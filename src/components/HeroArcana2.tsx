@@ -12,7 +12,6 @@ export const HeroArcana2 = () => {
   const navLinks = [
     { href: "#prompts", label: "Prompts" },
     { href: "#como-funciona", label: "Como Funciona" },
-    { href: "#planos", label: "Planos" },
   ];
 
   return (
@@ -41,22 +40,12 @@ export const HeroArcana2 = () => {
                 {link.label}
               </a>
             ))}
-            <Link
-              to="/login"
-              className="ml-2 px-5 py-2 rounded-xl text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200 shadow-lg shadow-primary/20"
-            >
-              Entrar
-            </Link>
+            {/* Login oculto — acesso via /admin */}
           </div>
 
           {/* Mobile nav */}
           <div className="flex md:hidden items-center gap-2">
-            <Link
-              to="/login"
-              className="px-4 py-2 rounded-xl text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
-            >
-              Entrar
-            </Link>
+            {/* Login mobile oculto — acesso via /admin */}
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-10 w-10 bg-white/[0.04] border border-white/[0.08]">
@@ -75,13 +64,7 @@ export const HeroArcana2 = () => {
                       {link.label}
                     </a>
                   ))}
-                  <Link
-                    to="/login"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="mt-4 text-center py-3 px-4 rounded-xl text-lg font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-all"
-                  >
-                    Entrar
-                  </Link>
+                  {/* Login sheet oculto — acesso via /admin */}
                 </div>
               </SheetContent>
             </Sheet>

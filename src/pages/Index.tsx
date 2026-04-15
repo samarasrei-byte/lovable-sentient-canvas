@@ -35,9 +35,7 @@ const Index = () => {
       <Suspense fallback={<SectionFallback />}>
         <MassiveGallery />
       </Suspense>
-      <Suspense fallback={<SectionFallback />}>
-        <UpgradeUpsell />
-      </Suspense>
+      {/* UpgradeUpsell oculto — assinaturas serão lançadas depois */}
       
       <Suspense fallback={<SectionFallback />}>
         <PhotoServicesSection />
@@ -51,9 +49,7 @@ const Index = () => {
         <TestimonialsSection />
       </Suspense>
       
-      <Suspense fallback={<SectionFallback />}>
-        <PlansSection />
-      </Suspense>
+      {/* PlansSection oculta — assinaturas serão lançadas depois */}
       
       <Suspense fallback={<SectionFallback />}>
         <HowItWorksNew />
