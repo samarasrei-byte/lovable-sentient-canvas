@@ -1,4 +1,5 @@
 import { MousePointer2, Upload, CreditCard, Download, Sparkles } from "lucide-react";
+import { motion } from "framer-motion";
 
 const steps = [
   { number: "01", title: "Escolha o Prompt", description: "Navegue e escolha o estilo que combina com você", icon: MousePointer2 },
@@ -9,41 +10,39 @@ const steps = [
 
 export const HowItWorksNew = () => {
   return (
-    <section id="como-funciona" className="relative py-20 md:py-28 px-4 sm:px-6 overflow-hidden">
-      <div className="max-w-4xl mx-auto relative z-10">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 tracking-tight">
+    <section id="como-funciona" className="py-20 md:py-28 px-5 md:px-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-12">
+          <h2 className="text-lg md:text-xl font-semibold tracking-tight mb-2">
             Como funciona
           </h2>
-          <p className="text-muted-foreground text-lg font-light">
+          <p className="text-sm text-muted-foreground/50 font-light">
             4 passos simples
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
           {steps.map((step, index) => (
-            <div
+            <motion.div
               key={step.number}
-              className={`p-6 rounded-2xl bg-white/[0.02] border border-white/[0.05] hover:border-primary/15 transition-all duration-300 group ${
-                index % 2 === 1 ? 'md:mt-12' : ''
-              }`}
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
+              className="text-center p-5 rounded-2xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.1] hover:bg-white/[0.04] transition-all duration-300"
             >
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center group-hover:border-primary/20 transition-colors duration-300">
-                  <span className="text-xs font-mono font-bold text-primary/60">{step.number}</span>
-                </div>
-                <div>
-                  <h3 className="text-base font-semibold mb-1 text-foreground">{step.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{step.description}</p>
-                </div>
+              <div className="w-10 h-10 mx-auto mb-3 rounded-xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center">
+                <span className="text-[10px] font-mono font-bold text-primary/60">{step.number}</span>
               </div>
-            </div>
+              <h3 className="font-medium text-xs text-foreground/80 mb-1">{step.title}</h3>
+              <p className="text-[10px] text-muted-foreground/40 leading-relaxed">{step.description}</p>
+            </motion.div>
           ))}
         </div>
 
-        <div className="text-center mt-12">
-          <div className="inline-flex items-center gap-2 text-sm text-muted-foreground/50">
-            <Sparkles className="w-3.5 h-3.5 text-primary/40" />
+        <div className="text-center mt-8">
+          <div className="inline-flex items-center gap-2 text-[10px] text-muted-foreground/30">
+            <Sparkles className="w-3 h-3 text-primary/30" />
             <span>R$21 por prompt · PIX instantâneo · IA de última geração</span>
           </div>
         </div>
