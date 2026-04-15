@@ -1721,6 +1721,24 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                     )}
 
                     <div className="flex flex-col gap-2">
+                      {/* Test simulation button */}
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          if (paymentPollRef.current) clearInterval(paymentPollRef.current);
+                          setVerifyingPayment(false);
+                          setPaymentStatus('paid');
+                          toast.success('Pagamento simulado com sucesso!');
+                          setTimeout(() => {
+                            setStep('generating');
+                            if (purchaseId) void generateImage(purchaseId);
+                          }, 1200);
+                        }}
+                        className="w-full text-xs bg-green-600 hover:bg-green-700"
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" />
+                        Simular Pagamento (Teste)
+                      </Button>
                       <Button
                         variant="outline"
                         size="sm"
