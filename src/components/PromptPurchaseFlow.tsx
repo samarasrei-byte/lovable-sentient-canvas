@@ -1619,34 +1619,10 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                       <span className="text-xl font-bold text-primary">{formatPrice(prompt.price_cents)}</span>
                     </div>
 
-                    {/* Payment method tabs */}
-                    <div className="flex gap-1 p-1 rounded-lg bg-white/5 border border-white/10">
-                      <button
-                        onClick={() => setPaymentTab('pix')}
-                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-md text-xs font-medium transition-all ${
-                          paymentTab === 'pix'
-                            ? 'bg-primary text-primary-foreground shadow-sm'
-                            : 'text-muted-foreground hover:text-foreground'
-                        }`}
-                      >
-                        <QrCode className="w-4 h-4" />
-                        PIX (Instantâneo)
-                      </button>
-                      <button
-                        onClick={() => setPaymentTab('card')}
-                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-md text-xs font-medium transition-all ${
-                          paymentTab === 'card'
-                            ? 'bg-primary text-primary-foreground shadow-sm'
-                            : 'text-muted-foreground hover:text-foreground'
-                        }`}
-                      >
-                        <CreditCard className="w-4 h-4" />
-                        Cartão
-                      </button>
-                    </div>
+                    {/* Payment method - PIX only */}
 
                     {/* PIX Tab */}
-                    {paymentTab === 'pix' && (
+                    {(
                       <div className="space-y-3">
                         {pixLoading ? (
                           <div className="py-8 flex flex-col items-center gap-3">
@@ -1656,10 +1632,9 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                         ) : pixError ? (
                           <div className="py-6 text-center space-y-3">
                             <AlertTriangle className="w-8 h-8 mx-auto text-yellow-500" />
-                            <p className="text-xs text-muted-foreground">PIX indisponível no momento. Use cartão de crédito.</p>
-                            <Button size="sm" variant="outline" onClick={() => setPaymentTab('card')}>
-                              <CreditCard className="w-3.5 h-3.5 mr-1.5" />
-                              Pagar com Cartão
+                            <p className="text-xs text-muted-foreground">{pixError}</p>
+                            <Button size="sm" variant="outline" onClick={() => purchaseId && initMercadoPagoPayment(purchaseId)}>
+                              Tentar Novamente
                             </Button>
                           </div>
                         ) : pixData ? (
