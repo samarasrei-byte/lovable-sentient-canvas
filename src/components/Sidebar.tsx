@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import arcanaLogo from "@/assets/arcana-logo-hd.png";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { 
@@ -181,17 +182,10 @@ export const Sidebar = () => {
           isCollapsed ? "justify-center" : "gap-2"
         )}>
           <Link to="/" className="group flex items-center gap-2">
-            <div className="relative">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-secondary rounded-lg opacity-30 group-hover:opacity-60 blur-sm transition-all" />
-              <div className="relative w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-                <Zap className="w-4 h-4 text-white transition-transform duration-200 group-hover:scale-110" />
-              </div>
-            </div>
-            {!isCollapsed && (
-              <span className="text-base font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                ARCANA
-              </span>
-            )}
+            <img src={arcanaLogo} alt="ARCANA" className={cn(
+              "object-contain transition-all duration-200",
+              isCollapsed ? "h-8 w-8" : "h-8 w-auto"
+            )} />
           </Link>
         </div>
 
