@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import arcanaLogo from "@/assets/arcana-logo-hd.png";
+import arcanaLogo from "@/assets/arcana-logo-cropped.png";
 
 export const Footer = () => {
   return (

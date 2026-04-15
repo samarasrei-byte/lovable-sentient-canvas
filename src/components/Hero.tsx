@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Menu, X, Download } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import heroLiquid from "@/assets/hero-liquid.jpg";
-import arcanaLogo from "@/assets/arcana-logo-hd.png";
+import arcanaLogo from "@/assets/arcana-logo-cropped.png";
 import { useParallax } from "@/hooks/use-parallax";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
