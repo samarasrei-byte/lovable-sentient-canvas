@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import arcanaLogo from "@/assets/arcana-logo-cropped.png";
+import arcanaLogo from "@/assets/arcana-logo-hd.png";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { 

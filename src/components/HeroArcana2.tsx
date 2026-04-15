@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import arcanaLogo from "@/assets/arcana-logo-cropped.png";
+import arcanaLogo from "@/assets/arcana-logo-hd.png";
 
 export const HeroArcana2 = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

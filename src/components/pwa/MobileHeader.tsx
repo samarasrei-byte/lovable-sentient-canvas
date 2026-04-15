@@ -4,7 +4,7 @@ import { Bell, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { NotificationsDropdown } from "@/components/NotificationsDropdown";
-import arcanaLogo from "@/assets/arcana-logo-cropped.png";
+import arcanaLogo from "@/assets/arcana-logo-hd.png";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
