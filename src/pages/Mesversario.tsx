@@ -7,9 +7,10 @@ import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft, Baby, Sparkles, Heart, Camera, Star, Shield,
-  Loader2, CheckCircle2, MessageCircle, ArrowRight, Zap, Bell
+  Loader2, CheckCircle2, MessageCircle, ArrowRight, Bell
 } from "lucide-react";
 import { toast } from "sonner";
+import arcanaLogo from "@/assets/arcana-logo-hd.png";
 
 interface Prompt {
   id: string;
