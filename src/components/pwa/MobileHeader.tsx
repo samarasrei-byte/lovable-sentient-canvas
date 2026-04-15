@@ -4,7 +4,7 @@ import { Bell, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { NotificationsDropdown } from "@/components/NotificationsDropdown";
-import arcanaLogo from "@/assets/arcana-logo-hd.png";
+import { ArcanaLogo } from "@/components/ArcanaLogo";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
@@ -41,7 +41,7 @@ export const MobileHeader = ({ title, showBack }: MobileHeaderProps) => {
         <div className="flex items-center justify-between h-14 px-4">
           <div className="flex items-center gap-3">
             <Link to="/app/dashboard" className="flex items-center gap-2">
-              <img src={arcanaLogo} alt="ARCANA" className="h-8 w-auto object-contain" />
+              <ArcanaLogo iconSize={18} textSize="text-base" />
             </Link>
             <motion.h1 
               key={location.pathname}

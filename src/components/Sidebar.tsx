@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import arcanaLogo from "@/assets/arcana-logo-hd.png";
+import { ArcanaLogo } from "@/components/ArcanaLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { 
@@ -182,10 +182,7 @@ export const Sidebar = () => {
           isCollapsed ? "justify-center" : "gap-2"
         )}>
           <Link to="/" className="group flex items-center gap-2">
-            <img src={arcanaLogo} alt="ARCANA" className={cn(
-              "object-contain transition-all duration-200",
-              isCollapsed ? "h-8 w-8" : "h-8 w-auto"
-            )} />
+            <ArcanaLogo iconSize={18} textSize="text-base" showText={!isCollapsed} />
           </Link>
         </div>
 

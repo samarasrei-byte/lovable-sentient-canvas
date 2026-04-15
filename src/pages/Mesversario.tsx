@@ -10,7 +10,7 @@ import {
   Loader2, CheckCircle2, MessageCircle, ArrowRight, Bell
 } from "lucide-react";
 import { toast } from "sonner";
-import arcanaLogo from "@/assets/arcana-logo-hd.png";
+import { ArcanaLogo } from "@/components/ArcanaLogo";
 
 interface Prompt {
   id: string;
@@ -138,7 +138,7 @@ const Mesversario = () => {
         <div className="absolute inset-0 bg-background/60 backdrop-blur-2xl border-b border-white/[0.04]" />
         <div className="relative max-w-6xl mx-auto px-5 md:px-8 flex items-center justify-between h-14">
           <Link to="/" className="flex items-center gap-2 group">
-            <img src={arcanaLogo} alt="ARCANA" className="h-8 w-auto object-contain" />
+            <ArcanaLogo iconSize={18} textSize="text-base" />
           </Link>
           <Link
             to="/"

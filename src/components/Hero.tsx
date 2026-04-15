@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Menu, X, Download } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import heroLiquid from "@/assets/hero-liquid.jpg";
-import arcanaLogo from "@/assets/arcana-logo-hd.png";
+import { ArcanaLogo } from "@/components/ArcanaLogo";
 import { useParallax } from "@/hooks/use-parallax";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
@@ -43,7 +43,7 @@ export const Hero = () => {
           {/* Logo */}
           <div className="relative group">
             <div className="relative flex items-center gap-2 px-3 md:px-4 py-2 bg-background/80 backdrop-blur-sm rounded-lg border border-secondary/30">
-              <img src={arcanaLogo} alt="ARCANA" className="h-8 w-auto object-contain" />
+              <ArcanaLogo iconSize={18} textSize="text-base" />
             </div>
           </div>
 
