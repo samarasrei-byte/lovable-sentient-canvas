@@ -124,7 +124,7 @@ export const HeroArcana2 = () => {
           <div className="flex flex-col items-center gap-4">
             <a href="#prompts">
               <button className="group inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-primary text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 active:scale-[0.98]">
-                Ver Prompts
+                Criar Minha Foto
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
               </button>
             </a>
