@@ -184,7 +184,6 @@ export const Sidebar = () => {
           <Link to="/" className="group flex items-center gap-2">
             <ArcanaLogo iconSize={18} textSize="text-base" showText={!isCollapsed} />
           </Link>
-          </Link>
         </div>
 
         {/* Collapse Toggle */}
