@@ -1216,7 +1216,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                           type="file"
                           accept="image/*"
                           onChange={(e) => handlePhotoUpload(0, e)}
-                          className="hidden"
+                          className="sr-only"
                         />
                       </motion.div>
                     ) : (
@@ -1320,7 +1320,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                 type="file"
                                 accept="image/*"
                                 onChange={(e) => handlePhotoUpload(index, e)}
-                                className="hidden"
+                                className="sr-only"
                               />
 
                               <div className="min-h-8 flex flex-wrap gap-1">
