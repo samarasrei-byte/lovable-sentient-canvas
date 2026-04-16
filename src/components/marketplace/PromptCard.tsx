@@ -65,7 +65,7 @@ export const PromptCard = ({ prompt, index, onSelect, variant = 'grid' }: Prompt
       onClick={() => onSelect(prompt)}
       role="button"
       tabIndex={0}
-      aria-label={`Ver prompt ${prompt.name}`}
+      aria-label={`Ver estilo ${prompt.name}`}
       onKeyDown={(e) => e.key === 'Enter' && onSelect(prompt)}
     >
       <div className={cn(
@@ -85,7 +85,7 @@ export const PromptCard = ({ prompt, index, onSelect, variant = 'grid' }: Prompt
           {prompt.example_image_url ? (
             <img
               src={prompt.example_image_url}
-              alt={`Exemplo do prompt ${prompt.name}`}
+              alt={`Exemplo do estilo ${prompt.name}`}
               className="w-full h-full transition-transform duration-700 ease-out group-hover:scale-[1.08] object-cover scale-[1.02]"
               loading="lazy"
               decoding="async"

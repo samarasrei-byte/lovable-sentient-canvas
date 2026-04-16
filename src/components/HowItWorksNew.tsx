@@ -2,7 +2,7 @@ import { MousePointer2, Upload, CreditCard, Download, Sparkles } from "lucide-re
 import { motion } from "framer-motion";
 
 const steps = [
-  { number: "01", title: "Escolha o Prompt", description: "Navegue e escolha o estilo que combina com você", icon: MousePointer2 },
+  { number: "01", title: "Escolha o Estilo", description: "Navegue e escolha o estilo que combina com você", icon: MousePointer2 },
   { number: "02", title: "Envie sua Foto", description: "Upload da sua foto e preencha os dados", icon: Upload },
   { number: "03", title: "Pague via PIX", description: "Pagamento instantâneo e seguro", icon: CreditCard },
   { number: "04", title: "Baixe sua Arte", description: "Receba sua imagem IA em segundos", icon: Download },
@@ -43,7 +43,7 @@ export const HowItWorksNew = () => {
         <div className="text-center mt-8">
           <div className="inline-flex items-center gap-2 text-[10px] text-muted-foreground/30">
             <Sparkles className="w-3 h-3 text-primary/30" />
-            <span>R$21 por prompt · PIX instantâneo · IA de última geração</span>
+            <span>R$21 por foto · PIX instantâneo · IA de última geração</span>
           </div>
         </div>
       </div>
