@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { GenerationProgressBar } from "./GenerationProgressBar";
+import { StayOnPageCard } from "./StayOnPageCard";
 import { ShareButtons } from "./ShareButtons";
 import { BeforeAfterSlider } from "./BeforeAfterSlider";
 import { toast } from "sonner";
@@ -403,7 +404,11 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       // Go to payment step with Mercado Pago PIX
       if (prompt.price_cents > 0) {
         setStep('payment');
+        // Start payment AND pre-upload photos in parallel — saves seconds later
         void initMercadoPagoPayment(newPurchaseId);
+        void ensureUploadedPhotoUrls(newPurchaseId).catch(err => {
+          console.warn('Pre-upload during payment failed, will retry on generation:', err);
+        });
       } else {
         setStep('generating');
         void generateImage(newPurchaseId);
@@ -430,16 +435,14 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
           if (paymentPollRef.current) clearInterval(paymentPollRef.current);
           setVerifyingPayment(false);
           setPaymentStatus('paid');
-          toast.success('Pagamento confirmado!');
-          setTimeout(() => {
-            setStep('generating');
-            void generateImage(pId);
-          }, 1500);
+          toast.success('Pagamento confirmado! Iniciando geração...');
+          setStep('generating');
+          void generateImage(pId);
         }
       } catch (e) {
         console.error('Payment verification poll error:', e);
       }
-    }, 4000);
+    }, 2500);
   };
 
   const initMercadoPagoPayment = async (pId: string) => {
@@ -460,11 +463,9 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
 
       if (data?.status === 'approved') {
         setPaymentStatus('paid');
-        toast.success('Pagamento aprovado!');
-        setTimeout(() => {
-          setStep('generating');
-          void generateImage(pId);
-        }, 1000);
+        toast.success('Pagamento aprovado! Iniciando geração...');
+        setStep('generating');
+        void generateImage(pId);
         return;
       }
 
@@ -522,24 +523,22 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   };
 
   const uploadPhotos = async (effectivePurchaseId: string): Promise<string[]> => {
-    const urls: string[] = [];
+    // Upload all photos IN PARALLEL for maximum speed
+    const activePhotos = photos
+      .map((photo, i) => ({ photo, i }))
+      .filter(({ photo }) => !!photo.file);
 
-    for (let i = 0; i < photos.length; i++) {
-      const photo = photos[i];
-      if (!photo.file) continue;
-
+    const uploadOne = async ({ photo, i }: { photo: PhotoSlot; i: number }): Promise<string> => {
       let convertedFile: File;
       try {
-        convertedFile = await convertToJpeg(photo.file);
+        convertedFile = await convertToJpeg(photo.file!);
       } catch {
-        toast.error(`Erro ao processar foto ${i + 1}. Tente enviar em formato JPG.`);
         throw new Error(`Conversão da foto ${i + 1} falhou`);
       }
 
       const fileExt = convertedFile.name.split('.').pop() || 'jpg';
       const filePath = `purchases/${effectivePurchaseId}-photo${i + 1}-${Math.random().toString(36).slice(2)}.${fileExt}`;
 
-      // Retry upload up to 2 times
       let uploadData: any = null;
       let lastError: any = null;
       for (let attempt = 0; attempt < 2; attempt++) {
@@ -548,20 +547,21 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
           .upload(filePath, convertedFile, { cacheControl: '3600', upsert: false });
         if (!error) { uploadData = data; break; }
         lastError = error;
-        if (attempt === 0) await new Promise(r => setTimeout(r, 1500));
+        if (attempt === 0) await new Promise(r => setTimeout(r, 800));
       }
-      if (!uploadData) {
-        toast.error(`Falha ao enviar foto ${i + 1}. Verifique sua conexão.`);
-        throw lastError || new Error(`Upload da foto ${i + 1} falhou`);
-      }
+      if (!uploadData) throw lastError || new Error(`Upload da foto ${i + 1} falhou`);
 
       const { data: urlData } = supabase.storage.from('user-photos').getPublicUrl(uploadData.path);
       if (!urlData.publicUrl) throw new Error(`Falha ao obter URL da foto ${i + 1}`);
+      return urlData.publicUrl;
+    };
 
-      urls.push(urlData.publicUrl);
+    try {
+      return await Promise.all(activePhotos.map(uploadOne));
+    } catch (err) {
+      toast.error('Falha ao enviar fotos. Verifique sua conexão.');
+      throw err;
     }
-
-    return urls;
   };
 
   const ensureUploadedPhotoUrls = async (effectivePurchaseId: string): Promise<string[]> => {
@@ -2104,16 +2104,12 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                       size="sm"
                       className="w-full border-yellow-500/30 text-yellow-500 hover:bg-yellow-500/10 text-xs"
                       onClick={() => {
-                        const startTime = Date.now();
                         setPaymentStatus('paid');
                         if (paymentPollRef.current) clearInterval(paymentPollRef.current);
-                        toast.success('Pagamento simulado com sucesso!');
-                        setTimeout(() => {
-                          setStep('generating');
-                          void generateImage(purchaseId || undefined);
-                          const elapsed = Date.now() - startTime;
-                          console.log(`⏱️ Tempo até iniciar geração: ${elapsed}ms`);
-                        }, 500);
+                        toast.success('Pagamento confirmado! Iniciando geração...');
+                        // No artificial delay — go straight to generation
+                        setStep('generating');
+                        void generateImage(purchaseId || undefined);
                       }}
                     >
                       🧪 Simular Pagamento (Teste)
@@ -2220,6 +2216,9 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   qaStatus={qaStatus} 
                   photoCount={activePhotoCount || 1} 
                 />
+
+                {/* Stay on page warning + rotating reassurance messages */}
+                <StayOnPageCard />
 
                 {/* QA Issues panel */}
                 {qaIssues.length > 0 && (
