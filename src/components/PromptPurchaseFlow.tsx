@@ -1073,15 +1073,19 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       toast.error('Digite um número de WhatsApp válido');
       return;
     }
+    if (!downloadName.trim()) {
+      toast.error('Digite seu nome para baixar');
+      return;
+    }
     try {
       if (purchaseId) {
         await supabase
           .from('prompt_purchases')
-          .update({ custom_fields: { whatsapp: cleaned } } as any)
+          .update({ custom_fields: { whatsapp: cleaned, download_name: downloadName.trim() } } as any)
           .eq('id', purchaseId);
       }
       setWhatsappSaved(true);
-      toast.success('WhatsApp salvo! Agora você pode baixar sua imagem 🎉');
+      toast.success('Dados salvos! Agora você pode baixar sua imagem 🎉');
     } catch {
       setWhatsappSaved(true);
     }
