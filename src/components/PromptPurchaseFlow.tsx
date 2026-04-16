@@ -1847,22 +1847,26 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                       </p>
                     </div>
 
-                    {/* Test simulation button - only in preview/dev */}
-                    {(window.location.hostname.includes('lovable.app') || window.location.hostname === 'localhost' || window.location.hostname.includes('arcana.app.br')) && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full border-yellow-500/30 text-yellow-500 hover:bg-yellow-500/10 text-xs"
-                        onClick={() => {
-                          setPaymentStatus('paid');
-                          if (paymentPollRef.current) clearInterval(paymentPollRef.current);
-                          toast.success('Pagamento simulado com sucesso!');
-                          generateImage();
-                        }}
-                      >
-                        🧪 Simular Pagamento (Teste)
-                      </Button>
-                    )}
+                    {/* Simulate payment button - always visible for testing */}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full border-yellow-500/30 text-yellow-500 hover:bg-yellow-500/10 text-xs"
+                      onClick={() => {
+                        const startTime = Date.now();
+                        setPaymentStatus('paid');
+                        if (paymentPollRef.current) clearInterval(paymentPollRef.current);
+                        toast.success('Pagamento simulado com sucesso!');
+                        setTimeout(() => {
+                          setStep('generating');
+                          void generateImage(purchaseId || undefined);
+                          const elapsed = Date.now() - startTime;
+                          console.log(`⏱️ Tempo até iniciar geração: ${elapsed}ms`);
+                        }, 500);
+                      }}
+                    >
+                      🧪 Simular Pagamento (Teste)
+                    </Button>
 
                     {verifyingPayment && (
                       <div className="flex items-center justify-center gap-2 py-2">
