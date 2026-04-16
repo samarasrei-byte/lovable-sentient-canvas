@@ -442,7 +442,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       } catch (e) {
         console.error('Payment verification poll error:', e);
       }
-    }, 2500);
+    }, 1500);
   };
 
   const initMercadoPagoPayment = async (pId: string) => {
