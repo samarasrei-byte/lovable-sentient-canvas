@@ -1098,9 +1098,9 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: "100%", opacity: 0 }}
         transition={{ type: "spring", damping: 30, stiffness: 300 }}
-        className="w-full h-full sm:h-auto sm:max-w-lg sm:px-4 sm:py-4"
+        className="w-full h-full sm:h-auto sm:max-w-lg sm:px-4 sm:py-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
       >
-        <div className="relative overflow-hidden h-full sm:h-auto sm:max-h-[90vh] overflow-y-auto overscroll-contain sm:rounded-xl border border-white/[0.06] bg-[hsl(var(--background))] sm:bg-white/[0.02] sm:backdrop-blur-md">
+        <div className="relative overflow-hidden h-full sm:h-auto sm:max-h-[90vh] overflow-y-auto overscroll-contain sm:rounded-2xl border border-white/[0.06] bg-[hsl(var(--background))] sm:bg-white/[0.02] sm:backdrop-blur-md [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <button onClick={onClose} className="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors">
             <X className="w-4 h-4" />
           </button>
@@ -1162,46 +1162,73 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                         animate={{ opacity: 1, scale: 1 }}
                         className="relative"
                       >
-                        <div className="relative overflow-hidden rounded-3xl border border-white/[0.08] bg-gradient-to-b from-white/[0.04] to-transparent p-8 sm:p-10 active:scale-[0.98] transition-all duration-300 touch-manipulation">
-                          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full bg-primary/8 blur-3xl pointer-events-none" />
-
-                          <div className="relative flex flex-col items-center gap-5 text-center pointer-events-none">
+                        {/* Futuristic LED-bordered upload card */}
+                        <div className="relative overflow-hidden rounded-3xl p-[1.5px] active:scale-[0.98] transition-all duration-300 touch-manipulation">
+                          {/* Animated LED border */}
+                          <div className="absolute inset-0 rounded-3xl overflow-hidden">
                             <motion.div
-                              animate={{ y: [0, -5, 0] }}
-                              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                              className="relative"
-                            >
-                              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-[1.25rem] bg-gradient-to-b from-primary/20 to-primary/5 flex items-center justify-center border border-primary/15 shadow-[0_8px_32px_-8px_hsl(var(--primary)/0.25)]">
-                                <Camera className="w-9 h-9 sm:w-11 sm:h-11 text-primary" />
+                              animate={{ rotate: 360 }}
+                              transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                              className="absolute inset-[-50%] bg-[conic-gradient(from_0deg,transparent_0%,hsl(var(--primary))_20%,transparent_40%,hsl(var(--secondary))_60%,transparent_80%,hsl(var(--primary))_100%)]"
+                            />
+                          </div>
+                          {/* Inner card */}
+                          <div className="relative rounded-[calc(1.5rem-1.5px)] bg-[hsl(var(--background))] p-8 sm:p-10">
+                            {/* Ambient glow effects */}
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-56 h-56 rounded-full bg-primary/10 blur-[80px] pointer-events-none" />
+                            <div className="absolute bottom-0 right-0 w-32 h-32 rounded-full bg-secondary/8 blur-[60px] pointer-events-none" />
+                            
+                            {/* Grid pattern overlay */}
+                            <div className="absolute inset-0 rounded-[calc(1.5rem-1.5px)] opacity-[0.03] pointer-events-none" 
+                              style={{ backgroundImage: 'linear-gradient(hsl(var(--primary)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--primary)) 1px, transparent 1px)', backgroundSize: '24px 24px' }} 
+                            />
+
+                            <div className="relative flex flex-col items-center gap-5 text-center pointer-events-none">
+                              <motion.div
+                                animate={{ y: [0, -6, 0] }}
+                                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                                className="relative"
+                              >
+                                {/* Icon with neon ring */}
+                                <div className="relative">
+                                  <div className="absolute inset-0 rounded-2xl bg-primary/20 blur-xl animate-pulse" />
+                                  <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-primary/25 via-primary/10 to-secondary/10 flex items-center justify-center border border-primary/20 shadow-[0_0_30px_-5px_hsl(var(--primary)/0.35),inset_0_1px_0_hsl(var(--primary)/0.1)]">
+                                    <Camera className="w-9 h-9 sm:w-11 sm:h-11 text-primary drop-shadow-[0_0_8px_hsl(var(--primary)/0.5)]" />
+                                  </div>
+                                </div>
+                                <motion.div 
+                                  animate={{ scale: [1, 1.3, 1], opacity: [1, 0.6, 1] }}
+                                  transition={{ duration: 2, repeat: Infinity }}
+                                  className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-green-400 border-2 border-background shadow-[0_0_12px_hsl(142_71%_45%/0.6)]" 
+                                />
+                              </motion.div>
+
+                              <div className="space-y-2">
+                                <h4 className="text-lg sm:text-xl font-bold text-foreground tracking-[-0.04em] leading-tight">
+                                  {isCouplePrompt ? 'Fotos do casal' : isFamilyPrompt ? 'Fotos da família' : 'Sua melhor foto'}
+                                </h4>
+                                <p className="text-[13px] sm:text-sm text-muted-foreground/70 leading-relaxed max-w-[260px] mx-auto">
+                                  {isCouplePrompt
+                                    ? 'Uma foto de cada pessoa. A IA vai unir vocês.'
+                                    : isFamilyPrompt
+                                      ? 'Uma foto separada de cada membro.'
+                                      : 'Rosto visível, boa luz, de frente.'}
+                                </p>
                               </div>
-                              <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-green-500 border-2 border-background animate-pulse" />
-                            </motion.div>
 
-                            <div className="space-y-2">
-                              <h4 className="text-lg sm:text-xl font-bold text-foreground tracking-[-0.04em] leading-tight">
-                                {isCouplePrompt ? 'Fotos do casal' : isFamilyPrompt ? 'Fotos da família' : 'Sua melhor foto'}
-                              </h4>
-                              <p className="text-[13px] sm:text-sm text-muted-foreground/80 leading-relaxed max-w-[260px] mx-auto">
-                                {isCouplePrompt
-                                  ? 'Uma foto de cada pessoa. A IA vai unir vocês.'
-                                  : isFamilyPrompt
-                                    ? 'Uma foto separada de cada membro.'
-                                    : 'Rosto visível, boa luz, de frente.'}
-                              </p>
-                            </div>
+                              {/* Futuristic upload button */}
+                              <div className="relative group/btn">
+                                <div className="absolute inset-0 rounded-2xl bg-primary/30 blur-lg opacity-60" />
+                                <div className="relative flex items-center gap-2.5 px-7 py-3.5 rounded-2xl bg-gradient-to-r from-primary via-primary to-secondary text-primary-foreground font-semibold text-[15px] shadow-[0_0_24px_-4px_hsl(var(--primary)/0.5)]">
+                                  <Upload className="w-4.5 h-4.5" />
+                                  Escolher foto
+                                </div>
+                              </div>
 
-                            <div className="flex items-center gap-2.5 px-6 py-3 rounded-2xl bg-primary text-primary-foreground font-semibold text-[15px] shadow-[0_4px_24px_-4px_hsl(var(--primary)/0.4)] mt-1">
-                              <Upload className="w-4.5 h-4.5" />
-                              Escolher foto
-                            </div>
-
-                            <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground/45">
-                              Toque em qualquer área do card
-                            </p>
-
-                            <div className="flex items-center gap-3 text-[11px] text-muted-foreground/50 mt-0.5">
-                              <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-green-500/50" /> JPG, PNG, HEIC</span>
-                              <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-green-500/50" /> Até 20MB</span>
+                              <div className="flex items-center gap-3 text-[10px] text-muted-foreground/40 mt-1">
+                                <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-green-400/40" /> JPG, PNG, HEIC</span>
+                                <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-green-400/40" /> Até 20MB</span>
+                              </div>
                             </div>
                           </div>
                         </div>
