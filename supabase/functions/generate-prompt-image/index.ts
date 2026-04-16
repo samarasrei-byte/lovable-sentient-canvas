@@ -223,8 +223,8 @@ serve(async (req) => {
       prefix = mapping;
       if (exampleImageUrl) prefix += ` [IMAGE ${allPhotoUrls.length + 1}: STYLE ONLY — do NOT copy any face/identity/text from it.]`;
     } else if (allPhotoUrls.length === 1) {
-      prefix = `[IMAGE 1: USER PHOTO — clone this face exactly. Photo overrides ALL text descriptions for appearance.]`;
-      if (exampleImageUrl) prefix += ` [IMAGE 2: STYLE ONLY — do NOT copy any face/identity/text from it.]`;
+      prefix = `[IMAGE 1: USER REFERENCE PHOTO — THIS IS THE PERSON. Clone this EXACT face with forensic precision: every mole, every freckle, exact eye color, exact skin tone. The output person MUST be immediately recognizable as THE SAME PERSON. Photo overrides ALL text descriptions.]`;
+      if (exampleImageUrl) prefix += ` [IMAGE 2: STYLE REFERENCE ONLY — copy ONLY the artistic style, lighting, mood, background, and composition. Do NOT transfer ANY facial features, skin tone, hair color, or body shape from this image. The person's identity comes EXCLUSIVELY from IMAGE 1.]`;
     } else if (exampleImageUrl) {
       prefix = `[STYLE REFERENCE: replicate artistic style/lighting/mood. IGNORE any faces/text/numbers in reference.]`;
     }
