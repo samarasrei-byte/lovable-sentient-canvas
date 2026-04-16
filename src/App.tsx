@@ -58,6 +58,8 @@ const PromptDashboard = lazy(() => import("./pages/app/PromptDashboard"));
 const FutebolGenerator = lazy(() => import("./pages/app/FutebolGenerator"));
 const CategoryPage = lazy(() => import("./pages/CategoryPage"));
 const FotoInfantil = lazy(() => import("./pages/Mesversario"));
+const TermosDeUso = lazy(() => import("./pages/TermosDeUso"));
+const PoliticaPrivacidade = lazy(() => import("./pages/PoliticaPrivacidade"));
 
 const queryClient = new QueryClient();
 
@@ -137,6 +139,10 @@ const App = () => (
             {/* Category Landing Pages */}
             <Route path="/fotoinfantil" element={<FotoInfantil />} />
             <Route path="/categoria/:slug" element={<CategoryPage />} />
+
+            {/* Legal Pages */}
+            <Route path="/termos" element={<TermosDeUso />} />
+            <Route path="/privacidade" element={<PoliticaPrivacidade />} />
 
             {/* White Label Agency Routes */}
             <Route path="/whitelabel/:domain" element={<WhiteLabelDashboard />} />
