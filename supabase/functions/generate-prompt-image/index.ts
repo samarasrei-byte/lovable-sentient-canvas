@@ -197,6 +197,7 @@ serve(async (req) => {
 
     // --- EDIT MODE ---
     if (editMode && sourceImageUrl) {
+      const resolvedSource = await resolvePhotoUrl(sourceImageUrl, initAdmin());
       const editMessages = [
         { role: "system", content: "You are a professional image editor. Edit images while preserving the subject's identity perfectly." },
         { role: "user", content: [
