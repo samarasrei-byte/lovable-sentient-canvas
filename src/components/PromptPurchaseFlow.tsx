@@ -1289,13 +1289,18 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                 <h4 className="text-lg sm:text-xl font-bold text-foreground tracking-[-0.04em] leading-tight">
                                   {isCouplePrompt ? 'Fotos do casal' : isFamilyPrompt ? 'Fotos da família' : 'Sua melhor foto'}
                                 </h4>
-                                <p className="text-[13px] sm:text-sm text-muted-foreground/70 leading-relaxed max-w-[260px] mx-auto">
+                                <p className="text-[13px] sm:text-sm text-muted-foreground/70 leading-relaxed max-w-[280px] mx-auto">
                                   {isCouplePrompt
                                     ? 'Uma foto de cada pessoa. A IA vai unir vocês.'
                                     : isFamilyPrompt
                                       ? 'Uma foto separada de cada membro.'
-                                      : 'Rosto visível, boa luz, de frente.'}
+                                      : 'Rosto visível, boa iluminação, de frente. Quanto melhor a foto, mais parecido fica!'}
                                 </p>
+                                <div className="flex flex-wrap justify-center gap-1.5 mt-1">
+                                  {['✅ Rosto de frente', '✅ Boa luz', '✅ Sem óculos escuros'].map(tip => (
+                                    <span key={tip} className="text-[9px] px-2 py-0.5 rounded-full bg-primary/8 text-primary/70 font-medium">{tip}</span>
+                                  ))}
+                                </div>
                               </div>
 
                               {/* Futuristic upload button */}
