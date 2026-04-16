@@ -522,24 +522,22 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   };
 
   const uploadPhotos = async (effectivePurchaseId: string): Promise<string[]> => {
-    const urls: string[] = [];
+    // Upload all photos IN PARALLEL for maximum speed
+    const activePhotos = photos
+      .map((photo, i) => ({ photo, i }))
+      .filter(({ photo }) => !!photo.file);
 
-    for (let i = 0; i < photos.length; i++) {
-      const photo = photos[i];
-      if (!photo.file) continue;
-
+    const uploadOne = async ({ photo, i }: { photo: PhotoSlot; i: number }): Promise<string> => {
       let convertedFile: File;
       try {
-        convertedFile = await convertToJpeg(photo.file);
+        convertedFile = await convertToJpeg(photo.file!);
       } catch {
-        toast.error(`Erro ao processar foto ${i + 1}. Tente enviar em formato JPG.`);
         throw new Error(`Conversão da foto ${i + 1} falhou`);
       }
 
       const fileExt = convertedFile.name.split('.').pop() || 'jpg';
       const filePath = `purchases/${effectivePurchaseId}-photo${i + 1}-${Math.random().toString(36).slice(2)}.${fileExt}`;
 
-      // Retry upload up to 2 times
       let uploadData: any = null;
       let lastError: any = null;
       for (let attempt = 0; attempt < 2; attempt++) {
@@ -548,20 +546,21 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
           .upload(filePath, convertedFile, { cacheControl: '3600', upsert: false });
         if (!error) { uploadData = data; break; }
         lastError = error;
-        if (attempt === 0) await new Promise(r => setTimeout(r, 1500));
+        if (attempt === 0) await new Promise(r => setTimeout(r, 800));
       }
-      if (!uploadData) {
-        toast.error(`Falha ao enviar foto ${i + 1}. Verifique sua conexão.`);
-        throw lastError || new Error(`Upload da foto ${i + 1} falhou`);
-      }
+      if (!uploadData) throw lastError || new Error(`Upload da foto ${i + 1} falhou`);
 
       const { data: urlData } = supabase.storage.from('user-photos').getPublicUrl(uploadData.path);
       if (!urlData.publicUrl) throw new Error(`Falha ao obter URL da foto ${i + 1}`);
+      return urlData.publicUrl;
+    };
 
-      urls.push(urlData.publicUrl);
+    try {
+      return await Promise.all(activePhotos.map(uploadOne));
+    } catch (err) {
+      toast.error('Falha ao enviar fotos. Verifique sua conexão.');
+      throw err;
     }
-
-    return urls;
   };
 
   const ensureUploadedPhotoUrls = async (effectivePurchaseId: string): Promise<string[]> => {
