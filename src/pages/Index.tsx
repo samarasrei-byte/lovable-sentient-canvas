@@ -25,10 +25,8 @@ const Index = () => {
       {/* Hero — loaded eagerly for instant FCP */}
       <HeroArcana2 />
       
-      {/* Everything below the fold is lazy loaded */}
-      <Suspense fallback={<SectionFallback />}>
-        <PromptMarketplace />
-      </Suspense>
+      {/* Marketplace eager — avoids stale chunk fetch errors */}
+      <PromptMarketplace />
       
       <Suspense fallback={<SectionFallback />}>
         <MassiveGallery />
