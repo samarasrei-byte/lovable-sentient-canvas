@@ -528,15 +528,32 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       const photo = photos[i];
       if (!photo.file) continue;
 
-      const convertedFile = await convertToJpeg(photo.file);
+      let convertedFile: File;
+      try {
+        convertedFile = await convertToJpeg(photo.file);
+      } catch {
+        toast.error(`Erro ao processar foto ${i + 1}. Tente enviar em formato JPG.`);
+        throw new Error(`Conversão da foto ${i + 1} falhou`);
+      }
+
       const fileExt = convertedFile.name.split('.').pop() || 'jpg';
       const filePath = `purchases/${effectivePurchaseId}-photo${i + 1}-${Math.random().toString(36).slice(2)}.${fileExt}`;
 
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('user-photos')
-        .upload(filePath, convertedFile, { cacheControl: '3600', upsert: false });
-
-      if (uploadError) throw uploadError;
+      // Retry upload up to 2 times
+      let uploadData: any = null;
+      let lastError: any = null;
+      for (let attempt = 0; attempt < 2; attempt++) {
+        const { data, error } = await supabase.storage
+          .from('user-photos')
+          .upload(filePath, convertedFile, { cacheControl: '3600', upsert: false });
+        if (!error) { uploadData = data; break; }
+        lastError = error;
+        if (attempt === 0) await new Promise(r => setTimeout(r, 1500));
+      }
+      if (!uploadData) {
+        toast.error(`Falha ao enviar foto ${i + 1}. Verifique sua conexão.`);
+        throw lastError || new Error(`Upload da foto ${i + 1} falhou`);
+      }
 
       const { data: urlData } = supabase.storage.from('user-photos').getPublicUrl(uploadData.path);
       if (!urlData.publicUrl) throw new Error(`Falha ao obter URL da foto ${i + 1}`);
