@@ -2218,7 +2218,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                 />
 
                 {/* Stay on page warning + rotating reassurance messages */}
-                <StayOnPageCard />
+                <StayOnPageCard photosReady={uploadedPhotoUrls.length > 0} />
 
                 {/* QA Issues panel */}
                 {qaIssues.length > 0 && (
