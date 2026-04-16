@@ -434,16 +434,14 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
           if (paymentPollRef.current) clearInterval(paymentPollRef.current);
           setVerifyingPayment(false);
           setPaymentStatus('paid');
-          toast.success('Pagamento confirmado!');
-          setTimeout(() => {
-            setStep('generating');
-            void generateImage(pId);
-          }, 1500);
+          toast.success('Pagamento confirmado! Iniciando geração...');
+          setStep('generating');
+          void generateImage(pId);
         }
       } catch (e) {
         console.error('Payment verification poll error:', e);
       }
-    }, 4000);
+    }, 2500);
   };
 
   const initMercadoPagoPayment = async (pId: string) => {
@@ -464,11 +462,9 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
 
       if (data?.status === 'approved') {
         setPaymentStatus('paid');
-        toast.success('Pagamento aprovado!');
-        setTimeout(() => {
-          setStep('generating');
-          void generateImage(pId);
-        }, 1000);
+        toast.success('Pagamento aprovado! Iniciando geração...');
+        setStep('generating');
+        void generateImage(pId);
         return;
       }
 
