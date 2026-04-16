@@ -403,7 +403,11 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       // Go to payment step with Mercado Pago PIX
       if (prompt.price_cents > 0) {
         setStep('payment');
+        // Start payment AND pre-upload photos in parallel — saves seconds later
         void initMercadoPagoPayment(newPurchaseId);
+        void ensureUploadedPhotoUrls(newPurchaseId).catch(err => {
+          console.warn('Pre-upload during payment failed, will retry on generation:', err);
+        });
       } else {
         setStep('generating');
         void generateImage(newPurchaseId);
@@ -2103,16 +2107,12 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                       size="sm"
                       className="w-full border-yellow-500/30 text-yellow-500 hover:bg-yellow-500/10 text-xs"
                       onClick={() => {
-                        const startTime = Date.now();
                         setPaymentStatus('paid');
                         if (paymentPollRef.current) clearInterval(paymentPollRef.current);
-                        toast.success('Pagamento simulado com sucesso!');
-                        setTimeout(() => {
-                          setStep('generating');
-                          void generateImage(purchaseId || undefined);
-                          const elapsed = Date.now() - startTime;
-                          console.log(`⏱️ Tempo até iniciar geração: ${elapsed}ms`);
-                        }, 500);
+                        toast.success('Pagamento confirmado! Iniciando geração...');
+                        // No artificial delay — go straight to generation
+                        setStep('generating');
+                        void generateImage(purchaseId || undefined);
                       }}
                     >
                       🧪 Simular Pagamento (Teste)
