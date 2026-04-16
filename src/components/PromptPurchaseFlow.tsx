@@ -442,7 +442,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       } catch (e) {
         console.error('Payment verification poll error:', e);
       }
-    }, 2500);
+    }, 1500);
   };
 
   const initMercadoPagoPayment = async (pId: string) => {
@@ -2218,7 +2218,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                 />
 
                 {/* Stay on page warning + rotating reassurance messages */}
-                <StayOnPageCard />
+                <StayOnPageCard photosReady={uploadedPhotoUrls.length > 0} />
 
                 {/* QA Issues panel */}
                 {qaIssues.length > 0 && (
