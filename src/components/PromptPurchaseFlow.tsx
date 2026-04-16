@@ -225,12 +225,34 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
     }
   };
 
+  const validatePhotoQuality = (img: HTMLImageElement): { ok: boolean; warning?: string } => {
+    // Minimum resolution check
+    if (img.width < 200 || img.height < 200) {
+      return { ok: false, warning: 'Foto com resolução muito baixa. Envie uma foto com pelo menos 200x200 pixels para melhor resultado.' };
+    }
+    // Warn about very small photos
+    if (img.width < 400 || img.height < 400) {
+      return { ok: true, warning: '⚠️ Foto com resolução baixa. Quanto maior a resolução, melhor a semelhança facial.' };
+    }
+    return { ok: true };
+  };
+
   const handlePhotoUpload = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
 
     if (!file) return;
     if (file.size > 20 * 1024 * 1024) {
       toast.error('Arquivo muito grande. Máximo 20MB.');
+      return;
+    }
+
+    // Validate file type — support HEIC with friendly message
+    const supportedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/heic', 'image/heif'];
+    const fileExt = file.name.toLowerCase().split('.').pop();
+    const isHeic = fileExt === 'heic' || fileExt === 'heif' || file.type === 'image/heic' || file.type === 'image/heif';
+    
+    if (!supportedTypes.includes(file.type) && !isHeic && !file.type.startsWith('image/')) {
+      toast.error('Formato não suportado. Envie JPG, PNG ou HEIC.');
       return;
     }
 
@@ -241,19 +263,35 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       return next;
     });
 
+    // Show uploading feedback
+    toast.loading('Processando foto...', { id: `photo-upload-${index}` });
+
     const reader = new FileReader();
     reader.onload = (event) => {
       const img = new Image();
       img.onload = () => {
+        // Validate quality
+        const quality = validatePhotoQuality(img);
+        if (!quality.ok) {
+          toast.error(quality.warning || 'Foto não aceita.', { id: `photo-upload-${index}` });
+          return;
+        }
+        if (quality.warning) {
+          toast.warning(quality.warning, { id: `photo-upload-${index}`, duration: 5000 });
+        } else {
+          toast.success('Foto carregada!', { id: `photo-upload-${index}` });
+        }
+
         const canvas = document.createElement('canvas');
-        const maxSize = 512;
+        // Use higher resolution for preview to improve analysis accuracy
+        const maxSize = 768;
         const scale = Math.min(maxSize / img.width, maxSize / img.height, 1);
         canvas.width = img.width * scale;
         canvas.height = img.height * scale;
         const ctx = canvas.getContext('2d');
         ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-        const preview = canvas.toDataURL('image/jpeg', 0.85);
+        const preview = canvas.toDataURL('image/jpeg', 0.88);
 
         setPhotos((prev) => {
           const updated = [...prev];
@@ -263,7 +301,21 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
 
         void analyzeUploadedPhoto(index, preview);
       };
+      img.onerror = () => {
+        // HEIC fallback: if browser can't load HEIC natively, try conversion
+        if (isHeic) {
+          toast.error('Seu dispositivo não suporta fotos HEIC diretamente. Por favor, tire uma foto em JPG nas configurações da câmera (Configurações → Câmera → Formatos → Mais Compatível).', { 
+            id: `photo-upload-${index}`,
+            duration: 8000 
+          });
+        } else {
+          toast.error('Não foi possível carregar a foto. Tente outro arquivo.', { id: `photo-upload-${index}` });
+        }
+      };
       img.src = event.target?.result as string;
+    };
+    reader.onerror = () => {
+      toast.error('Erro ao ler o arquivo. Tente novamente.', { id: `photo-upload-${index}` });
     };
     reader.readAsDataURL(file);
   };
@@ -476,15 +528,32 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       const photo = photos[i];
       if (!photo.file) continue;
 
-      const convertedFile = await convertToJpeg(photo.file);
+      let convertedFile: File;
+      try {
+        convertedFile = await convertToJpeg(photo.file);
+      } catch {
+        toast.error(`Erro ao processar foto ${i + 1}. Tente enviar em formato JPG.`);
+        throw new Error(`Conversão da foto ${i + 1} falhou`);
+      }
+
       const fileExt = convertedFile.name.split('.').pop() || 'jpg';
       const filePath = `purchases/${effectivePurchaseId}-photo${i + 1}-${Math.random().toString(36).slice(2)}.${fileExt}`;
 
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('user-photos')
-        .upload(filePath, convertedFile, { cacheControl: '3600', upsert: false });
-
-      if (uploadError) throw uploadError;
+      // Retry upload up to 2 times
+      let uploadData: any = null;
+      let lastError: any = null;
+      for (let attempt = 0; attempt < 2; attempt++) {
+        const { data, error } = await supabase.storage
+          .from('user-photos')
+          .upload(filePath, convertedFile, { cacheControl: '3600', upsert: false });
+        if (!error) { uploadData = data; break; }
+        lastError = error;
+        if (attempt === 0) await new Promise(r => setTimeout(r, 1500));
+      }
+      if (!uploadData) {
+        toast.error(`Falha ao enviar foto ${i + 1}. Verifique sua conexão.`);
+        throw lastError || new Error(`Upload da foto ${i + 1} falhou`);
+      }
 
       const { data: urlData } = supabase.storage.from('user-photos').getPublicUrl(uploadData.path);
       if (!urlData.publicUrl) throw new Error(`Falha ao obter URL da foto ${i + 1}`);
@@ -1220,13 +1289,18 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                 <h4 className="text-lg sm:text-xl font-bold text-foreground tracking-[-0.04em] leading-tight">
                                   {isCouplePrompt ? 'Fotos do casal' : isFamilyPrompt ? 'Fotos da família' : 'Sua melhor foto'}
                                 </h4>
-                                <p className="text-[13px] sm:text-sm text-muted-foreground/70 leading-relaxed max-w-[260px] mx-auto">
+                                <p className="text-[13px] sm:text-sm text-muted-foreground/70 leading-relaxed max-w-[280px] mx-auto">
                                   {isCouplePrompt
                                     ? 'Uma foto de cada pessoa. A IA vai unir vocês.'
                                     : isFamilyPrompt
                                       ? 'Uma foto separada de cada membro.'
-                                      : 'Rosto visível, boa luz, de frente.'}
+                                      : 'Rosto visível, boa iluminação, de frente. Quanto melhor a foto, mais parecido fica!'}
                                 </p>
+                                <div className="flex flex-wrap justify-center gap-1.5 mt-1">
+                                  {['✅ Rosto de frente', '✅ Boa luz', '✅ Sem óculos escuros'].map(tip => (
+                                    <span key={tip} className="text-[9px] px-2 py-0.5 rounded-full bg-primary/8 text-primary/70 font-medium">{tip}</span>
+                                  ))}
+                                </div>
                               </div>
 
                               {/* Futuristic upload button */}
