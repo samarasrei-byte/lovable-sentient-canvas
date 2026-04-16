@@ -907,6 +907,11 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       return;
     }
 
+    if (editCount >= MAX_EDITS) {
+      toast.error('Você já utilizou sua edição gratuita.');
+      return;
+    }
+
     if (!generatedImage) return;
 
     setIsEditing(true);
@@ -929,6 +934,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       setGeneratedImage(data.imageUrl);
       setGeneratedVariants((prev) => prev.map((variant, index) => ({ ...variant, selected: index === 0 })));
       setEditInstruction('');
+      setEditCount(prev => prev + 1);
       setStep('complete');
       toast.success('Imagem editada com sucesso!');
     } catch (error) {
