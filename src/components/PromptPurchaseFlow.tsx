@@ -91,7 +91,8 @@ interface PhotoProfile {
   };
 }
 
-const MAX_VARIANTS = 3;
+const MAX_VARIANTS = 3; // 1 original + 2 free variations
+const MAX_EDITS = 1;
 
 const GeneratingStep = ({ label, delay, isQA }: { label: string; delay: number; isQA?: boolean }) => {
   const [active, setActive] = useState(false);
