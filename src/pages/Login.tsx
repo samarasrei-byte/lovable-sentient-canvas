@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ArrowRight, Eye, EyeOff, Sparkles, Zap, Shield, Star } from "lucide-react";
+import { Loader2, ArrowRight, Eye, EyeOff, Sparkles, Zap, Star } from "lucide-react";
 import { Session } from "@supabase/supabase-js";
 import { motion, AnimatePresence } from "framer-motion";
 import { createNoise3D } from "simplex-noise";
