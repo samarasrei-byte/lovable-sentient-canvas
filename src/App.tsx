@@ -85,7 +85,7 @@ const App = () => (
             <Route path="/qa-dashboard" element={<QADashboard />} />
             
             {/* Admin Routes */}
-            <Route path="/admin" element={<AdminLayout />}>
+            <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminLayout /></ProtectedRoute>}>
               <Route index element={<AdminDashboard />} />
               <Route path="users" element={<AdminUsers />} />
               <Route path="prompts" element={<PromptsManager />} />

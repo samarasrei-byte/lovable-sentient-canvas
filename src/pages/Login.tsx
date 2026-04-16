@@ -95,8 +95,6 @@ const FeatureItem = ({ icon: Icon, text, delay }: { icon: any; text: string; del
   </motion.div>
 );
 
-const ADMIN_EMAIL = "admin@arcana.com.br";
-const ADMIN_PASSWORD = "arcana2026";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -125,15 +123,6 @@ const Login = () => {
     navigate("/app/dashboard");
   };
 
-  const ensureAdminAccount = async () => {
-    const { data, error } = await supabase.functions.invoke("ensure-admin-user", {
-      body: { email: ADMIN_EMAIL, password: ADMIN_PASSWORD },
-    });
-
-    if (error) throw error;
-    if (data?.error) throw new Error(data.error);
-    return data;
-  };
 
   const checkIfBanned = async (userId: string) => {
     const { data: banData } = await supabase
@@ -157,18 +146,7 @@ const Login = () => {
     const email = (fd.get("email") as string).trim().toLowerCase();
     const password = fd.get("password") as string;
 
-    let { data, error } = await supabase.auth.signInWithPassword({ email, password });
-
-    if (error && email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-      try {
-        await ensureAdminAccount();
-        const retry = await supabase.auth.signInWithPassword({ email, password });
-        data = retry.data;
-        error = retry.error;
-      } catch (adminError: any) {
-        error = adminError;
-      }
-    }
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
       toast({ variant: "destructive", title: "Erro ao entrar", description: error.message });
@@ -362,45 +340,6 @@ const Login = () => {
                       </button>
               </form>
 
-              {/* Divider */}
-              <div className="relative my-5">
-                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/[0.06]" /></div>
-                <div className="relative flex justify-center">
-                  <span className="px-3 bg-transparent text-[10px] text-muted-foreground/40 uppercase tracking-widest">ou</span>
-                </div>
-              </div>
-
-              {/* Admin button */}
-              <div className="flex gap-2">
-                <button
-                  onClick={async () => {
-                    setLoading(true);
-                    try {
-                      await ensureAdminAccount();
-                      const res = await supabase.auth.signInWithPassword({ email: ADMIN_EMAIL, password: ADMIN_PASSWORD });
-
-                      if (res.error) {
-                        throw res.error;
-                      }
-
-                      if (res.data.user && await checkIfBanned(res.data.user.id)) {
-                        setLoading(false);
-                        return;
-                      }
-
-                      navigate("/admin");
-                    } catch (e: any) {
-                      toast({ title: "Erro", description: e.message, variant: "destructive" });
-                    }
-                    setLoading(false);
-                  }}
-                  disabled={loading}
-                  className="w-full h-11 rounded-xl border border-primary/20 bg-primary/[0.05] text-primary text-sm font-medium hover:bg-primary/[0.1] hover:border-primary/30 transition-all duration-300"
-                >
-                  <Shield className="w-3.5 h-3.5 inline mr-1.5" />
-                  Admin
-                </button>
-              </div>
             </div>
           </div>
 
