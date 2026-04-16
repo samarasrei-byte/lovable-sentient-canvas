@@ -1155,22 +1155,17 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
                 {prompt.required_fields.includes('photo') && (
                   <div className="space-y-4">
-                    {/* Hero upload CTA — mobile-first, iOS-safe with <label> */}
+                    {/* Hero upload CTA — mobile-first with native full-card input overlay */}
                     {activePhotoCount === 0 ? (
                       <motion.div
                         initial={{ opacity: 0, scale: 0.97 }}
                         animate={{ opacity: 1, scale: 1 }}
                         className="relative"
                       >
-                        <label
-                          htmlFor="hero-photo-upload-0"
-                          className="relative block overflow-hidden rounded-3xl border border-white/[0.08] bg-gradient-to-b from-white/[0.04] to-transparent p-8 sm:p-10 cursor-pointer active:scale-[0.98] transition-all duration-300 touch-manipulation"
-                        >
-                          {/* Soft ambient glow */}
+                        <div className="relative overflow-hidden rounded-3xl border border-white/[0.08] bg-gradient-to-b from-white/[0.04] to-transparent p-8 sm:p-10 active:scale-[0.98] transition-all duration-300 touch-manipulation">
                           <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full bg-primary/8 blur-3xl pointer-events-none" />
 
-                          <div className="relative flex flex-col items-center gap-5 text-center">
-                            {/* Floating icon with ring */}
+                          <div className="relative flex flex-col items-center gap-5 text-center pointer-events-none">
                             <motion.div
                               animate={{ y: [0, -5, 0] }}
                               transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
@@ -1179,7 +1174,6 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                               <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-[1.25rem] bg-gradient-to-b from-primary/20 to-primary/5 flex items-center justify-center border border-primary/15 shadow-[0_8px_32px_-8px_hsl(var(--primary)/0.25)]">
                                 <Camera className="w-9 h-9 sm:w-11 sm:h-11 text-primary" />
                               </div>
-                              {/* Live dot */}
                               <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-green-500 border-2 border-background animate-pulse" />
                             </motion.div>
 
@@ -1196,27 +1190,32 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                               </p>
                             </div>
 
-                            {/* CTA pill */}
-                            <div className="flex items-center gap-2.5 px-6 py-3 rounded-2xl bg-primary text-primary-foreground font-semibold text-[15px] shadow-[0_4px_24px_-4px_hsl(var(--primary)/0.4)] mt-1 active:scale-95 transition-transform">
+                            <div className="flex items-center gap-2.5 px-6 py-3 rounded-2xl bg-primary text-primary-foreground font-semibold text-[15px] shadow-[0_4px_24px_-4px_hsl(var(--primary)/0.4)] mt-1">
                               <Upload className="w-4.5 h-4.5" />
                               Escolher foto
                             </div>
 
-                            {/* Trust signals */}
+                            <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground/45">
+                              Toque em qualquer área do card
+                            </p>
+
                             <div className="flex items-center gap-3 text-[11px] text-muted-foreground/50 mt-0.5">
                               <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-green-500/50" /> JPG, PNG, HEIC</span>
                               <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-green-500/50" /> Até 20MB</span>
                             </div>
                           </div>
-                        </label>
+                        </div>
 
-                        {/* Hidden file input linked by htmlFor — iOS safe */}
                         <input
                           id="hero-photo-upload-0"
+                          ref={(el) => {
+                            fileInputRefs.current[0] = el;
+                          }}
                           type="file"
                           accept="image/*"
                           onChange={(e) => handlePhotoUpload(0, e)}
-                          className="sr-only"
+                          aria-label="Escolher foto para geração"
+                          className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0 touch-manipulation"
                         />
                       </motion.div>
                     ) : (
@@ -1266,9 +1265,8 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                               transition={{ delay: index * 0.05 }}
                               className="relative group space-y-1.5"
                             >
-                              <label
-                                htmlFor={`photo-slot-upload-${index}`}
-                                className={`relative block rounded-2xl border transition-all cursor-pointer overflow-hidden aspect-[3/4] active:scale-[0.97] touch-manipulation ${
+                              <div
+                                className={`relative rounded-2xl border transition-all overflow-hidden aspect-[3/4] active:scale-[0.97] touch-manipulation ${
                                   photo.preview 
                                     ? 'border-white/[0.08] bg-black/20 shadow-[0_4px_24px_-8px_hsl(0_0%_0%/0.5)]' 
                                     : 'border-dashed border-white/[0.12] hover:border-primary/30 bg-gradient-to-b from-white/[0.03] to-transparent'
@@ -1277,13 +1275,12 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                 {photo.preview ? (
                                   <>
                                     <img src={photo.preview} alt={slotLabel} className="w-full h-full object-contain" />
-                                    {/* Success indicator — subtle ring */}
-                                    <div className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full bg-green-500/90 flex items-center justify-center shadow-sm ring-2 ring-background">
+                                    <div className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full bg-green-500/90 flex items-center justify-center shadow-sm ring-2 ring-background pointer-events-none">
                                       <Check className="w-3 h-3 text-white" />
                                     </div>
                                   </>
                                 ) : (
-                                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-muted-foreground p-3">
+                                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-muted-foreground p-3 pointer-events-none">
                                     <div className="w-11 h-11 rounded-xl bg-white/[0.06] flex items-center justify-center border border-white/[0.08]">
                                       <ImagePlus className="w-5 h-5 text-muted-foreground/40" />
                                     </div>
@@ -1294,11 +1291,23 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                   </div>
                                 )}
                                 {photo.preview && (
-                                  <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent p-2.5">
+                                  <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent p-2.5 pointer-events-none">
                                     <span className="text-[10px] text-white/80 font-medium tracking-tight">{slotLabel}</span>
                                   </div>
                                 )}
-                              </label>
+
+                                <input
+                                  id={`photo-slot-upload-${index}`}
+                                  ref={(el) => {
+                                    fileInputRefs.current[index] = el;
+                                  }}
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={(e) => handlePhotoUpload(index, e)}
+                                  aria-label={`Escolher ${slotLabel}`}
+                                  className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0 touch-manipulation"
+                                />
+                              </div>
 
                               {photos.length > 1 && (
                                 <button
@@ -1306,22 +1315,11 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                     e.stopPropagation();
                                     removePhotoSlot(index);
                                   }}
-                                  className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 sm:opacity-0 active:opacity-100 transition-opacity shadow-md z-10"
+                                  className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 sm:opacity-0 active:opacity-100 transition-opacity shadow-md z-20"
                                 >
                                   <Trash2 className="w-3 h-3" />
                                 </button>
                               )}
-
-                              <input
-                                id={`photo-slot-upload-${index}`}
-                                ref={(el) => {
-                                  fileInputRefs.current[index] = el;
-                                }}
-                                type="file"
-                                accept="image/*"
-                                onChange={(e) => handlePhotoUpload(index, e)}
-                                className="sr-only"
-                              />
 
                               <div className="min-h-8 flex flex-wrap gap-1">
                                 {isAnalyzing && (
