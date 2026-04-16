@@ -2151,58 +2151,106 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
 
 
             {step === 'generating' && (
-              <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="py-6 sm:py-8 text-center">
-                <div className="relative w-20 h-20 mx-auto mb-4">
-                  <div className="absolute inset-0 rounded-full border-2 border-white/[0.06]" />
-                  <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-primary animate-spin" style={{ animationDuration: '1.2s' }} />
-                  <div className="absolute inset-2 rounded-full bg-white/[0.03] backdrop-blur-sm flex items-center justify-center">
-                    <Sparkles className="w-6 h-6 text-primary animate-pulse" />
+              <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.4 }} className="py-4 sm:py-6">
+                
+                {/* Hero generating state */}
+                <div className="relative flex flex-col items-center mb-6">
+                  {/* Animated orbiting rings */}
+                  <div className="relative w-28 h-28 sm:w-32 sm:h-32 mx-auto">
+                    {/* Outer ring */}
+                    <motion.div 
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                      className="absolute inset-0 rounded-full border border-primary/20"
+                    />
+                    {/* Middle ring - counter-rotate */}
+                    <motion.div 
+                      animate={{ rotate: -360 }}
+                      transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
+                      className="absolute inset-3 rounded-full border border-secondary/15"
+                    />
+                    {/* Inner glow */}
+                    <div className="absolute inset-5 rounded-full bg-gradient-to-br from-primary/15 via-transparent to-secondary/10 backdrop-blur-sm" />
+                    {/* Center icon */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <motion.div
+                        animate={{ scale: [1, 1.15, 1] }}
+                        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                      >
+                        <Sparkles className="w-8 h-8 sm:w-10 sm:h-10 text-primary drop-shadow-[0_0_12px_hsl(var(--primary)/0.5)]" />
+                      </motion.div>
+                    </div>
+                    {/* Orbiting dot */}
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                      className="absolute inset-0"
+                    >
+                      <div className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_hsl(var(--primary)/0.6)]" />
+                    </motion.div>
                   </div>
+
+                  {/* Title */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="text-center mt-5 space-y-1.5"
+                  >
+                    <h3 className="text-lg sm:text-xl font-bold tracking-[-0.03em]">
+                      {qaStatus === 'checking' 
+                        ? '🔍 Auditoria de Qualidade' 
+                        : qaStatus === 'fixing' 
+                          ? '🔧 Corrigindo Automaticamente' 
+                          : '✨ Sua Imagem Está Sendo Gerada'}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground/60 max-w-[300px] mx-auto leading-relaxed">
+                      {qaStatus === 'fixing'
+                        ? 'Nossa IA detectou melhorias possíveis e está gerando uma versão otimizada'
+                        : activePhotoCount > 1 
+                          ? `Processando ${activePhotoCount} fotos com clonagem facial de precisão forense`
+                          : 'Cada detalhe do seu rosto está sendo replicado com precisão milimétrica'}
+                    </p>
+                  </motion.div>
                 </div>
 
-                <h3 className="text-base sm:text-lg font-semibold mb-1">
-                  {qaStatus === 'checking' ? 'Validando qualidade...' : qaStatus === 'fixing' ? 'Corrigindo automaticamente...' : 'Gerando sua imagem...'}
-                </h3>
-                <p className="text-xs text-muted-foreground mb-4">
-                  {qaStatus === 'fixing'
-                    ? 'Problemas detectados, gerando versão corrigida...'
-                    : `A IA está ${activePhotoCount > 1 ? `processando ${activePhotoCount} fotos` : 'criando sua arte'}.`}
-                </p>
-
+                {/* Progress bar component */}
                 <GenerationProgressBar 
                   isGenerating={step === 'generating'} 
                   qaStatus={qaStatus} 
                   photoCount={activePhotoCount || 1} 
                 />
 
+                {/* QA Issues panel */}
                 {qaIssues.length > 0 && (
-                  <div className="mb-4 p-3 rounded-lg bg-secondary/10 border border-secondary/30 text-left">
-                    <div className="flex items-center gap-1.5 text-secondary text-xs font-medium mb-1.5">
-                      <AlertTriangle className="w-3.5 h-3.5" />Corrigindo:
+                  <motion.div 
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-4 p-3 rounded-xl bg-secondary/8 border border-secondary/20"
+                  >
+                    <div className="flex items-center gap-1.5 text-secondary text-xs font-semibold mb-2">
+                      <AlertTriangle className="w-3.5 h-3.5" />
+                      Ajustes em andamento
                     </div>
                     {qaIssues.map((issue, index) => (
-                      <p key={index} className="text-[10px] text-muted-foreground">• {issue}</p>
+                      <p key={index} className="text-[10px] text-muted-foreground/60 leading-relaxed">• {issue}</p>
                     ))}
-                  </div>
+                  </motion.div>
                 )}
 
-                <GlassButton onClick={() => { setStep('generating'); void generateImage(purchaseId || undefined); }} variant="outline" className="mt-2" size="sm">
-                  <RefreshCw className="w-4 h-4 mr-2" />Tentar novamente
-                </GlassButton>
-
-                <div className="mt-5 p-3 sm:p-4 rounded-xl border border-primary/30 bg-primary/5">
-                  <div className="flex items-center justify-center gap-2 mb-1.5">
-                    <Sparkles className="w-4 h-4 text-primary" />
-                    <span className="text-xs sm:text-sm font-semibold text-primary">Plano Mensal</span>
-                  </div>
-                  <p className="text-xs sm:text-sm font-medium mb-1">
-                    <span className="text-primary font-bold">6 fotos/mês</span> por apenas
-                  </p>
-                  <p className="text-xl sm:text-2xl font-bold text-primary mb-2">R$ 100<span className="text-[10px] text-muted-foreground font-normal">/mês</span></p>
-                  <GlassButton onClick={() => window.open('/app/planos', '_blank')} className="w-full text-xs sm:text-sm">
-                    <CheckCircle2 className="w-4 h-4 mr-2" />Quero assinar
-                  </GlassButton>
-                </div>
+                {/* Subtle upsell */}
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 5 }}
+                  className="mt-6 p-3 rounded-xl border border-primary/10 bg-primary/3 text-center"
+                >
+                  <p className="text-[10px] text-muted-foreground/50 mb-1">Gostou? Com o plano mensal você paga menos</p>
+                  <p className="text-sm font-bold text-primary">6 fotos/mês por R$ 100</p>
+                  <button onClick={() => window.open('/app/planos', '_blank')} className="mt-1.5 text-[10px] text-primary/70 hover:text-primary underline underline-offset-2 transition-colors">
+                    Ver planos →
+                  </button>
+                </motion.div>
               </motion.div>
             )}
 
