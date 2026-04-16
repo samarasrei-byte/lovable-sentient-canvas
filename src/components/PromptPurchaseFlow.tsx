@@ -2038,49 +2038,99 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   </div>
                 )}
 
-                {/* WhatsApp capture */}
+                {/* WhatsApp + Name capture */}
                 {!whatsappSaved ? (
-                  <div className="space-y-2 p-3 rounded-xl bg-primary/5 border border-primary/20">
-                    <div className="flex items-center gap-2 text-sm font-medium">
-                      <MessageCircle className="w-4 h-4 text-primary" />
-                      <span>Deixe seu WhatsApp para baixar</span>
+                  <div className="space-y-3 p-4 rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/20">
+                    <div className="flex items-center gap-2 text-sm font-bold">
+                      <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                        <MessageCircle className="w-4 h-4 text-primary" />
+                      </div>
+                      <div>
+                        <span className="block">Quase lá! 🎉</span>
+                        <span className="text-[10px] text-muted-foreground font-normal">Preencha para liberar o download</span>
+                      </div>
                     </div>
-                    <p className="text-[10px] text-muted-foreground">
-                      Fique por dentro das novidades e promoções do Arcana! 🚀
-                    </p>
-                    <div className="flex gap-2">
+                    <div className="space-y-2">
                       <Input
-                        placeholder="(11) 99999-9999"
-                        value={whatsapp}
-                        onChange={(e) => setWhatsapp(formatWhatsapp(e.target.value))}
-                        className="flex-1 text-sm bg-background/50"
-                        maxLength={16}
+                        placeholder="Seu nome"
+                        value={downloadName}
+                        onChange={(e) => setDownloadName(e.target.value)}
+                        className="text-sm bg-background/50"
                       />
-                      <GlassButton onClick={handleSaveWhatsapp} size="sm" disabled={whatsapp.replace(/\D/g, '').length < 10}>
-                        <Check className="w-3.5 h-3.5 mr-1" />
-                        OK
-                      </GlassButton>
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="(11) 99999-9999"
+                          value={whatsapp}
+                          onChange={(e) => setWhatsapp(formatWhatsapp(e.target.value))}
+                          className="flex-1 text-sm bg-background/50"
+                          maxLength={16}
+                        />
+                        <GlassButton 
+                          onClick={handleSaveWhatsapp} 
+                          size="sm" 
+                          disabled={whatsapp.replace(/\D/g, '').length < 10 || !downloadName.trim()}
+                        >
+                          <Check className="w-3.5 h-3.5 mr-1" />
+                          OK
+                        </GlassButton>
+                      </div>
                     </div>
+                    <p className="text-[10px] text-muted-foreground text-center">
+                      Receba novidades e promoções exclusivas no WhatsApp 🚀
+                    </p>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2 text-xs text-primary p-2 rounded-lg bg-primary/5">
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>WhatsApp salvo! Obrigado 💚</span>
-                  </div>
+                  <>
+                    <div className="flex items-center gap-2 text-xs text-primary p-2 rounded-lg bg-primary/5">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>Dados salvos! Obrigado, {downloadName} 💚</span>
+                    </div>
+
+                    {/* EPIC Download Button */}
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={handleDownloadAll}
+                      className="relative w-full group overflow-hidden rounded-2xl p-[2px]"
+                    >
+                      <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary via-secondary to-primary bg-[length:200%_100%] animate-[shimmer_2s_linear_infinite]" />
+                      <div className="relative flex items-center justify-center gap-3 px-6 py-4 rounded-[14px] bg-background/90 group-hover:bg-background/70 transition-colors">
+                        <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center group-hover:bg-primary/30 transition-colors">
+                          <Download className="w-5 h-5 text-primary" />
+                        </div>
+                        <div className="text-left">
+                          <span className="block text-sm font-bold">Baixar Imagem HD</span>
+                          <span className="block text-[10px] text-muted-foreground">4K Ultra HD • Sem marca d'água</span>
+                        </div>
+                        <Sparkles className="w-5 h-5 text-primary ml-auto animate-pulse" />
+                      </div>
+                    </motion.button>
+                  </>
                 )}
 
-                <div className="grid grid-cols-3 gap-2">
-                  <GlassButton onClick={handleDownloadAll} className="col-span-1" size="sm" disabled={!whatsappSaved}>
-                    <Download className="w-3.5 h-3.5 mr-1" />
-                    <span className="text-[10px] sm:text-xs">Baixar</span>
-                  </GlassButton>
-                  <GlassButton onClick={() => setStep('editing')} variant="outline" size="sm">
-                    <Pencil className="w-3.5 h-3.5 mr-1" />
-                    <span className="text-[10px] sm:text-xs">Editar</span>
-                  </GlassButton>
-                  <GlassButton onClick={generateMoreVariants} variant="outline" size="sm" disabled={isGeneratingMore || generatedVariants.length >= MAX_VARIANTS}>
+                {/* Action buttons - Variation + Edit */}
+                <div className="grid grid-cols-2 gap-2">
+                  <GlassButton 
+                    onClick={generateMoreVariants} 
+                    variant="outline" 
+                    size="sm" 
+                    disabled={isGeneratingMore || generatedVariants.length >= MAX_VARIANTS}
+                  >
                     {isGeneratingMore ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> : <ImagePlus className="w-3.5 h-3.5 mr-1" />}
-                    <span className="text-[10px] sm:text-xs">{isGeneratingMore ? '...' : '+Variação'}</span>
+                    <span className="text-[10px] sm:text-xs">
+                      {isGeneratingMore ? 'Gerando...' : `+Variação (${Math.max(0, MAX_VARIANTS - generatedVariants.length)} restantes)`}
+                    </span>
+                  </GlassButton>
+                  <GlassButton 
+                    onClick={() => setStep('editing')} 
+                    variant="outline" 
+                    size="sm"
+                    disabled={editCount >= MAX_EDITS}
+                  >
+                    <Pencil className="w-3.5 h-3.5 mr-1" />
+                    <span className="text-[10px] sm:text-xs">
+                      {editCount >= MAX_EDITS ? 'Edição usada' : 'Editar (1x)'}
+                    </span>
                   </GlassButton>
                 </div>
 
@@ -2091,7 +2141,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                 </div>
 
                 <p className="text-[10px] text-center text-muted-foreground">
-                  Até {MAX_VARIANTS} versões por compra para manter qualidade e custo sob controle
+                  2 variações grátis + 1 edição por compra • Sua imagem, seus direitos 💎
                 </p>
 
                 <GlassButton onClick={onClose} variant="outline" className="w-full" size="sm">Fechar</GlassButton>
