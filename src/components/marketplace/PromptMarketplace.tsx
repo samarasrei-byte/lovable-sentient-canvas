@@ -158,7 +158,7 @@ export const PromptMarketplace = () => {
 
   if (loading) {
     return (
-      <section id="prompts" className="relative py-16 md:py-24 px-4 md:px-6 overflow-hidden">
+      <section id="estilos" className="relative py-16 md:py-24 px-4 md:px-6 overflow-hidden">
         <div className="max-w-7xl mx-auto flex items-center justify-center py-20">
           <Loader2 className="w-6 h-6 animate-spin text-primary/40" />
         </div>
@@ -168,29 +168,29 @@ export const PromptMarketplace = () => {
 
   if (prompts.length === 0) {
     return (
-      <section id="prompts" className="relative py-16 md:py-24 px-4 md:px-6 overflow-hidden">
+      <section id="estilos" className="relative py-16 md:py-24 px-4 md:px-6 overflow-hidden">
         <div className="max-w-7xl mx-auto text-center py-20 space-y-4">
           <Sparkles className="w-10 h-10 text-primary/20 mx-auto" />
-          <p className="text-muted-foreground/60">Nenhum prompt disponível no momento.</p>
+          <p className="text-muted-foreground/60">Nenhum estilo disponível no momento.</p>
         </div>
       </section>
     );
   }
 
   return (
-    <section id="prompts" className="relative py-16 md:py-24 px-5 md:px-8 overflow-hidden">
+    <section id="estilos" className="relative py-16 md:py-24 px-5 md:px-8 overflow-hidden">
       <div className="max-w-6xl mx-auto relative z-10">
         {/* Header */}
         <header className="text-center mb-10">
           <h2 className="text-lg md:text-xl font-semibold tracking-tight mb-2">
-            Galeria de{" "}
+            Escolha seu{" "}
             <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              Prompts
+              Estilo
             </span>
           </h2>
 
           <p className="text-sm text-muted-foreground/50 max-w-md mx-auto font-light leading-relaxed mb-6">
-            Explore nossa coleção curada de prompts profissionais.
+            Cada imagem é um estilo que você pode aplicar à sua própria foto.
           </p>
 
           {/* Search Bar */}
@@ -199,7 +199,7 @@ export const PromptMarketplace = () => {
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Buscar prompts..."
+              placeholder="Buscar estilos..."
               className="pl-10 pr-10 py-2.5 bg-white/[0.03] border-white/[0.06] rounded-xl text-xs placeholder:text-muted-foreground/30 focus:border-primary/30 focus:bg-white/[0.05] transition-all"
             />
             {searchQuery && (
