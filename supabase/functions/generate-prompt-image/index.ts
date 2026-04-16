@@ -202,7 +202,7 @@ serve(async (req) => {
         { role: "system", content: "You are a professional image editor. Edit images while preserving the subject's identity perfectly." },
         { role: "user", content: [
           { type: "text", text: `EDIT THIS IMAGE. Keep identity 100% intact. Apply ONLY: ${promptTemplate}. Do NOT alter facial features, skin tone, or body structure.` },
-          { type: "image_url", image_url: { url: sourceImageUrl } }
+          { type: "image_url", image_url: { url: resolvedSource } }
         ]}
       ];
       const imageUrl = await tryGenerateWithRetry(aiModel || "google/gemini-3.1-flash-image-preview", editMessages, apiKeys);
