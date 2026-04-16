@@ -1733,21 +1733,71 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
                 {paymentStatus === 'paid' ? (
                   <motion.div 
-                    initial={{ opacity: 0, scale: 0.9 }} 
+                    initial={{ opacity: 0, scale: 0.8 }} 
                     animate={{ opacity: 1, scale: 1 }} 
-                    className="py-8 text-center space-y-4"
+                    transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                    className="py-12 sm:py-16 text-center space-y-6"
                   >
-                    <div className="w-16 h-16 mx-auto rounded-full bg-green-500/20 flex items-center justify-center">
-                      <CheckCircle2 className="w-8 h-8 text-green-500" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-bold text-green-500">Pagamento Confirmado!</h3>
-                      <p className="text-xs text-muted-foreground mt-1">Sua imagem será gerada agora...</p>
-                    </div>
-                    <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      <span>Iniciando geração...</span>
-                    </div>
+                    {/* Animated success ring */}
+                    <motion.div 
+                      initial={{ scale: 0 }} 
+                      animate={{ scale: 1 }} 
+                      transition={{ delay: 0.2, type: "spring", stiffness: 300 }}
+                      className="relative w-24 h-24 mx-auto"
+                    >
+                      <div className="absolute inset-0 rounded-full bg-green-500/20 animate-ping" />
+                      <div className="absolute inset-0 rounded-full bg-gradient-to-br from-green-400/30 to-emerald-500/30 backdrop-blur-sm" />
+                      <div className="relative w-full h-full rounded-full bg-green-500/10 border-2 border-green-500/50 flex items-center justify-center">
+                        <motion.div
+                          initial={{ scale: 0, rotate: -180 }}
+                          animate={{ scale: 1, rotate: 0 }}
+                          transition={{ delay: 0.4, type: "spring" }}
+                        >
+                          <CheckCircle2 className="w-12 h-12 text-green-400" />
+                        </motion.div>
+                      </div>
+                    </motion.div>
+
+                    {/* Confirmed badge */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.5 }}
+                    >
+                      <span className="inline-block px-4 py-1.5 rounded-full bg-green-500/10 border border-green-500/30 text-green-400 text-xs font-bold tracking-widest uppercase">
+                        ✓ Pagamento Confirmado
+                      </span>
+                    </motion.div>
+
+                    {/* Main headline */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.7 }}
+                      className="space-y-3"
+                    >
+                      <h3 className="text-2xl sm:text-3xl font-black tracking-tight bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
+                        Sua imagem será gerada agora
+                      </h3>
+                      <p className="text-sm text-muted-foreground/70 max-w-xs mx-auto">
+                        Nossa IA está preparando algo incrível para você ✨
+                      </p>
+                    </motion.div>
+
+                    {/* Animated loader */}
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 1 }}
+                      className="flex items-center justify-center gap-3 pt-2"
+                    >
+                      <div className="flex gap-1.5">
+                        <div className="w-2.5 h-2.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0s' }} />
+                        <div className="w-2.5 h-2.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0.15s' }} />
+                        <div className="w-2.5 h-2.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0.3s' }} />
+                      </div>
+                      <span className="text-xs font-medium text-muted-foreground tracking-wide">Iniciando geração...</span>
+                    </motion.div>
                   </motion.div>
                 ) : (
                   <>
