@@ -225,12 +225,34 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
     }
   };
 
+  const validatePhotoQuality = (img: HTMLImageElement): { ok: boolean; warning?: string } => {
+    // Minimum resolution check
+    if (img.width < 200 || img.height < 200) {
+      return { ok: false, warning: 'Foto com resolução muito baixa. Envie uma foto com pelo menos 200x200 pixels para melhor resultado.' };
+    }
+    // Warn about very small photos
+    if (img.width < 400 || img.height < 400) {
+      return { ok: true, warning: '⚠️ Foto com resolução baixa. Quanto maior a resolução, melhor a semelhança facial.' };
+    }
+    return { ok: true };
+  };
+
   const handlePhotoUpload = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
 
     if (!file) return;
     if (file.size > 20 * 1024 * 1024) {
       toast.error('Arquivo muito grande. Máximo 20MB.');
+      return;
+    }
+
+    // Validate file type — support HEIC with friendly message
+    const supportedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/heic', 'image/heif'];
+    const fileExt = file.name.toLowerCase().split('.').pop();
+    const isHeic = fileExt === 'heic' || fileExt === 'heif' || file.type === 'image/heic' || file.type === 'image/heif';
+    
+    if (!supportedTypes.includes(file.type) && !isHeic && !file.type.startsWith('image/')) {
+      toast.error('Formato não suportado. Envie JPG, PNG ou HEIC.');
       return;
     }
 
@@ -241,19 +263,35 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       return next;
     });
 
+    // Show uploading feedback
+    toast.loading('Processando foto...', { id: `photo-upload-${index}` });
+
     const reader = new FileReader();
     reader.onload = (event) => {
       const img = new Image();
       img.onload = () => {
+        // Validate quality
+        const quality = validatePhotoQuality(img);
+        if (!quality.ok) {
+          toast.error(quality.warning || 'Foto não aceita.', { id: `photo-upload-${index}` });
+          return;
+        }
+        if (quality.warning) {
+          toast.warning(quality.warning, { id: `photo-upload-${index}`, duration: 5000 });
+        } else {
+          toast.success('Foto carregada!', { id: `photo-upload-${index}` });
+        }
+
         const canvas = document.createElement('canvas');
-        const maxSize = 512;
+        // Use higher resolution for preview to improve analysis accuracy
+        const maxSize = 768;
         const scale = Math.min(maxSize / img.width, maxSize / img.height, 1);
         canvas.width = img.width * scale;
         canvas.height = img.height * scale;
         const ctx = canvas.getContext('2d');
         ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-        const preview = canvas.toDataURL('image/jpeg', 0.85);
+        const preview = canvas.toDataURL('image/jpeg', 0.88);
 
         setPhotos((prev) => {
           const updated = [...prev];
@@ -263,7 +301,21 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
 
         void analyzeUploadedPhoto(index, preview);
       };
+      img.onerror = () => {
+        // HEIC fallback: if browser can't load HEIC natively, try conversion
+        if (isHeic) {
+          toast.error('Seu dispositivo não suporta fotos HEIC diretamente. Por favor, tire uma foto em JPG nas configurações da câmera (Configurações → Câmera → Formatos → Mais Compatível).', { 
+            id: `photo-upload-${index}`,
+            duration: 8000 
+          });
+        } else {
+          toast.error('Não foi possível carregar a foto. Tente outro arquivo.', { id: `photo-upload-${index}` });
+        }
+      };
       img.src = event.target?.result as string;
+    };
+    reader.onerror = () => {
+      toast.error('Erro ao ler o arquivo. Tente novamente.', { id: `photo-upload-${index}` });
     };
     reader.readAsDataURL(file);
   };
