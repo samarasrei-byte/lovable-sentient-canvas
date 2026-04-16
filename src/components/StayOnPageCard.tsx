@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { AlertTriangle, Sparkles } from "lucide-react";
+import { AlertTriangle, Sparkles, CheckCircle2 } from "lucide-react";
 
 const REASSURANCE_MESSAGES = [
   "✨ Nossa IA está trabalhando duro pra entregar algo incrível",
@@ -10,15 +10,28 @@ const REASSURANCE_MESSAGES = [
   "⚡ Resultado em 4K Ultra HD sendo renderizado",
   "💎 Você vai amar o resultado — vale cada segundo de espera",
   "🔥 Quase lá! O que parece lento agora vira foto de capa depois",
+  "🎬 Aplicando profundidade de campo estilo cinema",
+  "👁️ Reflexo dos olhos sendo refinado pixel por pixel",
+  "🌟 Pele com textura natural — sem aquele efeito plástico",
+  "🎭 Expressão facial preservada da sua foto original",
+  "🏆 Renderização de nível estúdio — vale o tempo",
+  "📐 Composição balanceada pela regra dos terços",
+  "💫 Cor e contraste sendo equilibrados como em revistas",
+  "🚀 Últimos toques — preparando download em alta",
 ];
 
-export const StayOnPageCard = () => {
+interface StayOnPageCardProps {
+  /** True when background photo upload finished — shows reassurance badge */
+  photosReady?: boolean;
+}
+
+export const StayOnPageCard = ({ photosReady }: StayOnPageCardProps) => {
   const [messageIndex, setMessageIndex] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setMessageIndex((prev) => (prev + 1) % REASSURANCE_MESSAGES.length);
-    }, 3500);
+    }, 2500);
     return () => clearInterval(interval);
   }, []);
 
@@ -54,6 +67,23 @@ export const StayOnPageCard = () => {
           </p>
         </div>
       </div>
+
+      {/* Photos-ready indicator (background pre-upload feedback) */}
+      <AnimatePresence>
+        {photosReady && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="flex items-center gap-2 px-4 py-2 bg-emerald-500/8 border-b border-emerald-500/10"
+          >
+            <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />
+            <p className="text-[10px] text-emerald-300/80 font-medium">
+              Suas fotos já estão na nossa nuvem — só falta a IA
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Rotating reassurance */}
       <div className="px-4 py-3 min-h-[44px] flex items-center gap-2">
