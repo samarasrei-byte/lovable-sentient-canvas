@@ -1506,97 +1506,224 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   </div>
                 )}
 
-                {/* Mesversário months selector */}
-                {isMesversarioPrompt && (
-                  <div className="space-y-2">
-                    <Label className="text-xs sm:text-sm flex items-center gap-2">
-                      👶 Quantos meses o bebê está fazendo?
-                    </Label>
-                    <div className="grid grid-cols-4 sm:grid-cols-6 gap-1.5">
-                      {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
-                        <button
-                          key={month}
-                          onClick={() => setFormData((prev) => ({ ...prev, months: String(month) }))}
-                          className={`p-2 rounded-lg text-sm font-medium transition-all ${
-                            formData.months === String(month)
-                              ? 'bg-primary text-primary-foreground shadow-lg scale-105'
-                              : 'bg-white/5 border border-white/10 hover:border-primary/50 text-foreground'
-                          }`}
-                        >
-                          {month} {month === 1 ? 'mês' : 'meses'}
-                        </button>
-                      ))}
-                    </div>
-                    <p className="text-[10px] text-muted-foreground">
-                      O número será exibido na imagem como decoração (balão, vela, banner, etc).
-                    </p>
-                  </div>
-                )}
-
-                {/* Birthday age input with visual preview */}
-                {isBirthdayPrompt && (
+                {/* Smart Age Selector — Bebê/Criança/Adulto unified */}
+                {(isMesversarioPrompt || isBirthdayPrompt) && (
                   <div className="space-y-3">
+                    {/* Age mode toggle */}
                     <Label className="text-xs sm:text-sm flex items-center gap-2">
-                      🎂 Qual idade vai aparecer na imagem?
+                      {isMesversarioPrompt ? '👶 Idade do bebê' : '🎂 Idade para a imagem'}
                     </Label>
-                    
-                    {/* Visual number preview */}
-                    <div className="flex items-center gap-4">
-                      <div className="relative flex-shrink-0">
-                        <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20 border-2 border-primary/30 flex items-center justify-center overflow-hidden">
-                          {formData.age ? (
-                            <motion.span
-                              key={formData.age}
-                              initial={{ scale: 0.5, opacity: 0 }}
-                              animate={{ scale: 1, opacity: 1 }}
-                              className="text-4xl sm:text-5xl font-black bg-gradient-to-b from-primary to-primary/70 bg-clip-text text-transparent"
+
+                    {/* Smart mode selector chips */}
+                    {(() => {
+                      const detectedAge = photoProfiles.find(p => p?.metadados?.idade_detectada)?.metadados?.idade_detectada;
+                      const detectedGroup = photoProfiles.find(p => p?.ageGroup)?.ageGroup;
+                      
+                      // Auto-determine mode: months for babies, years for others
+                      const isBabyMode = isMesversarioPrompt || detectedGroup === 'bebe' || formData.months;
+                      const isChildMode = !isBabyMode && (detectedGroup === 'crianca' || (detectedAge && detectedAge <= 12));
+                      
+                      return (
+                        <div className="space-y-3">
+                          {/* Mode chips */}
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setFormData(prev => ({ ...prev, age: '', months: '' }));
+                              }}
+                              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                                isBabyMode 
+                                  ? 'bg-pink-500/20 text-pink-400 border border-pink-500/30 shadow-sm' 
+                                  : 'bg-white/5 text-muted-foreground hover:bg-white/10 border border-transparent'
+                              }`}
                             >
-                              {formData.age}
-                            </motion.span>
-                          ) : (
-                            <span className="text-3xl opacity-30">?</span>
+                              <span>👶</span> Meses
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setFormData(prev => ({ ...prev, months: '' }));
+                              }}
+                              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                                !isBabyMode 
+                                  ? 'bg-primary/20 text-primary border border-primary/30 shadow-sm' 
+                                  : 'bg-white/5 text-muted-foreground hover:bg-white/10 border border-transparent'
+                              }`}
+                            >
+                              <span>🎂</span> Anos
+                            </button>
+                          </div>
+
+                          {/* MONTHS mode — gorgeous grid */}
+                          {isBabyMode && (
+                            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
+                              <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                                {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => {
+                                  const isSelected = formData.months === String(month);
+                                  return (
+                                    <motion.button
+                                      key={month}
+                                      type="button"
+                                      whileTap={{ scale: 0.92 }}
+                                      onClick={() => setFormData((prev) => ({ ...prev, months: String(month), age: '' }))}
+                                      className={`relative p-2.5 rounded-xl text-center transition-all duration-200 ${
+                                        isSelected
+                                          ? 'bg-gradient-to-br from-pink-500/30 to-purple-500/20 border-2 border-pink-400/60 shadow-lg shadow-pink-500/10 scale-[1.05]'
+                                          : 'bg-white/[0.03] border border-white/[0.08] hover:border-pink-400/30 hover:bg-pink-500/5'
+                                      }`}
+                                    >
+                                      <span className={`text-lg font-black block leading-none ${isSelected ? 'text-pink-300' : 'text-foreground/80'}`}>
+                                        {month}
+                                      </span>
+                                      <span className={`text-[9px] mt-0.5 block ${isSelected ? 'text-pink-300/80' : 'text-muted-foreground/50'}`}>
+                                        {month === 1 ? 'mês' : 'meses'}
+                                      </span>
+                                      {isSelected && (
+                                        <motion.div 
+                                          layoutId="month-indicator"
+                                          className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-pink-500 flex items-center justify-center"
+                                        >
+                                          <Check className="w-2.5 h-2.5 text-white" />
+                                        </motion.div>
+                                      )}
+                                    </motion.button>
+                                  );
+                                })}
+                              </div>
+                              
+                              {/* Visual preview */}
+                              {formData.months && (
+                                <motion.div 
+                                  initial={{ opacity: 0, scale: 0.95 }} 
+                                  animate={{ opacity: 1, scale: 1 }}
+                                  className="p-3 rounded-xl bg-gradient-to-r from-pink-500/10 via-purple-500/5 to-pink-500/10 border border-pink-500/20 text-center"
+                                >
+                                  <p className="text-[10px] text-pink-300/60 mb-1">Vai aparecer na imagem:</p>
+                                  <span className="text-2xl font-black text-pink-300">{formData.months}</span>
+                                  <span className="text-sm text-pink-300/70 ml-1.5">{formData.months === '1' ? 'mês' : 'meses'}</span>
+                                </motion.div>
+                              )}
+                              
+                              <p className="text-[10px] text-muted-foreground/60">
+                                O número será exibido como decoração na imagem (balão, vela, banner, etc).
+                              </p>
+                            </motion.div>
+                          )}
+
+                          {/* YEARS mode — smart grid with visual preview */}
+                          {!isBabyMode && (
+                            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
+                              <div className="flex items-center gap-4">
+                                {/* Large visual preview */}
+                                <div className="relative flex-shrink-0">
+                                  <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20 border-2 border-primary/30 flex items-center justify-center overflow-hidden">
+                                    {formData.age ? (
+                                      <motion.span
+                                        key={formData.age}
+                                        initial={{ scale: 0.5, opacity: 0, rotateY: 90 }}
+                                        animate={{ scale: 1, opacity: 1, rotateY: 0 }}
+                                        className="text-4xl sm:text-5xl font-black bg-gradient-to-b from-primary to-primary/70 bg-clip-text text-transparent"
+                                      >
+                                        {formData.age}
+                                      </motion.span>
+                                    ) : (
+                                      <span className="text-3xl opacity-20">?</span>
+                                    )}
+                                  </div>
+                                  {formData.age && (
+                                    <motion.div 
+                                      initial={{ scale: 0 }} 
+                                      animate={{ scale: 1 }}
+                                      className="absolute -bottom-1 -right-1 bg-primary text-primary-foreground text-[9px] px-1.5 py-0.5 rounded-full font-bold"
+                                    >
+                                      {Number(formData.age) <= 12 ? '👧' : Number(formData.age) <= 17 ? '🧑' : '🎂'}
+                                    </motion.div>
+                                  )}
+                                </div>
+                                
+                                <div className="flex-1 space-y-2">
+                                  <Input
+                                    value={formData.age}
+                                    onChange={(e) => setFormData((prev) => ({ ...prev, age: e.target.value.replace(/\D/g, ''), months: '' }))}
+                                    placeholder="Digite a idade"
+                                    className="bg-white/5 border-white/10 text-lg font-bold text-center"
+                                    maxLength={3}
+                                    type="text"
+                                    inputMode="numeric"
+                                  />
+                                  <p className="text-[10px] text-muted-foreground/60 leading-tight">
+                                    {isChildMode 
+                                      ? 'Idade da criança — aparecerá no bolo, velas ou decoração'
+                                      : 'Este número aparecerá no bolo, velas, balões ou decoração'}
+                                  </p>
+                                </div>
+                              </div>
+                              
+                              {/* Smart quick-pick — contextual age buttons */}
+                              <div className="space-y-1.5">
+                                {isChildMode ? (
+                                  <>
+                                    <p className="text-[10px] text-muted-foreground/40 font-medium">Idades rápidas — Criança</p>
+                                    <div className="flex flex-wrap gap-1.5">
+                                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((age) => (
+                                        <button
+                                          key={age}
+                                          type="button"
+                                          onClick={() => setFormData((prev) => ({ ...prev, age: String(age), months: '' }))}
+                                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                                            formData.age === String(age)
+                                              ? 'bg-primary text-primary-foreground scale-110 shadow-lg shadow-primary/20'
+                                              : 'bg-white/5 hover:bg-white/10 text-muted-foreground'
+                                          }`}
+                                        >
+                                          {age}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  </>
+                                ) : (
+                                  <>
+                                    <p className="text-[10px] text-muted-foreground/40 font-medium">Idades populares</p>
+                                    <div className="flex flex-wrap gap-1.5">
+                                      {[1, 2, 3, 5, 10, 15, 18, 21, 25, 30, 40, 50, 60].map((age) => (
+                                        <button
+                                          key={age}
+                                          type="button"
+                                          onClick={() => setFormData((prev) => ({ ...prev, age: String(age), months: '' }))}
+                                          className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${
+                                            formData.age === String(age)
+                                              ? 'bg-primary text-primary-foreground scale-110 shadow-lg shadow-primary/20'
+                                              : 'bg-white/5 hover:bg-white/10 text-muted-foreground'
+                                          }`}
+                                        >
+                                          {age}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  </>
+                                )}
+                              </div>
+
+                              {/* Auto-detected age hint */}
+                              {detectedAge && !formData.age && (
+                                <motion.button
+                                  type="button"
+                                  initial={{ opacity: 0 }}
+                                  animate={{ opacity: 1 }}
+                                  onClick={() => setFormData(prev => ({ ...prev, age: String(detectedAge) }))}
+                                  className="w-full p-2 rounded-lg bg-accent/10 border border-accent/20 text-center hover:bg-accent/20 transition-colors"
+                                >
+                                  <p className="text-[10px] text-accent">
+                                    🤖 IA detectou ~{detectedAge} anos — <span className="font-bold underline">Usar essa idade</span>
+                                  </p>
+                                </motion.button>
+                              )}
+                            </motion.div>
                           )}
                         </div>
-                        {formData.age && (
-                          <div className="absolute -bottom-1 -right-1 bg-primary text-primary-foreground text-[9px] px-1.5 py-0.5 rounded-full font-bold">
-                            🎂
-                          </div>
-                        )}
-                      </div>
-                      
-                      <div className="flex-1 space-y-2">
-                        <Input
-                          value={formData.age}
-                          onChange={(e) => setFormData((prev) => ({ ...prev, age: e.target.value.replace(/\D/g, '') }))}
-                          placeholder="Ex: 30"
-                          className="bg-white/5 border-white/10 text-lg font-bold text-center"
-                          maxLength={3}
-                          type="text"
-                          inputMode="numeric"
-                        />
-                        <p className="text-[10px] text-muted-foreground leading-tight">
-                          Este número aparecerá no bolo, velas, balões ou decoração da imagem — exatamente como você digitar.
-                        </p>
-                      </div>
-                    </div>
-                    
-                    {/* Quick age buttons */}
-                    <div className="flex flex-wrap gap-1.5">
-                      {[1, 2, 3, 5, 10, 15, 18, 21, 25, 30, 40, 50].map((age) => (
-                        <button
-                          key={age}
-                          type="button"
-                          onClick={() => setFormData((prev) => ({ ...prev, age: String(age) }))}
-                          className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${
-                            formData.age === String(age)
-                              ? 'bg-primary text-primary-foreground scale-105'
-                              : 'bg-white/5 hover:bg-white/10 text-muted-foreground'
-                          }`}
-                        >
-                          {age}
-                        </button>
-                      ))}
-                    </div>
+                      );
+                    })()}
                   </div>
                 )}
 
