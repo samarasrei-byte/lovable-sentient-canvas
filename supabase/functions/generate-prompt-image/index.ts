@@ -223,7 +223,12 @@ serve(async (req) => {
     const userAge = flyerContext?.idades?.[0] || "";
     if (userAge) prompt = prompt.replace(/{age}/g, userAge);
 
-    const allPhotoUrls: string[] = userPhotoUrls?.length ? userPhotoUrls : (userPhotoUrl ? [userPhotoUrl] : []);
+    const rawPhotoUrls: string[] = userPhotoUrls?.length ? userPhotoUrls : (userPhotoUrl ? [userPhotoUrl] : []);
+    // Resolve any private-bucket URLs into signed URLs so the AI gateway can fetch them
+    const adminForSign = initAdmin();
+    const allPhotoUrls: string[] = await Promise.all(
+      rawPhotoUrls.map((u) => resolvePhotoUrl(u, adminForSign))
+    );
 
     // Add flyer context if provided
     if (flyerContext && typeof flyerContext === 'object') {
