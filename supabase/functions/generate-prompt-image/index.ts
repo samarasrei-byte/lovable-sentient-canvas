@@ -85,6 +85,31 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+/**
+ * Converts a Supabase Storage URL into a short-lived signed URL when needed.
+ * The `user-photos` bucket is PRIVATE, so its public URL returns 400 to the AI gateway.
+ * We detect storage URLs and sign them (1h TTL) so the AI can fetch them.
+ */
+async function resolvePhotoUrl(rawUrl: string, supabaseAdmin: any): Promise<string> {
+  if (!rawUrl || !supabaseAdmin) return rawUrl;
+  try {
+    // Match: .../storage/v1/object/(public|sign)/<bucket>/<path>
+    const m = rawUrl.match(/\/storage\/v1\/object\/(?:public|sign)\/([^/]+)\/(.+?)(?:\?|$)/);
+    if (!m) return rawUrl;
+    const [, bucket, path] = m;
+    // Only need to sign for buckets we know are private (defensive: try always)
+    const { data, error } = await supabaseAdmin.storage.from(bucket).createSignedUrl(decodeURIComponent(path), 3600);
+    if (error || !data?.signedUrl) {
+      console.warn(`[resolvePhotoUrl] could not sign ${bucket}/${path}:`, error?.message);
+      return rawUrl;
+    }
+    return data.signedUrl;
+  } catch (e: any) {
+    console.warn("[resolvePhotoUrl] exception:", e?.message);
+    return rawUrl;
+  }
+}
+
 function getApiKeys(): { primary: string; fallback: string | null } {
   const lovableKey = Deno.env.get("LOVABLE_API_KEY");
   const nanoBananaKey = Deno.env.get("NANO_BANANA_API_KEY");
@@ -172,11 +197,12 @@ serve(async (req) => {
 
     // --- EDIT MODE ---
     if (editMode && sourceImageUrl) {
+      const resolvedSource = await resolvePhotoUrl(sourceImageUrl, initAdmin());
       const editMessages = [
         { role: "system", content: "You are a professional image editor. Edit images while preserving the subject's identity perfectly." },
         { role: "user", content: [
           { type: "text", text: `EDIT THIS IMAGE. Keep identity 100% intact. Apply ONLY: ${promptTemplate}. Do NOT alter facial features, skin tone, or body structure.` },
-          { type: "image_url", image_url: { url: sourceImageUrl } }
+          { type: "image_url", image_url: { url: resolvedSource } }
         ]}
       ];
       const imageUrl = await tryGenerateWithRetry(aiModel || "google/gemini-3.1-flash-image-preview", editMessages, apiKeys);
@@ -198,7 +224,12 @@ serve(async (req) => {
     const userAge = flyerContext?.idades?.[0] || "";
     if (userAge) prompt = prompt.replace(/{age}/g, userAge);
 
-    const allPhotoUrls: string[] = userPhotoUrls?.length ? userPhotoUrls : (userPhotoUrl ? [userPhotoUrl] : []);
+    const rawPhotoUrls: string[] = userPhotoUrls?.length ? userPhotoUrls : (userPhotoUrl ? [userPhotoUrl] : []);
+    // Resolve any private-bucket URLs into signed URLs so the AI gateway can fetch them
+    const adminForSign = initAdmin();
+    const allPhotoUrls: string[] = await Promise.all(
+      rawPhotoUrls.map((u) => resolvePhotoUrl(u, adminForSign))
+    );
 
     // Add flyer context if provided
     if (flyerContext && typeof flyerContext === 'object') {
