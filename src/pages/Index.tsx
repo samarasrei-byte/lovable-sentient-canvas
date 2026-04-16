@@ -2,9 +2,7 @@ import { lazy, Suspense } from "react";
 import { HeroArcana2 } from "@/components/HeroArcana2";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { UpdatePrompt } from "@/components/pwa/UpdatePrompt";
-
-// Lazy load below-the-fold sections
-const PromptMarketplace = lazy(() => import("@/components/marketplace/PromptMarketplace").then(m => ({ default: m.PromptMarketplace })));
+import { PromptMarketplace } from "@/components/marketplace/PromptMarketplace";
 const MassiveGallery = lazy(() => import("@/components/MassiveGallery").then(m => ({ default: m.MassiveGallery })));
 const UpgradeUpsell = lazy(() => import("@/components/landing/UpgradeUpsell").then(m => ({ default: m.UpgradeUpsell })));
 const PhotoServicesSection = lazy(() => import("@/components/photo-services/PhotoServicesSection").then(m => ({ default: m.PhotoServicesSection })));
@@ -27,10 +25,8 @@ const Index = () => {
       {/* Hero — loaded eagerly for instant FCP */}
       <HeroArcana2 />
       
-      {/* Everything below the fold is lazy loaded */}
-      <Suspense fallback={<SectionFallback />}>
-        <PromptMarketplace />
-      </Suspense>
+      {/* Marketplace eager — avoids stale chunk fetch errors */}
+      <PromptMarketplace />
       
       <Suspense fallback={<SectionFallback />}>
         <MassiveGallery />
