@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { GenerationProgressBar } from "./GenerationProgressBar";
+import { StayOnPageCard } from "./StayOnPageCard";
 import { ShareButtons } from "./ShareButtons";
 import { BeforeAfterSlider } from "./BeforeAfterSlider";
 import { toast } from "sonner";
