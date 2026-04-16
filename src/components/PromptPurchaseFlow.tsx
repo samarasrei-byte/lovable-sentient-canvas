@@ -2217,6 +2217,9 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   photoCount={activePhotoCount || 1} 
                 />
 
+                {/* Stay on page warning + rotating reassurance messages */}
+                <StayOnPageCard />
+
                 {/* QA Issues panel */}
                 {qaIssues.length > 0 && (
                   <motion.div 
