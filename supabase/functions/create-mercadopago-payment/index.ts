@@ -31,19 +31,28 @@ serve(async (req) => {
 
     const method = paymentMethod || "pix";
 
+    // Avoid self-payment block: MP rejects when payer email == account owner email
+    let payerEmail = (customerEmail || "").trim().toLowerCase();
+    if (!payerEmail || payerEmail.endsWith("@arcana.com") || payerEmail.endsWith("@arcana.com.br")) {
+      // Generate a unique synthetic email tied to the purchase
+      payerEmail = `cliente+${purchaseId.slice(0, 8)}@compradores-arcana.com`;
+    }
+
     // Create payment via Mercado Pago API
     const mpBody: Record<string, unknown> = {
-      transaction_amount: priceCents / 100, // MP uses reais, not centavos
+      transaction_amount: priceCents / 100,
       description: `Compra #${purchaseId.slice(0, 8)}`,
       payment_method_id: method,
       payer: {
-        email: customerEmail || "cliente@arcana.com",
+        email: payerEmail,
         first_name: customerName || "Cliente",
       },
       metadata: {
         purchase_id: purchaseId,
       },
     };
+
+    console.log("MP request:", JSON.stringify({ amount: priceCents / 100, method, payerEmail }));
 
     const mpResponse = await fetch("https://api.mercadopago.com/v1/payments", {
       method: "POST",
