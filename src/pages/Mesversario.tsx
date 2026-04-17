@@ -108,9 +108,10 @@ const Mesversario = () => {
 
   const fetchPrompts = async () => {
     try {
+      // Listagem leve: sem prompt_template/negative_prompt (carregados sob demanda no clique)
       const { data, error } = await supabase
         .from("prompts")
-        .select("*")
+        .select("id,name,description,category,hype_text,example_image_url,price_cents,status,required_fields,is_influencer_prompt,influencer_name,ai_model,min_photos,is_featured,display_order")
         .eq("category", "Foto Infantil")
         .eq("status", "active")
         .order("display_order", { ascending: true });
@@ -128,6 +129,27 @@ const Mesversario = () => {
       console.error("Error fetching mesversario prompts:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Carrega campos pesados (template) só quando o usuário clica no card
+  const handleSelectPrompt = async (prompt: Prompt) => {
+    if (prompt.prompt_template) {
+      setSelectedPrompt(prompt);
+      return;
+    }
+    setSelectedPrompt(prompt); // abre modal imediatamente com skeleton interno
+    try {
+      const { data } = await supabase
+        .from("prompts")
+        .select("prompt_template,negative_prompt")
+        .eq("id", prompt.id)
+        .maybeSingle();
+      if (data) {
+        setSelectedPrompt((prev) => prev ? { ...prev, prompt_template: data.prompt_template, negative_prompt: data.negative_prompt } : prev);
+      }
+    } catch (err) {
+      console.error("Error loading prompt template:", err);
     }
   };
 
@@ -274,7 +296,7 @@ const Mesversario = () => {
                   initial={{ opacity: 0, scale: 0.96 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.4, delay: index * 0.03, ease: [0.22, 1, 0.36, 1] }}
-                  onClick={() => setSelectedPrompt(prompt)}
+                  onClick={() => handleSelectPrompt(prompt)}
                   className={cn(
                     "group relative rounded-2xl overflow-hidden text-left focus:outline-none",
                     "bg-white/[0.02] border border-white/[0.06]",
