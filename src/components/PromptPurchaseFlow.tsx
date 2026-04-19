@@ -676,6 +676,17 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       template += `\n\nCONTEXTO DA ANÁLISE DA IMAGEM DE REFERÊNCIA:\n${firstProfileWithPrompt.prompt_gerado}`;
     }
     
+    // Universal: if user picked months, always inject (even for non-mêsversário child prompts)
+    if (formData.months && !isMesversarioPrompt && !isBirthdayPrompt) {
+      template = template
+        .replace(/\[MESES\]/g, formData.months)
+        .replace(/\{meses\}/g, formData.months)
+        .replace(/\{months\}/g, formData.months)
+        .replace(/\{age\}/g, `${formData.months} ${formData.months === '1' ? 'mês' : 'meses'}`)
+        .replace(/\[IDADE\]/g, `${formData.months} ${formData.months === '1' ? 'mês' : 'meses'}`);
+      template += `\n\nIDADE DO BEBÊ: ${formData.months} ${formData.months === '1' ? 'mês' : 'meses'}. Se houver decoração temática (vela, balão, banner), exiba "${formData.months}".`;
+    }
+
     // Inject age customization for birthday prompts
     if (isBirthdayPrompt && formData.age) {
       template = template
