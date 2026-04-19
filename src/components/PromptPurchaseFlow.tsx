@@ -1665,7 +1665,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                           {isBabyMode && (
                             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
                               <div className="grid grid-cols-4 sm:grid-cols-6 gap-1.5 sm:gap-2">
-                                {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => {
+                                {Array.from({ length: 24 }, (_, i) => i + 1).map((month) => {
                                   const isSelected = formData.months === String(month);
                                   return (
                                     <motion.button
