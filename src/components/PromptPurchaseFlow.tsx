@@ -914,10 +914,27 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       setStep('complete');
     } catch (error) {
       console.error('Error generating image:', error);
-      toast.error(error instanceof Error ? error.message : 'Erro na geração. Tente novamente.');
+      const msg = error instanceof Error ? error.message : 'Erro na geração.';
+      // Não jogamos o cliente de volta pro formulário (perderia dados/pagamento).
+      // Mantemos no estado 'generating' com mensagem de erro + botão retry + suporte.
+      toast.error(`${msg} Estamos tentando novamente automaticamente. Se persistir, fale com o suporte.`, {
+        duration: 8000,
+        action: {
+          label: 'WhatsApp Suporte',
+          onClick: () => window.open('https://wa.me/5511999999999?text=Tive%20problema%20na%20geração%20da%20foto.%20ID:%20' + (purchaseId || 'N/A'), '_blank'),
+        },
+      });
       setQaStatus('idle');
       setQaIssues([]);
-      setStep('form');
+      // Auto-retry uma vez após 3s se foi a primeira tentativa
+      if (purchaseId && !(window as any).__arcanaRetried?.[purchaseId]) {
+        (window as any).__arcanaRetried = { ...((window as any).__arcanaRetried || {}), [purchaseId]: true };
+        setTimeout(() => {
+          generateImage(purchaseId).catch(() => setStep('form'));
+        }, 3000);
+      } else {
+        setStep('form');
+      }
     }
   };
 
