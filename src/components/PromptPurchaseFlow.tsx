@@ -676,6 +676,19 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       template += `\n\nCONTEXTO DA ANÁLISE DA IMAGEM DE REFERÊNCIA:\n${firstProfileWithPrompt.prompt_gerado}`;
     }
     
+    // Strip ALL leftover age/months tokens defensively (prevents words like "age" rendering in image)
+    const stripTokens = (txt: string) => txt
+      .replace(/\{\s*age\s*\}/gi, '')
+      .replace(/\{\s*idade\s*\}/gi, '')
+      .replace(/\{\s*meses?\s*\}/gi, '')
+      .replace(/\{\s*months?\s*\}/gi, '')
+      .replace(/\[\s*AGE\s*\]/gi, '')
+      .replace(/\[\s*IDADE\s*\]/gi, '')
+      .replace(/\[\s*MESES?\s*\]/gi, '')
+      .replace(/\[\s*MONTHS?\s*\]/gi, '')
+      .replace(/<\s*age\s*>/gi, '')
+      .replace(/<\s*idade\s*>/gi, '');
+
     // Universal: if user picked months, always inject (even for non-mêsversário child prompts)
     if (formData.months && !isMesversarioPrompt && !isBirthdayPrompt) {
       template = template
@@ -798,7 +811,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       exampleImageUrl: safeExampleImageUrl || undefined,
       flyerContext: Object.keys(flyerContext).length > 0 ? flyerContext : undefined,
       ...restOverrides,
-      promptTemplate: template,
+      promptTemplate: stripTokens(template),
     };
   };
 
@@ -1610,8 +1623,10 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                       const detectedAge = photoProfiles.find(p => p?.metadados?.idade_detectada)?.metadados?.idade_detectada;
                       const detectedGroup = photoProfiles.find(p => p?.ageGroup)?.ageGroup;
                       
-                      // Auto-determine mode: months for babies, years for others
-                      const isBabyMode = isMesversarioPrompt || detectedGroup === 'bebe' || formData.months;
+                      // Mode driven by which field is filled (toggle works for any prompt type)
+                      const hasYears = !!formData.age;
+                      const hasMonths = !!formData.months;
+                      const isBabyMode = hasMonths || (!hasYears && (isMesversarioPrompt || detectedGroup === 'bebe'));
                       const isChildMode = !isBabyMode && (detectedGroup === 'crianca' || (detectedAge && detectedAge <= 12));
                       
                       return (
@@ -1621,7 +1636,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                             <button
                               type="button"
                               onClick={() => {
-                                setFormData(prev => ({ ...prev, age: '', months: '' }));
+                                setFormData(prev => ({ ...prev, age: '', months: prev.months || '1' }));
                               }}
                               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                                 isBabyMode 
@@ -1634,7 +1649,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                             <button
                               type="button"
                               onClick={() => {
-                                setFormData(prev => ({ ...prev, months: '' }));
+                                setFormData(prev => ({ ...prev, months: '', age: prev.age || (detectedAge ? String(detectedAge) : '') }));
                               }}
                               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                                 !isBabyMode 
@@ -1650,7 +1665,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                           {isBabyMode && (
                             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
                               <div className="grid grid-cols-4 sm:grid-cols-6 gap-1.5 sm:gap-2">
-                                {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => {
+                                {Array.from({ length: 24 }, (_, i) => i + 1).map((month) => {
                                   const isSelected = formData.months === String(month);
                                   return (
                                     <motion.button
