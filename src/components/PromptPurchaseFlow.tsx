@@ -1485,21 +1485,28 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   </div>
                 )}
 
-                {/* Name field */}
-                {prompt.required_fields.includes('name') && (
-                  <div className="space-y-1.5">
-                    <Label className="text-xs sm:text-sm">Seu nome</Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input
-                        value={formData.name}
-                        onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
-                        placeholder="Como você quer ser chamado"
-                        className="pl-10 bg-white/5 border-white/10 text-sm"
-                      />
+                {/* Name field — usa "Nome da criança" para prompts infantis */}
+                {prompt.required_fields.includes('name') && (() => {
+                  const isChildPrompt = /infantil|bebê|bebe|newborn|criança|crianca|kids|baby|aniversário|aniversario/i.test(
+                    `${prompt.category || ''} ${prompt.name || ''}`
+                  );
+                  return (
+                    <div className="space-y-1.5">
+                      <Label className="text-xs sm:text-sm">
+                        {isChildPrompt ? '👶 Nome da criança' : 'Seu nome'}
+                      </Label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <Input
+                          value={formData.name}
+                          onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
+                          placeholder={isChildPrompt ? 'Ex: Helena, Theo, Maria Júlia' : 'Como você quer ser chamado'}
+                          className="pl-10 bg-white/5 border-white/10 text-sm"
+                        />
+                      </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
 
                 {/* Display name for image text - shown when prompt has text in image */}
                 {hasNameInImage && (
