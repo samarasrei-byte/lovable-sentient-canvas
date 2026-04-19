@@ -427,7 +427,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
     setVerifyingPayment(true);
     paymentPollRef.current = setInterval(async () => {
       try {
-        const { data, error } = await supabase.functions.invoke('verify-mercadopago-payment', {
+        const { data, error } = await supabase.functions.invoke('verify-asaas-payment', {
           body: { purchaseId: pId },
         });
 
