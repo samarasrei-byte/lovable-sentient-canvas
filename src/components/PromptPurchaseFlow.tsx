@@ -1691,10 +1691,10 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                           {/* YEARS mode — smart grid with visual preview */}
                           {!isBabyMode && (
                             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
-                              <div className="flex items-center gap-4">
+                              <div className="flex items-center gap-3 sm:gap-4">
                                 {/* Large visual preview */}
                                 <div className="relative flex-shrink-0">
-                                  <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20 border-2 border-primary/30 flex items-center justify-center overflow-hidden">
+                                  <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20 border-2 border-primary/30 flex items-center justify-center overflow-hidden">
                                     {formData.age ? (
                                       <motion.span
                                         key={formData.age}
