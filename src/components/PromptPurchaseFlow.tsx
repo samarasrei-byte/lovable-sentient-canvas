@@ -1623,8 +1623,10 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                       const detectedAge = photoProfiles.find(p => p?.metadados?.idade_detectada)?.metadados?.idade_detectada;
                       const detectedGroup = photoProfiles.find(p => p?.ageGroup)?.ageGroup;
                       
-                      // Auto-determine mode: months for babies, years for others
-                      const isBabyMode = isMesversarioPrompt || detectedGroup === 'bebe' || formData.months;
+                      // Mode driven by which field is filled (toggle works for any prompt type)
+                      const hasYears = !!formData.age;
+                      const hasMonths = !!formData.months;
+                      const isBabyMode = hasMonths || (!hasYears && (isMesversarioPrompt || detectedGroup === 'bebe'));
                       const isChildMode = !isBabyMode && (detectedGroup === 'crianca' || (detectedAge && detectedAge <= 12));
                       
                       return (
@@ -1634,7 +1636,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                             <button
                               type="button"
                               onClick={() => {
-                                setFormData(prev => ({ ...prev, age: '', months: '' }));
+                                setFormData(prev => ({ ...prev, age: '', months: prev.months || '1' }));
                               }}
                               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                                 isBabyMode 
@@ -1647,7 +1649,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                             <button
                               type="button"
                               onClick={() => {
-                                setFormData(prev => ({ ...prev, months: '' }));
+                                setFormData(prev => ({ ...prev, months: '', age: prev.age || (detectedAge ? String(detectedAge) : '') }));
                               }}
                               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                                 !isBabyMode 
