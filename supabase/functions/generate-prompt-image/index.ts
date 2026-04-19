@@ -32,7 +32,20 @@ function buildFlyerBlock(flyerCtx: FlyerContext, photoCount: number): string {
     for (let i = 0; i < photoCount; i++) {
       const name = flyerCtx.nomes?.[i] || `Person ${i + 1}`;
       const age = flyerCtx.idades?.[i];
-      block += `#${i + 1}: ${name}${age ? ` (age ${age})` : ""}. `;
+      block += `#${i + 1}: ${name}${age ? ` (EXACT age: ${age} — body proportions, facial development and size MUST match this age precisely)` : ""}. `;
+    }
+  }
+
+  // CRITICAL AGE LOCK for babies/children — prevents 1yo looking like 6yo or vice versa
+  if (flyerCtx.idades?.length) {
+    const ages = flyerCtx.idades.filter(Boolean);
+    if (ages.length > 0) {
+      block += `\n\n[⚠️ AGE FIDELITY — ABSOLUTE PRIORITY] The subject(s) MUST appear at EXACTLY the specified age(s): ${ages.join(", ")}.\n`;
+      block += `- For babies (0-12 months): show baby proportions (large head relative to body ~1:4 ratio), chubby cheeks, no/few teeth, fine baby hair, smooth skin, unable to stand/walk if under 9 months. Use MONTHS not years (e.g. "6 meses" = 6-month-old infant, NOT a 6-year-old child).\n`;
+      block += `- For toddlers (1-3 years): toddler proportions (~1:4.5 head-to-body), round face, small teeth visible, can stand/walk, baby fat still present.\n`;
+      block += `- For children (4-9 years): child proportions (~1:5.5), losing baby fat, mixed/permanent teeth, longer limbs.\n`;
+      block += `- For pre-teens (10-12): leaner proportions (~1:6), defined features.\n`;
+      block += `NEVER render a baby as an older child or a child as a baby. Age in the output MUST match the specified age within ±3 months for infants and ±1 year for children. The reference photo's age is GROUND TRUTH — clone exact developmental stage.`;
     }
   }
 
