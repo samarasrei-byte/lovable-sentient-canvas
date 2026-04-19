@@ -2100,7 +2100,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                           <Clock className="w-4 h-4 text-accent" />
                         )}
                         <span className="text-xs font-semibold text-accent">
-                          {verifyingPayment ? 'Aguardando confirmação do pagamento...' : 'Pagamento Seguro via Mercado Pago'}
+                          {verifyingPayment ? 'Aguardando confirmação do pagamento...' : 'Pagamento Seguro via PIX (Asaas)'}
                         </span>
                       </div>
                       <p className="text-[10px] text-muted-foreground">
