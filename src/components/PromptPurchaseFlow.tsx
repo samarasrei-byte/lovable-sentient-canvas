@@ -1731,6 +1731,13 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                       ? 'Idade da criança — aparecerá no bolo, velas ou decoração'
                                       : 'Este número aparecerá no bolo, velas, balões ou decoração'}
                                   </p>
+                                  {isChildMode && (
+                                    <div className="mt-2 p-2 rounded-lg bg-amber-500/10 border border-amber-500/30">
+                                      <p className="text-[11px] text-amber-200/90 leading-snug font-medium">
+                                        ⚠️ <strong>Importante:</strong> informe a idade EXATA do bebê/criança. Para bebês com menos de 1 ano, use os <strong>meses</strong> (ex: 6 meses) no campo abaixo. Isso garante que a IA gere o tamanho e proporções corretas — um bebê de 6 meses não pode parecer uma criança de 6 anos.
+                                      </p>
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                               
