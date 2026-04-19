@@ -1691,10 +1691,10 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                           {/* YEARS mode — smart grid with visual preview */}
                           {!isBabyMode && (
                             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
-                              <div className="flex items-center gap-4">
+                              <div className="flex items-center gap-3 sm:gap-4">
                                 {/* Large visual preview */}
                                 <div className="relative flex-shrink-0">
-                                  <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20 border-2 border-primary/30 flex items-center justify-center overflow-hidden">
+                                  <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20 border-2 border-primary/30 flex items-center justify-center overflow-hidden">
                                     {formData.age ? (
                                       <motion.span
                                         key={formData.age}
@@ -2108,22 +2108,23 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                       </p>
                     </div>
 
-                    {/* Simulate payment button - always visible for testing */}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full border-yellow-500/30 text-yellow-500 hover:bg-yellow-500/10 text-xs"
-                      onClick={() => {
-                        setPaymentStatus('paid');
-                        if (paymentPollRef.current) clearInterval(paymentPollRef.current);
-                        toast.success('Pagamento confirmado! Iniciando geração...');
-                        // No artificial delay — go straight to generation
-                        setStep('generating');
-                        void generateImage(purchaseId || undefined);
-                      }}
-                    >
-                      🧪 Simular Pagamento (Teste)
-                    </Button>
+                    {/* Simulate payment button — only in DEV/preview */}
+                    {import.meta.env.DEV && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full border-yellow-500/30 text-yellow-500 hover:bg-yellow-500/10 text-xs"
+                        onClick={() => {
+                          setPaymentStatus('paid');
+                          if (paymentPollRef.current) clearInterval(paymentPollRef.current);
+                          toast.success('Pagamento confirmado! Iniciando geração...');
+                          setStep('generating');
+                          void generateImage(purchaseId || undefined);
+                        }}
+                      >
+                        🧪 Simular Pagamento (Teste)
+                      </Button>
+                    )}
 
                     {verifyingPayment && (
                       <div className="flex items-center justify-center gap-2 py-2">
