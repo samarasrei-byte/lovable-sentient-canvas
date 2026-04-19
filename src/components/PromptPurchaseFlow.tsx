@@ -676,6 +676,19 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       template += `\n\nCONTEXTO DA ANÁLISE DA IMAGEM DE REFERÊNCIA:\n${firstProfileWithPrompt.prompt_gerado}`;
     }
     
+    // Strip ALL leftover age/months tokens defensively (prevents words like "age" rendering in image)
+    const stripTokens = (txt: string) => txt
+      .replace(/\{\s*age\s*\}/gi, '')
+      .replace(/\{\s*idade\s*\}/gi, '')
+      .replace(/\{\s*meses?\s*\}/gi, '')
+      .replace(/\{\s*months?\s*\}/gi, '')
+      .replace(/\[\s*AGE\s*\]/gi, '')
+      .replace(/\[\s*IDADE\s*\]/gi, '')
+      .replace(/\[\s*MESES?\s*\]/gi, '')
+      .replace(/\[\s*MONTHS?\s*\]/gi, '')
+      .replace(/<\s*age\s*>/gi, '')
+      .replace(/<\s*idade\s*>/gi, '');
+
     // Universal: if user picked months, always inject (even for non-mêsversário child prompts)
     if (formData.months && !isMesversarioPrompt && !isBirthdayPrompt) {
       template = template
