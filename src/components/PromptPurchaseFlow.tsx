@@ -405,7 +405,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       if (prompt.price_cents > 0) {
         setStep('payment');
         // Start payment AND pre-upload photos in parallel — saves seconds later
-        void initMercadoPagoPayment(newPurchaseId);
+        void initPixPayment(newPurchaseId);
         void ensureUploadedPhotoUrls(newPurchaseId).catch(err => {
           console.warn('Pre-upload during payment failed, will retry on generation:', err);
         });
@@ -445,7 +445,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
     }, 1500);
   };
 
-  const initMercadoPagoPayment = async (pId: string) => {
+  const initPixPayment = async (pId: string) => {
     setPixLoading(true);
     setPixError(null);
     try {
@@ -2032,7 +2032,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                           <div className="py-6 text-center space-y-3">
                             <AlertTriangle className="w-8 h-8 mx-auto text-yellow-500" />
                             <p className="text-xs text-muted-foreground">{pixError}</p>
-                            <Button size="sm" variant="outline" onClick={() => purchaseId && initMercadoPagoPayment(purchaseId)}>
+                            <Button size="sm" variant="outline" onClick={() => purchaseId && initPixPayment(purchaseId)}>
                               Tentar Novamente
                             </Button>
                           </div>
