@@ -188,50 +188,40 @@ const AdminSettings = () => {
           </Card>
         </TabsContent>
 
-        {/* Payments Tab - Mercado Pago */}
+        {/* Payments Tab - Asaas */}
         <TabsContent value="payments" className="space-y-6">
           <Card className="p-6">
             <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
               <CreditCard className="w-5 h-5 text-primary" />
-              Integração Mercado Pago
+              Integração Asaas (PIX)
             </h2>
 
             <div className="space-y-6">
               {/* Status */}
-              <div className="p-4 rounded-xl border border-yellow-500/20 bg-yellow-500/5">
+              <div className="p-4 rounded-xl border border-green-500/20 bg-green-500/5">
                 <div className="flex items-center gap-2 mb-1">
-                  <AlertCircle className="w-4 h-4 text-yellow-500" />
-                  <span className="text-sm font-semibold text-yellow-500">Aguardando configuração</span>
+                  <AlertCircle className="w-4 h-4 text-green-500" />
+                  <span className="text-sm font-semibold text-green-500">Gateway ativo</span>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Configure suas credenciais do Mercado Pago para ativar pagamentos PIX automáticos.
+                  Pagamentos PIX são processados via Asaas. A chave de API está configurada com segurança nos secrets do backend.
                 </p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="mp_access_token">Access Token (Produção)</Label>
+                <Label>API Key (Asaas)</Label>
                 <Input
-                  id="mp_access_token"
                   type="password"
-                  placeholder="APP_USR-xxxxxxxxxxxx"
+                  value="••••••••••••••••••••••••"
+                  readOnly
                   className="font-mono"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Encontre em{" "}
-                  <a href="https://www.mercadopago.com.br/developers/panel/app" target="_blank" rel="noopener noreferrer" className="text-primary underline inline-flex items-center gap-1">
-                    Mercado Pago Developers <ExternalLink className="w-3 h-3" />
+                  Gerencie a chave em{" "}
+                  <a href="https://www.asaas.com/config/integrations" target="_blank" rel="noopener noreferrer" className="text-primary underline inline-flex items-center gap-1">
+                    Asaas Integrações <ExternalLink className="w-3 h-3" />
                   </a>
                 </p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="mp_public_key">Public Key</Label>
-                <Input
-                  id="mp_public_key"
-                  type="text"
-                  placeholder="APP_USR-xxxxxxxxxxxx"
-                  className="font-mono"
-                />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -245,19 +235,9 @@ const AdminSettings = () => {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <Label>Modo Sandbox (Teste)</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Use credenciais de teste para validar a integração
-                  </p>
-                </div>
-                <Switch defaultChecked={true} />
-              </div>
-
-              <Button className="w-full bg-[#009ee3] hover:bg-[#007eb8] text-white" onClick={handleSave}>
+              <Button className="w-full" onClick={handleSave}>
                 <CreditCard className="w-4 h-4 mr-2" />
-                Salvar Credenciais Mercado Pago
+                Salvar Configurações
               </Button>
             </div>
           </Card>
