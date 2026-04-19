@@ -752,8 +752,9 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
     if (allNames.length > 0) flyerContext.nomes = allNames;
     else if (nameForImage) flyerContext.nomes = [nameForImage];
 
-    // Ages
-    if (formData.age) flyerContext.idades = [formData.age];
+    // Ages — usa anos OU meses (mêsversário)
+    const ageValue = formData.age || (formData.months ? `${formData.months} ${formData.months === '1' ? 'mês' : 'meses'}` : '');
+    if (ageValue) flyerContext.idades = [ageValue];
 
     // Contact info
     if (formData.telefone) flyerContext.telefone = formData.telefone;
@@ -1635,7 +1636,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                           {/* MONTHS mode — gorgeous grid */}
                           {isBabyMode && (
                             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
-                              <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                              <div className="grid grid-cols-4 sm:grid-cols-6 gap-1.5 sm:gap-2">
                                 {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => {
                                   const isSelected = formData.months === String(month);
                                   return (
@@ -1644,16 +1645,16 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                       type="button"
                                       whileTap={{ scale: 0.92 }}
                                       onClick={() => setFormData((prev) => ({ ...prev, months: String(month), age: '' }))}
-                                      className={`relative p-2.5 rounded-xl text-center transition-all duration-200 ${
+                                      className={`relative p-1.5 sm:p-2.5 rounded-xl text-center transition-all duration-200 min-h-[52px] sm:min-h-[60px] ${
                                         isSelected
                                           ? 'bg-gradient-to-br from-pink-500/30 to-purple-500/20 border-2 border-pink-400/60 shadow-lg shadow-pink-500/10 scale-[1.05]'
                                           : 'bg-white/[0.03] border border-white/[0.08] hover:border-pink-400/30 hover:bg-pink-500/5'
                                       }`}
                                     >
-                                      <span className={`text-lg font-black block leading-none ${isSelected ? 'text-pink-300' : 'text-foreground/80'}`}>
+                                      <span className={`text-base sm:text-lg font-black block leading-none ${isSelected ? 'text-pink-300' : 'text-foreground/80'}`}>
                                         {month}
                                       </span>
-                                      <span className={`text-[9px] mt-0.5 block ${isSelected ? 'text-pink-300/80' : 'text-muted-foreground/50'}`}>
+                                      <span className={`text-[8px] sm:text-[9px] mt-0.5 block ${isSelected ? 'text-pink-300/80' : 'text-muted-foreground/50'}`}>
                                         {month === 1 ? 'mês' : 'meses'}
                                       </span>
                                       {isSelected && (
