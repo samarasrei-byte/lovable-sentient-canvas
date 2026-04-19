@@ -1188,10 +1188,10 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: "100%", opacity: 0 }}
         transition={{ type: "spring", damping: 30, stiffness: 300 }}
-        className="w-full h-full sm:h-auto sm:max-w-lg sm:px-4 sm:py-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+        className="w-full h-[100dvh] sm:h-auto sm:max-w-lg sm:px-4 sm:py-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
       >
-        <div className="relative overflow-hidden h-full sm:h-auto sm:max-h-[90vh] overflow-y-auto overscroll-contain sm:rounded-2xl border border-white/[0.06] bg-[hsl(var(--background))] sm:bg-white/[0.02] sm:backdrop-blur-md [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          <button onClick={onClose} className="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors">
+        <div className="relative overflow-hidden h-full sm:h-auto sm:max-h-[90vh] overflow-y-auto overscroll-contain sm:rounded-2xl border border-white/[0.06] bg-[hsl(var(--background))] sm:bg-white/[0.02] sm:backdrop-blur-md pb-[env(safe-area-inset-bottom)] pt-[env(safe-area-inset-top)] sm:pb-0 sm:pt-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          <button onClick={onClose} aria-label="Fechar" className="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 active:scale-90 transition-all touch-manipulation min-w-[40px] min-h-[40px] flex items-center justify-center">
             <X className="w-4 h-4" />
           </button>
 
