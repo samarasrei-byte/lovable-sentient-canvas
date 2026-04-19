@@ -427,7 +427,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
     setVerifyingPayment(true);
     paymentPollRef.current = setInterval(async () => {
       try {
-        const { data, error } = await supabase.functions.invoke('verify-mercadopago-payment', {
+        const { data, error } = await supabase.functions.invoke('verify-asaas-payment', {
           body: { purchaseId: pId },
         });
 
@@ -449,23 +449,19 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
     setPixLoading(true);
     setPixError(null);
     try {
-      const { data, error } = await supabase.functions.invoke('create-mercadopago-payment', {
+      const { data, error } = await supabase.functions.invoke('create-asaas-payment', {
         body: {
           purchaseId: pId,
           priceCents: prompt.price_cents,
           customerEmail: formData.email || undefined,
           customerName: formData.name || undefined,
-          paymentMethod: 'pix',
         },
       });
 
       if (error) throw error;
 
-      if (data?.status === 'approved') {
-        setPaymentStatus('paid');
-        toast.success('Pagamento aprovado! Iniciando geração...');
-        setStep('generating');
-        void generateImage(pId);
+      if (data?.error) {
+        setPixError(data.error);
         return;
       }
 
@@ -480,7 +476,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
         setPixError('Não foi possível gerar o QR Code PIX. Tente novamente.');
       }
     } catch (err) {
-      console.error('Mercado Pago payment error:', err);
+      console.error('Asaas payment error:', err);
       setPixError('Erro ao gerar pagamento. Tente novamente.');
     } finally {
       setPixLoading(false);
