@@ -2380,25 +2380,28 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                         placeholder="Seu nome"
                         value={downloadName}
                         onChange={(e) => setDownloadName(e.target.value)}
-                        className="text-sm bg-background/50"
+                        className="text-sm bg-background/50 h-11"
+                        autoComplete="name"
                       />
-                      <div className="flex gap-2">
-                        <Input
-                          placeholder="(11) 99999-9999"
-                          value={whatsapp}
-                          onChange={(e) => setWhatsapp(formatWhatsapp(e.target.value))}
-                          className="flex-1 text-sm bg-background/50"
-                          maxLength={16}
-                        />
-                        <GlassButton 
-                          onClick={handleSaveWhatsapp} 
-                          size="sm" 
-                          disabled={whatsapp.replace(/\D/g, '').length < 10 || !downloadName.trim()}
-                        >
-                          <Check className="w-3.5 h-3.5 mr-1" />
-                          OK
-                        </GlassButton>
-                      </div>
+                      <Input
+                        placeholder="(11) 99999-9999"
+                        value={whatsapp}
+                        onChange={(e) => setWhatsapp(formatWhatsapp(e.target.value))}
+                        className="w-full text-sm bg-background/50 h-11"
+                        maxLength={16}
+                        type="tel"
+                        inputMode="numeric"
+                        autoComplete="tel"
+                      />
+                      <GlassButton 
+                        onClick={handleSaveWhatsapp} 
+                        size="sm" 
+                        disabled={whatsapp.replace(/\D/g, '').length < 10 || !downloadName.trim()}
+                        className="w-full h-11"
+                      >
+                        <Check className="w-4 h-4 mr-1.5" />
+                        Confirmar
+                      </GlassButton>
                     </div>
                     <p className="text-[10px] text-muted-foreground text-center">
                       Receba novidades e promoções exclusivas no WhatsApp 🚀
