@@ -231,11 +231,17 @@ serve(async (req) => {
 
     // --- NORMAL GENERATION ---
     let prompt = promptTemplate || "Create a stunning artistic portrait, highly detailed, cinematic lighting, 8k quality";
-    if (userName) prompt = prompt.replace(/{name}/g, userName);
-    if (userInstagram) prompt = prompt.replace(/{instagram}/g, `@${userInstagram.replace('@', '')}`);
-    if (userDescription) prompt = prompt.replace(/{description}/g, userDescription);
+    if (userName) prompt = prompt.replace(/\{name\}/g, userName);
+    if (userInstagram) prompt = prompt.replace(/\{instagram\}/g, `@${userInstagram.replace('@', '')}`);
+    if (userDescription) prompt = prompt.replace(/\{description\}/g, userDescription);
     const userAge = flyerContext?.idades?.[0] || "";
-    if (userAge) prompt = prompt.replace(/{age}/g, userAge);
+    if (userAge) {
+      prompt = prompt.replace(/\{age\}/g, userAge);
+      prompt = prompt.replace(/\{months\}/g, userAge);
+      prompt = prompt.replace(/\{years\}/g, userAge);
+    }
+    // CRITICAL: strip any remaining unfilled placeholders so the AI never renders them as literal text
+    prompt = prompt.replace(/\{[a-zA-Z_]+\}/g, "").replace(/"\s*"/g, "").replace(/\s+,/g, ",").replace(/\s{2,}/g, " ");
 
     const rawPhotoUrls: string[] = userPhotoUrls?.length ? userPhotoUrls : (userPhotoUrl ? [userPhotoUrl] : []);
     // Resolve any private-bucket URLs into signed URLs so the AI gateway can fetch them
