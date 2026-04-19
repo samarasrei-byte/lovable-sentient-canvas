@@ -1188,26 +1188,28 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: "100%", opacity: 0 }}
         transition={{ type: "spring", damping: 30, stiffness: 300 }}
-        className="w-full h-full sm:h-auto sm:max-w-lg sm:px-4 sm:py-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+        className="w-full h-[100dvh] sm:h-auto sm:max-w-lg sm:px-4 sm:py-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
       >
-        <div className="relative overflow-hidden h-full sm:h-auto sm:max-h-[90vh] overflow-y-auto overscroll-contain sm:rounded-2xl border border-white/[0.06] bg-[hsl(var(--background))] sm:bg-white/[0.02] sm:backdrop-blur-md [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          <button onClick={onClose} className="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors">
+        <div className="relative overflow-hidden h-full sm:h-auto sm:max-h-[90vh] overflow-y-auto overscroll-contain sm:rounded-2xl border border-white/[0.06] bg-[hsl(var(--background))] sm:bg-white/[0.02] sm:backdrop-blur-md pb-[env(safe-area-inset-bottom)] pt-[env(safe-area-inset-top)] sm:pb-0 sm:pt-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          <button onClick={onClose} aria-label="Fechar" className="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 active:scale-90 transition-all touch-manipulation min-w-[40px] min-h-[40px] flex items-center justify-center">
             <X className="w-4 h-4" />
           </button>
 
           <GlassCardHeader className="pb-3">
-            <div className="flex items-center gap-3 pr-10">
+            <div className="flex items-center gap-3 pr-12">
               <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center shrink-0">
                 <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
               </div>
-              <div className="min-w-0">
-                <GlassCardTitle className="text-base sm:text-lg leading-tight">{prompt.name}</GlassCardTitle>
-                <p className="text-xs sm:text-sm text-muted-foreground">{prompt.category}</p>
+              <div className="min-w-0 flex-1">
+                <GlassCardTitle className="text-sm sm:text-lg leading-tight truncate">{prompt.name}</GlassCardTitle>
+                <div className="flex items-center gap-2 flex-wrap mt-0.5">
+                  <p className="text-[11px] sm:text-sm text-muted-foreground truncate">{prompt.category}</p>
+                  <Badge className="bg-primary text-primary-foreground text-[10px] sm:text-xs px-2 py-0 h-5">
+                    {formatPrice(prompt.price_cents)}
+                  </Badge>
+                </div>
               </div>
             </div>
-            <Badge className="absolute top-5 right-12 bg-primary text-primary-foreground text-xs">
-              {formatPrice(prompt.price_cents)}
-            </Badge>
           </GlassCardHeader>
 
           <GlassCardContent className="space-y-4 sm:space-y-6">
@@ -2052,18 +2054,18 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                           <>
                             {/* QR Code */}
                             <div className="flex flex-col items-center gap-3">
-                              <div className="bg-white p-3 rounded-xl shadow-lg">
+                              <div className="bg-white p-2 sm:p-3 rounded-xl shadow-lg max-w-full">
                                 {pixData.qrCodeUrl ? (
                                   <img 
                                     src={pixData.qrCodeUrl} 
                                     alt="QR Code PIX" 
-                                    className="w-48 h-48 sm:w-56 sm:h-56"
+                                    className="w-40 h-40 xs:w-48 xs:h-48 sm:w-56 sm:h-56 max-w-full"
                                   />
                                 ) : (
-                                  <QRCodeSVG value={pixData.copiaECola} size={224} />
+                                  <QRCodeSVG value={pixData.copiaECola} size={192} className="max-w-full h-auto" />
                                 )}
                               </div>
-                              <p className="text-[10px] text-muted-foreground text-center">
+                              <p className="text-[10px] text-muted-foreground text-center px-2">
                                 Escaneie o QR Code com o app do seu banco
                               </p>
                             </div>
@@ -2378,25 +2380,28 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                         placeholder="Seu nome"
                         value={downloadName}
                         onChange={(e) => setDownloadName(e.target.value)}
-                        className="text-sm bg-background/50"
+                        className="text-sm bg-background/50 h-11"
+                        autoComplete="name"
                       />
-                      <div className="flex gap-2">
-                        <Input
-                          placeholder="(11) 99999-9999"
-                          value={whatsapp}
-                          onChange={(e) => setWhatsapp(formatWhatsapp(e.target.value))}
-                          className="flex-1 text-sm bg-background/50"
-                          maxLength={16}
-                        />
-                        <GlassButton 
-                          onClick={handleSaveWhatsapp} 
-                          size="sm" 
-                          disabled={whatsapp.replace(/\D/g, '').length < 10 || !downloadName.trim()}
-                        >
-                          <Check className="w-3.5 h-3.5 mr-1" />
-                          OK
-                        </GlassButton>
-                      </div>
+                      <Input
+                        placeholder="(11) 99999-9999"
+                        value={whatsapp}
+                        onChange={(e) => setWhatsapp(formatWhatsapp(e.target.value))}
+                        className="w-full text-sm bg-background/50 h-11"
+                        maxLength={16}
+                        type="tel"
+                        inputMode="numeric"
+                        autoComplete="tel"
+                      />
+                      <GlassButton 
+                        onClick={handleSaveWhatsapp} 
+                        size="sm" 
+                        disabled={whatsapp.replace(/\D/g, '').length < 10 || !downloadName.trim()}
+                        className="w-full h-11"
+                      >
+                        <Check className="w-4 h-4 mr-1.5" />
+                        Confirmar
+                      </GlassButton>
                     </div>
                     <p className="text-[10px] text-muted-foreground text-center">
                       Receba novidades e promoções exclusivas no WhatsApp 🚀
