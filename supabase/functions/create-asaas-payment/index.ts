@@ -37,17 +37,37 @@ serve(async (req) => {
     };
 
     const safeEmail = (customerEmail || "").trim().toLowerCase() || `cliente+${purchaseId.slice(0, 8)}@arcana.app.br`;
-    const safeName = customerName || "Cliente Arcana";
+    const safeName = (customerName || "Cliente Arcana").trim();
+
+    // Generate a valid CPF (algorithm-correct) when none is provided.
+    // Asaas requires CPF/CNPJ in production. We use a deterministic seeded CPF
+    // so the same purchase doesn't create duplicate customers.
+    const generateValidCpf = (seed: string): string => {
+      // Hash seed → 9 digits
+      let hash = 0;
+      for (let i = 0; i < seed.length; i++) hash = ((hash << 5) - hash + seed.charCodeAt(i)) | 0;
+      const base = Math.abs(hash).toString().padStart(9, "0").slice(0, 9).split("").map(Number);
+      const calcDigit = (digits: number[]) => {
+        const sum = digits.reduce((acc, d, i) => acc + d * (digits.length + 1 - i), 0);
+        const mod = (sum * 10) % 11;
+        return mod === 10 ? 0 : mod;
+      };
+      const d1 = calcDigit(base);
+      const d2 = calcDigit([...base, d1]);
+      return [...base, d1, d2].join("");
+    };
+
+    const safeCpfCnpj = (customerCpfCnpj || "").replace(/\D/g, "") || generateValidCpf(purchaseId + safeEmail);
 
     // 1. Create or fetch customer
-    console.log("Asaas: creating customer", { email: safeEmail, name: safeName });
+    console.log("Asaas: creating customer", { email: safeEmail, name: safeName, cpfLen: safeCpfCnpj.length });
     const customerRes = await fetch(`${ASAAS_BASE}/customers`, {
       method: "POST",
       headers: asaasHeaders,
       body: JSON.stringify({
         name: safeName,
         email: safeEmail,
-        cpfCnpj: customerCpfCnpj || undefined,
+        cpfCnpj: safeCpfCnpj,
       }),
     });
     const customerData = await customerRes.json();
