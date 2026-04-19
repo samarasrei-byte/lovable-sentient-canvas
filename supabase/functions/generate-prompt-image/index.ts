@@ -340,8 +340,9 @@ async function callGateway(model: string, messages: any[], apiKey: string): Prom
     const errorText = await response.text();
     console.error("AI gateway error:", response.status, errorText.substring(0, 300));
     if (response.status === 401) throw new Error("AUTH_INVALID");
-    if (response.status === 429) throw new Error("Rate limit exceeded.");
-    if (response.status === 402) throw new Error("Service temporarily unavailable.");
+    if (response.status === 429) throw new Error("RATE_LIMIT");
+    if (response.status === 402) throw new Error("CREDITS_EXHAUSTED");
+    if (response.status === 503 || response.status === 502 || response.status === 504) throw new Error("UPSTREAM_UNAVAILABLE");
     if (response.status === 400 && errorText.includes("fetching image from URL")) {
       throw new Error("INVALID_IMAGE_URL");
     }
@@ -400,12 +401,29 @@ async function tryGenerateWithRetry(primaryModel: string, messages: any[], apiKe
       } catch (e: any) {
         if (e.message === "AUTH_INVALID") { console.warn(`[${keyLabel}] Auth invalid, skipping key`); authFailed = true; errors.push(`${keyLabel}: auth invalid`); break; }
         if (e.message === "INVALID_IMAGE_URL") { console.error(`[${keyLabel}] User photo URL is unreachable`); throw new Error("A URL da foto enviada não pôde ser acessada. Tente fazer upload novamente."); }
-        if (e.message.includes("Rate limit") || e.message.includes("temporarily")) { errors.push(`${model}: ${e.message}`); throw e; }
+        // Transient errors: log and continue trying other models/keys instead of aborting
+        if (e.message === "RATE_LIMIT" || e.message === "UPSTREAM_UNAVAILABLE" || e.message === "CREDITS_EXHAUSTED") {
+          errors.push(`${keyLabel}/${model}: ${e.message}`);
+          console.warn(`[${keyLabel}] ${model} transient error: ${e.message} — trying next model/key`);
+          await delay(1500);
+          continue;
+        }
         errors.push(`${model}: ${e.message}`);
         console.error(`[${keyLabel}] ${model} failed:`, e.message);
       }
     }
   }
-  console.error("All generation attempts failed:", errors.join(" | "));
+  const summary = errors.join(" | ");
+  console.error("All generation attempts failed:", summary);
+  // Surface a useful error to the caller
+  if (errors.some(e => e.includes("CREDITS_EXHAUSTED"))) {
+    throw new Error("Créditos da IA esgotados temporariamente. Tente novamente em alguns minutos ou contate o suporte.");
+  }
+  if (errors.some(e => e.includes("RATE_LIMIT"))) {
+    throw new Error("Muitas gerações simultâneas. Aguarde 30 segundos e tente novamente.");
+  }
+  if (errors.some(e => e.includes("UPSTREAM_UNAVAILABLE"))) {
+    throw new Error("Serviço de IA temporariamente indisponível. Tente novamente em 1 minuto.");
+  }
   return null;
 }
