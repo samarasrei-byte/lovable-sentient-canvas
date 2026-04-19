@@ -1196,18 +1196,20 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
           </button>
 
           <GlassCardHeader className="pb-3">
-            <div className="flex items-center gap-3 pr-10">
+            <div className="flex items-center gap-3 pr-12">
               <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center shrink-0">
                 <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
               </div>
-              <div className="min-w-0">
-                <GlassCardTitle className="text-base sm:text-lg leading-tight">{prompt.name}</GlassCardTitle>
-                <p className="text-xs sm:text-sm text-muted-foreground">{prompt.category}</p>
+              <div className="min-w-0 flex-1">
+                <GlassCardTitle className="text-sm sm:text-lg leading-tight truncate">{prompt.name}</GlassCardTitle>
+                <div className="flex items-center gap-2 flex-wrap mt-0.5">
+                  <p className="text-[11px] sm:text-sm text-muted-foreground truncate">{prompt.category}</p>
+                  <Badge className="bg-primary text-primary-foreground text-[10px] sm:text-xs px-2 py-0 h-5">
+                    {formatPrice(prompt.price_cents)}
+                  </Badge>
+                </div>
               </div>
             </div>
-            <Badge className="absolute top-5 right-12 bg-primary text-primary-foreground text-xs">
-              {formatPrice(prompt.price_cents)}
-            </Badge>
           </GlassCardHeader>
 
           <GlassCardContent className="space-y-4 sm:space-y-6">
