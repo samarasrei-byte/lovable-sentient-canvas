@@ -811,7 +811,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       exampleImageUrl: safeExampleImageUrl || undefined,
       flyerContext: Object.keys(flyerContext).length > 0 ? flyerContext : undefined,
       ...restOverrides,
-      promptTemplate: template,
+      promptTemplate: stripTokens(template),
     };
   };
 
