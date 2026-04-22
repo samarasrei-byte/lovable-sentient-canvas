@@ -445,7 +445,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
     }, 1500);
   };
 
-  const initPixPayment = async (pId: string) => {
+  const initPixPayment = async (pId: string, attempt = 1) => {
     setPixLoading(true);
     setPixError(null);
     try {
@@ -461,7 +461,9 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       if (error) throw error;
 
       if (data?.error) {
-        setPixError(data.error);
+        // Server returned business error — surface clearly with support fallback
+        console.error('Asaas server error:', data);
+        setPixError(`${data.error} — Se persistir, fale conosco no WhatsApp informando o ID: ${pId.slice(0, 8)}`);
         return;
       }
 
@@ -471,13 +473,32 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
           qrCodeUrl: data.qrCodeBase64 ? `data:image/png;base64,${data.qrCodeBase64}` : '',
           expiresAt: data.expiresAt ? new Date(data.expiresAt).getTime() / 1000 : Date.now() / 1000 + 1800,
         });
+        // Persist ticketUrl as fallback in case copy/paste fails
+        if (data.ticketUrl) {
+          (window as unknown as { __arcanaTicketUrl?: Record<string, string> }).__arcanaTicketUrl = {
+            ...((window as unknown as { __arcanaTicketUrl?: Record<string, string> }).__arcanaTicketUrl || {}),
+            [pId]: data.ticketUrl,
+          };
+        }
         startPaymentPolling(pId);
       } else {
-        setPixError('Não foi possível gerar o QR Code PIX. Tente novamente.');
+        throw new Error('NO_PIX_DATA');
       }
     } catch (err) {
-      console.error('Asaas payment error:', err);
-      setPixError('Erro ao gerar pagamento. Tente novamente.');
+      console.error(`Asaas payment error (attempt ${attempt}):`, err);
+      // Auto-retry once after 1.5s before showing error to user
+      if (attempt < 2) {
+        setTimeout(() => { void initPixPayment(pId, attempt + 1); }, 1500);
+        return;
+      }
+      setPixError(`Não conseguimos gerar o PIX agora. Tente novamente ou fale conosco no WhatsApp informando o ID: ${pId.slice(0, 8)}`);
+      toast.error('Falha ao gerar pagamento', {
+        description: 'Tente novamente ou contate o suporte',
+        action: {
+          label: 'WhatsApp',
+          onClick: () => window.open(`https://wa.me/5511999999999?text=Erro%20no%20pagamento.%20ID:%20${pId}`, '_blank'),
+        },
+      });
     } finally {
       setPixLoading(false);
     }
@@ -2077,10 +2098,20 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                         ) : pixError ? (
                           <div className="py-6 text-center space-y-3">
                             <AlertTriangle className="w-8 h-8 mx-auto text-yellow-500" />
-                            <p className="text-xs text-muted-foreground">{pixError}</p>
-                            <Button size="sm" variant="outline" onClick={() => purchaseId && initPixPayment(purchaseId)}>
-                              Tentar Novamente
-                            </Button>
+                            <p className="text-xs text-muted-foreground px-2">{pixError}</p>
+                            <div className="flex flex-col gap-2">
+                              <Button size="sm" variant="outline" onClick={() => purchaseId && initPixPayment(purchaseId)}>
+                                Tentar Novamente
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="text-xs text-primary"
+                                onClick={() => window.open(`https://wa.me/5511999999999?text=Erro%20no%20pagamento.%20ID:%20${purchaseId?.slice(0, 8)}`, '_blank')}
+                              >
+                                💬 Falar com Suporte (WhatsApp)
+                              </Button>
+                            </div>
                           </div>
                         ) : pixData ? (
                           <>
