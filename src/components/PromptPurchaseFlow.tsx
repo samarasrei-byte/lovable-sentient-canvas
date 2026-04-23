@@ -1346,20 +1346,27 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                 />
                               </motion.div>
 
-                              <div className="space-y-2">
+                              <div className="space-y-2.5">
                                 <h4 className="text-lg sm:text-xl font-bold text-foreground tracking-[-0.04em] leading-tight">
-                                  {isCouplePrompt ? 'Fotos do casal' : isFamilyPrompt ? 'Fotos da família' : 'Sua melhor foto'}
+                                  {isCouplePrompt ? 'Fotos do casal' : isFamilyPrompt ? 'Fotos da família' : 'Envie sua melhor foto'}
                                 </h4>
-                                <p className="text-[13px] sm:text-sm text-muted-foreground/70 leading-relaxed max-w-[280px] mx-auto">
-                                  {isCouplePrompt
-                                    ? 'Uma foto de cada pessoa. A IA vai unir vocês.'
-                                    : isFamilyPrompt
-                                      ? 'Uma foto separada de cada membro.'
-                                      : 'Rosto visível, boa iluminação, de frente. Quanto melhor a foto, mais parecido fica!'}
-                                </p>
-                                <div className="flex flex-wrap justify-center gap-1.5 mt-1">
-                                  {['✅ Rosto de frente', '✅ Boa luz', '✅ Sem óculos escuros'].map(tip => (
-                                    <span key={tip} className="text-[9px] px-2 py-0.5 rounded-full bg-primary/8 text-primary/70 font-medium">{tip}</span>
+                                {/* Destaque das recomendações de qualidade */}
+                                <div className="mx-auto max-w-[300px] rounded-2xl border border-primary/25 bg-gradient-to-b from-primary/[0.08] to-primary/[0.02] px-3.5 py-3 shadow-[0_0_24px_-8px_hsl(var(--primary)/0.35)]">
+                                  <p className="text-[11px] sm:text-[12px] font-semibold text-primary tracking-tight mb-1.5 flex items-center justify-center gap-1.5">
+                                    <Sparkles className="w-3 h-3" />
+                                    Para o melhor resultado
+                                  </p>
+                                  <p className="text-[12px] sm:text-[13px] text-foreground/85 leading-relaxed font-medium">
+                                    {isCouplePrompt
+                                      ? 'Uma foto de cada pessoa. A IA vai unir vocês.'
+                                      : isFamilyPrompt
+                                        ? 'Uma foto separada de cada membro.'
+                                        : 'Suba uma foto com boa qualidade, boa iluminação e o rosto de frente.'}
+                                  </p>
+                                </div>
+                                <div className="flex flex-wrap justify-center gap-1.5 pt-1">
+                                  {['✅ Rosto de frente', '✅ Boa iluminação', '✅ Alta qualidade'].map(tip => (
+                                    <span key={tip} className="text-[10px] px-2.5 py-1 rounded-full bg-primary/10 text-primary/85 font-semibold">{tip}</span>
                                   ))}
                                 </div>
                               </div>
@@ -2323,19 +2330,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   </motion.div>
                 )}
 
-                {/* Subtle upsell */}
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 5 }}
-                  className="mt-6 p-3 rounded-xl border border-primary/10 bg-primary/3 text-center"
-                >
-                  <p className="text-[10px] text-muted-foreground/50 mb-1">Gostou? Com o plano mensal você paga menos</p>
-                  <p className="text-sm font-bold text-primary">6 fotos/mês por R$ 100</p>
-                  <button onClick={() => window.open('/app/planos', '_blank')} className="mt-1.5 text-[10px] text-primary/70 hover:text-primary underline underline-offset-2 transition-colors">
-                    Ver planos →
-                  </button>
-                </motion.div>
+                {/* Upsell removido conforme solicitação do produto */}
               </motion.div>
             )}
 
