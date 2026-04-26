@@ -109,9 +109,8 @@ const Mesversario = () => {
     fetchPrompts();
   }, []);
 
-  const fetchPrompts = async () => {
+  const fetchPrompts = useCallback(async () => {
     try {
-      // Listagem leve: sem prompt_template/negative_prompt (carregados sob demanda no clique)
       const { data, error } = await supabase
         .from("prompts")
         .select("id,name,description,category,hype_text,example_image_url,price_cents,status,required_fields,is_influencer_prompt,influencer_name,ai_model,min_photos,is_featured,display_order")
@@ -133,15 +132,14 @@ const Mesversario = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  // Carrega campos pesados (template) só quando o usuário clica no card
-  const handleSelectPrompt = async (prompt: Prompt) => {
+  const handleSelectPrompt = useCallback(async (prompt: Prompt) => {
     if (prompt.prompt_template) {
       setSelectedPrompt(prompt);
       return;
     }
-    setSelectedPrompt(prompt); // abre modal imediatamente com skeleton interno
+    setSelectedPrompt(prompt);
     try {
       const { data } = await supabase
         .from("prompts")
@@ -154,7 +152,7 @@ const Mesversario = () => {
     } catch (err) {
       console.error("Error loading prompt template:", err);
     }
-  };
+  }, []);
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
