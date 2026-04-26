@@ -128,6 +128,14 @@ const GeneratingStep = ({ label, delay, isQA }: { label: string; delay: number; 
     <div className={`flex items-center gap-2 text-xs transition-all duration-500 ${active ? (isQA ? 'text-secondary opacity-100' : 'text-primary opacity-100') : 'text-muted-foreground/40 opacity-60'}`}>
       {active ? <Check className="w-3.5 h-3.5" /> : <Loader2 className="w-3.5 h-3.5 animate-spin" />}
       <span>{label}</span>
+      <ModerationAppealModal
+        isOpen={appealModal.isOpen}
+        onClose={() => setAppealModal(prev => ({ ...prev, isOpen: false }))}
+        type={appealModal.type}
+        photoUrl={appealModal.photoUrl}
+        reason={appealModal.reason}
+        purchaseId={purchaseId || undefined}
+      />
     </div>
   );
 };
