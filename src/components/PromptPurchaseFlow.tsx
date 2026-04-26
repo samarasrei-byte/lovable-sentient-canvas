@@ -1239,13 +1239,13 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
     if (!generatedImage) return;
 
     try {
-      const { error } = await supabase.from('generated_images').insert({
+      const { error } = await (supabase.from('generated_images' as any).insert({
         user_id: user.id,
         image_url: generatedImage,
         template_name: prompt.name,
         original_purchase_id: purchaseId,
         is_favorite: true
-      });
+      } as any) as any);
 
       if (error) throw error;
       toast.success('Salvo em seu perfil com sucesso! 🎉');
