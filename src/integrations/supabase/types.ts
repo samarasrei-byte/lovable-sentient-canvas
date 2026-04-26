@@ -299,6 +299,45 @@ export type Database = {
         }
         Relationships: []
       }
+      blocked_prompts: {
+        Row: {
+          created_at: string | null
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          prompt_text: string
+          purchase_id: string | null
+          reason: string
+          severity: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          prompt_text: string
+          purchase_id?: string | null
+          reason: string
+          severity?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          prompt_text?: string
+          purchase_id?: string | null
+          reason?: string
+          severity?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       brand_verifications: {
         Row: {
           brand_id: string
@@ -1110,6 +1149,33 @@ export type Database = {
         }
         Relationships: []
       }
+      moderation_rules: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          pattern: string
+          rule_type: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          pattern: string
+          rule_type: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          pattern?: string
+          rule_type?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           action_url: string | null
@@ -1830,6 +1896,39 @@ export type Database = {
           last_credit_reset?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      user_moderation_profiles: {
+        Row: {
+          created_at: string | null
+          is_suspended: boolean | null
+          last_violation_at: string | null
+          risk_score: number | null
+          suspension_reason: string | null
+          updated_at: string | null
+          user_id: string
+          violation_count: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          is_suspended?: boolean | null
+          last_violation_at?: string | null
+          risk_score?: number | null
+          suspension_reason?: string | null
+          updated_at?: string | null
+          user_id: string
+          violation_count?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          is_suspended?: boolean | null
+          last_violation_at?: string | null
+          risk_score?: number | null
+          suspension_reason?: string | null
+          updated_at?: string | null
+          user_id?: string
+          violation_count?: number | null
         }
         Relationships: []
       }
