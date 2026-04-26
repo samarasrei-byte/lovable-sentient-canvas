@@ -155,6 +155,7 @@ Standard Rules:
       seguranca: result.seguranca || {
         conteudo_seguro: true,
         motivo_bloqueio: null,
+        sugestoes_seguranca: [],
         rating: "G"
       },
       ageGroup: result.ageGroup || "adulto",
