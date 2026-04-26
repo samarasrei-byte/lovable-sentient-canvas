@@ -94,7 +94,7 @@ export const SupportTickets = () => {
     if (!user) return;
 
     const { data, error } = await supabase
-      .from("support_tickets")
+      .from("support_tickets" as any)
       .insert({
         user_id: user.id,
         ...newTicket,
