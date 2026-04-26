@@ -2161,17 +2161,6 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                       </div>
                     )}
 
-                    {(prompt.required_fields.includes('whatsapp') || isEventPrompt) && (
-                      <div className="space-y-1">
-                        <Label className="text-[10px] text-muted-foreground">💬 WhatsApp</Label>
-                        <Input
-                          value={formData.whatsapp}
-                          onChange={(e) => setFormData(prev => ({ ...prev, whatsapp: e.target.value }))}
-                          placeholder="(11) 99999-9999"
-                          className="bg-white/5 border-white/10 text-sm"
-                        />
-                      </div>
-                    )}
 
                     {(prompt.required_fields.includes('endereco') || isEventPrompt) && (
                       <div className="space-y-1">
