@@ -2619,76 +2619,85 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                 )}
 
                 {/* WhatsApp + Name capture */}
-                {!whatsappSaved ? (
-                  <div className="space-y-3 p-4 rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/20">
-                    <div className="flex items-center gap-2 text-sm font-bold">
-                      <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                        <MessageCircle className="w-4 h-4 text-primary" />
+                {/* Action Row - HD Download + Save */}
+                <div className="space-y-3">
+                  <motion.button
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleDownloadAll}
+                    className="relative w-full group overflow-hidden rounded-2xl p-[1px] bg-gradient-to-r from-primary to-secondary"
+                  >
+                    <div className="relative flex items-center justify-center gap-3 px-6 py-4 rounded-[15px] bg-background/90 group-hover:bg-background/40 transition-colors">
+                      <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center group-hover:bg-primary/30 transition-colors">
+                        <Download className="w-5 h-5 text-primary" />
                       </div>
-                      <div>
-                        <span className="block">Quase lá! 🎉</span>
-                        <span className="text-[10px] text-muted-foreground font-normal">Preencha para liberar o download</span>
+                      <div className="text-left">
+                        <span className="block text-sm font-bold">Baixar em Alta Qualidade</span>
+                        <span className="block text-[10px] text-muted-foreground">4K Ultra HD • Pronto para imprimir</span>
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      <Input
-                        placeholder="Seu nome"
-                        value={downloadName}
-                        onChange={(e) => setDownloadName(e.target.value)}
-                        className="text-sm bg-background/50 h-11"
-                        autoComplete="name"
-                      />
-                      <Input
-                        placeholder="(11) 99999-9999"
-                        value={whatsapp}
-                        onChange={(e) => setWhatsapp(formatWhatsapp(e.target.value))}
-                        className="w-full text-sm bg-background/50 h-11"
-                        maxLength={16}
-                        type="tel"
-                        inputMode="numeric"
-                        autoComplete="tel"
-                      />
-                      <GlassButton 
-                        onClick={handleSaveWhatsapp} 
-                        size="sm" 
-                        disabled={whatsapp.replace(/\D/g, '').length < 10 || !downloadName.trim()}
-                        className="w-full h-11"
-                      >
-                        <Check className="w-4 h-4 mr-1.5" />
-                        Confirmar
-                      </GlassButton>
-                    </div>
-                    <p className="text-[10px] text-muted-foreground text-center">
-                      Receba novidades e promoções exclusivas no WhatsApp 🚀
-                    </p>
-                  </div>
-                ) : (
-                  <>
-                    <div className="flex items-center gap-2 text-xs text-primary p-2 rounded-lg bg-primary/5">
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>Dados salvos! Obrigado, {downloadName} 💚</span>
-                    </div>
+                  </motion.button>
 
-                    {/* EPIC Download Button */}
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.97 }}
-                      onClick={handleDownloadAll}
-                      className="relative w-full group overflow-hidden rounded-2xl p-[2px]"
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button 
+                      variant="outline" 
+                      onClick={handleSaveToProfile}
+                      className="rounded-xl border-primary/20 hover:bg-primary/5 h-12 gap-2"
                     >
-                      <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary via-secondary to-primary bg-[length:200%_100%] animate-[shimmer_2s_linear_infinite]" />
-                      <div className="relative flex items-center justify-center gap-3 px-6 py-4 rounded-[14px] bg-background/90 group-hover:bg-background/70 transition-colors">
-                        <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center group-hover:bg-primary/30 transition-colors">
-                          <Download className="w-5 h-5 text-primary" />
-                        </div>
-                        <div className="text-left">
-                          <span className="block text-sm font-bold">Baixar Imagem HD</span>
-                          <span className="block text-[10px] text-muted-foreground">4K Ultra HD • Sem marca d'água</span>
-                        </div>
-                        <Sparkles className="w-5 h-5 text-primary ml-auto animate-pulse" />
-                      </div>
-                    </motion.button>
-                  </>
+                      <Heart className="w-4 h-4 text-primary" />
+                      <span className="text-xs">Salvar no Perfil</span>
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setShowSupportForm(!showSupportForm)}
+                      className="rounded-xl border-border/40 h-12 gap-2"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      <span className="text-xs">Preciso de ajuda</span>
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Support Form UI inline */}
+                {showSupportForm && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }} 
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-4 rounded-2xl bg-muted/20 border border-border/10 space-y-3"
+                  >
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-sm font-bold">Abrir chamado de suporte</h4>
+                      <X className="w-4 h-4 cursor-pointer" onClick={() => setShowSupportForm(false)} />
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">Se a imagem não ficou como esperado, descreva o problema abaixo.</p>
+                    <textarea 
+                      placeholder="Descreva o que houve..."
+                      className="w-full text-xs p-2 rounded-lg bg-background border border-border/20 min-h-[60px]"
+                      id="support-desc"
+                    />
+                    <Button 
+                      size="sm" 
+                      className="w-full h-8 text-xs rounded-lg"
+                      onClick={async () => {
+                        const desc = (document.getElementById('support-desc') as HTMLTextAreaElement)?.value;
+                        if (!desc) return;
+                        const { error } = await (supabase.from('support_tickets' as any).insert({
+                          user_id: user?.id,
+                          category: 'image_error',
+                          subject: `Erro na imagem: ${prompt.name}`,
+                          description: desc,
+                          status: 'open'
+                        } as any) as any);
+                        if (error) toast.error('Erro ao abrir chamado');
+                        else {
+                          toast.success('Chamado aberto! Nossa equipe analisará.');
+                          setShowSupportForm(false);
+                        }
+                      }}
+                    >
+                      Enviar para análise
+                    </Button>
+                  </motion.div>
                 )}
 
                 {/* Action buttons - Variation + Edit */}
