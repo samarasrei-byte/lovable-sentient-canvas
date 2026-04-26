@@ -20,6 +20,7 @@ import { BeforeAfterSlider } from "./BeforeAfterSlider";
 import { ModerationAppealModal } from "./ModerationAppealModal";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
 
 interface Prompt {
   id: string;
