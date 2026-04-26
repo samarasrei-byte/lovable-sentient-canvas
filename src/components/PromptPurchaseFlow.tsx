@@ -960,7 +960,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
     };
   };
 
-  const runQAValidation = async (imageUrl: string, referenceImageUrls: string[]): Promise<{ passed: boolean; issues: string[] }> => {
+  const runQAValidation = async (imageUrl: string, referenceImageUrls: string[]): Promise<{ passed: boolean; issues: string[]; is_inappropriate?: boolean }> => {
     try {
       setQaStatus('checking');
 
@@ -984,7 +984,11 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
         return { passed: true, issues: [] };
       }
 
-      return { passed: data.passed ?? true, issues: data.issues ?? [] };
+      return { 
+        passed: data.passed ?? true, 
+        issues: data.issues ?? [],
+        is_inappropriate: data.is_inappropriate ?? false
+      };
     } catch (error) {
       console.error('QA validation failed:', error);
       return { passed: true, issues: [] };
