@@ -471,8 +471,10 @@ export type Database = {
           created_at: string
           id: string
           image_url: string
+          is_favorite: boolean | null
           is_public: boolean | null
           likes_count: number | null
+          original_purchase_id: string | null
           product_name: string
           template_name: string
           user_id: string | null
@@ -481,8 +483,10 @@ export type Database = {
           created_at?: string
           id?: string
           image_url: string
+          is_favorite?: boolean | null
           is_public?: boolean | null
           likes_count?: number | null
+          original_purchase_id?: string | null
           product_name: string
           template_name: string
           user_id?: string | null
@@ -491,13 +495,23 @@ export type Database = {
           created_at?: string
           id?: string
           image_url?: string
+          is_favorite?: boolean | null
           is_public?: boolean | null
           likes_count?: number | null
+          original_purchase_id?: string | null
           product_name?: string
           template_name?: string
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "generated_images_original_purchase_id_fkey"
+            columns: ["original_purchase_id"]
+            isOneToOne: false
+            referencedRelation: "prompt_purchases"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       generated_videos: {
         Row: {
@@ -1433,6 +1447,7 @@ export type Database = {
           email: string
           full_name: string
           id: string
+          role: string | null
           updated_at: string
         }
         Insert: {
@@ -1441,6 +1456,7 @@ export type Database = {
           email: string
           full_name: string
           id: string
+          role?: string | null
           updated_at?: string
         }
         Update: {
@@ -1449,6 +1465,7 @@ export type Database = {
           email?: string
           full_name?: string
           id?: string
+          role?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -1703,6 +1720,7 @@ export type Database = {
       support_tickets: {
         Row: {
           assigned_to: string | null
+          attachment_url: string | null
           category: string
           created_at: string
           description: string
@@ -1716,6 +1734,7 @@ export type Database = {
         }
         Insert: {
           assigned_to?: string | null
+          attachment_url?: string | null
           category: string
           created_at?: string
           description: string
@@ -1729,6 +1748,7 @@ export type Database = {
         }
         Update: {
           assigned_to?: string | null
+          attachment_url?: string | null
           category?: string
           created_at?: string
           description?: string
@@ -1744,24 +1764,30 @@ export type Database = {
       }
       ticket_messages: {
         Row: {
+          attachment_url: string | null
           created_at: string
           id: string
+          is_admin_reply: boolean | null
           is_internal: boolean
           message: string
           sender_id: string
           ticket_id: string
         }
         Insert: {
+          attachment_url?: string | null
           created_at?: string
           id?: string
+          is_admin_reply?: boolean | null
           is_internal?: boolean
           message: string
           sender_id: string
           ticket_id: string
         }
         Update: {
+          attachment_url?: string | null
           created_at?: string
           id?: string
+          is_admin_reply?: boolean | null
           is_internal?: boolean
           message?: string
           sender_id?: string
