@@ -2265,67 +2265,18 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                     </div>
                   </motion.button>
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-3">
                     <Button 
                       variant="outline" 
                       onClick={handleSaveToProfile}
-                      className="rounded-xl border-primary/20 hover:bg-primary/5 h-12 gap-2"
+                      className="w-full rounded-2xl border-primary/20 hover:bg-primary/5 h-14 gap-3 text-sm font-bold"
                     >
-                      <Heart className="w-4 h-4 text-primary" />
-                      <span className="text-xs">Salvar no Perfil</span>
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      onClick={() => setShowSupportForm(!showSupportForm)}
-                      className="rounded-xl border-border/40 h-12 gap-2"
-                    >
-                      <MessageCircle className="w-4 h-4" />
-                      <span className="text-xs">Preciso de ajuda</span>
+                      <Heart className="w-5 h-5 text-primary fill-primary/10" />
+                      Salvar imagem no meu Perfil
                     </Button>
                   </div>
                 </div>
 
-                {/* Support Form UI inline */}
-                {showSupportForm && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10 }} 
-                    animate={{ opacity: 1, y: 0 }}
-                    className="p-4 rounded-2xl bg-muted/20 border border-border/10 space-y-3"
-                  >
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-sm font-bold">Abrir chamado de suporte</h4>
-                      <X className="w-4 h-4 cursor-pointer" onClick={() => setShowSupportForm(false)} />
-                    </div>
-                    <p className="text-[10px] text-muted-foreground">Se a imagem não ficou como esperado, descreva o problema abaixo.</p>
-                    <textarea 
-                      placeholder="Descreva o que houve..."
-                      className="w-full text-xs p-2 rounded-lg bg-background border border-border/20 min-h-[60px]"
-                      id="support-desc"
-                    />
-                    <Button 
-                      size="sm" 
-                      className="w-full h-8 text-xs rounded-lg"
-                      onClick={async () => {
-                        const desc = (document.getElementById('support-desc') as HTMLTextAreaElement)?.value;
-                        if (!desc) return;
-                        const { error } = await (supabase.from('support_tickets' as any).insert({
-                          user_id: user?.id,
-                          category: 'image_error',
-                          subject: `Erro na imagem: ${prompt.name}`,
-                          description: desc,
-                          status: 'open'
-                        } as any) as any);
-                        if (error) toast.error('Erro ao abrir chamado');
-                        else {
-                          toast.success('Chamado aberto! Nossa equipe analisará.');
-                          setShowSupportForm(false);
-                        }
-                      }}
-                    >
-                      Enviar para análise
-                    </Button>
-                  </motion.div>
-                )}
 
                 {/* Action buttons - Variation + Edit */}
                 <div className="grid grid-cols-2 gap-2">
