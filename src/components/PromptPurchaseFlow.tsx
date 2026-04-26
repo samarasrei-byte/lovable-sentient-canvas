@@ -873,6 +873,8 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       userPhotoUrls: sortedUrls.length > 0 ? sortedUrls : undefined,
       exampleImageUrl: safeExampleImageUrl || undefined,
       flyerContext: Object.keys(flyerContext).length > 0 ? flyerContext : undefined,
+      style: overrideStyle || selectedStyle,
+      userId: user?.id,
       ...restOverrides,
       promptTemplate: stripTokens(template),
     };
