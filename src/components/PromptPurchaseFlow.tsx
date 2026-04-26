@@ -78,6 +78,7 @@ interface PhotoProfile {
   seguranca?: {
     conteudo_seguro: boolean;
     motivo_bloqueio: string | null;
+    sugestoes_seguranca?: string[];
     rating: string;
   };
   audit_qualidade?: {
