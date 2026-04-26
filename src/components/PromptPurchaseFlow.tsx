@@ -222,7 +222,25 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const [showBeforeAfter, setShowBeforeAfter] = useState(false);
   const [selectedStyle, setSelectedStyle] = useState<'realistic' | 'artistic'>('realistic');
   const [showSupportForm, setShowSupportForm] = useState(false);
+  const [showSafetyModal, setShowSafetyModal] = useState(false);
   const fileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  const checkModerationRealtime = (text: string): boolean => {
+    const normalized = text.toLowerCase().trim();
+    const childTerms = ["criança", "bebê", "bebe", "infantil", "menor", "criança", "child", "kid", "baby", "toddler", "minor"];
+    const sexualTerms = ["nua", "nu", "pelada", "pelado", "sexo", "erótico", "erotico", "sensual", "biquini", "calcinha", "cueca", "nude", "naked", "erotic", "lingerie", "bikini", "provocativo", "provocativa"];
+    
+    const hasChild = childTerms.some(term => normalized.includes(term));
+    const hasSexual = sexualTerms.some(term => normalized.includes(term));
+
+    if (hasChild && hasSexual) {
+      toast.error("Este tipo de solicitação não é permitido.", {
+        description: "Violar nossas diretrizes pode levar ao bloqueio da conta."
+      });
+      return false;
+    }
+    return true;
+  };
 
 
   // Cleanup object URLs on unmount to prevent memory leaks
@@ -2835,17 +2853,36 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   <h3 className="text-base font-medium">Editar sua imagem</h3>
                   <p className="text-[10px] sm:text-xs text-muted-foreground">Descreva o que deseja alterar</p>
                 </div>
+                
+                <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-2 mb-2">
+                  <p className="text-[10px] text-amber-200/80 leading-tight">
+                    ⚠️ <strong>Diretrizes:</strong> Conteúdos inadequados, sexuais ou que violem nossas regras de proteção a menores serão bloqueados automaticamente.
+                  </p>
+                </div>
+
                 <div className="relative rounded-xl overflow-hidden border border-white/10 bg-black/50">
                   <img src={generatedImage} alt="Current" className="w-full h-auto max-h-[35vh] sm:max-h-[40vh] object-contain" />
                 </div>
                 <textarea
                   value={editInstruction}
-                  onChange={(e) => setEditInstruction(e.target.value)}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setEditInstruction(val);
+                  }}
                   placeholder="Ex: Mude o fundo para uma praia, adicione óculos de sol..."
                   className="w-full min-h-[60px] px-3 py-2 text-sm rounded-md bg-white/5 border border-white/10 focus:border-primary/50 focus:outline-none resize-none"
                 />
                 <div className="flex gap-2">
-                  <GlassButton onClick={handleEditImage} className="flex-1" disabled={isEditing || !editInstruction.trim()} size="sm">
+                  <GlassButton 
+                    onClick={() => {
+                      if (checkModerationRealtime(editInstruction)) {
+                        handleEditImage();
+                      }
+                    }} 
+                    className="flex-1" 
+                    disabled={isEditing || !editInstruction.trim()} 
+                    size="sm"
+                  >
                     {isEditing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
                     {isEditing ? 'Editando...' : 'Aplicar'}
                   </GlassButton>

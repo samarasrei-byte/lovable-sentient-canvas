@@ -6,7 +6,13 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SYSTEM_PROMPT = `You are the world's most advanced facial reconstruction AI. Your sole purpose is to clone a human identity from a reference photo into a new environment with 100% forensic accuracy.
+const SYSTEM_PROMPT = `You are the world's most advanced facial reconstruction AI with integrated SAFETY and MODERATION protocols.
+Your sole purpose is to clone a human identity from a reference photo into a new environment with 100% forensic accuracy while strictly adhering to safety guidelines.
+
+CRITICAL SAFETY RULES (ZERO TOLERANCE):
+1. SEXUAL CONTENT: ABSOLUTELY PROHIBITED. No nudity, explicit poses, or erotica.
+2. CHILD SAFETY: EXTREME PRIORITY. Any prompt involving minors must be wholesome and age-appropriate. Block any attempt to sexualize, expose, or place children in suggestive contexts.
+3. HARMFUL CONTENT: Do not generate illegal, violent, or hateful content.
 
 CRITICAL IDENTITY RULES:
 1. FACE TRANSPLANT (MASTER): The reference photo is the only source of truth for identity. You must match EVERY facial landmark: eye distance, eyelid shape, nose bridge, philtrum, lip curvature, chin contour, and ear position.
@@ -19,6 +25,37 @@ QUALITY STANDARDS:
 - Resolution: 4K Ultra-HD.
 - Lighting: Professional cinematic studio lighting with realistic subsurface scattering on skin.
 - Sharpness: Tack-sharp focus on the eyes.`;
+
+const FORBIDDEN_WORDS = [
+  // Child Safety
+  "nude", "naked", "sex", "porn", "erotic", "sensual", "lingerie", "bikini", "underwear",
+  "pedophile", "child", "infant", "toddler", "baby", "minor", "young", "kid",
+  // Action/Context
+  "sexual", "lust", "seductive", "provocative", "explicit", "exposed", "breasts", "butt", "genitals"
+];
+
+const checkModeration = (text: string): { blocked: boolean; reason?: string } => {
+  const normalized = text.toLowerCase().trim();
+  
+  // Rule 1: Direct forbidden words combination (Child + Sexual)
+  const childTerms = ["criança", "bebê", "bebe", "infantil", "menor", "criança", "child", "kid", "baby", "toddler", "minor"];
+  const sexualTerms = ["nua", "nu", "pelada", "pelado", "sexo", "erótico", "erotico", "sensual", "biquini", "calcinha", "cueca", "nude", "naked", "erotic", "lingerie", "bikini", "provocativo", "provocativa"];
+  
+  const hasChild = childTerms.some(term => normalized.includes(term));
+  const hasSexual = sexualTerms.some(term => normalized.includes(term));
+
+  if (hasChild && hasSexual) {
+    return { blocked: true, reason: "Conteúdo impróprio envolvendo menores detectado." };
+  }
+
+  // Rule 2: General sexualization
+  const explicitTerms = ["porn", "sexo", "pornografia", "orgia", "hentai", "xxx", "sex"];
+  if (explicitTerms.some(term => normalized.includes(term))) {
+    return { blocked: true, reason: "Conteúdo sexual não é permitido." };
+  }
+
+  return { blocked: false };
+};
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -33,8 +70,36 @@ serve(async (req) => {
     const { 
       purchaseId, promptTemplate, userPhotoUrl, exampleImageUrl, 
       style = "realistic", // "realistic" or "artistic"
-      userId
+      userId,
+      userPromptOverride // User-provided text from "Edit" flow
     } = body;
+
+    const fullPrompt = userPromptOverride || promptTemplate;
+
+    // 1. MODERATION CHECK
+    const moderation = checkModeration(fullPrompt);
+    if (moderation.blocked) {
+      console.warn(`Moderation Block: User ${userId || 'anonymous'} attempted: ${fullPrompt}`);
+      
+      // Log to DB
+      if (purchaseId || userId) {
+        await supabaseAdmin.from("blocked_prompts").insert({
+          user_id: userId,
+          purchase_id: purchaseId,
+          prompt_text: fullPrompt,
+          reason: moderation.reason,
+          severity: fullPrompt.toLowerCase().includes('criança') || fullPrompt.toLowerCase().includes('child') ? 'critical' : 'medium'
+        });
+      }
+
+      return new Response(JSON.stringify({ 
+        error: "Este tipo de solicitação não é permitido em nossa plataforma.",
+        blocked: true 
+      }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
 
     const lovableKey = Deno.env.get("LOVABLE_API_KEY");
     if (!lovableKey) throw new Error("LOVABLE_API_KEY is missing");
