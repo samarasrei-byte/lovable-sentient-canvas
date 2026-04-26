@@ -61,12 +61,20 @@ export const SidebarArcana2 = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+      
+      setIsAdmin(profile?.role === 'admin');
+
       const { data: subscription } = await supabase
         .from("subscriptions")
         .select("plan")
         .eq("user_id", user.id)
         .eq("status", "active")
-        .single();
+        .maybeSingle();
 
       setUserPlan(subscription?.plan || "basic");
     } catch (error) {
