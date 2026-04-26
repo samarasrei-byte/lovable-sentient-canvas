@@ -498,10 +498,12 @@ const Mesversario = () => {
 
       {/* Purchase Flow */}
       {selectedPrompt && (
-        <PromptPurchaseFlow
-          prompt={selectedPrompt}
-          onClose={() => setSelectedPrompt(null)}
-        />
+        <Suspense fallback={null}>
+          <PromptPurchaseFlow
+            prompt={selectedPrompt}
+            onClose={() => setSelectedPrompt(null)}
+          />
+        </Suspense>
       )}
     </div>
   );
