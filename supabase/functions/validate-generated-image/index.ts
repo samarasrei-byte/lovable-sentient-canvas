@@ -150,6 +150,7 @@ Respond in this EXACT JSON format:
         passed: result.passed ?? true,
         issues: Array.isArray(result.issues) ? result.issues : [],
         score: result.score ?? 80,
+        is_inappropriate: result.is_inappropriate ?? false,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
