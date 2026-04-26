@@ -121,6 +121,17 @@ const GeneratingStep = ({ label, delay, isQA }: { label: string; delay: number; 
   );
 };
 
+const AuditItem = ({ label, passed }: { label: string; passed: boolean }) => (
+  <div className="flex items-center gap-1">
+    {passed ? (
+      <CheckCircle2 className="w-2.5 h-2.5 text-green-400" />
+    ) : (
+      <X className="w-2.5 h-2.5 text-red-400" />
+    )}
+    <span className={`text-[9px] ${passed ? 'text-white/80' : 'text-red-300/80 font-medium'}`}>{label}</span>
+  </div>
+);
+
 const ageGroupLabel: Record<string, string> = {
   bebe: 'Bebê',
   crianca: 'Criança',
