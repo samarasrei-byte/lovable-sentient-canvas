@@ -141,7 +141,6 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
     displayName: '', 
     months: '', 
     telefone: '', 
-    whatsapp: '', 
     endereco: '', 
     data: '', 
     hora: '', 
