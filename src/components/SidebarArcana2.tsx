@@ -172,6 +172,32 @@ export const SidebarArcana2 = () => {
         })}
       </nav>
 
+      {/* Admin Menu */}
+      {isAdmin && (
+        <div className="mt-8 space-y-1">
+          <div className="px-3 mb-2">
+            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Administração</span>
+          </div>
+          {adminMenuItems.map((item) => {
+            const isActive = location.pathname === item.path;
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                  isActive
+                    ? "bg-primary/10 text-primary border border-primary/20 shadow-lg shadow-primary/10"
+                    : "text-muted-foreground/80 hover:text-foreground hover:bg-accent/50 border border-transparent"
+                }`}
+              >
+                <item.icon className={`w-4 h-4 transition-transform duration-200 ${isActive ? "scale-110" : "group-hover:scale-105"}`} />
+                <span className="text-xs font-medium tracking-wide">{item.label}</span>
+              </Link>
+            );
+          })}
+        </div>
+      )}
+
       {/* Upgrade CTA */}
       {!isPro && (
         <div className="px-2 mb-4">
