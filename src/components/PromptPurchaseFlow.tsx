@@ -531,12 +531,12 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
         setTimeout(() => { void initPixPayment(pId, attempt + 1); }, 1500);
         return;
       }
-      setPixError(`Não conseguimos gerar o PIX agora. Tente novamente ou fale conosco no WhatsApp informando o ID: ${pId.slice(0, 8)}`);
+      setPixError(`Não conseguimos gerar o PIX agora. Tente novamente ou abra um chamado de suporte informando o ID: ${pId.slice(0, 8)}`);
       toast.error('Falha ao gerar pagamento', {
-        description: 'Tente novamente ou contate o suporte',
+        description: 'Tente novamente ou abra um chamado',
         action: {
-          label: 'WhatsApp',
-          onClick: () => window.open(`https://wa.me/5511999999999?text=Erro%20no%20pagamento.%20ID:%20${pId}`, '_blank'),
+          label: 'Chamado',
+          onClick: () => setShowSupportForm(true),
         },
       });
     } finally {
