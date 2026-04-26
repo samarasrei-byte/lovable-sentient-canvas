@@ -1917,9 +1917,16 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                     }
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-primary via-secondary to-primary bg-[length:200%_100%] animate-shimmer opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <span className="relative flex items-center gap-3">
-                      <Sparkles className="w-6 h-6 animate-pulse" />
-                      Gerar minha arte ({formatPrice(prompt.price_cents)})
+                    <span className="relative flex flex-col items-center">
+                      <span className="flex items-center gap-3">
+                        <Sparkles className="w-6 h-6 animate-pulse" />
+                        Gerar minha arte ({formatPrice(prompt.price_cents)})
+                      </span>
+                      {activePhotoCount < (prompt.min_photos || 1) && (
+                        <span className="text-[10px] font-bold opacity-60 mt-1 uppercase tracking-tighter">
+                          Faltam {(prompt.min_photos || 1) - activePhotoCount} fotos para liberar
+                        </span>
+                      )}
                     </span>
                   </GlassButton>
                   
