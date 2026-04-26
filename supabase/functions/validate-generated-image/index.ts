@@ -44,25 +44,27 @@ serve(async (req) => {
       : [];
     strictIdentityCheck = safeReferenceImages.length > 0 || Boolean(hasReferencePhoto);
 
-    const qaPrompt = `You are a STRICT premium image QA inspector. Analyze this AI-generated image rigorously.
+    const qaPrompt = `You are a STRICT premium image QA inspector and safety moderator. Analyze this AI-generated image rigorously.
 
 CHECK ALL ITEMS — mark passed=false if ANY significant issue is found:
 
-1. FACIAL FIDELITY (MOST IMPORTANT): Compare the generated subject against the reference photos. The person MUST be INSTANTLY recognizable — same eye shape, nose, mouth, jawline, skin tone, hair color/style, body type. If the generated person looks like a DIFFERENT person, this is an AUTOMATIC FAIL.
+1. SAFETY & MODERATION (HIGHEST PRIORITY): Does the image contain nudity, explicit sexual content, or suggestive/sexualized portrayals of children? Is there any "infantilized" sexual content? Any explicit nudity or pornography? If YES, this is an IMMEDIATE CRITICAL FAIL.
 
-2. FACE/BODY ANATOMY: Extra fingers, deformed hands, broken anatomy, unnatural proportions? FAIL.
+2. FACIAL FIDELITY: Compare the generated subject against the reference photos. The person MUST be INSTANTLY recognizable — same eye shape, nose, mouth, jawline, skin tone, hair color/style, body type. If the generated person looks like a DIFFERENT person, this is an AUTOMATIC FAIL.
 
-3. AGE/NUMBER: If birthday/age image, the visible number MUST match expected age EXACTLY. Expected age: "${expectedAge || "N/A"}". Wrong number = AUTOMATIC FAIL. IGNORE any number from the style reference — only validate against the expected age.
+3. FACE/BODY ANATOMY: Extra fingers, deformed hands, broken anatomy, unnatural proportions? FAIL.
 
-4. TEXT: If text appears, is it correct and spelled exactly? Expected name: "${expectedName || "N/A"}". Wrong text = FAIL.
+4. AGE/NUMBER: If birthday/age image, the visible number MUST match expected age EXACTLY. Expected age: "${expectedAge || "N/A"}". Wrong number = AUTOMATIC FAIL. IGNORE any number from the style reference — only validate against the expected age.
 
-5. CROPPING: Is the person's head, face, or body cut off? FAIL.
+5. TEXT: If text appears, is it correct and spelled exactly? Expected name: "${expectedName || "N/A"}". Wrong text = FAIL.
 
-6. PEOPLE COUNT: Expected ${numberOfPeople || 1} person(s). Missing people = FAIL.
+6. CROPPING: Is the person's head, face, or body cut off? FAIL.
 
-7. STYLE vs IDENTITY CONTAMINATION: Did the AI copy the WRONG person's face from the style reference instead of the user's photo? This is an AUTOMATIC FAIL.
+7. PEOPLE COUNT: Expected ${numberOfPeople || 1} person(s). Missing people = FAIL.
 
-8. QUALITY: Professional resolution, well-lit, no obvious AI artifacts? Low quality = FAIL.
+8. STYLE vs IDENTITY CONTAMINATION: Did the AI copy the WRONG person's face from the style reference instead of the user's photo? This is an AUTOMATIC FAIL.
+
+9. QUALITY: Professional resolution, well-lit, no obvious AI artifacts? Low quality = FAIL.
 
 Category: ${promptCategory || "general"}
 Prompt snippet: ${(promptTemplate || "").slice(0, 500)}
@@ -72,13 +74,14 @@ IMPORTANT IMAGE ORDER:
 - Then: real subject reference photos (if present)
 - Last: style reference image (if present)
 
-BE STRICT. When in doubt, FAIL. It's better to regenerate than deliver a bad image.
+BE EXTREMELY STRICT ON SAFETY. Any sexualization of minors or explicit content MUST result in passed=false.
 
 Respond in this EXACT JSON format:
 {
   "passed": true/false,
   "issues": ["issue 1", "issue 2"],
-  "score": 0-100
+  "score": 0-100,
+  "is_inappropriate": true/false
 }`;
 
     const content: Array<{ type: string; text?: string; image_url?: { url: string } }> = [
