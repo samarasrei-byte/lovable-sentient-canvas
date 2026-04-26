@@ -126,43 +126,49 @@ const presentationLabel: Record<string, string> = {
 
 export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps) => {
   const [step, setStep] = useState<FlowStep>('form');
+  const [authStep, setAuthStep] = useState<'login' | 'register' | 'done'>('done');
+  const [user, setUser] = useState<any>(null);
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authForm, setAuthForm] = useState({ email: '', password: '', confirmPassword: '' });
+
   const maxPhotos = prompt.min_photos && prompt.min_photos > 1 ? Math.min(prompt.min_photos, 5) : 5;
-  const [formData, setFormData] = useState({ name: '', instagram: '', email: '', description: '', age: '', displayName: '', months: '', telefone: '', whatsapp: '', endereco: '', data: '', hora: '', extras: '', team_name: '' });
+  const [formData, setFormData] = useState({ 
+    name: '', 
+    instagram: '', 
+    email: '', 
+    description: '', 
+    age: '', 
+    displayName: '', 
+    months: '', 
+    telefone: '', 
+    whatsapp: '', 
+    endereco: '', 
+    data: '', 
+    hora: '', 
+    extras: '', 
+    team_name: '' 
+  });
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        setFormData(prev => ({ 
+          ...prev, 
+          email: session.user.email ?? prev.email,
+          name: session.user.user_metadata?.full_name ?? prev.name
+        }));
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   const [personNames, setPersonNames] = useState<string[]>([]);
-  const isFamilyInit = /família|familia|family/i.test(prompt.category || '') || /família|familia|family/i.test(prompt.name || '');
-  const isCoupleInit = /casais|casal|couple/i.test(prompt.category || '') || /casais|casal|couple/i.test(prompt.name || '');
-  const isMultiPersonPrompt = (prompt.min_photos || 1) >= 2;
-  const initialPhotoSlots = isMultiPersonPrompt ? Math.max(prompt.min_photos || 2, 2) : isFamilyInit ? Math.max(prompt.min_photos || 2, 2) : 1;
-  const [photos, setPhotos] = useState<PhotoSlot[]>(Array.from({ length: initialPhotoSlots }, () => ({ file: null, preview: '' })));
-  const [photoProfiles, setPhotoProfiles] = useState<(PhotoProfile | null)[]>(Array.from({ length: initialPhotoSlots }, () => null));
-  const [analyzingPhotoSlots, setAnalyzingPhotoSlots] = useState<number[]>([]);
-  const [uploadedPhotoUrls, setUploadedPhotoUrls] = useState<string[]>([]);
-  const [paymentStatus, setPaymentStatus] = useState<'pending' | 'checking' | 'paid'>('pending');
-  
-  const [verifyingPayment, setVerifyingPayment] = useState(false);
-  const paymentPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  
-  const [pixData, setPixData] = useState<{ copiaECola: string; qrCodeUrl: string; expiresAt: number } | null>(null);
-  const [pixLoading, setPixLoading] = useState(false);
-  const [pixError, setPixError] = useState<string | null>(null);
-  const [generatedVariants, setGeneratedVariants] = useState<GeneratedVariant[]>([]);
-  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
-  const [pixCopied, setPixCopied] = useState(false);
-  const [purchaseId, setPurchaseId] = useState<string | null>(null);
-  const [editInstruction, setEditInstruction] = useState('');
-  const [isEditing, setIsEditing] = useState(false);
-  const [isGeneratingMore, setIsGeneratingMore] = useState(false);
-  const [qaStatus, setQaStatus] = useState<'idle' | 'checking' | 'passed' | 'fixing'>('idle');
-  const [qaIssues, setQaIssues] = useState<string[]>([]);
-  const [exportFormat, setExportFormat] = useState<string>('original');
-  const [generationCount, setGenerationCount] = useState(0);
-  const [editCount, setEditCount] = useState(0);
-  const [showBeforeAfter, setShowBeforeAfter] = useState(false);
-  const [whatsapp, setWhatsapp] = useState('');
-  const [downloadName, setDownloadName] = useState('');
-  const [whatsappSaved, setWhatsappSaved] = useState(false);
-  const fileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // Cleanup object URLs on unmount to prevent memory leaks
   useEffect(() => {
