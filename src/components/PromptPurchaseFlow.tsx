@@ -407,6 +407,25 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       return;
     }
 
+    // New: Identity Audit Validation
+    const issues = photoProfiles.flatMap((profile, index) => {
+      if (!profile?.audit_qualidade) return [];
+      const audit = profile.audit_qualidade;
+      const unconfirmed = [];
+      if (audit.score_identidade < 0.8) {
+        if (!qualityChecks[`${index}-identidade`]) unconfirmed.push(`A foto ${index + 1} precisa de revisão.`);
+        if (!qualityChecks[`${index}-clonagem`]) unconfirmed.push(`Confirme a aceitação da semelhança facial para a foto ${index + 1}.`);
+      }
+      return unconfirmed;
+    });
+
+    if (issues.length > 0) {
+      toast.error(issues[0], {
+        description: "Complete o checklist de qualidade abaixo da foto para continuar."
+      });
+      return;
+    }
+
     if ((isFamilyPrompt || isCouplePrompt || isMultiPersonPrompt) && activePhotoCount < (prompt.min_photos || 2)) {
       const label = isCouplePrompt ? 'de casal' : isFamilyPrompt ? 'de família' : 'com múltiplas pessoas';
       toast.error(`Para fotos ${label}, envie pelo menos ${prompt.min_photos || 2} fotos (uma de cada pessoa).`);
