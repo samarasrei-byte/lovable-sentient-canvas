@@ -1778,6 +1778,9 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                     ? `Fotos das Pessoas`
                                     : `Sua foto`}
                             </Label>
+                            <p className="text-[9px] text-muted-foreground/60 leading-tight">
+                              Conteúdos inadequados ou que violem nossas diretrizes serão bloqueados.
+                            </p>
                             <p className="text-[10px] text-muted-foreground">
                               {activePhotoCount} de {isMultiPersonPrompt ? (prompt.min_photos || 2) : maxPhotos} enviada{activePhotoCount > 1 ? 's' : ''}
                             </p>
