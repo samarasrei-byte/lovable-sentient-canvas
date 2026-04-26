@@ -199,9 +199,8 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const [generationCount, setGenerationCount] = useState(0);
   const [editCount, setEditCount] = useState(0);
   const [showBeforeAfter, setShowBeforeAfter] = useState(false);
-  const [whatsapp, setWhatsapp] = useState('');
-  const [downloadName, setDownloadName] = useState('');
-  const [whatsappSaved, setWhatsappSaved] = useState(false);
+  const [selectedStyle, setSelectedStyle] = useState<'realistic' | 'artistic'>('realistic');
+  const [showSupportForm, setShowSupportForm] = useState(false);
   const fileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
 
