@@ -1322,9 +1322,23 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
           <div className="absolute -top-[20%] -left-[20%] w-[60%] h-[60%] rounded-full bg-primary/20 blur-[120px] pointer-events-none animate-pulse" />
           <div className="absolute -bottom-[20%] -right-[20%] w-[60%] h-[60%] rounded-full bg-secondary/20 blur-[120px] pointer-events-none animate-pulse" style={{ animationDelay: '1s' }} />
 
+          {/* Floating WhatsApp Help Button - Desktop/Tablet only */}
+          <div className="hidden sm:block absolute bottom-6 right-6 z-50">
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={() => window.open('https://wa.me/5511999999999', '_blank')}
+              className="p-4 rounded-2xl bg-green-500 text-white shadow-xl shadow-green-500/30 border border-green-400/50 flex items-center gap-2 group transition-all"
+            >
+              <MessageCircle className="w-5 h-5 fill-current" />
+              <span className="text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity max-w-0 group-hover:max-w-xs overflow-hidden whitespace-nowrap">Suporte</span>
+            </motion.button>
+          </div>
+
           <button onClick={onClose} aria-label="Fechar" className="absolute top-4 right-4 z-50 p-2 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 active:scale-90 transition-all backdrop-blur-md">
             <X className="w-4 h-4" />
           </button>
+
 
           <GlassCardHeader className="pb-4 pt-6">
             <div className="flex items-center gap-4">
