@@ -276,6 +276,22 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
 
       if (error) throw error;
 
+      // Handle moderation block
+      if (data?.seguranca?.conteudo_seguro === false) {
+        toast.error('Foto bloqueada por segurança', {
+          description: data.seguranca.motivo_bloqueio || 'O conteúdo desta foto viola nossas diretrizes de segurança.',
+          duration: 10000
+        });
+        
+        // Remove the photo since it's blocked
+        setPhotos((prev) => {
+          const updated = [...prev];
+          updated[index] = { file: null, preview: '' };
+          return updated;
+        });
+        return;
+      }
+
       setPhotoProfiles((prev) => {
         const next = [...prev];
         next[index] = data
@@ -283,6 +299,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
               ageGroup: data.ageGroup || 'adulto',
               presentation: data.presentation || 'indefinida',
               suggestedCategory: data.suggestedCategory,
+              seguranca: data.seguranca,
               audit_qualidade: data.audit_qualidade,
               analise: data.analise,
               areas_editaveis: data.areas_editaveis,
