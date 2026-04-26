@@ -1289,56 +1289,6 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
     };
   };
 
-  const handleDownload = async (urlToDownload?: string) => {
-    const imageUrl = urlToDownload || generatedImage;
-    if (!imageUrl) return;
-    
-    // Helper: fallback direct download
-    const fallbackDownload = () => {
-      const link = document.createElement('a');
-      link.href = imageUrl;
-      link.download = `arcana-${prompt.name.toLowerCase().replace(/\s+/g, '-')}.png`;
-      link.click();
-      toast.success('Download iniciado!');
-    };
-
-    const selectedFormat = exportFormats.find(f => f.key === exportFormat);
-
-    if (!selectedFormat?.ratio) {
-      // Original format — try fetch-based download to avoid navigation issues
-      try {
-        const resp = await fetch(imageUrl);
-        const blob = await resp.blob();
-        const blobUrl = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = blobUrl;
-        link.download = `arcana-${prompt.name.toLowerCase().replace(/\s+/g, '-')}.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(blobUrl);
-        toast.success('Download iniciado!');
-      } catch {
-        fallbackDownload();
-      }
-      return;
-    }
-
-    // Cropped format — fetch as blob first to avoid CORS tainted canvas
-    try {
-      const resp = await fetch(imageUrl);
-      const blob = await resp.blob();
-      const blobUrl = URL.createObjectURL(blob);
-
-      const img = new Image();
-      img.src = blobUrl;
-      img.onload = () => {
-        URL.revokeObjectURL(blobUrl);
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        if (!ctx) { fallbackDownload(); return; }
-
-        const targetRatio = selectedFormat.ratio;
         const srcRatio = img.width / img.height;
         let sx = 0, sy = 0, sw = img.width, sh = img.height;
 
