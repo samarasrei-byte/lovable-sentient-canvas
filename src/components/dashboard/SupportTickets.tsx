@@ -60,11 +60,11 @@ export const SupportTickets = () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    const { data, error } = await supabase
-      .from("support_tickets")
+    const { data, error } = await (supabase
+      .from("support_tickets" as any)
       .select("*")
       .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false }) as any);
 
     if (error) {
       toast.error("Erro ao carregar chamados");
@@ -75,11 +75,11 @@ export const SupportTickets = () => {
   };
 
   const loadMessages = async (ticketId: string) => {
-    const { data, error } = await supabase
-      .from("ticket_messages")
+    const { data, error } = await (supabase
+      .from("ticket_messages" as any)
       .select("*")
       .eq("ticket_id", ticketId)
-      .order("created_at", { ascending: true });
+      .order("created_at", { ascending: true }) as any);
 
     if (error) {
       toast.error("Erro ao carregar mensagens");
@@ -93,7 +93,7 @@ export const SupportTickets = () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    const { data, error } = await supabase
+    const { data, error } = await (supabase
       .from("support_tickets" as any)
       .insert({
         user_id: user.id,
@@ -101,7 +101,7 @@ export const SupportTickets = () => {
         status: "open",
       })
       .select()
-      .single();
+      .single() as any);
 
     if (error) {
       toast.error("Erro ao abrir chamado");
@@ -120,13 +120,13 @@ export const SupportTickets = () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    const { error } = await supabase
-      .from("ticket_messages")
+    const { error } = await (supabase
+      .from("ticket_messages" as any)
       .insert({
         ticket_id: selectedTicket.id,
         sender_id: user.id,
         message: newMessage,
-      });
+      }) as any);
 
     if (error) {
       toast.error("Erro ao enviar mensagem");
