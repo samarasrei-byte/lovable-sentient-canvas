@@ -1808,6 +1808,8 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                           : `${activePhotoCount} foto${activePhotoCount > 1 ? 's' : ''} enviada${activePhotoCount > 1 ? 's' : ''} · A IA preserva cada detalhe`}
                       </p>
                     )}
+                  </div>
+                )}
                 {/* Name field — usa "Nome da criança" para prompts infantis */}
                 {prompt.required_fields.includes('name') && (() => {
                   const isChildPrompt = /infantil|bebê|bebe|newborn|criança|crianca|kids|baby|aniversário|aniversario/i.test(
