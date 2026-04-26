@@ -1661,6 +1661,28 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                     </div>
 
                     <div className="space-y-4">
+                      {/* Person context - NEW */}
+                      <div className="space-y-2">
+                        <Label className="text-xs sm:text-sm font-semibold ml-1">Quem está na foto?</Label>
+                        <div className="grid grid-cols-2 gap-2">
+                          {['bebê', 'criança', 'adulto', 'pet'].map((tipo) => (
+                            <button
+                              key={tipo}
+                              type="button"
+                              onClick={() => setFormData(prev => ({ ...prev, description: tipo }))}
+                              className={cn(
+                                "py-2 px-3 rounded-xl border text-[10px] font-bold uppercase tracking-wider transition-all",
+                                formData.description === tipo 
+                                  ? "bg-primary/20 border-primary text-primary shadow-lg shadow-primary/10" 
+                                  : "bg-white/5 border-white/10 text-muted-foreground hover:border-white/20"
+                              )}
+                            >
+                              {tipo}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
                       {/* Name field */}
                       {prompt.required_fields.includes('name') && (() => {
                         const isChildPrompt = /infantil|bebê|bebe|newborn|criança|crianca|kids|baby|aniversário|aniversario/i.test(
@@ -1767,9 +1789,22 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                       </p>
                     </div>
 
-                    {prompt.required_fields.includes('photo') && (
-                      <div className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
+                        {prompt.required_fields.includes('photo') && (
+                          <div className="space-y-4">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-[10px] font-bold uppercase tracking-widest text-primary">
+                                {activePhotoCount === 0 
+                                  ? `Mínimo: ${prompt.min_photos || 1} foto` 
+                                  : activePhotoCount < (prompt.min_photos || 1)
+                                    ? `Faltam ${ (prompt.min_photos || 1) - activePhotoCount } fotos`
+                                    : "Fotos prontas"
+                                }
+                              </span>
+                              <span className="text-[10px] font-bold text-muted-foreground/50">
+                                {activePhotoCount}/{maxPhotos}
+                              </span>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
                           {photos.map((photo, index) => {
                             const photoProfile = photoProfiles[index];
                             const isAnalyzing = analyzingPhotoSlots.includes(index) || photo.status === 'uploading' || photo.status === 'analyzing';
@@ -1858,7 +1893,10 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                               <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-primary/10 transition-all">
                                 <Plus className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
                               </div>
-                              <span className="text-[11px] font-bold text-muted-foreground group-hover:text-primary">Nova Pessoa</span>
+                              <div className="flex flex-col items-center gap-1">
+                                <span className="text-[11px] font-bold text-muted-foreground group-hover:text-primary transition-colors">Nova Pessoa</span>
+                                <span className="text-[9px] text-muted-foreground/40 font-medium">Opcional</span>
+                              </div>
                             </button>
                           )}
                         </div>
@@ -1871,7 +1909,11 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   <GlassButton 
                     onClick={handleSubmitForm} 
                     className="w-full sm:max-w-md h-16 text-xl font-black shadow-[0_20px_40px_-15px_hsl(var(--primary)/0.4)] hover:shadow-[0_25px_50px_-12px_hsl(var(--primary)/0.5)] active:scale-95 transition-all group overflow-hidden relative"
-                    disabled={activePhotoCount === 0 && prompt.required_fields.includes('photo')}
+                    disabled={
+                      (prompt.required_fields.includes('photo') && activePhotoCount < (prompt.min_photos || 1)) ||
+                      (prompt.required_fields.includes('name') && !formData.name.trim()) ||
+                      (analyzingPhotoSlots.length > 0)
+                    }
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-primary via-secondary to-primary bg-[length:200%_100%] animate-shimmer opacity-0 group-hover:opacity-100 transition-opacity" />
                     <span className="relative flex items-center gap-3">
