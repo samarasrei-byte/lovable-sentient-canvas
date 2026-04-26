@@ -1,7 +1,6 @@
-import { useState, useEffect } from "react"; 
+import { useState, useEffect, useMemo, useCallback, lazy, Suspense } from "react"; 
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { PromptPurchaseFlow } from "@/components/PromptPurchaseFlow";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -11,6 +10,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { ArcanaLogo } from "@/components/ArcanaLogo";
+
+const PromptPurchaseFlow = lazy(() => import("@/components/PromptPurchaseFlow").then(m => ({ default: m.PromptPurchaseFlow })));
 
 interface Prompt {
   id: string;
