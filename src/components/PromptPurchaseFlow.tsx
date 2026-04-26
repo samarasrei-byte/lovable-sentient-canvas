@@ -1028,6 +1028,16 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       let finalImageUrl = data.imageUrl;
       let qa = await runQAValidation(finalImageUrl, referencePhotoUrls);
 
+      // Block output moderation failures immediately
+      if (qa.is_inappropriate) {
+        setStep('form');
+        toast.error('Conteúdo bloqueado por segurança', {
+          description: 'A imagem gerada violou nossas diretrizes de segurança (conteúdo inadequado ou infantilizado). Sua conta foi sinalizada para revisão.',
+          duration: 10000
+        });
+        return;
+      }
+
       if (!qa.passed && newCount <= 2) {
         setQaStatus('fixing');
         setQaIssues(qa.issues);
@@ -1052,11 +1062,19 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
         if (retryData?.imageUrl) {
           finalImageUrl = retryData.imageUrl;
           qa = await runQAValidation(finalImageUrl, referencePhotoUrls);
+          
+          if (qa.is_inappropriate) {
+            setStep('form');
+            toast.error('Conteúdo bloqueado por segurança', {
+              description: 'A imagem gerada violou nossas diretrizes de segurança.',
+              duration: 10000
+            });
+            return;
+          }
         }
       }
 
       if (!qa.passed) {
-        // QA warns but does NOT block — show issues as warning, deliver the image anyway
         setQaStatus('idle');
         setQaIssues(qa.issues);
         toast.warning('A auditoria encontrou possíveis ajustes, mas sua imagem foi entregue. Você pode gerar novamente se desejar.');
