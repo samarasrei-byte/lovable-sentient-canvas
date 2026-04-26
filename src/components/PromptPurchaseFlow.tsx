@@ -1141,6 +1141,10 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       let finalVariantUrl = data.imageUrl;
       let qa = await runQAValidation(finalVariantUrl, referencePhotoUrls);
 
+      if (qa.is_inappropriate) {
+        throw new Error('A variação gerada violou nossas diretrizes de segurança.');
+      }
+
       if (!qa.passed) {
         setQaStatus('fixing');
         setQaIssues(qa.issues);
@@ -1156,6 +1160,10 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
         if (retryData?.imageUrl) {
           finalVariantUrl = retryData.imageUrl;
           qa = await runQAValidation(finalVariantUrl, referencePhotoUrls);
+          
+          if (qa.is_inappropriate) {
+            throw new Error('A variação gerada violou nossas diretrizes de segurança.');
+          }
         }
       }
 
