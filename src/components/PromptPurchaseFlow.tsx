@@ -126,8 +126,48 @@ const presentationLabel: Record<string, string> = {
 
 export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps) => {
   const [step, setStep] = useState<FlowStep>('form');
+  const [authStep, setAuthStep] = useState<'login' | 'register' | 'done'>('done');
+  const [user, setUser] = useState<any>(null);
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authForm, setAuthForm] = useState({ email: '', password: '', confirmPassword: '' });
+
   const maxPhotos = prompt.min_photos && prompt.min_photos > 1 ? Math.min(prompt.min_photos, 5) : 5;
-  const [formData, setFormData] = useState({ name: '', instagram: '', email: '', description: '', age: '', displayName: '', months: '', telefone: '', whatsapp: '', endereco: '', data: '', hora: '', extras: '', team_name: '' });
+  const [formData, setFormData] = useState({ 
+    name: '', 
+    instagram: '', 
+    email: '', 
+    description: '', 
+    age: '', 
+    displayName: '', 
+    months: '', 
+    telefone: '', 
+    whatsapp: '', 
+    endereco: '', 
+    data: '', 
+    hora: '', 
+    extras: '', 
+    team_name: '' 
+  });
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        setFormData(prev => ({ 
+          ...prev, 
+          email: session.user.email ?? prev.email,
+          name: session.user.user_metadata?.full_name ?? prev.name
+        }));
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   const [personNames, setPersonNames] = useState<string[]>([]);
   const isFamilyInit = /família|familia|family/i.test(prompt.category || '') || /família|familia|family/i.test(prompt.name || '');
   const isCoupleInit = /casais|casal|couple/i.test(prompt.category || '') || /casais|casal|couple/i.test(prompt.name || '');
@@ -163,6 +203,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const [downloadName, setDownloadName] = useState('');
   const [whatsappSaved, setWhatsappSaved] = useState(false);
   const fileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
 
   // Cleanup object URLs on unmount to prevent memory leaks
   useEffect(() => {
@@ -1226,6 +1267,41 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
     return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 7)}-${numbers.slice(7)}`;
   };
 
+  const handleAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthLoading(true);
+    try {
+      if (authStep === 'login') {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: authForm.email,
+          password: authForm.password,
+        });
+        if (error) throw error;
+        toast.success('Login realizado!');
+      } else {
+        if (authForm.password !== authForm.confirmPassword) {
+          throw new Error('As senhas não coincidem');
+        }
+        const { error } = await supabase.auth.signUp({
+          email: authForm.email,
+          password: authForm.password,
+          options: {
+            data: {
+              full_name: formData.name || 'Cliente Arcana',
+            }
+          }
+        });
+        if (error) throw error;
+        toast.success('Cadastro realizado! Verifique seu e-mail.');
+      }
+      setAuthStep('done');
+    } catch (err: any) {
+      toast.error(err.message || 'Erro na autenticação');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -1241,60 +1317,167 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
         transition={{ type: "spring", damping: 30, stiffness: 300 }}
         className="w-full h-[100dvh] sm:h-auto sm:max-w-lg sm:px-4 sm:py-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
       >
-        <div className="relative overflow-hidden h-full sm:h-auto sm:max-h-[90vh] overflow-y-auto overscroll-contain sm:rounded-2xl border border-white/[0.06] bg-[hsl(var(--background))] sm:bg-white/[0.02] sm:backdrop-blur-md pb-[env(safe-area-inset-bottom)] pt-[env(safe-area-inset-top)] sm:pb-0 sm:pt-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          <button onClick={onClose} aria-label="Fechar" className="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 active:scale-90 transition-all touch-manipulation min-w-[40px] min-h-[40px] flex items-center justify-center">
+        <div className="relative overflow-hidden h-full sm:h-auto sm:max-h-[90vh] overflow-y-auto overscroll-contain sm:rounded-2xl border border-white/[0.1] bg-[hsl(var(--background)/0.8)] backdrop-blur-2xl shadow-2xl pb-[env(safe-area-inset-bottom)] pt-[env(safe-area-inset-top)] sm:pb-0 sm:pt-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          {/* Liquid Glass ambient effects */}
+          <div className="absolute -top-[20%] -left-[20%] w-[60%] h-[60%] rounded-full bg-primary/20 blur-[120px] pointer-events-none animate-pulse" />
+          <div className="absolute -bottom-[20%] -right-[20%] w-[60%] h-[60%] rounded-full bg-secondary/20 blur-[120px] pointer-events-none animate-pulse" style={{ animationDelay: '1s' }} />
+
+          {/* Floating WhatsApp Help Button - Desktop/Tablet only */}
+          <div className="hidden sm:block absolute bottom-6 right-6 z-50">
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={() => window.open('https://wa.me/5511999999999', '_blank')}
+              className="p-4 rounded-2xl bg-green-500 text-white shadow-xl shadow-green-500/30 border border-green-400/50 flex items-center gap-2 group transition-all"
+            >
+              <MessageCircle className="w-5 h-5 fill-current" />
+              <span className="text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity max-w-0 group-hover:max-w-xs overflow-hidden whitespace-nowrap">Suporte</span>
+            </motion.button>
+          </div>
+
+          <button onClick={onClose} aria-label="Fechar" className="absolute top-4 right-4 z-50 p-2 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 active:scale-90 transition-all backdrop-blur-md">
             <X className="w-4 h-4" />
           </button>
 
-          <GlassCardHeader className="pb-3">
-            <div className="flex items-center gap-3 pr-12">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center shrink-0">
-                <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+
+          <GlassCardHeader className="pb-4 pt-6">
+            <div className="flex items-center gap-4">
+              <div className="relative group">
+                <div className="absolute inset-0 rounded-2xl bg-primary/20 blur-lg group-hover:blur-xl transition-all" />
+                <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-primary/30 to-primary/5 flex items-center justify-center border border-white/10 backdrop-blur-xl">
+                  <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 text-primary animate-pulse" />
+                </div>
               </div>
               <div className="min-w-0 flex-1">
-                <GlassCardTitle className="text-sm sm:text-lg leading-tight truncate">{prompt.name}</GlassCardTitle>
-                <div className="flex items-center gap-2 flex-wrap mt-0.5">
-                  <p className="text-[11px] sm:text-sm text-muted-foreground truncate">{prompt.category}</p>
-                  <Badge className="bg-primary text-primary-foreground text-[10px] sm:text-xs px-2 py-0 h-5">
-                    {formatPrice(prompt.price_cents)}
+                <GlassCardTitle className="text-base sm:text-xl font-bold tracking-tight leading-tight truncate">{prompt.name}</GlassCardTitle>
+                <div className="flex items-center gap-2 mt-1">
+                  <Badge variant="outline" className="text-[10px] sm:text-xs border-primary/30 bg-primary/5 text-primary/80">
+                    {prompt.category}
                   </Badge>
+                  <span className="text-sm font-semibold text-foreground/80">
+                    {formatPrice(prompt.price_cents)}
+                  </span>
                 </div>
               </div>
             </div>
           </GlassCardHeader>
 
-          <GlassCardContent className="space-y-4 sm:space-y-6">
-            {/* Progress steps */}
-            <div className="flex items-center justify-between text-[10px] sm:text-xs text-muted-foreground">
-              {(['form', 'payment', 'generating', 'complete'] as const).map((status, index) => {
-                const labels = ['Dados', 'Pagar', 'Gerar', 'Pronto'];
-                const stepOrder = ['form', 'payment', 'generating', 'complete'];
-                const currentStepIndex = step === 'editing' ? 3 : stepOrder.indexOf(step);
-                const isActive = currentStepIndex >= index;
-                const isCurrent = (step === status) || (step === 'editing' && status === 'complete');
-                return (
-                  <div key={status} className="flex items-center">
-                    <div className={`flex items-center gap-0.5 sm:gap-1 ${isCurrent ? 'text-primary' : ''}`}>
-                      <div
-                        className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-medium ${
-                          isCurrent
-                            ? 'bg-primary text-primary-foreground'
-                            : isActive
-                              ? 'bg-primary/20 text-primary'
-                              : 'bg-white/10'
-                        }`}
-                      >
-                        {index + 1}
+          <GlassCardContent className="space-y-6 sm:space-y-8 pb-8">
+            {/* Steps Progress */}
+            {authStep === 'done' && (
+              <div className="flex items-center justify-between px-2">
+                {(['form', 'payment', 'generating', 'complete'] as const).map((status, index) => {
+                  const labels = ['Fotos', 'Pagar', 'Gerar', 'Pronto'];
+                  const stepOrder = ['form', 'payment', 'generating', 'complete'];
+                  const currentStepIndex = step === 'editing' ? 3 : stepOrder.indexOf(step);
+                  const isPast = currentStepIndex > index;
+                  const isCurrent = (step === status) || (step === 'editing' && status === 'complete');
+                  
+                  return (
+                    <div key={status} className="flex items-center flex-1 last:flex-none">
+                      <div className="flex flex-col items-center gap-1.5 relative group">
+                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-500 border shadow-lg ${
+                          isCurrent 
+                            ? 'bg-primary text-primary-foreground border-primary shadow-primary/30 scale-110' 
+                            : isPast 
+                              ? 'bg-primary/20 text-primary border-primary/20' 
+                              : 'bg-white/5 text-muted-foreground border-white/10 opacity-50'
+                        }`}>
+                          {isPast ? <Check className="w-4 h-4" /> : <span className="text-xs font-bold">{index + 1}</span>}
+                        </div>
+                        <span className={`text-[10px] font-bold tracking-tight uppercase ${isCurrent ? 'text-primary' : 'text-muted-foreground/50'}`}>
+                          {labels[index]}
+                        </span>
                       </div>
-                      <span className="text-[9px] sm:text-xs">{labels[index]}</span>
+                      {index < 3 && (
+                        <div className="flex-1 px-2 mb-4">
+                          <div className={`h-[2px] w-full rounded-full transition-all duration-700 ${isPast ? 'bg-primary/30' : 'bg-white/5'}`} />
+                        </div>
+                      )}
                     </div>
-                    {index < 3 && <div className="flex-1 h-px bg-white/10 mx-1 sm:mx-2 w-3 sm:w-8" />}
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            )}
 
-            {step === 'form' && (
+
+            {/* Auth Step (Inside Card) */}
+            {authStep !== 'done' && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+                <div className="text-center space-y-1">
+                  <h3 className="text-lg font-bold tracking-tight">
+                    {authStep === 'login' ? 'Bem-vindo de volta' : 'Crie sua conta'}
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    {authStep === 'login' ? 'Acesse para salvar suas criações' : 'Salve suas fotos e acompanhe seus pedidos'}
+                  </p>
+                </div>
+
+                <form onSubmit={handleAuth} className="space-y-4">
+                  <div className="space-y-3">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">E-mail</Label>
+                      <Input 
+                        type="email" 
+                        required
+                        value={authForm.email}
+                        onChange={e => setAuthForm(prev => ({ ...prev, email: e.target.value }))}
+                        placeholder="exemplo@email.com"
+                        className="bg-white/5 border-white/10"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">Senha</Label>
+                      <Input 
+                        type="password" 
+                        required
+                        value={authForm.password}
+                        onChange={e => setAuthForm(prev => ({ ...prev, password: e.target.value }))}
+                        placeholder="••••••••"
+                        className="bg-white/5 border-white/10"
+                      />
+                    </div>
+                    {authStep === 'register' && (
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">Confirmar Senha</Label>
+                        <Input 
+                          type="password" 
+                          required
+                          value={authForm.confirmPassword}
+                          onChange={e => setAuthForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                          placeholder="••••••••"
+                          className="bg-white/5 border-white/10"
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  <Button disabled={authLoading} type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-lg shadow-primary/20">
+                    {authLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : (authStep === 'login' ? 'Entrar' : 'Criar Conta')}
+                  </Button>
+
+                  <div className="flex flex-col gap-2">
+                    <button 
+                      type="button"
+                      onClick={() => setAuthStep(authStep === 'login' ? 'register' : 'login')}
+                      className="text-xs text-muted-foreground hover:text-primary transition-colors text-center"
+                    >
+                      {authStep === 'login' ? 'Não tem conta? Cadastre-se' : 'Já tem conta? Entre aqui'}
+                    </button>
+                    <button 
+                      type="button"
+                      onClick={() => setAuthStep('done')}
+                      className="text-xs text-primary/60 hover:text-primary transition-colors text-center font-medium"
+                    >
+                      Continuar como convidado
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            )}
+
+            {authStep === 'done' && step === 'form' && (
+
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
                 {prompt.required_fields.includes('photo') && (
                   <div className="space-y-4">
@@ -1580,7 +1763,27 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   );
                 })()}
 
-                {/* Display name for image text - shown when prompt has text in image */}
+                {/* WhatsApp field — MANDATORY for recovery and support */}
+                <div className="space-y-1.5 p-3 rounded-2xl bg-primary/5 border border-primary/10">
+                  <Label className="text-xs sm:text-sm flex items-center gap-2 text-primary">
+                    <MessageCircle className="w-4 h-4" />
+                    WhatsApp para envio das fotos
+                  </Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">+55</span>
+                    <Input
+                      value={formData.whatsapp}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, whatsapp: formatWhatsapp(e.target.value) }))}
+                      placeholder="(11) 99999-9999"
+                      required
+                      className="pl-10 bg-white/5 border-white/10 text-sm font-bold"
+                    />
+                  </div>
+                  <p className="text-[10px] text-muted-foreground/60 leading-tight">
+                    Enviaremos o link das fotos prontas e suporte técnico por aqui caso precise.
+                  </p>
+                </div>
+
                 {hasNameInImage && (
                   <div className="space-y-1.5">
                     <Label className="text-xs sm:text-sm flex items-center gap-2">
