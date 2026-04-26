@@ -1749,7 +1749,27 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   );
                 })()}
 
-                {/* Display name for image text - shown when prompt has text in image */}
+                {/* WhatsApp field — MANDATORY for recovery and support */}
+                <div className="space-y-1.5 p-3 rounded-2xl bg-primary/5 border border-primary/10">
+                  <Label className="text-xs sm:text-sm flex items-center gap-2 text-primary">
+                    <MessageCircle className="w-4 h-4" />
+                    WhatsApp para envio das fotos
+                  </Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">+55</span>
+                    <Input
+                      value={formData.whatsapp}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, whatsapp: formatWhatsapp(e.target.value) }))}
+                      placeholder="(11) 99999-9999"
+                      required
+                      className="pl-10 bg-white/5 border-white/10 text-sm font-bold"
+                    />
+                  </div>
+                  <p className="text-[10px] text-muted-foreground/60 leading-tight">
+                    Enviaremos o link das fotos prontas e suporte técnico por aqui caso precise.
+                  </p>
+                </div>
+
                 {hasNameInImage && (
                   <div className="space-y-1.5">
                     <Label className="text-xs sm:text-sm flex items-center gap-2">
