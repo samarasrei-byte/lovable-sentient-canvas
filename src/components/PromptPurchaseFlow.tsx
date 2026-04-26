@@ -392,6 +392,11 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
 
     // Show uploading feedback
     toast.loading('Processando foto...', { id: `photo-upload-${index}` });
+    setPhotos(prev => {
+      const next = [...prev];
+      next[index] = { ...next[index], status: 'uploading' };
+      return next;
+    });
 
     const reader = new FileReader();
     reader.onload = (event) => {
