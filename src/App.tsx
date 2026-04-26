@@ -125,6 +125,10 @@ const App = () => (
               <Route path="perfil" element={<PerfilRouter />} />
               <Route path="chat" element={<Chat />} />
               <Route path="analytics" element={<Analytics />} />
+              <Route path="minhas-fotos" element={<MyPhotos />} />
+              <Route path="minhas-compras" element={<MyPurchases />} />
+              <Route path="chamados" element={<SupportTickets />} />
+              <Route path="em-breve" element={<ComingSoon />} />
               
               {/* Influencer Routes */}
               <Route path="influencer/contratos" element={<InfluencerContratos />} />
