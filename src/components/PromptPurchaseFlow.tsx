@@ -70,6 +70,11 @@ interface PhotoProfile {
   ageGroup: string;
   presentation: string;
   suggestedCategory?: string;
+  seguranca?: {
+    conteudo_seguro: boolean;
+    motivo_bloqueio: string | null;
+    rating: string;
+  };
   audit_qualidade?: {
     rosto_detectado: boolean;
     olhando_camera: boolean;
@@ -271,6 +276,22 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
 
       if (error) throw error;
 
+      // Handle moderation block
+      if (data?.seguranca?.conteudo_seguro === false) {
+        toast.error('Foto bloqueada por segurança', {
+          description: data.seguranca.motivo_bloqueio || 'O conteúdo desta foto viola nossas diretrizes de segurança.',
+          duration: 10000
+        });
+        
+        // Remove the photo since it's blocked
+        setPhotos((prev) => {
+          const updated = [...prev];
+          updated[index] = { file: null, preview: '' };
+          return updated;
+        });
+        return;
+      }
+
       setPhotoProfiles((prev) => {
         const next = [...prev];
         next[index] = data
@@ -278,6 +299,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
               ageGroup: data.ageGroup || 'adulto',
               presentation: data.presentation || 'indefinida',
               suggestedCategory: data.suggestedCategory,
+              seguranca: data.seguranca,
               audit_qualidade: data.audit_qualidade,
               analise: data.analise,
               areas_editaveis: data.areas_editaveis,
@@ -938,7 +960,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
     };
   };
 
-  const runQAValidation = async (imageUrl: string, referenceImageUrls: string[]): Promise<{ passed: boolean; issues: string[] }> => {
+  const runQAValidation = async (imageUrl: string, referenceImageUrls: string[]): Promise<{ passed: boolean; issues: string[]; is_inappropriate?: boolean }> => {
     try {
       setQaStatus('checking');
 
@@ -962,7 +984,11 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
         return { passed: true, issues: [] };
       }
 
-      return { passed: data.passed ?? true, issues: data.issues ?? [] };
+      return { 
+        passed: data.passed ?? true, 
+        issues: data.issues ?? [],
+        is_inappropriate: data.is_inappropriate ?? false
+      };
     } catch (error) {
       console.error('QA validation failed:', error);
       return { passed: true, issues: [] };
@@ -1002,6 +1028,16 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       let finalImageUrl = data.imageUrl;
       let qa = await runQAValidation(finalImageUrl, referencePhotoUrls);
 
+      // Block output moderation failures immediately
+      if (qa.is_inappropriate) {
+        setStep('form');
+        toast.error('Conteúdo bloqueado por segurança', {
+          description: 'A imagem gerada violou nossas diretrizes de segurança (conteúdo inadequado ou infantilizado). Sua conta foi sinalizada para revisão.',
+          duration: 10000
+        });
+        return;
+      }
+
       if (!qa.passed && newCount <= 2) {
         setQaStatus('fixing');
         setQaIssues(qa.issues);
@@ -1026,11 +1062,19 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
         if (retryData?.imageUrl) {
           finalImageUrl = retryData.imageUrl;
           qa = await runQAValidation(finalImageUrl, referencePhotoUrls);
+          
+          if (qa.is_inappropriate) {
+            setStep('form');
+            toast.error('Conteúdo bloqueado por segurança', {
+              description: 'A imagem gerada violou nossas diretrizes de segurança.',
+              duration: 10000
+            });
+            return;
+          }
         }
       }
 
       if (!qa.passed) {
-        // QA warns but does NOT block — show issues as warning, deliver the image anyway
         setQaStatus('idle');
         setQaIssues(qa.issues);
         toast.warning('A auditoria encontrou possíveis ajustes, mas sua imagem foi entregue. Você pode gerar novamente se desejar.');
@@ -1097,6 +1141,10 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       let finalVariantUrl = data.imageUrl;
       let qa = await runQAValidation(finalVariantUrl, referencePhotoUrls);
 
+      if (qa.is_inappropriate) {
+        throw new Error('A variação gerada violou nossas diretrizes de segurança.');
+      }
+
       if (!qa.passed) {
         setQaStatus('fixing');
         setQaIssues(qa.issues);
@@ -1112,6 +1160,10 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
         if (retryData?.imageUrl) {
           finalVariantUrl = retryData.imageUrl;
           qa = await runQAValidation(finalVariantUrl, referencePhotoUrls);
+          
+          if (qa.is_inappropriate) {
+            throw new Error('A variação gerada violou nossas diretrizes de segurança.');
+          }
         }
       }
 
@@ -1168,6 +1220,13 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
 
       if (error) throw error;
       if (!data?.imageUrl) throw new Error('Edição não gerou imagem');
+
+      const referencePhotoUrls = await ensureUploadedPhotoUrls(purchaseId);
+      const qa = await runQAValidation(data.imageUrl, referencePhotoUrls);
+
+      if (qa.is_inappropriate) {
+        throw new Error('A edição gerada violou nossas diretrizes de segurança.');
+      }
 
       setGeneratedImage(data.imageUrl);
       setGeneratedVariants((prev) => prev.map((variant, index) => ({ ...variant, selected: index === 0 })));
@@ -1541,8 +1600,16 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
             )}
 
             {authStep === 'done' && step === 'form' && (
-
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
+                
+                {/* Safety Warning UX */}
+                <div className="mx-2 flex items-start gap-3 p-3 rounded-2xl bg-destructive/10 border border-destructive/20 animate-in fade-in slide-in-from-top-2">
+                  <AlertTriangle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
+                  <p className="text-[11px] leading-tight text-destructive-foreground/90 font-medium">
+                    <span className="font-bold">Aviso de Segurança:</span> Conteúdos inadequados, sexualizados ou que violem nossas diretrizes serão bloqueados automaticamente.
+                  </p>
+                </div>
+
                 {prompt.required_fields.includes('photo') && (
                   <div className="space-y-4">
                     {/* Hero upload CTA — mobile-first with native full-card input overlay */}
