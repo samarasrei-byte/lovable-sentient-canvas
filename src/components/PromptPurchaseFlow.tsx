@@ -204,11 +204,6 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const [whatsappSaved, setWhatsappSaved] = useState(false);
   const fileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  const isBirthdayPrompt = /aniversário|aniversario|parabéns|parabens/i.test(`${prompt.category || ''} ${prompt.name || ''}`);
-  const isMesversarioPrompt = /mesversário|mesversario|mês|mes/i.test(`${prompt.category || ''} ${prompt.name || ''}`);
-  const isFamilyPrompt = /família|familia|family/i.test(`${prompt.category || ''} ${prompt.name || ''}`);
-  const isCouplePrompt = /casais|casal|couple/i.test(`${prompt.category || ''} ${prompt.name || ''}`);
-  const hasNameInImage = /\{name\}|\{displayName\}/i.test(prompt.prompt_template || '');
 
   // Cleanup object URLs on unmount to prevent memory leaks
   useEffect(() => {
