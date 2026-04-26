@@ -70,6 +70,16 @@ interface PhotoProfile {
   ageGroup: string;
   presentation: string;
   suggestedCategory?: string;
+  audit_qualidade?: {
+    rosto_detectado: boolean;
+    olhando_camera: boolean;
+    iluminacao_boa: boolean;
+    rosto_centralizado: boolean;
+    sem_obstrucoes: boolean;
+    resolucao_ok: boolean;
+    score_identidade: number;
+    recomendacoes: string[];
+  };
   analise?: {
     quantidade_pessoas: number;
     pessoas: AnalisePersona[];
@@ -111,6 +121,17 @@ const GeneratingStep = ({ label, delay, isQA }: { label: string; delay: number; 
   );
 };
 
+const AuditItem = ({ label, passed }: { label: string; passed: boolean }) => (
+  <div className="flex items-center gap-1">
+    {passed ? (
+      <CheckCircle2 className="w-2.5 h-2.5 text-green-400" />
+    ) : (
+      <X className="w-2.5 h-2.5 text-red-400" />
+    )}
+    <span className={`text-[9px] ${passed ? 'text-white/80' : 'text-red-300/80 font-medium'}`}>{label}</span>
+  </div>
+);
+
 const ageGroupLabel: Record<string, string> = {
   bebe: 'Bebê',
   crianca: 'Criança',
@@ -130,6 +151,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const [user, setUser] = useState<any>(null);
   const [authLoading, setAuthLoading] = useState(false);
   const [authForm, setAuthForm] = useState({ email: '', password: '', confirmPassword: '' });
+  const [qualityChecks, setQualityChecks] = useState<{ [key: string]: boolean }>({});
 
   const maxPhotos = prompt.min_photos && prompt.min_photos > 1 ? Math.min(prompt.min_photos, 5) : 5;
   const [formData, setFormData] = useState({ 
@@ -238,6 +260,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
               ageGroup: data.ageGroup || 'adulto',
               presentation: data.presentation || 'indefinida',
               suggestedCategory: data.suggestedCategory,
+              audit_qualidade: data.audit_qualidade,
               analise: data.analise,
               areas_editaveis: data.areas_editaveis,
               prompt_gerado: data.prompt_gerado,
@@ -381,6 +404,25 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
 
     if (prompt.required_fields.includes('photo') && !hasAnyPhoto) {
       toast.error('Por favor, envie pelo menos uma foto.');
+      return;
+    }
+
+    // New: Identity Audit Validation
+    const issues = photoProfiles.flatMap((profile, index) => {
+      if (!profile?.audit_qualidade) return [];
+      const audit = profile.audit_qualidade;
+      const unconfirmed = [];
+      if (audit.score_identidade < 0.8) {
+        if (!qualityChecks[`${index}-identidade`]) unconfirmed.push(`A foto ${index + 1} precisa de revisão.`);
+        if (!qualityChecks[`${index}-clonagem`]) unconfirmed.push(`Confirme a aceitação da semelhança facial para a foto ${index + 1}.`);
+      }
+      return unconfirmed;
+    });
+
+    if (issues.length > 0) {
+      toast.error(issues[0], {
+        description: "Complete o checklist de qualidade abaixo da foto para continuar."
+      });
       return;
     }
 
@@ -909,16 +951,24 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
     }
   };
 
-  const generateImage = async (overridePurchaseId?: string) => {
+  const generateImage = async (overridePurchaseId?: string, attempt = 1) => {
     try {
       const effectivePurchaseId = overridePurchaseId || purchaseId;
       if (!effectivePurchaseId) throw new Error('Compra não iniciada corretamente');
 
+      if (attempt === 1) {
+        setStep('generating');
+        setQaStatus('idle');
+      }
+
+      // Step 1: Upload / Ensure photos (Progress: Receiving)
       const referencePhotoUrls = await ensureUploadedPhotoUrls(effectivePurchaseId);
       if (prompt.required_fields.includes('photo') && referencePhotoUrls.length === 0) {
         throw new Error('Nenhuma foto de referência válida foi enviada');
       }
 
+      // Step 2: Generation (Progress: Cloning/Building)
+      setQaStatus('idle'); // Starting AI part
       const body = buildGenerationBody(referencePhotoUrls);
       body.purchaseId = effectivePurchaseId;
       const { data, error } = await supabase.functions.invoke('generate-prompt-image', {
@@ -1720,6 +1770,39 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                   </Badge>
                                 )}
                               </div>
+
+                              {photoProfile?.audit_qualidade && (
+                                <div className="mt-2 space-y-1.5 p-2 rounded-xl bg-black/30 border border-white/5">
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-[10px] font-bold text-white/60 uppercase tracking-wider">Audit de Identidade</span>
+                                    {photoProfile.audit_qualidade.score_identidade > 0.9 ? (
+                                      <Badge className="h-4 text-[9px] bg-green-500/20 text-green-400 border-green-500/30">Excelente</Badge>
+                                    ) : photoProfile.audit_qualidade.score_identidade > 0.7 ? (
+                                      <Badge className="h-4 text-[9px] bg-yellow-500/20 text-yellow-400 border-yellow-500/30">Bom</Badge>
+                                    ) : (
+                                      <Badge className="h-4 text-[9px] bg-red-500/20 text-red-400 border-red-500/30">Ruim</Badge>
+                                    )}
+                                  </div>
+                                  
+                                  <div className="grid grid-cols-2 gap-x-2 gap-y-1">
+                                    <AuditItem label="Rosto visível" passed={photoProfile.audit_qualidade.rosto_detectado} />
+                                    <AuditItem label="De frente" passed={photoProfile.audit_qualidade.olhando_camera} />
+                                    <AuditItem label="Iluminação" passed={photoProfile.audit_qualidade.iluminacao_boa} />
+                                    <AuditItem label="Sem obstruções" passed={photoProfile.audit_qualidade.sem_obstrucoes} />
+                                  </div>
+
+                                  {photoProfile.audit_qualidade.recomendacoes.length > 0 && (
+                                    <div className="mt-1.5 pt-1.5 border-t border-white/5">
+                                      {photoProfile.audit_qualidade.recomendacoes.map((rec, i) => (
+                                        <div key={i} className="flex gap-1 items-start text-[9px] text-yellow-200/70 leading-tight">
+                                          <AlertTriangle className="w-2.5 h-2.5 mt-0.5 flex-shrink-0" />
+                                          <span>{rec}</span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
                             </motion.div>
                           );
                         })}
@@ -1735,7 +1818,6 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                     )}
                   </div>
                 )}
-
                 {/* Name field — usa "Nome da criança" para prompts infantis */}
                 {prompt.required_fields.includes('name') && (() => {
                   const isChildPrompt = /infantil|bebê|bebe|newborn|criança|crianca|kids|baby|aniversário|aniversario/i.test(
@@ -2232,12 +2314,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                     className="py-12 sm:py-16 text-center space-y-6"
                   >
                     {/* Animated success ring */}
-                    <motion.div 
-                      initial={{ scale: 0 }} 
-                      animate={{ scale: 1 }} 
-                      transition={{ delay: 0.2, type: "spring", stiffness: 300 }}
-                      className="relative w-24 h-24 mx-auto"
-                    >
+                    <div className="relative w-24 h-24 mx-auto">
                       <div className="absolute inset-0 rounded-full bg-green-500/20 animate-ping" />
                       <div className="absolute inset-0 rounded-full bg-gradient-to-br from-green-400/30 to-emerald-500/30 backdrop-blur-sm" />
                       <div className="relative w-full h-full rounded-full bg-green-500/10 border-2 border-green-500/50 flex items-center justify-center">
@@ -2249,7 +2326,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                           <CheckCircle2 className="w-12 h-12 text-green-400" />
                         </motion.div>
                       </div>
-                    </motion.div>
+                    </div>
 
                     {/* Confirmed badge */}
                     <motion.div
