@@ -1788,34 +1788,6 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                           ? `${activePhotoCount} de ${maxPhotos} · Uma foto por membro da família`
                           : `${activePhotoCount} foto${activePhotoCount > 1 ? 's' : ''} enviada${activePhotoCount > 1 ? 's' : ''} · A IA preserva cada detalhe`}
                       </p>
-                                  )}
-
-                                  {photoProfile.audit_qualidade.score_identidade < 0.8 && (
-                                    <div className="mt-2 space-y-2 p-2.5 rounded-xl bg-yellow-500/10 border border-yellow-500/20">
-                                      <p className="text-[10px] font-bold text-yellow-500 uppercase tracking-wider flex items-center gap-1">
-                                        <AlertTriangle className="w-3 h-3" /> Revisão Necessária
-                                      </p>
-                                      <div className="space-y-1">
-                                        {[
-                                          { id: 'identidade', label: 'Confirmo que o rosto está bem visível' },
-                                          { id: 'clonagem', label: 'Aceito que a semelhança depende da foto' }
-                                        ].map(check => (
-                                          <label key={check.id} className="flex items-center gap-2 cursor-pointer group">
-                                            <div 
-                                              onClick={() => setQualityChecks(prev => ({ ...prev, [`${index}-${check.id}`]: !prev[`${index}-${check.id}`] }))}
-                                              className={`w-3.5 h-3.5 rounded border flex items-center justify-center transition-colors ${qualityChecks[`${index}-${check.id}`] ? 'bg-yellow-500 border-yellow-500' : 'border-white/20 bg-white/5'}`}
-                                            >
-                                              {qualityChecks[`${index}-${check.id}`] && <Check className="w-2.5 h-2.5 text-black" />}
-                                            </div>
-                                            <span className="text-[9px] text-white/60 group-hover:text-white/80 transition-colors">{check.label}</span>
-                                          </label>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-
                 {/* Name field — usa "Nome da criança" para prompts infantis */}
                 {prompt.required_fields.includes('name') && (() => {
                   const isChildPrompt = /infantil|bebê|bebe|newborn|criança|crianca|kids|baby|aniversário|aniversario/i.test(
