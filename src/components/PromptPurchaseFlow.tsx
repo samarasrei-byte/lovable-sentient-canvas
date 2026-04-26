@@ -1739,6 +1739,8 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                 {photoProfile?.analise && photoProfile.analise.quantidade_pessoas > 1 && (
                                   <Badge variant="outline" className="text-[10px] border-border/60 bg-background/70">
                                     👥 {photoProfile.analise.quantidade_pessoas} pessoas
+                                  </Badge>
+                                )}
                               </div>
 
                               {photoProfile?.audit_qualidade && (
@@ -1774,7 +1776,6 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                 </div>
                               )}
                             </motion.div>
-
                           );
                         })}
                       </div>
