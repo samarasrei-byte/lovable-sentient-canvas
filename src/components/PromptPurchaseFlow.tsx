@@ -45,6 +45,10 @@ type FlowStep = 'form' | 'payment' | 'generating' | 'complete' | 'editing';
 interface PhotoSlot {
   file: File | null;
   preview: string;
+  status?: 'empty' | 'uploading' | 'analyzing' | 'ready' | 'blocked' | 'error';
+  errorMessage?: string;
+  sugestoes?: string[];
+  appealId?: string;
 }
 
 interface GeneratedVariant {
