@@ -844,7 +844,6 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
 
     // Contact info
     if (formData.telefone) flyerContext.telefone = formData.telefone;
-    if (formData.whatsapp) flyerContext.whatsapp = formData.whatsapp;
     if (formData.endereco) flyerContext.endereco = formData.endereco;
     if (formData.instagram) flyerContext.instagram = formData.instagram;
     if (formData.data) flyerContext.data = formData.data;
