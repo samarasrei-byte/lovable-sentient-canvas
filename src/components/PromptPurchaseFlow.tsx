@@ -1220,10 +1220,6 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
   };
 
   const handleDownloadAll = () => {
-    if (!whatsappSaved) {
-      toast.error('Deixe seu WhatsApp para baixar a imagem!');
-      return;
-    }
     const selected = generatedVariants.filter((variant) => variant.selected);
     if (selected.length === 0) {
       handleDownload();
@@ -1235,27 +1231,26 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
     });
   };
 
-  const handleSaveWhatsapp = async () => {
-    const cleaned = whatsapp.replace(/\D/g, '');
-    if (cleaned.length < 10) {
-      toast.error('Digite um número de WhatsApp válido');
+  const handleSaveToProfile = async () => {
+    if (!user) {
+      toast.error('Faça login para salvar em seu perfil');
       return;
     }
-    if (!downloadName.trim()) {
-      toast.error('Digite seu nome para baixar');
-      return;
-    }
+    if (!generatedImage) return;
+
     try {
-      if (purchaseId) {
-        await supabase
-          .from('prompt_purchases')
-          .update({ custom_fields: { whatsapp: cleaned, download_name: downloadName.trim() } } as any)
-          .eq('id', purchaseId);
-      }
-      setWhatsappSaved(true);
-      toast.success('Dados salvos! Agora você pode baixar sua imagem 🎉');
+      const { error } = await supabase.from('generated_images').insert({
+        user_id: user.id,
+        image_url: generatedImage,
+        template_name: prompt.name,
+        original_purchase_id: purchaseId,
+        is_favorite: true
+      });
+
+      if (error) throw error;
+      toast.success('Salvo em seu perfil com sucesso! 🎉');
     } catch {
-      setWhatsappSaved(true);
+      toast.error('Erro ao salvar no perfil');
     }
   };
 
