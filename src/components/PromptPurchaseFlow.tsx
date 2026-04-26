@@ -1289,6 +1289,103 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
     };
   };
 
+  const handleDownload = async (urlToDownload?: string) => {
+    const imageUrl = urlToDownload || generatedImage;
+    if (!imageUrl) return;
+    
+    // Helper: fallback direct download
+    const fallbackDownload = () => {
+      const link = document.createElement('a');
+      link.href = imageUrl;
+      link.download = `arcana-${prompt.name.toLowerCase().replace(/\s+/g, '-')}.png`;
+      link.click();
+      toast.success('Download iniciado!');
+    };
+
+    const selectedFormat = exportFormats.find(f => f.key === exportFormat);
+
+    if (!selectedFormat?.ratio) {
+      // Original format — try fetch-based download to avoid navigation issues
+      try {
+        const resp = await fetch(imageUrl);
+        const blob = await resp.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = `arcana-${prompt.name.toLowerCase().replace(/\s+/g, '-')}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(blobUrl);
+        toast.success('Download iniciado!');
+      } catch {
+        fallbackDownload();
+      }
+      return;
+    }
+
+    // Cropped format — fetch as blob first to avoid CORS tainted canvas
+    try {
+      const resp = await fetch(imageUrl);
+      const blob = await resp.blob();
+      const blobUrl = URL.createObjectURL(blob);
+
+      const img = new Image();
+      img.src = blobUrl;
+      img.onload = () => {
+        URL.revokeObjectURL(blobUrl);
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        if (!ctx) { fallbackDownload(); return; }
+
+        const targetRatio = selectedFormat.ratio;
+        const srcRatio = img.width / img.height;
+        let sx = 0, sy = 0, sw = img.width, sh = img.height;
+
+        if (srcRatio > targetRatio) {
+          sw = img.height * targetRatio;
+          sx = (img.width - sw) / 2;
+        } else {
+          sh = img.width / targetRatio;
+          sy = (img.height - sh) / 2;
+        }
+
+        const maxDim = 2048;
+        let outW = sw;
+        let outH = sh;
+        if (outW > maxDim || outH > maxDim) {
+          const scale = Math.min(maxDim / outW, maxDim / outH);
+          outW = Math.round(outW * scale);
+          outH = Math.round(outH * scale);
+        }
+
+        canvas.width = outW;
+        canvas.height = outH;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(img, sx, sy, sw, sh, 0, 0, outW, outH);
+
+        canvas.toBlob((canvasBlob) => {
+          if (!canvasBlob) { fallbackDownload(); return; }
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(canvasBlob);
+          link.download = `arcana-${prompt.name.toLowerCase().replace(/\s+/g, '-')}-${exportFormat}.png`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(link.href);
+          toast.success(`Download ${selectedFormat.label} iniciado!`);
+        }, 'image/png');
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(blobUrl);
+        fallbackDownload();
+      };
+    } catch {
+      fallbackDownload();
+      toast.success('Download iniciado!');
+    };
+  };
+
   const handleDownloadAll = () => {
     const selected = generatedVariants.filter((variant) => variant.selected);
     if (selected.length === 0) {
