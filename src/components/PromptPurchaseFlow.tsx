@@ -1221,6 +1221,13 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       if (error) throw error;
       if (!data?.imageUrl) throw new Error('Edição não gerou imagem');
 
+      const referencePhotoUrls = await ensureUploadedPhotoUrls(purchaseId);
+      const qa = await runQAValidation(data.imageUrl, referencePhotoUrls);
+
+      if (qa.is_inappropriate) {
+        throw new Error('A edição gerada violou nossas diretrizes de segurança.');
+      }
+
       setGeneratedImage(data.imageUrl);
       setGeneratedVariants((prev) => prev.map((variant, index) => ({ ...variant, selected: index === 0 })));
       setEditInstruction('');
