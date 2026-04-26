@@ -234,6 +234,13 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const [selectedStyle, setSelectedStyle] = useState<'realistic' | 'artistic'>('realistic');
   const [showSupportForm, setShowSupportForm] = useState(false);
   const [showSafetyModal, setShowSafetyModal] = useState(false);
+  const [appealModal, setAppealModal] = useState<{ 
+    isOpen: boolean; 
+    type: "upload" | "generation"; 
+    photoUrl?: string; 
+    reason?: string;
+    index?: number;
+  }>({ isOpen: false, type: "upload" });
   const fileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const checkModerationRealtime = (text: string): boolean => {
