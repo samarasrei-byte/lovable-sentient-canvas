@@ -24,6 +24,11 @@ serve(async (req) => {
     const analysisPrompt = `Analyze this image thoroughly and return ONLY valid JSON in this exact format:
 
 {
+  "seguranca": {
+    "conteudo_seguro": true,
+    "motivo_bloqueio": null,
+    "rating": "G|PG|R|X"
+  },
   "analise": {
     "quantidade_pessoas": 1,
     "pessoas": [
@@ -74,7 +79,12 @@ serve(async (req) => {
   "summary": "short phrase"
 }
 
-Rules:
+CRITICAL SAFETY RULES:
+- "conteudo_seguro": Set to false if the image contains nudity, explicit sexual content, suggests sexualization of minors (infantilized sexual content), or is otherwise highly inappropriate.
+- "motivo_bloqueio": If "conteudo_seguro" is false, explain why in Portuguese (e.g., "Nudez detectada", "Conteúdo sexualizado", "Conteúdo infantil inapropriado").
+- Be extremely conservative. Any hint of sexualization in children's photos is an automatic block.
+
+Standard Rules:
 - In "audit_qualidade", be very strict. If it's a child photo, "score_identidade" measures how well the features (eyes, nose, mouth) are visible for AI cloning.
 - "rosto_detectado": true if a face is clearly visible.
 - "olhando_camera": true if the person is looking frontally.
