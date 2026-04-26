@@ -61,7 +61,7 @@ const Mesversario = () => {
   const [whatsappLoading, setWhatsappLoading] = useState(false);
   const isMobile = useIsMobile();
 
-  const handleWhatsappSubmit = async () => {
+  const handleWhatsappSubmit = useCallback(async () => {
     const cleaned = whatsapp.replace(/\D/g, '');
     if (cleaned.length < 10) {
       toast.error('Digite um WhatsApp válido com DDD');
@@ -83,7 +83,7 @@ const Mesversario = () => {
     } finally {
       setWhatsappLoading(false);
     }
-  };
+  }, [whatsapp]);
 
   const formatWhatsapp = (value: string) => {
     const digits = value.replace(/\D/g, '').slice(0, 11);
@@ -92,15 +92,17 @@ const Mesversario = () => {
     return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
   };
 
-  const filteredPrompts = prompts.filter((p) => {
-    if (activeFilter === 'todos') return true;
-    if (activeFilter === 'popular') return p.is_featured;
-    const nameLower = p.name.toLowerCase();
-    if (activeFilter === 'personagens') return CHARACTER_NAMES.some(c => nameLower.includes(c));
-    if (activeFilter === 'newborn') return NEWBORN_NAMES.some(n => nameLower.includes(n));
-    if (activeFilter === 'temas') return !CHARACTER_NAMES.some(c => nameLower.includes(c)) && !NEWBORN_NAMES.some(n => nameLower.includes(n));
-    return true;
-  });
+  const filteredPrompts = useMemo(() => {
+    return prompts.filter((p) => {
+      if (activeFilter === 'todos') return true;
+      if (activeFilter === 'popular') return p.is_featured;
+      const nameLower = p.name.toLowerCase();
+      if (activeFilter === 'personagens') return CHARACTER_NAMES.some(c => nameLower.includes(c));
+      if (activeFilter === 'newborn') return NEWBORN_NAMES.some(n => nameLower.includes(n));
+      if (activeFilter === 'temas') return !CHARACTER_NAMES.some(c => nameLower.includes(c)) && !NEWBORN_NAMES.some(n => nameLower.includes(n));
+      return true;
+    });
+  }, [prompts, activeFilter]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
