@@ -169,6 +169,46 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   }, []);
 
   const [personNames, setPersonNames] = useState<string[]>([]);
+  const isFamilyInit = /família|familia|family/i.test(prompt.category || '') || /família|familia|family/i.test(prompt.name || '');
+  const isCoupleInit = /casais|casal|couple/i.test(prompt.category || '') || /casais|casal|couple/i.test(prompt.name || '');
+  const isMultiPersonPrompt = (prompt.min_photos || 1) >= 2;
+  const initialPhotoSlots = isMultiPersonPrompt ? Math.max(prompt.min_photos || 2, 2) : isFamilyInit ? Math.max(prompt.min_photos || 2, 2) : 1;
+  const [photos, setPhotos] = useState<PhotoSlot[]>(Array.from({ length: initialPhotoSlots }, () => ({ file: null, preview: '' })));
+  const [photoProfiles, setPhotoProfiles] = useState<(PhotoProfile | null)[]>(Array.from({ length: initialPhotoSlots }, () => null));
+  const [analyzingPhotoSlots, setAnalyzingPhotoSlots] = useState<number[]>([]);
+  const [uploadedPhotoUrls, setUploadedPhotoUrls] = useState<string[]>([]);
+  const [paymentStatus, setPaymentStatus] = useState<'pending' | 'checking' | 'paid'>('pending');
+  
+  const [verifyingPayment, setVerifyingPayment] = useState(false);
+  const paymentPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  
+  const [pixData, setPixData] = useState<{ copiaECola: string; qrCodeUrl: string; expiresAt: number } | null>(null);
+  const [pixLoading, setPixLoading] = useState(false);
+  const [pixError, setPixError] = useState<string | null>(null);
+  const [generatedVariants, setGeneratedVariants] = useState<GeneratedVariant[]>([]);
+  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [pixCopied, setPixCopied] = useState(false);
+  const [purchaseId, setPurchaseId] = useState<string | null>(null);
+  const [editInstruction, setEditInstruction] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [isGeneratingMore, setIsGeneratingMore] = useState(false);
+  const [qaStatus, setQaStatus] = useState<'idle' | 'checking' | 'passed' | 'fixing'>('idle');
+  const [qaIssues, setQaIssues] = useState<string[]>([]);
+  const [exportFormat, setExportFormat] = useState<string>('original');
+  const [generationCount, setGenerationCount] = useState(0);
+  const [editCount, setEditCount] = useState(0);
+  const [showBeforeAfter, setShowBeforeAfter] = useState(false);
+  const [whatsapp, setWhatsapp] = useState('');
+  const [downloadName, setDownloadName] = useState('');
+  const [whatsappSaved, setWhatsappSaved] = useState(false);
+  const fileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  const isBirthdayPrompt = /aniversário|aniversario|parabéns|parabens/i.test(`${prompt.category || ''} ${prompt.name || ''}`);
+  const isMesversarioPrompt = /mesversário|mesversario|mês|mes/i.test(`${prompt.category || ''} ${prompt.name || ''}`);
+  const isFamilyPrompt = /família|familia|family/i.test(`${prompt.category || ''} ${prompt.name || ''}`);
+  const isCouplePrompt = /casais|casal|couple/i.test(`${prompt.category || ''} ${prompt.name || ''}`);
+  const hasNameInImage = /\{name\}|\{displayName\}/i.test(prompt.prompt_template || '');
 
   // Cleanup object URLs on unmount to prevent memory leaks
   useEffect(() => {
