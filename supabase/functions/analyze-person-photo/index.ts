@@ -27,6 +27,7 @@ serve(async (req) => {
   "seguranca": {
     "conteudo_seguro": true,
     "motivo_bloqueio": null,
+    "sugestoes_seguranca": ["Use roupas mais cobertas", "Mude o ângulo da foto"],
     "rating": "G|PG|R|X"
   },
   "analise": {
