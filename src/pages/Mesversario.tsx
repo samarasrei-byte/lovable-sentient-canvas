@@ -314,7 +314,8 @@ const Mesversario = () => {
                         src={prompt.example_image_url}
                         alt={prompt.name}
                         className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700 ease-out"
-                        loading="lazy"
+                        loading={index < 4 ? "eager" : "lazy"}
+                        {...({ fetchpriority: index < 4 ? "high" : "auto" } as any)}
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-pink-500/5 to-amber-500/5">
