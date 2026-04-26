@@ -17,6 +17,7 @@ import { GenerationProgressBar } from "./GenerationProgressBar";
 import { StayOnPageCard } from "./StayOnPageCard";
 import { ShareButtons } from "./ShareButtons";
 import { BeforeAfterSlider } from "./BeforeAfterSlider";
+import { ModerationAppealModal } from "./ModerationAppealModal";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -44,6 +45,10 @@ type FlowStep = 'form' | 'payment' | 'generating' | 'complete' | 'editing';
 interface PhotoSlot {
   file: File | null;
   preview: string;
+  status?: 'empty' | 'uploading' | 'analyzing' | 'ready' | 'blocked' | 'error';
+  errorMessage?: string;
+  sugestoes?: string[];
+  appealId?: string;
 }
 
 interface GeneratedVariant {
@@ -73,6 +78,7 @@ interface PhotoProfile {
   seguranca?: {
     conteudo_seguro: boolean;
     motivo_bloqueio: string | null;
+    sugestoes_seguranca?: string[];
     rating: string;
   };
   audit_qualidade?: {
@@ -228,6 +234,13 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const [selectedStyle, setSelectedStyle] = useState<'realistic' | 'artistic'>('realistic');
   const [showSupportForm, setShowSupportForm] = useState(false);
   const [showSafetyModal, setShowSafetyModal] = useState(false);
+  const [appealModal, setAppealModal] = useState<{ 
+    isOpen: boolean; 
+    type: "upload" | "generation"; 
+    photoUrl?: string; 
+    reason?: string;
+    index?: number;
+  }>({ isOpen: false, type: "upload" });
   const fileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const checkModerationRealtime = (text: string): boolean => {
@@ -283,14 +296,25 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
           duration: 10000
         });
         
-        // Remove the photo since it's blocked
+        // Keep the photo but mark as blocked
         setPhotos((prev) => {
           const updated = [...prev];
-          updated[index] = { file: null, preview: '' };
+          updated[index] = { 
+            ...updated[index],
+            status: 'blocked',
+            errorMessage: data.seguranca.motivo_bloqueio,
+            sugestoes: data.seguranca.sugestoes_seguranca
+          };
           return updated;
         });
         return;
       }
+
+      setPhotos((prev) => {
+        const updated = [...prev];
+        updated[index] = { ...updated[index], status: 'ready' };
+        return updated;
+      });
 
       setPhotoProfiles((prev) => {
         const next = [...prev];
@@ -368,6 +392,11 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
 
     // Show uploading feedback
     toast.loading('Processando foto...', { id: `photo-upload-${index}` });
+    setPhotos(prev => {
+      const next = [...prev];
+      next[index] = { ...next[index], status: 'uploading' };
+      return next;
+    });
 
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -398,7 +427,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
 
         setPhotos((prev) => {
           const updated = [...prev];
-          updated[index] = { file, preview };
+          updated[index] = { file, preview, status: 'analyzing' };
           return updated;
         });
 
@@ -1032,8 +1061,17 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       if (qa.is_inappropriate) {
         setStep('form');
         toast.error('Conteúdo bloqueado por segurança', {
-          description: 'A imagem gerada violou nossas diretrizes de segurança (conteúdo inadequado ou infantilizado). Sua conta foi sinalizada para revisão.',
-          duration: 10000
+          description: 'A imagem gerada violou nossas diretrizes de segurança. Você pode solicitar uma revisão humana.',
+          duration: 15000,
+          action: {
+            label: 'Contestar',
+            onClick: () => setAppealModal({
+              isOpen: true,
+              type: "generation",
+              photoUrl: finalImageUrl,
+              reason: "Conteúdo gerado sinalizado como inadequado.",
+            })
+          }
         });
         return;
       }
@@ -1066,8 +1104,17 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
           if (qa.is_inappropriate) {
             setStep('form');
             toast.error('Conteúdo bloqueado por segurança', {
-              description: 'A imagem gerada violou nossas diretrizes de segurança.',
-              duration: 10000
+              description: 'A imagem gerada violou nossas diretrizes de segurança. Solicite uma revisão se achar que é um erro.',
+              duration: 15000,
+              action: {
+                label: 'Contestar',
+                onClick: () => setAppealModal({
+                  isOpen: true,
+                  type: "generation",
+                  photoUrl: finalImageUrl,
+                  reason: "Conteúdo gerado sinalizado como inadequado após correção.",
+                })
+              }
             });
             return;
           }
@@ -1731,6 +1778,9 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                     ? `Fotos das Pessoas`
                                     : `Sua foto`}
                             </Label>
+                            <p className="text-[9px] text-muted-foreground/60 leading-tight">
+                              Conteúdos inadequados ou que violem nossas diretrizes serão bloqueados.
+                            </p>
                             <p className="text-[10px] text-muted-foreground">
                               {activePhotoCount} de {isMultiPersonPrompt ? (prompt.min_photos || 2) : maxPhotos} enviada{activePhotoCount > 1 ? 's' : ''}
                             </p>
@@ -1750,8 +1800,9 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                         {photos.map((photo, index) => {
                           const photoProfile = photoProfiles[index];
-                          const isAnalyzing = analyzingPhotoSlots.includes(index);
+                          const isAnalyzing = analyzingPhotoSlots.includes(index) || photo.status === 'uploading' || photo.status === 'analyzing';
                           const slotLabel = getPhotoLabel(index);
+                          const isBlocked = photo.status === 'blocked';
 
                           return (
                             <motion.div
@@ -1763,12 +1814,60 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                             >
                               <div
                                 className={`relative rounded-2xl border transition-all overflow-hidden aspect-[3/4] active:scale-[0.97] touch-manipulation ${
-                                  photo.preview 
-                                    ? 'border-white/[0.08] bg-black/20 shadow-[0_4px_24px_-8px_hsl(0_0%_0%/0.5)]' 
-                                    : 'border-dashed border-white/[0.12] hover:border-primary/30 bg-gradient-to-b from-white/[0.03] to-transparent'
+                                  isBlocked 
+                                    ? 'border-red-500/50 bg-red-950/20 shadow-none'
+                                    : photo.preview 
+                                      ? 'border-white/[0.08] bg-black/20 shadow-[0_4px_24px_-8px_hsl(0_0%_0%/0.5)]' 
+                                      : 'border-dashed border-white/[0.12] hover:border-primary/30 bg-gradient-to-b from-white/[0.03] to-transparent'
                                 }`}
                               >
-                                {photo.preview ? (
+                                {isBlocked ? (
+                                  <div className="absolute inset-0 bg-red-950/90 flex flex-col items-center justify-center p-3 text-center z-20">
+                                    <AlertTriangle className="w-6 h-6 text-red-500 mb-1.5" />
+                                    <p className="text-[10px] font-bold text-red-200 uppercase mb-1">Bloqueado</p>
+                                    <p className="text-[9px] text-red-300/80 mb-2 line-clamp-2">{photo.errorMessage || "Conteúdo inadequado"}</p>
+                                    
+                                    {photo.sugestoes && photo.sugestoes.length > 0 && (
+                                      <div className="mb-2 space-y-0.5 text-left w-full overflow-hidden">
+                                        <p className="text-[8px] font-bold text-red-400 uppercase">Ajustes seguros:</p>
+                                        {photo.sugestoes.slice(0, 2).map((s, i) => (
+                                          <p key={i} className="text-[8px] text-red-200/70 leading-tight">• {s}</p>
+                                        ))}
+                                      </div>
+                                    )}
+
+                                    <div className="flex flex-col gap-1 w-full">
+                                      <Button 
+                                        size="sm" 
+                                        variant="outline" 
+                                        className="h-6 text-[9px] px-1 border-red-500/50 bg-red-500/10 hover:bg-red-500/20 text-red-200"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setAppealModal({
+                                            isOpen: true,
+                                            type: "upload",
+                                            photoUrl: photo.preview,
+                                            reason: photo.errorMessage,
+                                            index
+                                          });
+                                        }}
+                                      >
+                                        Contestar
+                                      </Button>
+                                      <Button 
+                                        size="sm" 
+                                        variant="secondary"
+                                        className="h-6 text-[9px] px-1 bg-white/10 hover:bg-white/20 text-white"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          fileInputRefs.current[index]?.click();
+                                        }}
+                                      >
+                                        Trocar Foto
+                                      </Button>
+                                    </div>
+                                  </div>
+                                ) : photo.preview ? (
                                   <>
                                     <img src={photo.preview} alt={slotLabel} className="w-full h-full object-contain" />
                                     <div className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full bg-green-500/90 flex items-center justify-center shadow-sm ring-2 ring-background pointer-events-none">
@@ -1786,7 +1885,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                     </div>
                                   </div>
                                 )}
-                                {photo.preview && (
+                                {photo.preview && !isBlocked && (
                                   <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent p-2.5 pointer-events-none">
                                     <span className="text-[10px] text-white/80 font-medium tracking-tight">{slotLabel}</span>
                                   </div>
@@ -1801,7 +1900,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                   accept="image/*"
                                   onChange={(e) => handlePhotoUpload(index, e)}
                                   aria-label={`Escolher ${slotLabel}`}
-                                  className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0 touch-manipulation"
+                                  className={`absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0 touch-manipulation ${isBlocked ? 'pointer-events-none' : ''}`}
                                 />
                               </div>
 
@@ -2279,7 +2378,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                     </Label>
                     <div className="space-y-1.5">
                       {photos.map((photo, idx) => {
-                        if (!photo.file) return null;
+                        if (!photo.file || photo.status === 'blocked') return null;
                         const label = isFamilyPrompt ? (familyPhotoLabels[idx] || `Pessoa ${idx + 1}`) : `Pessoa ${idx + 1}`;
                         return (
                           <div key={idx} className="flex items-center gap-2">
@@ -2960,6 +3059,15 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
           </GlassCardContent>
         </div>
       </motion.div>
+
+      <ModerationAppealModal
+        isOpen={appealModal.isOpen}
+        onClose={() => setAppealModal(prev => ({ ...prev, isOpen: false }))}
+        type={appealModal.type}
+        photoUrl={appealModal.photoUrl}
+        reason={appealModal.reason}
+        purchaseId={purchaseId || undefined}
+      />
     </motion.div>
   );
 };

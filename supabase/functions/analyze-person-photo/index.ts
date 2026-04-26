@@ -27,6 +27,7 @@ serve(async (req) => {
   "seguranca": {
     "conteudo_seguro": true,
     "motivo_bloqueio": null,
+    "sugestoes_seguranca": ["Use roupas mais cobertas", "Mude o ângulo da foto"],
     "rating": "G|PG|R|X"
   },
   "analise": {
@@ -82,6 +83,7 @@ serve(async (req) => {
 CRITICAL SAFETY RULES:
 - "conteudo_seguro": Set to false if the image contains nudity, explicit sexual content, suggests sexualization of minors (infantilized sexual content), or is otherwise highly inappropriate.
 - "motivo_bloqueio": If "conteudo_seguro" is false, explain why in Portuguese (e.g., "Nudez detectada", "Conteúdo sexualizado", "Conteúdo infantil inapropriado").
+- "sugestoes_seguranca": If "conteudo_seguro" is false, provide 2-3 specific suggestions in Portuguese for how the user can take a safer/compliant photo (e.g., "Use roupas menos reveladoras", "Tire a foto em um ambiente neutro", "Evite poses sugestivas").
 - Be extremely conservative. Any hint of sexualization in children's photos is an automatic block.
 
 Standard Rules:
@@ -153,6 +155,7 @@ Standard Rules:
       seguranca: result.seguranca || {
         conteudo_seguro: true,
         motivo_bloqueio: null,
+        sugestoes_seguranca: [],
         rating: "G"
       },
       ageGroup: result.ageGroup || "adulto",
