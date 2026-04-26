@@ -31,17 +31,18 @@ interface MenuItem {
 }
 
 const userMenuItems: MenuItem[] = [
-  { path: "/app/dashboard", icon: Home, label: "Dashboard" },
-  { path: "/app/criar-produto", icon: Image, label: "Criar Produto" },
-  { path: "/app/foto-profissional", icon: Camera, label: "Foto Profissional" },
-  { path: "/app/video-creator", icon: Video, label: "Video Creator", badge: "NOVO" },
-  { path: "/app/influenciadores", icon: Users, label: "Influenciadores" },
-  { path: "/app/artistas", icon: Palette, label: "Artistas" },
-  { path: "/app/avatares", icon: UserCircle, label: "Avatares" },
-  { path: "/app/avatar-studio", icon: Sparkles, label: "Avatar Studio" },
-  { path: "/app/meus-projetos", icon: FolderOpen, label: "Meus Projetos" },
-  { path: "/app/creditos", icon: Coins, label: "Créditos" },
-  { path: "/app/perfil", icon: Settings, label: "Configurações" },
+  { path: "/app/dashboard", icon: Home, label: "Home" },
+  { path: "/app/minhas-fotos", icon: Image, label: "Minhas Fotos" },
+  { path: "/app/minhas-compras", icon: Coins, label: "Minhas Compras" },
+  { path: "/app/chamados", icon: MessageCircle, label: "Meus Chamados" },
+  { path: "/app/perfil", icon: Settings, label: "Perfil" },
+  { path: "/app/em-breve", icon: Sparkles, label: "Em breve", badge: "NOVO" },
+];
+
+const adminMenuItems: MenuItem[] = [
+  { path: "/admin/dashboard", icon: Zap, label: "Admin Panel" },
+  { path: "/admin/chamados", icon: MessageCircle, label: "Suporte (Admin)" },
+  { path: "/admin/usuarios", icon: Users, label: "Usuários" },
 ];
 
 export const SidebarArcana2 = () => {
