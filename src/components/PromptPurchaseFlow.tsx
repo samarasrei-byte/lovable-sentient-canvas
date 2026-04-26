@@ -1641,20 +1641,23 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   <div className="space-y-6">
                     <div className="space-y-2">
                       <h3 className="text-lg font-bold tracking-tight flex items-center gap-2">
-                        <Pencil className="w-4 h-4 text-primary" />
-                        Detalhes da Geração
+                        <Pencil className="w-5 h-5 text-primary" />
+                        Personalização
                       </h3>
-                      <p className="text-xs text-muted-foreground leading-relaxed">
-                        Preencha as informações abaixo para que a IA personalize sua imagem com precisão.
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        Preencha os dados abaixo para que a inteligência artificial capture cada detalhe do seu pedido.
                       </p>
                     </div>
 
                     {/* Safety Warning UX */}
-                    <div className="flex items-start gap-3 p-3 rounded-2xl bg-destructive/10 border border-destructive/20 animate-in fade-in slide-in-from-top-2">
-                      <AlertTriangle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
-                      <p className="text-[11px] leading-tight text-destructive-foreground/90 font-medium">
-                        <span className="font-bold">Aviso de Segurança:</span> Conteúdos inadequados, sexualizados ou que violem nossas diretrizes serão bloqueados automaticamente.
-                      </p>
+                    <div className="flex items-start gap-3 p-4 rounded-2xl bg-destructive/10 border border-destructive/20 shadow-lg shadow-destructive/5 animate-in fade-in slide-in-from-top-2">
+                      <AlertTriangle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
+                      <div className="space-y-1">
+                        <p className="text-xs leading-tight text-destructive-foreground font-bold">Aviso de Segurança</p>
+                        <p className="text-[11px] leading-tight text-destructive-foreground/80">
+                          Conteúdos inadequados, sexualizados ou que violem nossas diretrizes serão bloqueados automaticamente.
+                        </p>
+                      </div>
                     </div>
 
                     <div className="space-y-4">
@@ -1664,61 +1667,89 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                           `${prompt.category || ''} ${prompt.name || ''}`
                         );
                         return (
-                          <div className="space-y-1.5">
-                            <Label className="text-xs sm:text-sm">
-                              {isChildPrompt ? '👶 Nome da criança' : 'Seu nome'}
+                          <div className="space-y-2">
+                            <Label className="text-xs sm:text-sm font-semibold ml-1">
+                              {isChildPrompt ? '👶 Nome da criança' : 'Seu nome completo'}
                             </Label>
-                            <div className="relative">
-                              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                            <div className="relative group">
+                              <div className="absolute inset-0 bg-primary/5 rounded-xl blur-md opacity-0 group-focus-within:opacity-100 transition-opacity" />
+                              <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                               <Input
                                 value={formData.name}
                                 onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
                                 placeholder={isChildPrompt ? 'Ex: Helena, Theo, Maria Júlia' : 'Como você quer ser chamado'}
-                                className="pl-10 bg-white/5 border-white/10 text-sm h-11"
+                                className="pl-11 bg-white/5 border-white/10 hover:border-white/20 focus:border-primary/50 text-sm h-12 rounded-xl transition-all"
                               />
                             </div>
                           </div>
                         );
                       })()}
 
-                      {/* Other fields would go here... I'll include the main logic for common fields */}
-                      {prompt.required_fields.includes('age') && (
-                        <div className="space-y-1.5">
-                          <Label className="text-xs sm:text-sm">Idade</Label>
-                          <Input
-                            value={formData.age}
-                            onChange={(e) => setFormData((prev) => ({ ...prev, age: e.target.value }))}
-                            placeholder="Ex: 5"
-                            className="bg-white/5 border-white/10 text-sm h-11"
-                          />
-                        </div>
-                      )}
+                      {/* Smart Age/Months field */}
+                      {prompt.required_fields.includes('age') && (() => {
+                        const isChildMode = /infantil|bebê|bebe|newborn|criança|crianca|kids|baby|aniversário|aniversario/i.test(
+                          `${prompt.category || ''} ${prompt.name || ''}`
+                        );
+                        return (
+                          <div className="space-y-2">
+                            <Label className="text-xs sm:text-sm font-semibold ml-1">Idade {isChildMode && 'ou Meses'}</Label>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="relative">
+                                <Input
+                                  value={formData.age}
+                                  onChange={(e) => setFormData((prev) => ({ ...prev, age: e.target.value.replace(/\D/g, ''), months: '' }))}
+                                  placeholder="Anos"
+                                  className="bg-white/5 border-white/10 text-sm h-12 rounded-xl"
+                                />
+                                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground font-bold uppercase">Anos</span>
+                              </div>
+                              {isChildMode && (
+                                <div className="relative">
+                                  <Input
+                                    value={formData.months}
+                                    onChange={(e) => setFormData((prev) => ({ ...prev, months: e.target.value.replace(/\D/g, ''), age: '' }))}
+                                    placeholder="Meses"
+                                    className="bg-white/5 border-white/10 text-sm h-12 rounded-xl"
+                                  />
+                                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground font-bold uppercase">Meses</span>
+                                </div>
+                              )}
+                            </div>
+                            <p className="text-[10px] text-muted-foreground/60 ml-1 leading-tight">
+                              A idade aparecerá em velas, balões ou decorações na imagem gerada.
+                            </p>
+                          </div>
+                        );
+                      })()}
 
                       {/* Instagram field */}
                       {prompt.required_fields.includes('instagram') && (
-                        <div className="space-y-1.5">
-                          <Label className="text-xs sm:text-sm flex items-center gap-2">
-                            <AtSign className="w-3.5 h-3.5 text-primary" /> Instagram
+                        <div className="space-y-2">
+                          <Label className="text-xs sm:text-sm font-semibold ml-1 flex items-center gap-2">
+                            <AtSign className="w-4 h-4 text-primary" /> Perfil do Instagram
                           </Label>
                           <Input
                             value={formData.instagram}
                             onChange={(e) => setFormData((prev) => ({ ...prev, instagram: e.target.value }))}
                             placeholder="@seu_perfil"
-                            className="bg-white/5 border-white/10 text-sm h-11"
+                            className="bg-white/5 border-white/10 text-sm h-12 rounded-xl"
                           />
                         </div>
                       )}
 
                       {/* Display Name field */}
                       {/banner|flyer|placa|placar|capa|logo/i.test(prompt.name || '') && (
-                        <div className="space-y-1.5">
-                          <Label className="text-xs sm:text-sm">✨ Texto na Imagem</Label>
+                        <div className="space-y-2">
+                          <Label className="text-xs sm:text-sm font-semibold ml-1">✨ Texto Personalizado</Label>
                           <Input
                             value={formData.displayName}
                             onChange={(e) => setFormData((prev) => ({ ...prev, displayName: e.target.value }))}
-                            placeholder="Ex: Nome da Loja ou Evento"
-                            className="bg-white/5 border-white/10 text-sm h-11"
+                            placeholder="Ex: Nome da Loja, Evento ou Frase"
+                            className="bg-white/5 border-white/10 text-sm h-12 rounded-xl font-bold"
                           />
+                          <p className="text-[10px] text-muted-foreground/60 ml-1">
+                            Este texto será renderizado com perfeição na sua arte.
+                          </p>
                         </div>
                       )}
                     </div>
@@ -1728,74 +1759,65 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   <div className="space-y-6">
                     <div className="space-y-2">
                       <h3 className="text-lg font-bold tracking-tight flex items-center gap-2">
-                        <Camera className="w-4 h-4 text-primary" />
-                        Referência de Rosto
+                        <Camera className="w-5 h-5 text-primary" />
+                        Fotos de Referência
                       </h3>
-                      <p className="text-xs text-muted-foreground leading-relaxed">
-                        Envie fotos nítidas e bem iluminadas para que a IA capture sua identidade perfeitamente.
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        A qualidade da sua imagem final depende dessas fotos. Use fotos de rosto nítidas.
                       </p>
                     </div>
 
                     {prompt.required_fields.includes('photo') && (
                       <div className="space-y-4">
-                        {activePhotoCount === 0 ? (
-                          <motion.div
-                            initial={{ opacity: 0, scale: 0.97 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            className="relative"
-                          >
-                            <div className="relative overflow-hidden rounded-3xl p-[1.5px] active:scale-[0.98] transition-all duration-300 touch-manipulation">
-                              <div className="absolute inset-0 rounded-3xl overflow-hidden">
-                                <motion.div
-                                  animate={{ rotate: 360 }}
-                                  transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                                  className="absolute inset-[-50%] bg-[conic-gradient(from_0deg,transparent_0%,hsl(var(--primary))_20%,transparent_40%,hsl(var(--secondary))_60%,transparent_80%,hsl(var(--primary))_100%)]"
-                                />
-                              </div>
-                              <div className="relative rounded-[calc(1.5rem-1.5px)] bg-[hsl(var(--background))] p-8 sm:p-10 border border-white/5">
-                                <div className="relative flex flex-col items-center gap-5 text-center pointer-events-none">
-                                  <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-primary/25 via-primary/10 to-secondary/10 flex items-center justify-center border border-primary/20">
-                                    <Upload className="w-9 h-9 sm:w-11 sm:h-11 text-primary" />
-                                  </div>
-                                  <div className="space-y-1">
-                                    <p className="text-base sm:text-lg font-bold text-foreground">Clique para enviar fotos</p>
-                                    <p className="text-xs text-muted-foreground max-w-[200px]">Formatos: JPG, PNG, WEBP (Máx 20MB)</p>
-                                  </div>
-                                </div>
-                                <input
-                                  id="hero-photo-upload-0"
-                                  ref={(el) => { fileInputRefs.current[0] = el; }}
-                                  type="file"
-                                  accept="image/*"
-                                  onChange={(e) => handlePhotoUpload(0, e)}
-                                  className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
-                                />
-                              </div>
-                            </div>
-                          </motion.div>
-                        ) : (
-                          <div className="grid grid-cols-2 gap-3">
-                            {photos.map((photo, index) => (
+                        <div className="grid grid-cols-2 gap-4">
+                          {photos.map((photo, index) => {
+                            const photoProfile = photoProfiles[index];
+                            const isAnalyzing = analyzingPhotoSlots.includes(index) || photo.status === 'uploading' || photo.status === 'analyzing';
+                            const isBlocked = photo.status === 'blocked';
+                            
+                            return (
                               <motion.div
                                 key={index}
-                                initial={{ opacity: 0, scale: 0.9 }}
+                                initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                className="relative aspect-[3/4] rounded-2xl border border-white/10 bg-black/20 overflow-hidden group"
+                                className={`relative aspect-[3/4] rounded-2xl border-2 transition-all overflow-hidden group shadow-lg ${
+                                  isBlocked 
+                                    ? 'border-red-500/50 bg-red-950/20' 
+                                    : photo.preview 
+                                      ? 'border-white/10 bg-black/40' 
+                                      : 'border-dashed border-white/10 bg-white/5 hover:border-primary/40 hover:bg-white/10'
+                                }`}
                               >
                                 {photo.preview ? (
                                   <>
-                                    <img src={photo.preview} alt="Upload" className="w-full h-full object-cover" />
+                                    <img src={photo.preview} alt="Upload" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    
                                     <button
                                       onClick={() => removePhotoSlot(index)}
-                                      className="absolute top-2 right-2 p-1.5 rounded-full bg-black/60 text-white/80 hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100"
+                                      className="absolute top-2 right-2 p-2 rounded-xl bg-black/60 text-white/80 hover:bg-red-500 hover:text-white transition-all shadow-lg backdrop-blur-md opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-100"
                                     >
-                                      <Trash2 className="w-3.5 h-3.5" />
+                                      <Trash2 className="w-4 h-4" />
                                     </button>
+
+                                    {photoProfile?.audit_qualidade && !isAnalyzing && !isBlocked && (
+                                      <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform">
+                                        <div className="flex items-center gap-2">
+                                          <div className={`w-2 h-2 rounded-full ${photoProfile.audit_qualidade.score_identidade > 0.8 ? 'bg-green-500 shadow-[0_0_8px_hsl(var(--green-500))]' : 'bg-yellow-500'}`} />
+                                          <span className="text-[10px] font-bold text-white uppercase tracking-wider">Identidade OK</span>
+                                        </div>
+                                      </div>
+                                    )}
                                   </>
                                 ) : (
-                                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-white/5 transition-colors">
-                                    <Plus className="w-6 h-6 text-muted-foreground" />
-                                    <span className="text-[10px] font-medium text-muted-foreground">Adicionar foto</span>
+                                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 cursor-pointer p-4 text-center">
+                                    <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-primary/20 group-hover:border-primary/40 transition-all">
+                                      <Plus className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
+                                    </div>
+                                    <div className="space-y-1">
+                                      <p className="text-[11px] font-bold text-muted-foreground group-hover:text-primary transition-colors">Adicionar Foto</p>
+                                      <p className="text-[9px] text-muted-foreground/50">Clique para enviar</p>
+                                    </div>
                                     <input
                                       type="file"
                                       accept="image/*"
@@ -1804,41 +1826,74 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                     />
                                   </div>
                                 )}
-                                {analyzingPhotoSlots.includes(index) && (
-                                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
-                                    <Loader2 className="w-6 h-6 text-primary animate-spin" />
+
+                                {isAnalyzing && (
+                                  <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center gap-3 backdrop-blur-md">
+                                    <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                                    <span className="text-[10px] font-bold text-primary animate-pulse tracking-widest uppercase">Analisando...</span>
+                                  </div>
+                                )}
+
+                                {isBlocked && (
+                                  <div className="absolute inset-0 bg-red-950/90 flex flex-col items-center justify-center p-4 text-center backdrop-blur-sm">
+                                    <AlertTriangle className="w-8 h-8 text-red-500 mb-2" />
+                                    <p className="text-[10px] font-black text-red-500 uppercase tracking-tighter">Bloqueada</p>
+                                    <button 
+                                      onClick={() => removePhotoSlot(index)}
+                                      className="mt-3 text-[10px] font-bold text-white bg-red-500 px-3 py-1.5 rounded-full hover:bg-red-600 transition-colors"
+                                    >
+                                      Trocar Foto
+                                    </button>
                                   </div>
                                 )}
                               </motion.div>
-                            ))}
-                            {photos.length < maxPhotos && (
-                              <button
-                                onClick={addPhotoSlot}
-                                className="aspect-[3/4] rounded-2xl border border-dashed border-white/10 bg-white/5 flex flex-col items-center justify-center gap-2 hover:bg-white/10 hover:border-primary/30 transition-all"
-                              >
-                                <Plus className="w-6 h-6 text-muted-foreground" />
-                                <span className="text-[10px] font-medium text-muted-foreground">Nova Foto</span>
-                              </button>
-                            )}
-                          </div>
-                        )}
+                            );
+                          })}
+                          
+                          {photos.length < maxPhotos && (
+                            <button
+                              onClick={addPhotoSlot}
+                              className="aspect-[3/4] rounded-2xl border-2 border-dashed border-white/10 bg-white/5 flex flex-col items-center justify-center gap-3 hover:bg-white/10 hover:border-primary/30 transition-all group"
+                            >
+                              <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-primary/10 transition-all">
+                                <Plus className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
+                              </div>
+                              <span className="text-[11px] font-bold text-muted-foreground group-hover:text-primary">Nova Pessoa</span>
+                            </button>
+                          )}
+                        </div>
                       </div>
                     )}
                   </div>
                 </div>
 
-                <div className="pt-6 border-t border-white/5 flex flex-col items-center gap-4">
+                <div className="pt-8 mt-4 border-t border-white/5 flex flex-col items-center gap-5">
                   <GlassButton 
                     onClick={handleSubmitForm} 
-                    className="w-full sm:max-w-md h-14 text-lg font-bold shadow-2xl shadow-primary/20"
+                    className="w-full sm:max-w-md h-16 text-xl font-black shadow-[0_20px_40px_-15px_hsl(var(--primary)/0.4)] hover:shadow-[0_25px_50px_-12px_hsl(var(--primary)/0.5)] active:scale-95 transition-all group overflow-hidden relative"
                     disabled={activePhotoCount === 0 && prompt.required_fields.includes('photo')}
                   >
-                    <Sparkles className="w-5 h-5 mr-2" />
-                    Gerar agora ({formatPrice(prompt.price_cents)})
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary via-secondary to-primary bg-[length:200%_100%] animate-shimmer opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <span className="relative flex items-center gap-3">
+                      <Sparkles className="w-6 h-6 animate-pulse" />
+                      Gerar minha arte ({formatPrice(prompt.price_cents)})
+                    </span>
                   </GlassButton>
-                  <p className="text-[10px] text-muted-foreground/60 text-center max-w-sm">
-                    Ao gerar, você concorda com nossos termos de uso e política de privacidade. A IA processará sua imagem em segundos.
-                  </p>
+                  
+                  <div className="flex items-center gap-6 opacity-40">
+                    <div className="flex items-center gap-1.5">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
+                      <span className="text-[10px] font-bold uppercase tracking-widest">Seguro</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5 text-primary" />
+                      <span className="text-[10px] font-bold uppercase tracking-widest">Rápido</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-primary" />
+                      <span className="text-[10px] font-bold uppercase tracking-widest">Ultra HD</span>
+                    </div>
+                  </div>
                 </div>
               </motion.div>
             )}
