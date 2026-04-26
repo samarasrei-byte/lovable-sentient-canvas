@@ -50,6 +50,7 @@ export const SidebarArcana2 = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [userPlan, setUserPlan] = useState<string>("basic");
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     checkUserPlan();
