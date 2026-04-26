@@ -1600,8 +1600,16 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
             )}
 
             {authStep === 'done' && step === 'form' && (
-
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
+                
+                {/* Safety Warning UX */}
+                <div className="mx-2 flex items-start gap-3 p-3 rounded-2xl bg-destructive/10 border border-destructive/20 animate-in fade-in slide-in-from-top-2">
+                  <AlertTriangle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
+                  <p className="text-[11px] leading-tight text-destructive-foreground/90 font-medium">
+                    <span className="font-bold">Aviso de Segurança:</span> Conteúdos inadequados, sexualizados ou que violem nossas diretrizes serão bloqueados automaticamente.
+                  </p>
+                </div>
+
                 {prompt.required_fields.includes('photo') && (
                   <div className="space-y-4">
                     {/* Hero upload CTA — mobile-first with native full-card input overlay */}
