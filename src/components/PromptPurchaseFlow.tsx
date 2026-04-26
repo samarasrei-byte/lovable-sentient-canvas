@@ -151,6 +151,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const [user, setUser] = useState<any>(null);
   const [authLoading, setAuthLoading] = useState(false);
   const [authForm, setAuthForm] = useState({ email: '', password: '', confirmPassword: '' });
+  const [qualityChecks, setQualityChecks] = useState<{ [key: string]: boolean }>({});
 
   const maxPhotos = prompt.min_photos && prompt.min_photos > 1 ? Math.min(prompt.min_photos, 5) : 5;
   const [formData, setFormData] = useState({ 
