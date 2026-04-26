@@ -1,7 +1,6 @@
-import { useState, useEffect } from "react"; 
+import { useState, useEffect, useMemo, useCallback, lazy, Suspense } from "react"; 
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { PromptPurchaseFlow } from "@/components/PromptPurchaseFlow";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -11,6 +10,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { ArcanaLogo } from "@/components/ArcanaLogo";
+
+const PromptPurchaseFlow = lazy(() => import("@/components/PromptPurchaseFlow").then(m => ({ default: m.PromptPurchaseFlow })));
 
 interface Prompt {
   id: string;
@@ -50,6 +51,20 @@ const FILTERS = [
 const CHARACTER_NAMES = ['mario', 'toy story', 'bob esponja', 'mcqueen', 'patrulha', 'barbie', 'branca de neve', 'shrek', 'aranha', 'super-herói', 'dinossauro', 'princesa', 'gelo', 'sereia', 'rei da selva'];
 const NEWBORN_NAMES = ['newborn', 'bebê', 'dormindo', 'caminha', 'cestinha', 'pureza', 'anjo', 'rústico', 'arte de estúdio', 'vintage', 'sonho', 'elegante', 'elefante', 'ursinho', 'banho', 'spa', 'boho', 'profissional'];
 
+const BenefitCard = ({ icon: Icon, title, desc, index }: { icon: any, title: string, desc: string, index: number }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 12 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{ delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
+    className="text-center p-5 rounded-2xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.1] hover:bg-white/[0.04] transition-all duration-300"
+  >
+    <Icon className="w-5 h-5 mx-auto mb-3 text-muted-foreground/40" />
+    <h3 className="font-medium text-xs text-foreground/80 mb-1">{title}</h3>
+    <p className="text-[10px] text-muted-foreground/40 leading-relaxed">{desc}</p>
+  </motion.div>
+);
+
 const Mesversario = () => {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
@@ -60,7 +75,7 @@ const Mesversario = () => {
   const [whatsappLoading, setWhatsappLoading] = useState(false);
   const isMobile = useIsMobile();
 
-  const handleWhatsappSubmit = async () => {
+  const handleWhatsappSubmit = useCallback(async () => {
     const cleaned = whatsapp.replace(/\D/g, '');
     if (cleaned.length < 10) {
       toast.error('Digite um WhatsApp válido com DDD');
@@ -82,7 +97,7 @@ const Mesversario = () => {
     } finally {
       setWhatsappLoading(false);
     }
-  };
+  }, [whatsapp]);
 
   const formatWhatsapp = (value: string) => {
     const digits = value.replace(/\D/g, '').slice(0, 11);
@@ -91,24 +106,25 @@ const Mesversario = () => {
     return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
   };
 
-  const filteredPrompts = prompts.filter((p) => {
-    if (activeFilter === 'todos') return true;
-    if (activeFilter === 'popular') return p.is_featured;
-    const nameLower = p.name.toLowerCase();
-    if (activeFilter === 'personagens') return CHARACTER_NAMES.some(c => nameLower.includes(c));
-    if (activeFilter === 'newborn') return NEWBORN_NAMES.some(n => nameLower.includes(n));
-    if (activeFilter === 'temas') return !CHARACTER_NAMES.some(c => nameLower.includes(c)) && !NEWBORN_NAMES.some(n => nameLower.includes(n));
-    return true;
-  });
+  const filteredPrompts = useMemo(() => {
+    return prompts.filter((p) => {
+      if (activeFilter === 'todos') return true;
+      if (activeFilter === 'popular') return p.is_featured;
+      const nameLower = p.name.toLowerCase();
+      if (activeFilter === 'personagens') return CHARACTER_NAMES.some(c => nameLower.includes(c));
+      if (activeFilter === 'newborn') return NEWBORN_NAMES.some(n => nameLower.includes(n));
+      if (activeFilter === 'temas') return !CHARACTER_NAMES.some(c => nameLower.includes(c)) && !NEWBORN_NAMES.some(n => nameLower.includes(n));
+      return true;
+    });
+  }, [prompts, activeFilter]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
     fetchPrompts();
   }, []);
 
-  const fetchPrompts = async () => {
+  const fetchPrompts = useCallback(async () => {
     try {
-      // Listagem leve: sem prompt_template/negative_prompt (carregados sob demanda no clique)
       const { data, error } = await supabase
         .from("prompts")
         .select("id,name,description,category,hype_text,example_image_url,price_cents,status,required_fields,is_influencer_prompt,influencer_name,ai_model,min_photos,is_featured,display_order")
@@ -130,15 +146,14 @@ const Mesversario = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  // Carrega campos pesados (template) só quando o usuário clica no card
-  const handleSelectPrompt = async (prompt: Prompt) => {
+  const handleSelectPrompt = useCallback(async (prompt: Prompt) => {
     if (prompt.prompt_template) {
       setSelectedPrompt(prompt);
       return;
     }
-    setSelectedPrompt(prompt); // abre modal imediatamente com skeleton interno
+    setSelectedPrompt(prompt);
     try {
       const { data } = await supabase
         .from("prompts")
@@ -151,7 +166,7 @@ const Mesversario = () => {
     } catch (err) {
       console.error("Error loading prompt template:", err);
     }
-  };
+  }, []);
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
@@ -313,7 +328,8 @@ const Mesversario = () => {
                         src={prompt.example_image_url}
                         alt={prompt.name}
                         className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700 ease-out"
-                        loading="lazy"
+                        loading={index < 4 ? "eager" : "lazy"}
+                        {...({ fetchpriority: index < 4 ? "high" : "auto" } as any)}
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-pink-500/5 to-amber-500/5">
@@ -371,18 +387,7 @@ const Mesversario = () => {
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
             {BENEFITS.map((b, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 12 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
-                className="text-center p-5 rounded-2xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.1] hover:bg-white/[0.04] transition-all duration-300"
-              >
-                <b.icon className="w-5 h-5 mx-auto mb-3 text-muted-foreground/40" />
-                <h3 className="font-medium text-xs text-foreground/80 mb-1">{b.title}</h3>
-                <p className="text-[10px] text-muted-foreground/40 leading-relaxed">{b.desc}</p>
-              </motion.div>
+              <BenefitCard key={i} {...b} index={i} />
             ))}
           </div>
         </div>
@@ -496,10 +501,12 @@ const Mesversario = () => {
 
       {/* Purchase Flow */}
       {selectedPrompt && (
-        <PromptPurchaseFlow
-          prompt={selectedPrompt}
-          onClose={() => setSelectedPrompt(null)}
-        />
+        <Suspense fallback={null}>
+          <PromptPurchaseFlow
+            prompt={selectedPrompt}
+            onClose={() => setSelectedPrompt(null)}
+          />
+        </Suspense>
       )}
     </div>
   );
