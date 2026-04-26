@@ -2792,7 +2792,8 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
 
                 <p className="text-[10px] text-center text-muted-foreground">
                   2 variações grátis + 1 edição por compra • Sua imagem, seus direitos 💎
-                </p>
+                      </p>
+                    )}
 
                 <GlassButton onClick={onClose} variant="outline" className="w-full" size="sm">Fechar</GlassButton>
               </motion.div>
