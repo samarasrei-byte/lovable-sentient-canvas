@@ -2271,39 +2271,6 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                           <CheckCircle2 className="w-12 h-12 text-green-400" />
                         </motion.div>
                               </div>
-
-                              {photoProfile?.audit_qualidade && (
-                                <div className="mt-2 space-y-1.5 p-2 rounded-xl bg-black/30 border border-white/5">
-                                  <div className="flex items-center justify-between">
-                                    <span className="text-[10px] font-bold text-white/60 uppercase tracking-wider">Audit de Identidade</span>
-                                    {photoProfile.audit_qualidade.score_identidade > 0.9 ? (
-                                      <Badge className="h-4 text-[9px] bg-green-500/20 text-green-400 border-green-500/30">Excelente</Badge>
-                                    ) : photoProfile.audit_qualidade.score_identidade > 0.7 ? (
-                                      <Badge className="h-4 text-[9px] bg-yellow-500/20 text-yellow-400 border-yellow-500/30">Bom</Badge>
-                                    ) : (
-                                      <Badge className="h-4 text-[9px] bg-red-500/20 text-red-400 border-red-500/30">Ruim</Badge>
-                                    )}
-                                  </div>
-                                  
-                                  <div className="grid grid-cols-2 gap-x-2 gap-y-1">
-                                    <AuditItem label="Rosto visível" passed={photoProfile.audit_qualidade.rosto_detectado} />
-                                    <AuditItem label="De frente" passed={photoProfile.audit_qualidade.olhando_camera} />
-                                    <AuditItem label="Iluminação" passed={photoProfile.audit_qualidade.iluminacao_boa} />
-                                    <AuditItem label="Sem obstruções" passed={photoProfile.audit_qualidade.sem_obstrucoes} />
-                                  </div>
-
-                                  {photoProfile.audit_qualidade.recomendacoes.length > 0 && (
-                                    <div className="mt-1.5 pt-1.5 border-t border-white/5">
-                                      {photoProfile.audit_qualidade.recomendacoes.map((rec, i) => (
-                                        <div key={i} className="flex gap-1 items-start text-[9px] text-yellow-200/70 leading-tight">
-                                          <AlertTriangle className="w-2.5 h-2.5 mt-0.5 flex-shrink-0" />
-                                          <span>{rec}</span>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
-                              )}
                             </motion.div>
 
                     {/* Confirmed badge */}
