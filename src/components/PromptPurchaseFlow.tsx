@@ -665,7 +665,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const isEventPrompt = /evento|event|promoção|promocao|festa|party/i.test(prompt.category || '') ||
     /evento|event|promoção|promocao|festa|party/i.test(prompt.name || '');
 
-  const needsContactInfo = prompt.required_fields.includes('telefone') || prompt.required_fields.includes('whatsapp') || 
+  const needsContactInfo = prompt.required_fields.includes('telefone') || 
     prompt.required_fields.includes('endereco') || prompt.required_fields.includes('data') || prompt.required_fields.includes('hora');
 
   const needsPersonNames = activePhotoCount > 1 || prompt.required_fields.includes('person_names');
