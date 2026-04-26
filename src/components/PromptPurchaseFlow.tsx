@@ -296,14 +296,25 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
           duration: 10000
         });
         
-        // Remove the photo since it's blocked
+        // Keep the photo but mark as blocked
         setPhotos((prev) => {
           const updated = [...prev];
-          updated[index] = { file: null, preview: '' };
+          updated[index] = { 
+            ...updated[index],
+            status: 'blocked',
+            errorMessage: data.seguranca.motivo_bloqueio,
+            sugestoes: data.seguranca.sugestoes_seguranca
+          };
           return updated;
         });
         return;
       }
+
+      setPhotos((prev) => {
+        const updated = [...prev];
+        updated[index] = { ...updated[index], status: 'ready' };
+        return updated;
+      });
 
       setPhotoProfiles((prev) => {
         const next = [...prev];
