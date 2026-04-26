@@ -1387,7 +1387,83 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
             )}
 
 
-            {step === 'form' && (
+            {/* Auth Step (Inside Card) */}
+            {authStep !== 'done' && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+                <div className="text-center space-y-1">
+                  <h3 className="text-lg font-bold tracking-tight">
+                    {authStep === 'login' ? 'Bem-vindo de volta' : 'Crie sua conta'}
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    {authStep === 'login' ? 'Acesse para salvar suas criações' : 'Salve suas fotos e acompanhe seus pedidos'}
+                  </p>
+                </div>
+
+                <form onSubmit={handleAuth} className="space-y-4">
+                  <div className="space-y-3">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">E-mail</Label>
+                      <Input 
+                        type="email" 
+                        required
+                        value={authForm.email}
+                        onChange={e => setAuthForm(prev => ({ ...prev, email: e.target.value }))}
+                        placeholder="exemplo@email.com"
+                        className="bg-white/5 border-white/10"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">Senha</Label>
+                      <Input 
+                        type="password" 
+                        required
+                        value={authForm.password}
+                        onChange={e => setAuthForm(prev => ({ ...prev, password: e.target.value }))}
+                        placeholder="••••••••"
+                        className="bg-white/5 border-white/10"
+                      />
+                    </div>
+                    {authStep === 'register' && (
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">Confirmar Senha</Label>
+                        <Input 
+                          type="password" 
+                          required
+                          value={authForm.confirmPassword}
+                          onChange={e => setAuthForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                          placeholder="••••••••"
+                          className="bg-white/5 border-white/10"
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  <Button disabled={authLoading} type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-lg shadow-primary/20">
+                    {authLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : (authStep === 'login' ? 'Entrar' : 'Criar Conta')}
+                  </Button>
+
+                  <div className="flex flex-col gap-2">
+                    <button 
+                      type="button"
+                      onClick={() => setAuthStep(authStep === 'login' ? 'register' : 'login')}
+                      className="text-xs text-muted-foreground hover:text-primary transition-colors text-center"
+                    >
+                      {authStep === 'login' ? 'Não tem conta? Cadastre-se' : 'Já tem conta? Entre aqui'}
+                    </button>
+                    <button 
+                      type="button"
+                      onClick={() => setAuthStep('done')}
+                      className="text-xs text-primary/60 hover:text-primary transition-colors text-center font-medium"
+                    >
+                      Continuar como convidado
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            )}
+
+            {authStep === 'done' && step === 'form' && (
+
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
                 {prompt.required_fields.includes('photo') && (
                   <div className="space-y-4">
