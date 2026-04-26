@@ -503,7 +503,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       if (data?.error) {
         // Server returned business error — surface clearly with support fallback
         console.error('Asaas server error:', data);
-        setPixError(`${data.error} — Se persistir, fale conosco no WhatsApp informando o ID: ${pId.slice(0, 8)}`);
+        setPixError(`${data.error} — Se persistir, abra um chamado de suporte informando o ID: ${pId.slice(0, 8)}`);
         return;
       }
 
