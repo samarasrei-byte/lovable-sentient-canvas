@@ -387,18 +387,7 @@ const Mesversario = () => {
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
             {BENEFITS.map((b, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 12 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
-                className="text-center p-5 rounded-2xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.1] hover:bg-white/[0.04] transition-all duration-300"
-              >
-                <b.icon className="w-5 h-5 mx-auto mb-3 text-muted-foreground/40" />
-                <h3 className="font-medium text-xs text-foreground/80 mb-1">{b.title}</h3>
-                <p className="text-[10px] text-muted-foreground/40 leading-relaxed">{b.desc}</p>
-              </motion.div>
+              <BenefitCard key={i} {...b} index={i} />
             ))}
           </div>
         </div>
