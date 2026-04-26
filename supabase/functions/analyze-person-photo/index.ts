@@ -81,8 +81,6 @@ Rules:
 - "iluminacao_boa": false if there are harsh shadows on the face or it's too dark.
 - "sem_obstrucoes": false if there are hands, pacifiers, hair, or glasses covering the face.
 - "recomendacoes": suggest specific improvements in Portuguese.
-
-Rules:
 - "tipo" for each pessoa must be one of: bebe, crianca, adolescente, adulto, idoso
 - "genero" must be: masculino, feminino, indefinido
 - "contexto" must be one of: aniversario, profissional, familia, casal, individual, social, pet
@@ -94,7 +92,7 @@ Rules:
 - "categoria" maps: aniversario→aniversario, profissional→linkedin, familia→familia, casal→casal, individual→individual, pet→pet, social→social
 - "subcategorias" can include: com_crianca, com_animal, evento, profissional, com_bebe, com_idoso
 - "ageGroup" must be: bebe (babies/toddlers ≤1yr), crianca (2-12), adolescente (13-17), adulto (18+)
-  - For multiple people use the primary subject's age group
+- For multiple people use the primary subject's age group
 - "presentation" must be: masculina, feminina, indefinida
 - "suggestedCategory" must be: mesversario (baby ≤1yr), infantil (child), retrato_pessoal, linkedin_profissional, aniversario, familia, casal
 - "prompt_gerado" should be a rich, detailed prompt in Portuguese describing all people, their appearance, the scene, lighting, and style
@@ -108,11 +106,11 @@ Rules:
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "google/gemini-2.0-flash",
         messages: [
           {
             role: "system",
-            content: "You analyze images and return structured JSON with person detection, age estimation, context classification, editable areas, and AI prompt generation. Always return valid JSON only.",
+            content: "You analyze images and return structured JSON with person detection, quality auditing for AI cloning, and context classification. Always return valid JSON only.",
           },
           {
             role: "user",
@@ -141,14 +139,21 @@ Rules:
 
     const result = JSON.parse(jsonMatch[0]);
 
-    // Ensure backward compatibility + new fields
     const finalResult = {
-      // Legacy fields (backward compat)
       ageGroup: result.ageGroup || "adulto",
       presentation: result.presentation || "indefinida",
       suggestedCategory: result.suggestedCategory || "retrato_pessoal",
       summary: result.summary || "",
-      // New rich analysis
+      audit_qualidade: result.audit_qualidade || {
+        rosto_detectado: true,
+        olhando_camera: true,
+        iluminacao_boa: true,
+        rosto_centralizado: true,
+        sem_obstrucoes: true,
+        resolucao_ok: true,
+        score_identidade: 0.8,
+        recomendacoes: []
+      },
       analise: result.analise || {
         quantidade_pessoas: 1,
         pessoas: [],
@@ -182,12 +187,13 @@ Rules:
         presentation: "indefinida",
         suggestedCategory: "retrato_pessoal",
         summary: "",
+        audit_qualidade: { rosto_detectado: true, olhando_camera: true, iluminacao_boa: true, rosto_centralizado: true, sem_obstrucoes: true, resolucao_ok: true, score_identidade: 0.8, recomendacoes: [] },
         analise: { quantidade_pessoas: 1, pessoas: [], contexto: "individual", animais: [] },
         areas_editaveis: [],
         prompt_gerado: "",
         categoria: "individual",
         subcategorias: [],
-        metadados: { pessoas: 1, criancas: 0, adultos: 1, idosos: 0, homens: 0, mulheres: 0, idade_detectada: null, animal: null },
+        metadados: { pessoas: 1, criancas: 0, adults: 1, idosos: 0, homens: 0, mulheres: 0, idade_detectada: null, animal: null },
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
