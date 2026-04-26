@@ -248,6 +248,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
               ageGroup: data.ageGroup || 'adulto',
               presentation: data.presentation || 'indefinida',
               suggestedCategory: data.suggestedCategory,
+              audit_qualidade: data.audit_qualidade,
               analise: data.analise,
               areas_editaveis: data.areas_editaveis,
               prompt_gerado: data.prompt_gerado,
