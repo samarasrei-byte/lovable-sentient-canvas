@@ -1061,8 +1061,17 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       if (qa.is_inappropriate) {
         setStep('form');
         toast.error('Conteúdo bloqueado por segurança', {
-          description: 'A imagem gerada violou nossas diretrizes de segurança (conteúdo inadequado ou infantilizado). Sua conta foi sinalizada para revisão.',
-          duration: 10000
+          description: 'A imagem gerada violou nossas diretrizes de segurança. Você pode solicitar uma revisão humana.',
+          duration: 15000,
+          action: {
+            label: 'Contestar',
+            onClick: () => setAppealModal({
+              isOpen: true,
+              type: "generation",
+              photoUrl: finalImageUrl,
+              reason: "Conteúdo gerado sinalizado como inadequado.",
+            })
+          }
         });
         return;
       }
