@@ -17,6 +17,7 @@ import { GenerationProgressBar } from "./GenerationProgressBar";
 import { StayOnPageCard } from "./StayOnPageCard";
 import { ShareButtons } from "./ShareButtons";
 import { BeforeAfterSlider } from "./BeforeAfterSlider";
+import { ModerationAppealModal } from "./ModerationAppealModal";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
