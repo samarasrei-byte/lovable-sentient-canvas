@@ -2378,7 +2378,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                     </Label>
                     <div className="space-y-1.5">
                       {photos.map((photo, idx) => {
-                        if (!photo.file) return null;
+                        if (!photo.file || photo.status === 'blocked') return null;
                         const label = isFamilyPrompt ? (familyPhotoLabels[idx] || `Pessoa ${idx + 1}`) : `Pessoa ${idx + 1}`;
                         return (
                           <div key={idx} className="flex items-center gap-2">
