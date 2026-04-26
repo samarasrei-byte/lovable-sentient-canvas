@@ -19,6 +19,7 @@ interface Purchase {
   id: string;
   amount_cents: number;
   payment_status: string;
+  payment_method: string | null;
   generation_status: string;
   created_at: string;
   prompt_id: string;
