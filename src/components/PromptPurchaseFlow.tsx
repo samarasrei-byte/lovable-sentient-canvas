@@ -951,16 +951,24 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
     }
   };
 
-  const generateImage = async (overridePurchaseId?: string) => {
+  const generateImage = async (overridePurchaseId?: string, attempt = 1) => {
     try {
       const effectivePurchaseId = overridePurchaseId || purchaseId;
       if (!effectivePurchaseId) throw new Error('Compra não iniciada corretamente');
 
+      if (attempt === 1) {
+        setStep('generating');
+        setQaStatus('idle');
+      }
+
+      // Step 1: Upload / Ensure photos (Progress: Receiving)
       const referencePhotoUrls = await ensureUploadedPhotoUrls(effectivePurchaseId);
       if (prompt.required_fields.includes('photo') && referencePhotoUrls.length === 0) {
         throw new Error('Nenhuma foto de referência válida foi enviada');
       }
 
+      // Step 2: Generation (Progress: Cloning/Building)
+      setQaStatus('idle'); // Starting AI part
       const body = buildGenerationBody(referencePhotoUrls);
       body.purchaseId = effectivePurchaseId;
       const { data, error } = await supabase.functions.invoke('generate-prompt-image', {
