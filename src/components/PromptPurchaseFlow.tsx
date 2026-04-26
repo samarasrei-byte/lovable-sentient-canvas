@@ -10,7 +10,7 @@ import {
   X, Upload, User, AtSign, Sparkles, QrCode, Copy, Check, Download,
   Loader2, CheckCircle2, Clock, Pencil, Plus, Trash2,
   RefreshCw, AlertTriangle, ImagePlus, Share2, MessageCircle, Eye,
-  Smartphone, CreditCard, Camera
+  Smartphone, CreditCard, Camera, Heart, Palette
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { GenerationProgressBar } from "./GenerationProgressBar";
@@ -141,7 +141,6 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
     displayName: '', 
     months: '', 
     telefone: '', 
-    whatsapp: '', 
     endereco: '', 
     data: '', 
     hora: '', 
@@ -199,9 +198,8 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const [generationCount, setGenerationCount] = useState(0);
   const [editCount, setEditCount] = useState(0);
   const [showBeforeAfter, setShowBeforeAfter] = useState(false);
-  const [whatsapp, setWhatsapp] = useState('');
-  const [downloadName, setDownloadName] = useState('');
-  const [whatsappSaved, setWhatsappSaved] = useState(false);
+  const [selectedStyle, setSelectedStyle] = useState<'realistic' | 'artistic'>('realistic');
+  const [showSupportForm, setShowSupportForm] = useState(false);
   const fileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
 
@@ -504,7 +502,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       if (data?.error) {
         // Server returned business error — surface clearly with support fallback
         console.error('Asaas server error:', data);
-        setPixError(`${data.error} — Se persistir, fale conosco no WhatsApp informando o ID: ${pId.slice(0, 8)}`);
+        setPixError(`${data.error} — Se persistir, abra um chamado de suporte informando o ID: ${pId.slice(0, 8)}`);
         return;
       }
 
@@ -532,12 +530,12 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
         setTimeout(() => { void initPixPayment(pId, attempt + 1); }, 1500);
         return;
       }
-      setPixError(`Não conseguimos gerar o PIX agora. Tente novamente ou fale conosco no WhatsApp informando o ID: ${pId.slice(0, 8)}`);
+      setPixError(`Não conseguimos gerar o PIX agora. Tente novamente ou abra um chamado de suporte informando o ID: ${pId.slice(0, 8)}`);
       toast.error('Falha ao gerar pagamento', {
-        description: 'Tente novamente ou contate o suporte',
+        description: 'Tente novamente ou abra um chamado',
         action: {
-          label: 'WhatsApp',
-          onClick: () => window.open(`https://wa.me/5511999999999?text=Erro%20no%20pagamento.%20ID:%20${pId}`, '_blank'),
+          label: 'Chamado',
+          onClick: () => setShowSupportForm(true),
         },
       });
     } finally {
@@ -667,7 +665,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const isEventPrompt = /evento|event|promoção|promocao|festa|party/i.test(prompt.category || '') ||
     /evento|event|promoção|promocao|festa|party/i.test(prompt.name || '');
 
-  const needsContactInfo = prompt.required_fields.includes('telefone') || prompt.required_fields.includes('whatsapp') || 
+  const needsContactInfo = prompt.required_fields.includes('telefone') || 
     prompt.required_fields.includes('endereco') || prompt.required_fields.includes('data') || prompt.required_fields.includes('hora');
 
   const needsPersonNames = activePhotoCount > 1 || prompt.required_fields.includes('person_names');
@@ -704,10 +702,12 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
     const {
       promptTemplate: overridePromptTemplate,
       exampleImageUrl: overrideExampleImageUrl,
+      style: overrideStyle,
       ...restOverrides
     } = overrides as Record<string, unknown> & {
       promptTemplate?: string;
       exampleImageUrl?: string | null;
+      style?: string;
     };
     
     // Build age/position context from rich analysis
@@ -844,7 +844,6 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
 
     // Contact info
     if (formData.telefone) flyerContext.telefone = formData.telefone;
-    if (formData.whatsapp) flyerContext.whatsapp = formData.whatsapp;
     if (formData.endereco) flyerContext.endereco = formData.endereco;
     if (formData.instagram) flyerContext.instagram = formData.instagram;
     if (formData.data) flyerContext.data = formData.data;
@@ -872,6 +871,8 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       userPhotoUrls: sortedUrls.length > 0 ? sortedUrls : undefined,
       exampleImageUrl: safeExampleImageUrl || undefined,
       flyerContext: Object.keys(flyerContext).length > 0 ? flyerContext : undefined,
+      style: overrideStyle || selectedStyle,
+      userId: user?.id,
       ...restOverrides,
       promptTemplate: stripTokens(template),
     };
@@ -1221,10 +1222,6 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
   };
 
   const handleDownloadAll = () => {
-    if (!whatsappSaved) {
-      toast.error('Deixe seu WhatsApp para baixar a imagem!');
-      return;
-    }
     const selected = generatedVariants.filter((variant) => variant.selected);
     if (selected.length === 0) {
       handleDownload();
@@ -1236,27 +1233,26 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
     });
   };
 
-  const handleSaveWhatsapp = async () => {
-    const cleaned = whatsapp.replace(/\D/g, '');
-    if (cleaned.length < 10) {
-      toast.error('Digite um número de WhatsApp válido');
+  const handleSaveToProfile = async () => {
+    if (!user) {
+      toast.error('Faça login para salvar em seu perfil');
       return;
     }
-    if (!downloadName.trim()) {
-      toast.error('Digite seu nome para baixar');
-      return;
-    }
+    if (!generatedImage) return;
+
     try {
-      if (purchaseId) {
-        await supabase
-          .from('prompt_purchases')
-          .update({ custom_fields: { whatsapp: cleaned, download_name: downloadName.trim() } } as any)
-          .eq('id', purchaseId);
-      }
-      setWhatsappSaved(true);
-      toast.success('Dados salvos! Agora você pode baixar sua imagem 🎉');
+      const { error } = await (supabase.from('generated_images' as any).insert({
+        user_id: user.id,
+        image_url: generatedImage,
+        template_name: prompt.name,
+        original_purchase_id: purchaseId,
+        is_favorite: true
+      } as any) as any);
+
+      if (error) throw error;
+      toast.success('Salvo em seu perfil com sucesso! 🎉');
     } catch {
-      setWhatsappSaved(true);
+      toast.error('Erro ao salvar no perfil');
     }
   };
 
@@ -1763,26 +1759,6 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   );
                 })()}
 
-                {/* WhatsApp field — MANDATORY for recovery and support */}
-                <div className="space-y-1.5 p-3 rounded-2xl bg-primary/5 border border-primary/10">
-                  <Label className="text-xs sm:text-sm flex items-center gap-2 text-primary">
-                    <MessageCircle className="w-4 h-4" />
-                    WhatsApp para envio das fotos
-                  </Label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">+55</span>
-                    <Input
-                      value={formData.whatsapp}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, whatsapp: formatWhatsapp(e.target.value) }))}
-                      placeholder="(11) 99999-9999"
-                      required
-                      className="pl-10 bg-white/5 border-white/10 text-sm font-bold"
-                    />
-                  </div>
-                  <p className="text-[10px] text-muted-foreground/60 leading-tight">
-                    Enviaremos o link das fotos prontas e suporte técnico por aqui caso precise.
-                  </p>
-                </div>
 
                 {hasNameInImage && (
                   <div className="space-y-1.5">
@@ -2088,6 +2064,46 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   </div>
                 )}
 
+                {/* STYLE SELECTION */}
+                <div className="space-y-3">
+                  <Label className="text-xs sm:text-sm flex items-center gap-2">
+                    <Palette className="w-4 h-4 text-primary" />
+                    Escolha o Estilo Artístico
+                  </Label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedStyle('realistic')}
+                      className={`flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all ${
+                        selectedStyle === 'realistic' 
+                        ? 'bg-primary/10 border-primary shadow-lg shadow-primary/10' 
+                        : 'bg-card border-border/10 hover:bg-muted/30'
+                      }`}
+                    >
+                      <Camera className={`w-6 h-6 ${selectedStyle === 'realistic' ? 'text-primary' : 'text-muted-foreground'}`} />
+                      <div className="text-center">
+                        <p className="text-xs font-bold">Realista</p>
+                        <p className="text-[9px] text-muted-foreground">Foto profissional real</p>
+                      </div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedStyle('artistic')}
+                      className={`flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all ${
+                        selectedStyle === 'artistic' 
+                        ? 'bg-secondary/10 border-secondary shadow-lg shadow-secondary/10' 
+                        : 'bg-card border-border/10 hover:bg-muted/30'
+                      }`}
+                    >
+                      <Palette className={`w-6 h-6 ${selectedStyle === 'artistic' ? 'text-secondary' : 'text-muted-foreground'}`} />
+                      <div className="text-center">
+                        <p className="text-xs font-bold">Artístico</p>
+                        <p className="text-[9px] text-muted-foreground">Leve toque de pintura</p>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+
                 {/* Per-person naming for multi-photo uploads */}
                 {needsPersonNames && activePhotoCount > 1 && (
                   <div className="space-y-2">
@@ -2145,17 +2161,6 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                       </div>
                     )}
 
-                    {(prompt.required_fields.includes('whatsapp') || isEventPrompt) && (
-                      <div className="space-y-1">
-                        <Label className="text-[10px] text-muted-foreground">💬 WhatsApp</Label>
-                        <Input
-                          value={formData.whatsapp}
-                          onChange={(e) => setFormData(prev => ({ ...prev, whatsapp: e.target.value }))}
-                          placeholder="(11) 99999-9999"
-                          className="bg-white/5 border-white/10 text-sm"
-                        />
-                      </div>
-                    )}
 
                     {(prompt.required_fields.includes('endereco') || isEventPrompt) && (
                       <div className="space-y-1">
@@ -2625,76 +2630,85 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                 )}
 
                 {/* WhatsApp + Name capture */}
-                {!whatsappSaved ? (
-                  <div className="space-y-3 p-4 rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/20">
-                    <div className="flex items-center gap-2 text-sm font-bold">
-                      <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                        <MessageCircle className="w-4 h-4 text-primary" />
+                {/* Action Row - HD Download + Save */}
+                <div className="space-y-3">
+                  <motion.button
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleDownloadAll}
+                    className="relative w-full group overflow-hidden rounded-2xl p-[1px] bg-gradient-to-r from-primary to-secondary"
+                  >
+                    <div className="relative flex items-center justify-center gap-3 px-6 py-4 rounded-[15px] bg-background/90 group-hover:bg-background/40 transition-colors">
+                      <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center group-hover:bg-primary/30 transition-colors">
+                        <Download className="w-5 h-5 text-primary" />
                       </div>
-                      <div>
-                        <span className="block">Quase lá! 🎉</span>
-                        <span className="text-[10px] text-muted-foreground font-normal">Preencha para liberar o download</span>
+                      <div className="text-left">
+                        <span className="block text-sm font-bold">Baixar em Alta Qualidade</span>
+                        <span className="block text-[10px] text-muted-foreground">4K Ultra HD • Pronto para imprimir</span>
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      <Input
-                        placeholder="Seu nome"
-                        value={downloadName}
-                        onChange={(e) => setDownloadName(e.target.value)}
-                        className="text-sm bg-background/50 h-11"
-                        autoComplete="name"
-                      />
-                      <Input
-                        placeholder="(11) 99999-9999"
-                        value={whatsapp}
-                        onChange={(e) => setWhatsapp(formatWhatsapp(e.target.value))}
-                        className="w-full text-sm bg-background/50 h-11"
-                        maxLength={16}
-                        type="tel"
-                        inputMode="numeric"
-                        autoComplete="tel"
-                      />
-                      <GlassButton 
-                        onClick={handleSaveWhatsapp} 
-                        size="sm" 
-                        disabled={whatsapp.replace(/\D/g, '').length < 10 || !downloadName.trim()}
-                        className="w-full h-11"
-                      >
-                        <Check className="w-4 h-4 mr-1.5" />
-                        Confirmar
-                      </GlassButton>
-                    </div>
-                    <p className="text-[10px] text-muted-foreground text-center">
-                      Receba novidades e promoções exclusivas no WhatsApp 🚀
-                    </p>
-                  </div>
-                ) : (
-                  <>
-                    <div className="flex items-center gap-2 text-xs text-primary p-2 rounded-lg bg-primary/5">
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>Dados salvos! Obrigado, {downloadName} 💚</span>
-                    </div>
+                  </motion.button>
 
-                    {/* EPIC Download Button */}
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.97 }}
-                      onClick={handleDownloadAll}
-                      className="relative w-full group overflow-hidden rounded-2xl p-[2px]"
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button 
+                      variant="outline" 
+                      onClick={handleSaveToProfile}
+                      className="rounded-xl border-primary/20 hover:bg-primary/5 h-12 gap-2"
                     >
-                      <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary via-secondary to-primary bg-[length:200%_100%] animate-[shimmer_2s_linear_infinite]" />
-                      <div className="relative flex items-center justify-center gap-3 px-6 py-4 rounded-[14px] bg-background/90 group-hover:bg-background/70 transition-colors">
-                        <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center group-hover:bg-primary/30 transition-colors">
-                          <Download className="w-5 h-5 text-primary" />
-                        </div>
-                        <div className="text-left">
-                          <span className="block text-sm font-bold">Baixar Imagem HD</span>
-                          <span className="block text-[10px] text-muted-foreground">4K Ultra HD • Sem marca d'água</span>
-                        </div>
-                        <Sparkles className="w-5 h-5 text-primary ml-auto animate-pulse" />
-                      </div>
-                    </motion.button>
-                  </>
+                      <Heart className="w-4 h-4 text-primary" />
+                      <span className="text-xs">Salvar no Perfil</span>
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setShowSupportForm(!showSupportForm)}
+                      className="rounded-xl border-border/40 h-12 gap-2"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      <span className="text-xs">Preciso de ajuda</span>
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Support Form UI inline */}
+                {showSupportForm && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }} 
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-4 rounded-2xl bg-muted/20 border border-border/10 space-y-3"
+                  >
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-sm font-bold">Abrir chamado de suporte</h4>
+                      <X className="w-4 h-4 cursor-pointer" onClick={() => setShowSupportForm(false)} />
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">Se a imagem não ficou como esperado, descreva o problema abaixo.</p>
+                    <textarea 
+                      placeholder="Descreva o que houve..."
+                      className="w-full text-xs p-2 rounded-lg bg-background border border-border/20 min-h-[60px]"
+                      id="support-desc"
+                    />
+                    <Button 
+                      size="sm" 
+                      className="w-full h-8 text-xs rounded-lg"
+                      onClick={async () => {
+                        const desc = (document.getElementById('support-desc') as HTMLTextAreaElement)?.value;
+                        if (!desc) return;
+                        const { error } = await (supabase.from('support_tickets' as any).insert({
+                          user_id: user?.id,
+                          category: 'image_error',
+                          subject: `Erro na imagem: ${prompt.name}`,
+                          description: desc,
+                          status: 'open'
+                        } as any) as any);
+                        if (error) toast.error('Erro ao abrir chamado');
+                        else {
+                          toast.success('Chamado aberto! Nossa equipe analisará.');
+                          setShowSupportForm(false);
+                        }
+                      }}
+                    >
+                      Enviar para análise
+                    </Button>
+                  </motion.div>
                 )}
 
                 {/* Action buttons - Variation + Edit */}

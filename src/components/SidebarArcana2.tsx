@@ -17,7 +17,8 @@ import {
   Coins,
   Crown,
   Lock,
-  LogOut
+  LogOut,
+  MessageCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -31,23 +32,25 @@ interface MenuItem {
 }
 
 const userMenuItems: MenuItem[] = [
-  { path: "/app/dashboard", icon: Home, label: "Dashboard" },
-  { path: "/app/criar-produto", icon: Image, label: "Criar Produto" },
-  { path: "/app/foto-profissional", icon: Camera, label: "Foto Profissional" },
-  { path: "/app/video-creator", icon: Video, label: "Video Creator", badge: "NOVO" },
-  { path: "/app/influenciadores", icon: Users, label: "Influenciadores" },
-  { path: "/app/artistas", icon: Palette, label: "Artistas" },
-  { path: "/app/avatares", icon: UserCircle, label: "Avatares" },
-  { path: "/app/avatar-studio", icon: Sparkles, label: "Avatar Studio" },
-  { path: "/app/meus-projetos", icon: FolderOpen, label: "Meus Projetos" },
-  { path: "/app/creditos", icon: Coins, label: "Créditos" },
-  { path: "/app/perfil", icon: Settings, label: "Configurações" },
+  { path: "/app/dashboard", icon: Home, label: "Home" },
+  { path: "/app/minhas-fotos", icon: Image, label: "Minhas Fotos" },
+  { path: "/app/minhas-compras", icon: Coins, label: "Minhas Compras" },
+  { path: "/app/chamados", icon: MessageCircle, label: "Meus Chamados" },
+  { path: "/app/perfil", icon: Settings, label: "Perfil" },
+  { path: "/app/em-breve", icon: Sparkles, label: "Em breve", badge: "NOVO" },
+];
+
+const adminMenuItems: MenuItem[] = [
+  { path: "/admin/dashboard", icon: Zap, label: "Admin Panel" },
+  { path: "/admin/chamados", icon: MessageCircle, label: "Suporte (Admin)" },
+  { path: "/admin/usuarios", icon: Users, label: "Usuários" },
 ];
 
 export const SidebarArcana2 = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [userPlan, setUserPlan] = useState<string>("basic");
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     checkUserPlan();
@@ -58,12 +61,20 @@ export const SidebarArcana2 = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+      
+      setIsAdmin(profile?.role === 'admin');
+
       const { data: subscription } = await supabase
         .from("subscriptions")
         .select("plan")
         .eq("user_id", user.id)
         .eq("status", "active")
-        .single();
+        .maybeSingle();
 
       setUserPlan(subscription?.plan || "basic");
     } catch (error) {
@@ -160,6 +171,32 @@ export const SidebarArcana2 = () => {
           );
         })}
       </nav>
+
+      {/* Admin Menu */}
+      {isAdmin && (
+        <div className="mt-8 space-y-1">
+          <div className="px-3 mb-2">
+            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Administração</span>
+          </div>
+          {adminMenuItems.map((item) => {
+            const isActive = location.pathname === item.path;
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                  isActive
+                    ? "bg-primary/10 text-primary border border-primary/20 shadow-lg shadow-primary/10"
+                    : "text-muted-foreground/80 hover:text-foreground hover:bg-accent/50 border border-transparent"
+                }`}
+              >
+                <item.icon className={`w-4 h-4 transition-transform duration-200 ${isActive ? "scale-110" : "group-hover:scale-105"}`} />
+                <span className="text-xs font-medium tracking-wide">{item.label}</span>
+              </Link>
+            );
+          })}
+        </div>
+      )}
 
       {/* Upgrade CTA */}
       {!isPro && (

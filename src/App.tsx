@@ -7,6 +7,11 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import { Loader2 } from "lucide-react";
 
+import { MyPhotos } from "@/components/dashboard/MyPhotos";
+import { MyPurchases } from "@/components/dashboard/MyPurchases";
+import { SupportTickets } from "@/components/dashboard/SupportTickets";
+import { ComingSoon } from "@/components/dashboard/ComingSoon";
+
 // Lazy load ALL routes except the landing page for instant FCP
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Login = lazy(() => import("./pages/Login"));
@@ -125,6 +130,10 @@ const App = () => (
               <Route path="perfil" element={<PerfilRouter />} />
               <Route path="chat" element={<Chat />} />
               <Route path="analytics" element={<Analytics />} />
+              <Route path="minhas-fotos" element={<MyPhotos />} />
+              <Route path="minhas-compras" element={<MyPurchases />} />
+              <Route path="chamados" element={<SupportTickets />} />
+              <Route path="em-breve" element={<ComingSoon />} />
               
               {/* Influencer Routes */}
               <Route path="influencer/contratos" element={<InfluencerContratos />} />

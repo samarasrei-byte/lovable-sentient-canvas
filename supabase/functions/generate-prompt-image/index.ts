@@ -1,425 +1,115 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-interface FlyerContext {
-  contexto?: string;
-  estilo?: string;
-  tema?: string;
-  nomes?: string[];
-  idades?: string[];
-  telefone?: string;
-  whatsapp?: string;
-  endereco?: string;
-  instagram?: string;
-  data?: string;
-  hora?: string;
-  extras?: string;
-  qtdPessoas?: number;
-}
-
-function buildFlyerBlock(flyerCtx: FlyerContext, photoCount: number): string {
-  let block = "";
-
-  if (flyerCtx.contexto || flyerCtx.estilo || flyerCtx.tema) {
-    block += "\n\n[CONTEXT] ";
-    if (flyerCtx.contexto) block += `Type: ${flyerCtx.contexto}. `;
-    if (flyerCtx.estilo) block += `Style: ${flyerCtx.estilo}. `;
-    if (flyerCtx.tema) block += `Theme: ${flyerCtx.tema}. `;
-  }
-
-  if (photoCount > 1) {
-    block += `\n[${photoCount} PEOPLE] `;
-    for (let i = 0; i < photoCount; i++) {
-      const name = flyerCtx.nomes?.[i] || `Person ${i + 1}`;
-      const age = flyerCtx.idades?.[i];
-      block += `#${i + 1}: ${name}${age ? ` (EXACT age: ${age} — body proportions, facial development and size MUST match this age precisely)` : ""}. `;
-    }
-  }
-
-  // CRITICAL AGE LOCK for babies/children — prevents 1yo looking like 6yo or vice versa
-  if (flyerCtx.idades?.length) {
-    const ages = flyerCtx.idades.filter(Boolean);
-    if (ages.length > 0) {
-      block += `\n\n[⚠️ AGE FIDELITY — ABSOLUTE PRIORITY] The subject(s) MUST appear at EXACTLY the specified age(s): ${ages.join(", ")}.\n`;
-      block += `- For babies (0-12 months): show baby proportions (large head relative to body ~1:4 ratio), chubby cheeks, no/few teeth, fine baby hair, smooth skin, unable to stand/walk if under 9 months. Use MONTHS not years (e.g. "6 meses" = 6-month-old infant, NOT a 6-year-old child).\n`;
-      block += `- For toddlers (1-3 years): toddler proportions (~1:4.5 head-to-body), round face, small teeth visible, can stand/walk, baby fat still present.\n`;
-      block += `- For children (4-9 years): child proportions (~1:5.5), losing baby fat, mixed/permanent teeth, longer limbs.\n`;
-      block += `- For pre-teens (10-12): leaner proportions (~1:6), defined features.\n`;
-      block += `NEVER render a baby as an older child or a child as a baby. Age in the output MUST match the specified age within ±3 months for infants and ±1 year for children. The reference photo's age is GROUND TRUTH — clone exact developmental stage.`;
-    }
-  }
-
-  const infoLines: string[] = [];
-  if (flyerCtx.nomes?.length) infoLines.push(`Name(s): ${flyerCtx.nomes.join(", ")}`);
-  if (flyerCtx.idades?.length) infoLines.push(`Age(s): ${flyerCtx.idades.join(", ")}`);
-  if (flyerCtx.telefone) infoLines.push(`Phone: ${flyerCtx.telefone}`);
-  if (flyerCtx.whatsapp) infoLines.push(`WhatsApp: ${flyerCtx.whatsapp}`);
-  if (flyerCtx.endereco) infoLines.push(`Address: ${flyerCtx.endereco}`);
-  if (flyerCtx.instagram) infoLines.push(`Instagram: @${flyerCtx.instagram.replace("@", "")}`);
-  if (flyerCtx.data) infoLines.push(`Date: ${flyerCtx.data}`);
-  if (flyerCtx.hora) infoLines.push(`Time: ${flyerCtx.hora}`);
-  if (flyerCtx.extras) infoLines.push(`Extras: ${flyerCtx.extras}`);
-
-  if (infoLines.length > 0) {
-    block += `\n[MANDATORY TEXT IN IMAGE] ${infoLines.join(" | ")}. All must be VISIBLE and LEGIBLE.`;
-  }
-
-  return block;
-}
-
-const SYSTEM_PROMPT = `You are a premium 4K portrait AI specializing in photorealistic face transplant with ABSOLUTE IDENTITY PRESERVATION.
-
-RULE 1 — MASTER FACE LOCK (CRITICAL): The user's reference photo is your ULTIMATE GROUND TRUTH. You MUST clone the EXACT face with forensic precision:
-  - Eye shape, eye color (down to the limbal ring), exact eye spacing, eyelid crease depth.
-  - Nose bridge width, nostril shape, nose tip angle, and philtrum depth.
-  - Mouth width, lip thickness/color/texture, chin shape, and jawline contour.
-  - Cheekbone prominence, forehead height, and eyebrow shape/thickness.
-  - Skin tone (EXACT shade), skin texture (pores, subtle moles, freckles, or marks).
-  - Hair color, texture, and hairline pattern.
-  - Body build and proportions matching the detected age.
-  The output person MUST be INDISTINGUISHABLE from the reference photo. A family member should immediately recognize them. ZERO deviation is allowed.
-
-RULE 2 — AGE FIDELITY: For babies and children, facial features are soft. You MUST maintain the EXACT age-specific facial structure from the reference photo. Do NOT age the subject up or down unless explicitly instructed.
-
-RULE 3 — STYLE ISOLATION: Example/Style images define ONLY the lighting, mood, artistic style, background, and clothing concept. NEVER transfer facial features, identity, or specific body traits from style references. The identity comes 100% and EXCLUSIVELY from the user's reference photo.
-
-RULE 4 — IMAGE OVERRIDES PROMPT: If the prompt text describes physical features (e.g., "blue eyes") that conflict with the reference photo (e.g., "brown eyes"), ALWAYS prioritize the photo. The person in the photo IS the person in the output.
-
-RULE 5 — RE-VERIFICATION: Before outputting, perform a "Face Lock Verification": If you were the parent of this child, would you say "This is exactly my child"? If there is any doubt, adjust until the answer is a definitive YES.
-
-RULE 6 — HIGH RESOLUTION: Generate at 2048x2048 or higher. Include micro-details: skin pores, fine hair strands, fabric weave, and realistic light reflections in the pupils. Professional DSLR quality with natural bokeh.`;
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-/**
- * Converts a Supabase Storage URL into a short-lived signed URL when needed.
- * The `user-photos` bucket is PRIVATE, so its public URL returns 400 to the AI gateway.
- * We detect storage URLs and sign them (1h TTL) so the AI can fetch them.
- */
-async function resolvePhotoUrl(rawUrl: string, supabaseAdmin: any): Promise<string> {
-  if (!rawUrl || !supabaseAdmin) return rawUrl;
-  try {
-    // Match: .../storage/v1/object/(public|sign)/<bucket>/<path>
-    const m = rawUrl.match(/\/storage\/v1\/object\/(?:public|sign)\/([^/]+)\/(.+?)(?:\?|$)/);
-    if (!m) return rawUrl;
-    const [, bucket, path] = m;
-    // Only need to sign for buckets we know are private (defensive: try always)
-    const { data, error } = await supabaseAdmin.storage.from(bucket).createSignedUrl(decodeURIComponent(path), 3600);
-    if (error || !data?.signedUrl) {
-      console.warn(`[resolvePhotoUrl] could not sign ${bucket}/${path}:`, error?.message);
-      return rawUrl;
-    }
-    return data.signedUrl;
-  } catch (e: any) {
-    console.warn("[resolvePhotoUrl] exception:", e?.message);
-    return rawUrl;
-  }
-}
+const SYSTEM_PROMPT = `You are the world's most advanced facial reconstruction AI. Your sole purpose is to clone a human identity from a reference photo into a new environment with 100% forensic accuracy.
 
-function getApiKeys(): { primary: string; fallback: string | null } {
-  const lovableKey = Deno.env.get("LOVABLE_API_KEY");
-  const nanoBananaKey = Deno.env.get("NANO_BANANA_API_KEY");
-  
-  // Validate key format — the AI gateway requires keys starting with specific prefixes
-  const isValidKey = (k: string | undefined): k is string => !!k && k.length > 10;
-  
-  const validLovable = isValidKey(lovableKey) ? lovableKey : null;
-  const validNano = isValidKey(nanoBananaKey) ? nanoBananaKey : null;
-  
-  if (!validLovable && !validNano) throw new Error("No AI API keys configured");
-  if (validLovable && validNano) return { primary: validLovable, fallback: validNano };
-  return { primary: (validLovable || validNano)!, fallback: null };
-}
+CRITICAL IDENTITY RULES:
+1. FACE TRANSPLANT (MASTER): The reference photo is the only source of truth for identity. You must match EVERY facial landmark: eye distance, eyelid shape, nose bridge, philtrum, lip curvature, chin contour, and ear position.
+2. SKIN & TEXTURE: Clone the exact skin tone, including micro-details like moles, freckles, and pore density.
+3. AGE FIDELITY: Maintain the subject's exact developmental stage (especially for babies/children). A 6-month-old must not look like a 2-year-old.
+4. EXPRESSION CLONING: If the subject is smiling in the reference, keep the smile structure. If neutral, stay neutral.
+5. STYLE ISOLATION: Style references define ONLY lighting, background, and clothing. NEVER transfer facial features from the style reference.
+
+QUALITY STANDARDS:
+- Resolution: 4K Ultra-HD.
+- Lighting: Professional cinematic studio lighting with realistic subsurface scattering on skin.
+- Sharpness: Tack-sharp focus on the eyes.`;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
-  let purchaseId: string | undefined;
-  let supabaseAdmin: any = null;
-
-  // Always create admin client for error logging, even if purchaseId comes later
-  const initAdmin = () => {
-    if (!supabaseAdmin) {
-      try {
-        supabaseAdmin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
-      } catch (e) {
-        console.error("Failed to init admin client:", e);
-      }
-    }
-    return supabaseAdmin;
-  };
-
-  const markFailed = async (errorMsg: string) => {
-    if (!purchaseId) return;
-    const admin = initAdmin();
-    if (!admin) return;
-    try {
-      const existing = await getExistingCustomFields(admin, purchaseId);
-      await admin.from("prompt_purchases").update({
-        generation_status: "failed",
-        custom_fields: {
-          ...existing,
-          generation_error: errorMsg,
-          failed_at: new Date().toISOString(),
-          error_source: "edge_function",
-        }
-      }).eq("id", purchaseId);
-      console.log(`[FAIL-LOGGED] Purchase ${purchaseId}: ${errorMsg}`);
-    } catch (e) {
-      console.error(`[FAIL-LOG-ERROR] Could not save error for ${purchaseId}:`, e);
-    }
-  };
-
   try {
-    let body: any;
-    try {
-      body = await req.json();
-    } catch (parseErr) {
-      console.error("Failed to parse request body:", parseErr);
-      return new Response(
-        JSON.stringify({ error: "Invalid request body" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    const { 
-      purchaseId: pId, promptTemplate, negativePrompt, aiModel,
-      userName, userInstagram, userDescription,
-      userPhotoUrl, userPhotoUrls, exampleImageUrl,
-      editMode, sourceImageUrl, flyerContext,
-    } = body;
-
-    purchaseId = pId;
-    const apiKeys = getApiKeys();
-
-    if (purchaseId) initAdmin();
-
-    if (purchaseId && supabaseAdmin && !editMode) {
-      await supabaseAdmin.from("prompt_purchases").update({
-        payment_status: "paid", generation_status: "generating",
-        ...(userPhotoUrl ? { user_photo_url: userPhotoUrl } : {}),
-      }).eq("id", purchaseId);
-    }
-
-    // --- EDIT MODE ---
-    if (editMode && sourceImageUrl) {
-      const resolvedSource = await resolvePhotoUrl(sourceImageUrl, initAdmin());
-      const editMessages = [
-        { role: "system", content: "You are a professional image editor. Edit images while preserving the subject's identity perfectly." },
-        { role: "user", content: [
-          { type: "text", text: `EDIT THIS IMAGE. Keep identity 100% intact. Apply ONLY: ${promptTemplate}. Do NOT alter facial features, skin tone, or body structure.` },
-          { type: "image_url", image_url: { url: resolvedSource } }
-        ]}
-      ];
-      const imageUrl = await tryGenerateWithRetry(aiModel || "google/gemini-3.1-flash-image-preview", editMessages, apiKeys);
-      if (!imageUrl) {
-        await markFailed("Edit failed after multiple attempts");
-        throw new Error("Edit failed after multiple attempts.");
-      }
-      if (purchaseId && supabaseAdmin) {
-        await supabaseAdmin.from("prompt_purchases").update({ generated_image_url: imageUrl, generation_status: "completed" }).eq("id", purchaseId);
-      }
-      return new Response(JSON.stringify({ success: true, imageUrl }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    }
-
-    // --- NORMAL GENERATION ---
-    let prompt = promptTemplate || "Create a stunning artistic portrait, highly detailed, cinematic lighting, 8k quality";
-    if (userName) prompt = prompt.replace(/\{name\}/g, userName);
-    if (userInstagram) prompt = prompt.replace(/\{instagram\}/g, `@${userInstagram.replace('@', '')}`);
-    if (userDescription) prompt = prompt.replace(/\{description\}/g, userDescription);
-    const userAge = flyerContext?.idades?.[0] || "";
-    if (userAge) {
-      prompt = prompt.replace(/\{age\}/g, userAge);
-      prompt = prompt.replace(/\{months\}/g, userAge);
-      prompt = prompt.replace(/\{years\}/g, userAge);
-    }
-    // CRITICAL: strip any remaining unfilled placeholders so the AI never renders them as literal text
-    prompt = prompt.replace(/\{[a-zA-Z_]+\}/g, "").replace(/"\s*"/g, "").replace(/\s+,/g, ",").replace(/\s{2,}/g, " ");
-
-    const rawPhotoUrls: string[] = userPhotoUrls?.length ? userPhotoUrls : (userPhotoUrl ? [userPhotoUrl] : []);
-    // Resolve any private-bucket URLs into signed URLs so the AI gateway can fetch them
-    const adminForSign = initAdmin();
-    const allPhotoUrls: string[] = await Promise.all(
-      rawPhotoUrls.map((u) => resolvePhotoUrl(u, adminForSign))
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Add flyer context if provided
-    if (flyerContext && typeof flyerContext === 'object') {
-      prompt += buildFlyerBlock(flyerContext as FlyerContext, allPhotoUrls.length);
-    }
+    const body = await req.json();
+    const { 
+      purchaseId, promptTemplate, userPhotoUrl, exampleImageUrl, 
+      style = "realistic", // "realistic" or "artistic"
+      userId
+    } = body;
 
-    if (negativePrompt) prompt += ` Avoid: ${negativePrompt}`;
+    const lovableKey = Deno.env.get("LOVABLE_API_KEY");
+    if (!lovableKey) throw new Error("LOVABLE_API_KEY is missing");
 
-    // Build compact image instruction prefix with positional mapping
-    let prefix = "";
-    if (allPhotoUrls.length > 1) {
-      const positionLabels = ["LEFT/FRONT/TOP", "RIGHT/BACK/MIDDLE", "BOTTOM/THIRD"];
-      let mapping = `[${allPhotoUrls.length} REAL PEOPLE — clone each face with 100% fidelity. Gender/age/ethnicity from photos override text.]\n`;
-      mapping += `[IDENTITY MAPPING:\n`;
-      for (let i = 0; i < allPhotoUrls.length; i++) {
-        const label = positionLabels[i] || `POSITION ${i + 1}`;
-        const name = flyerContext?.nomes?.[i] || `Person ${i + 1}`;
-        mapping += `  IMAGE ${i + 1} = ${name} → appears at ${label} of composition. Clone this exact face.\n`;
-      }
-      mapping += `]\n`;
-      mapping += `[CRITICAL: Do NOT swap faces between positions. Each person MUST appear ONLY at their assigned position.]`;
-      prefix = mapping;
-      if (exampleImageUrl) prefix += ` [IMAGE ${allPhotoUrls.length + 1}: STYLE ONLY — do NOT copy any face/identity/text from it.]`;
-    } else if (allPhotoUrls.length === 1) {
-      prefix = `[IMAGE 1: USER REFERENCE PHOTO — THIS IS THE PERSON. Clone this EXACT face with forensic precision: every mole, every freckle, exact eye color, exact skin tone. The output person MUST be immediately recognizable as THE SAME PERSON. Photo overrides ALL text descriptions.]`;
-      if (exampleImageUrl) prefix += ` [IMAGE 2: STYLE REFERENCE ONLY — copy ONLY the artistic style, lighting, mood, background, and composition. Do NOT transfer ANY facial features, skin tone, hair color, or body shape from this image. The person's identity comes EXCLUSIVELY from IMAGE 1.]`;
-    } else if (exampleImageUrl) {
-      prefix = `[STYLE REFERENCE: replicate artistic style/lighting/mood. IGNORE any faces/text/numbers in reference.]`;
-    }
-
-    const fullPrompt = prefix + "\n\n" + prompt;
-    console.log("Prompt length:", fullPrompt.length, "| Photos:", allPhotoUrls.length, "| PurchaseID:", purchaseId || "none");
-
-    const resolvedModel = aiModel 
-      ? (aiModel.includes('/') ? aiModel : `google/${aiModel}`)
-      : "google/gemini-3.1-flash-image-preview";
-
-    // Build content parts — user photos FIRST, style ref LAST
-    const contentParts: any[] = [{ type: "text", text: fullPrompt }];
-    for (const photoUrl of allPhotoUrls) {
-      contentParts.push({ type: "image_url", image_url: { url: photoUrl } });
-    }
-    if (exampleImageUrl) {
-      contentParts.push({ type: "text", text: "STYLE REFERENCE ONLY (do NOT copy any face/identity/text):" });
-      contentParts.push({ type: "image_url", image_url: { url: exampleImageUrl } });
+    // Enhance prompt based on style
+    let enhancedPrompt = promptTemplate;
+    if (style === "realistic") {
+      enhancedPrompt += ", ultra-realistic photography, cinematic lighting, 8k resolution, highly detailed skin texture, shot on 85mm lens";
+    } else if (style === "artistic") {
+      enhancedPrompt += ", artistic digital painting style, vibrant colors, dreamlike atmosphere, soft lighting, masterpiece";
     }
 
     const messages = [
       { role: "system", content: SYSTEM_PROMPT },
-      { role: "user", content: contentParts.length > 1 ? contentParts : fullPrompt }
+      { 
+        role: "user", 
+        content: [
+          { type: "text", text: `CLONE THE FACE FROM IMAGE 1. Output a new image following this description: ${enhancedPrompt}. Use IMAGE 2 for style/lighting inspiration ONLY.` },
+          { type: "image_url", image_url: { url: userPhotoUrl } },
+          { type: "image_url", image_url: { url: exampleImageUrl || userPhotoUrl } }
+        ]
+      }
     ];
 
-    const imageUrl = await tryGenerateWithRetry(resolvedModel, messages, apiKeys);
-    if (!imageUrl) {
-      await markFailed("All generation attempts failed (no image returned)");
-      throw new Error("Image generation failed after multiple attempts. Please try again.");
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${lovableKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "google/gemini-3.1-flash-image-preview",
+        messages,
+        modalities: ["image", "text"]
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("AI gateway error:", errorText);
+      throw new Error(`AI Gateway error: ${response.status}`);
     }
 
-    if (purchaseId && supabaseAdmin) {
+    const data = await response.json();
+    const imageUrl = data.choices[0].message.content.find((c: any) => c.type === "image")?.image_url?.url || 
+                     data.choices[0].message.content.find((c: any) => c.image_url)?.image_url?.url;
+
+    if (!imageUrl) throw new Error("No image returned from AI");
+
+    // Save to generated_images if userId is provided
+    if (userId) {
+      await supabaseAdmin.from("generated_images").insert({
+        user_id: userId,
+        image_url: imageUrl,
+        template_name: promptTemplate.substring(0, 50),
+        original_purchase_id: purchaseId
+      });
+    }
+
+    if (purchaseId) {
       await supabaseAdmin.from("prompt_purchases").update({
-        payment_status: "paid", generation_status: "completed", generated_image_url: imageUrl,
-        ...(userPhotoUrl ? { user_photo_url: userPhotoUrl } : {}),
+        generated_image_url: imageUrl,
+        generation_status: "completed"
       }).eq("id", purchaseId);
     }
 
-    return new Response(JSON.stringify({ success: true, imageUrl }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
-  } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : String(error) || "Unknown error";
-    const errorStack = error instanceof Error ? error.stack : undefined;
-    console.error("Error generating image:", errorMsg, errorStack ? `\nStack: ${errorStack}` : "");
-    
-    // Always try to log the error, even if markFailed was already called
-    await markFailed(errorMsg);
-    
-    return new Response(
-      JSON.stringify({ error: errorMsg }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ success: true, imageUrl }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" }
+    });
+
+  } catch (error: any) {
+    console.error("Error:", error);
+    return new Response(JSON.stringify({ error: error.message || "Unknown error" }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" }
+    });
   }
 });
-
-async function callGateway(model: string, messages: any[], apiKey: string): Promise<any> {
-  const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ model, messages, modalities: ["image", "text"] }),
-  });
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error("AI gateway error:", response.status, errorText.substring(0, 300));
-    if (response.status === 401) throw new Error("AUTH_INVALID");
-    if (response.status === 429) throw new Error("RATE_LIMIT");
-    if (response.status === 402) throw new Error("CREDITS_EXHAUSTED");
-    if (response.status === 503 || response.status === 502 || response.status === 504) throw new Error("UPSTREAM_UNAVAILABLE");
-    if (response.status === 400 && errorText.includes("fetching image from URL")) {
-      throw new Error("INVALID_IMAGE_URL");
-    }
-    return null;
-  }
-  return response.json();
-}
-
-function extractImageUrl(data: any): string | null {
-  const choice = data?.choices?.[0]?.message;
-  if (!choice) return null;
-  return (
-    choice.images?.[0]?.image_url?.url ||
-    (Array.isArray(choice.content) ? choice.content.find((c: any) => c.type === "image_url")?.image_url?.url : null) ||
-    (Array.isArray(choice.content) ? (() => {
-      const img = choice.content.find((c: any) => c.type === "image" || c.inline_data);
-      if (img?.inline_data) return `data:${img.inline_data.mime_type || "image/png"};base64,${img.inline_data.data}`;
-      if (img?.image?.url) return img.image.url;
-      return null;
-    })() : null)
-  );
-}
-
-async function getExistingCustomFields(supabaseAdmin: any, purchaseId: string): Promise<Record<string, unknown>> {
-  try {
-    const { data } = await supabaseAdmin.from("prompt_purchases").select("custom_fields").eq("id", purchaseId).maybeSingle();
-    return (data?.custom_fields && typeof data.custom_fields === 'object') ? data.custom_fields : {};
-  } catch { return {}; }
-}
-
-function delay(ms: number): Promise<void> { return new Promise(r => setTimeout(r, ms)); }
-
-async function tryGenerateWithRetry(primaryModel: string, messages: any[], apiKeys: { primary: string; fallback: string | null }): Promise<string | null> {
-  const modelsToTry = [primaryModel, "google/gemini-3-pro-image-preview", "google/gemini-3.1-flash-image-preview"];
-  // Deduplicate if primary is already in fallback list
-  const uniqueModels = [...new Set(modelsToTry)];
-  const keysToTry = apiKeys.fallback ? [apiKeys.primary, apiKeys.fallback] : [apiKeys.primary];
-  const errors: string[] = [];
-
-  for (const apiKey of keysToTry) {
-    const keyLabel = apiKey === apiKeys.primary ? "PRIMARY" : "FALLBACK";
-    let authFailed = false;
-    for (let mi = 0; mi < uniqueModels.length; mi++) {
-      const model = uniqueModels[mi];
-      if (authFailed) break;
-      try {
-        // Add delay between retries to avoid cascading rate limits
-        if (mi > 0) await delay(2000);
-        console.log(`[${keyLabel}] Attempting: ${model}`);
-        const data = await callGateway(model, messages, apiKey);
-        if (!data) { errors.push(`${model}: empty response`); continue; }
-        const imageUrl = extractImageUrl(data);
-        if (imageUrl) { console.log(`[${keyLabel}] ✅ Success with ${model}`); return imageUrl; }
-        errors.push(`${model}: no image in response`);
-        console.warn(`[${keyLabel}] No image in response from ${model}`);
-      } catch (e: any) {
-        if (e.message === "AUTH_INVALID") { console.warn(`[${keyLabel}] Auth invalid, skipping key`); authFailed = true; errors.push(`${keyLabel}: auth invalid`); break; }
-        if (e.message === "INVALID_IMAGE_URL") { console.error(`[${keyLabel}] User photo URL is unreachable`); throw new Error("A URL da foto enviada não pôde ser acessada. Tente fazer upload novamente."); }
-        // Transient errors: log and continue trying other models/keys instead of aborting
-        if (e.message === "RATE_LIMIT" || e.message === "UPSTREAM_UNAVAILABLE" || e.message === "CREDITS_EXHAUSTED") {
-          errors.push(`${keyLabel}/${model}: ${e.message}`);
-          console.warn(`[${keyLabel}] ${model} transient error: ${e.message} — trying next model/key`);
-          await delay(1500);
-          continue;
-        }
-        errors.push(`${model}: ${e.message}`);
-        console.error(`[${keyLabel}] ${model} failed:`, e.message);
-      }
-    }
-  }
-  const summary = errors.join(" | ");
-  console.error("All generation attempts failed:", summary);
-  // Surface a useful error to the caller
-  if (errors.some(e => e.includes("CREDITS_EXHAUSTED"))) {
-    throw new Error("Créditos da IA esgotados temporariamente. Tente novamente em alguns minutos ou contate o suporte.");
-  }
-  if (errors.some(e => e.includes("RATE_LIMIT"))) {
-    throw new Error("Muitas gerações simultâneas. Aguarde 30 segundos e tente novamente.");
-  }
-  if (errors.some(e => e.includes("UPSTREAM_UNAVAILABLE"))) {
-    throw new Error("Serviço de IA temporariamente indisponível. Tente novamente em 1 minuto.");
-  }
-  return null;
-}

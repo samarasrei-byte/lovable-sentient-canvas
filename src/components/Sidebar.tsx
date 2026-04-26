@@ -1,96 +1,88 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ArcanaLogo } from "@/components/ArcanaLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { 
   Home, 
+  Image,
+  Camera,
   Users, 
-  Video, 
+  Palette,
   Sparkles, 
+  Video, 
   Settings, 
   Zap, 
-  Target, 
-  FileText, 
-  Wallet, 
-  Activity, 
   UserCircle,
-  MessageCircle,
-  BarChart3,
-  LogOut,
-  Camera,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  Palette,
+  FolderOpen,
+  Coins,
+  Crown,
   Lock,
-  ShoppingBag
+  LogOut,
+  MessageCircle,
+  ShoppingBag,
+  CreditCard
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
 
 interface MenuItem {
   path: string;
   icon: React.ElementType;
   label: string;
-  comingSoon?: boolean;
+  badge?: string;
+  proOnly?: boolean;
 }
 
-interface MenuGroup {
-  label: string;
-  icon: React.ElementType;
-  items: MenuItem[];
-}
-
-const menuGroups: MenuGroup[] = [
-  {
-    label: "Principal",
-    icon: Home,
-    items: [
-      { path: "/app/dashboard", icon: Home, label: "Dashboard" },
-      { path: "/app/prompt-dashboard", icon: ShoppingBag, label: "Prompt Marketplace" },
-      { path: "/app/meus-produtos", icon: Camera, label: "Minhas Criações" },
-      { path: "/app/ai-studio", icon: Sparkles, label: "IA Studio" },
-      { path: "/app/planos", icon: Wallet, label: "Assinatura" },
-    ]
-  },
-  {
-    label: "Em Breve",
-    icon: Zap,
-    items: [
-      { path: "/app/talentos", icon: Users, label: "Talentos", comingSoon: true },
-      { path: "/app/liveshop", icon: Video, label: "Live Shop", comingSoon: true },
-      { path: "/app/avatar-studio", icon: UserCircle, label: "Avatar Studio", comingSoon: true },
-      { path: "/app/campanhas", icon: Target, label: "Campanhas", comingSoon: true },
-      { path: "/app/contratos", icon: FileText, label: "Contratos", comingSoon: true },
-      { path: "/app/pagamentos", icon: Wallet, label: "Pagamentos", comingSoon: true },
-      { path: "/app/monitoramento", icon: Activity, label: "Monitoramento", comingSoon: true },
-      { path: "/app/chat", icon: MessageCircle, label: "Chat", comingSoon: true },
-    ]
-  },
+const userMenuItems: MenuItem[] = [
+  { path: "/app/dashboard", icon: Home, label: "Home" },
+  { path: "/app/minhas-fotos", icon: Image, label: "Minhas Fotos" },
+  { path: "/app/minhas-compras", icon: CreditCard, label: "Minhas Compras" },
+  { path: "/app/chamados", icon: MessageCircle, label: "Meus Chamados" },
+  { path: "/app/perfil", icon: Settings, label: "Perfil" },
+  { path: "/app/em-breve", icon: Sparkles, label: "Em breve", badge: "NOVO" },
 ];
 
-const bottomItems: MenuItem[] = [
-  { path: "/app/perfil", icon: Settings, label: "Configurações" },
+const adminMenuItems: MenuItem[] = [
+  { path: "/admin", icon: Zap, label: "Admin Panel" },
+  { path: "/admin/support", icon: MessageCircle, label: "Suporte (Admin)" },
+  { path: "/admin/users", icon: Users, label: "Usuários" },
 ];
 
 export const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const [openGroups, setOpenGroups] = useState<string[]>(["Principal"]);
+  const [userPlan, setUserPlan] = useState<string>("basic");
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    checkUserStatus();
+  }, []);
+
+  const checkUserStatus = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+      
+      setIsAdmin(profile?.role === 'admin');
+
+      const { data: subscription } = await supabase
+        .from("subscriptions")
+        .select("plan")
+        .eq("user_id", user.id)
+        .eq("status", "active")
+        .maybeSingle();
+
+      setUserPlan(subscription?.plan || "basic");
+    } catch (error) {
+      console.error("Error checking user status:", error);
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -103,297 +95,136 @@ export const Sidebar = () => {
     }
   };
 
-  const toggleGroup = (label: string) => {
-    if (isCollapsed) return;
-    setOpenGroups(prev => 
-      prev.includes(label) 
-        ? prev.filter(g => g !== label)
-        : [...prev, label]
-    );
-  };
-
-  const isPathActive = (path: string) => location.pathname === path;
-  
-  const isGroupActive = (group: MenuGroup) => 
-    group.items.some(item => isPathActive(item.path));
-
-  useEffect(() => {
-    if (isCollapsed) return;
-    menuGroups.forEach(group => {
-      if (isGroupActive(group) && !openGroups.includes(group.label)) {
-        setOpenGroups(prev => [...prev, group.label]);
-      }
-    });
-  }, [location.pathname, isCollapsed]);
-
-  const IconWrapper = ({ children, className }: { children: React.ReactNode; className?: string }) => (
-    <div className={cn(
-      "transition-all duration-200 group-hover:scale-110",
-      className
-    )}>
-      {children}
-    </div>
-  );
-
-  const CollapsedMenuItem = ({ item, isActive }: { item: MenuItem; isActive: boolean }) => (
-    <Tooltip delayDuration={0}>
-      <TooltipTrigger asChild>
-        {item.comingSoon ? (
-          <div
-            className="group flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200 text-muted-foreground/30 cursor-not-allowed relative"
-          >
-            <IconWrapper>
-              <item.icon className="w-5 h-5" />
-            </IconWrapper>
-          </div>
-        ) : (
-          <Link
-            to={item.path}
-            className={cn(
-              "group flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200",
-              isActive
-                ? "bg-primary/15 text-primary shadow-lg shadow-primary/20"
-                : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
-            )}
-          >
-            <IconWrapper>
-              <item.icon className="w-5 h-5" />
-            </IconWrapper>
-          </Link>
-        )}
-      </TooltipTrigger>
-      <TooltipContent side="right" className="font-medium">
-        {item.label} {item.comingSoon && "· Em breve"}
-      </TooltipContent>
-    </Tooltip>
-  );
+  const isPro = userPlan === "professional" || userPlan === "enterprise";
 
   return (
-    <TooltipProvider>
-      <aside 
-        className={cn(
-          "border-r border-border/20 bg-card/30 backdrop-blur-xl flex flex-col transition-all duration-300 ease-in-out",
-          isCollapsed ? "w-[72px]" : "w-56"
-        )}
-      >
-        {/* Logo */}
-        <div className={cn(
-          "flex items-center p-4 pb-3",
-          isCollapsed ? "justify-center" : "gap-2"
-        )}>
-          <Link to="/" className="group flex items-center gap-2">
-            <ArcanaLogo iconSize={18} textSize="text-base" showText={!isCollapsed} />
-          </Link>
+    <aside className="w-64 border-r border-border/30 bg-card/40 backdrop-blur-xl p-5 flex flex-col min-h-screen">
+      {/* Logo */}
+      <Link to="/" className="flex items-center gap-2.5 mb-8 group px-2">
+        <div className="relative">
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-secondary rounded-lg opacity-40 group-hover:opacity-70 blur-sm transition-all duration-300" />
+          <div className="relative w-9 h-9 rounded-lg bg-gradient-to-br from-primary via-secondary to-primary flex items-center justify-center shadow-glow">
+            <Zap className="w-5 h-5 text-white" />
+          </div>
         </div>
+        <div className="flex flex-col">
+          <span className="text-lg font-bold tracking-wide bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
+            ARCANA
+          </span>
+          <span className="text-[10px] text-muted-foreground -mt-0.5">Premium AI Visuals</span>
+        </div>
+      </Link>
 
-        {/* Collapse Toggle */}
-        <div className={cn("px-3 mb-2", isCollapsed && "px-2")}>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className={cn(
-              "h-8 text-muted-foreground hover:text-foreground transition-all",
-              isCollapsed ? "w-full justify-center px-0" : "w-full justify-between px-2"
-            )}
-          >
-            {!isCollapsed && <span className="text-xs">Recolher</span>}
-            {isCollapsed ? (
-              <ChevronRight className="w-4 h-4" />
+      {/* Plan Badge */}
+      <div className="px-2 mb-6">
+        <div className={`p-3 rounded-xl ${isPro ? 'bg-gradient-to-r from-primary/20 to-secondary/20 border border-primary/30' : 'bg-muted/50'}`}>
+          <div className="flex items-center gap-2 mb-1">
+            {isPro ? (
+              <Crown className="w-4 h-4 text-primary" />
             ) : (
-              <ChevronLeft className="w-4 h-4" />
+              <Sparkles className="w-4 h-4 text-muted-foreground" />
             )}
-          </Button>
+            <span className="text-sm font-medium">{isPro ? 'Plano PRO' : 'Plano Basic'}</span>
+          </div>
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <span>{isPro ? 'Ilimitado' : '6 fotos/mês'}</span>
+            {!isPro && (
+              <Link to="/app/planos" className="text-primary hover:underline font-bold">
+                Upgrade
+              </Link>
+            )}
+          </div>
         </div>
+      </div>
 
-        {/* Navigation Groups */}
-        <nav className={cn(
-          "flex-1 space-y-1 overflow-y-auto",
-          isCollapsed ? "px-2" : "px-3"
-        )}>
-          {isCollapsed ? (
-            <div className="space-y-2">
-              {menuGroups.map((group) => (
-                <div key={group.label} className="space-y-1">
-                  <Tooltip delayDuration={0}>
-                    <TooltipTrigger asChild>
-                      <div className={cn(
-                        "flex items-center justify-center w-10 h-8 rounded-lg text-xs font-medium",
-                        isGroupActive(group) ? "text-primary" : "text-muted-foreground/60"
-                      )}>
-                        <group.icon className="w-4 h-4" />
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">
-                      {group.label}
-                    </TooltipContent>
-                  </Tooltip>
-                  {group.items.map((item) => (
-                    <CollapsedMenuItem 
-                      key={item.path} 
-                      item={item} 
-                      isActive={isPathActive(item.path)} 
-                    />
-                  ))}
-                </div>
-              ))}
-
-              <div className="h-px bg-border/30 my-3" />
-
-              {bottomItems.map((item) => (
-                <CollapsedMenuItem 
-                  key={item.path} 
-                  item={item} 
-                  isActive={isPathActive(item.path)} 
-                />
-              ))}
-            </div>
-          ) : (
-            <>
-              {menuGroups.map((group) => {
-                const isOpen = openGroups.includes(group.label);
-                const groupActive = isGroupActive(group);
-                const isComingSoonGroup = group.items.every(i => i.comingSoon);
-                
-                return (
-                  <Collapsible
-                    key={group.label}
-                    open={isOpen}
-                    onOpenChange={() => toggleGroup(group.label)}
-                  >
-                    <CollapsibleTrigger asChild>
-                      <button
-                        className={cn(
-                          "group w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200",
-                          groupActive 
-                            ? "text-primary bg-primary/5" 
-                            : "text-muted-foreground hover:text-foreground hover:bg-accent/30"
-                        )}
-                      >
-                        <div className="flex items-center gap-2">
-                          <IconWrapper>
-                            <group.icon className="w-4 h-4" />
-                          </IconWrapper>
-                          <span>{group.label}</span>
-                          {isComingSoonGroup && (
-                            <Badge className="text-[8px] px-1.5 py-0 h-4 bg-muted/50 text-muted-foreground border-border/30 font-normal">
-                              Em breve
-                            </Badge>
-                          )}
-                        </div>
-                        <ChevronDown 
-                          className={cn(
-                            "w-3 h-3 transition-transform duration-200",
-                            isOpen && "rotate-180"
-                          )} 
-                        />
-                      </button>
-                    </CollapsibleTrigger>
-                    
-                    <CollapsibleContent className="pt-1 pl-4 space-y-0.5 animate-accordion-down">
-                      {group.items.map((item) => {
-                        const isActive = isPathActive(item.path);
-                        
-                        if (item.comingSoon) {
-                          return (
-                            <div
-                              key={item.path}
-                              className="group flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-muted-foreground/40 cursor-not-allowed select-none"
-                            >
-                              <IconWrapper>
-                                <item.icon className="w-3.5 h-3.5" />
-                              </IconWrapper>
-                              <span>{item.label}</span>
-                              <Lock className="w-2.5 h-2.5 ml-auto opacity-40" />
-                            </div>
-                          );
-                        }
-                        
-                        return (
-                          <Link
-                            key={item.path}
-                            to={item.path}
-                            className={cn(
-                              "group flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all duration-200",
-                              isActive
-                                ? "bg-primary/10 text-primary font-medium shadow-sm"
-                                : "text-muted-foreground/80 hover:text-foreground hover:bg-accent/30"
-                            )}
-                          >
-                            <IconWrapper>
-                              <item.icon className="w-3.5 h-3.5" />
-                            </IconWrapper>
-                            <span>{item.label}</span>
-                          </Link>
-                        );
-                      })}
-                    </CollapsibleContent>
-                  </Collapsible>
-                );
-              })}
-
-              <div className="h-px bg-border/30 my-3" />
-
-              {bottomItems.map((item) => {
-                const isActive = isPathActive(item.path);
-                return (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    className={cn(
-                      "group flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all duration-200",
-                      isActive
-                        ? "bg-primary/10 text-primary font-medium"
-                        : "text-muted-foreground/80 hover:text-foreground hover:bg-accent/30"
-                    )}
-                  >
-                    <IconWrapper>
-                      <item.icon className="w-4 h-4" />
-                    </IconWrapper>
-                    <span>{item.label}</span>
-                  </Link>
-                );
-              })}
-            </>
-          )}
-        </nav>
-
-        {/* Logout */}
-        <div className={cn(
-          "border-t border-border/20",
-          isCollapsed ? "p-2" : "p-3"
-        )}>
-          {isCollapsed ? (
-            <Tooltip delayDuration={0}>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleLogout}
-                  className="w-10 h-10 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                >
-                  <LogOut className="w-4 h-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="right">
-                Sair
-              </TooltipContent>
-            </Tooltip>
-          ) : (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleLogout}
-              className="w-full justify-start gap-2 h-9 text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/10 group"
+      {/* Navigation */}
+      <nav className="space-y-1 flex-1">
+        {userMenuItems.map((item) => {
+          const isActive = location.pathname === item.path;
+          return (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                isActive
+                  ? "bg-primary/10 text-primary border border-primary/20 shadow-lg shadow-primary/10"
+                  : "text-muted-foreground/80 hover:text-foreground hover:bg-accent/50 border border-transparent"
+              }`}
             >
-              <IconWrapper>
-                <LogOut className="w-4 h-4" />
-              </IconWrapper>
-              Sair
+              <item.icon className={`w-4 h-4 transition-transform duration-200 ${isActive ? "scale-110" : "group-hover:scale-105"}`} />
+              <span className="text-xs font-medium tracking-wide flex-1">{item.label}</span>
+              {item.badge && (
+                <Badge 
+                  variant={isPro ? "default" : "outline"} 
+                  className={`text-[8px] px-1.5 py-0 ${isPro ? 'bg-primary' : 'border-primary/50 text-primary'}`}
+                >
+                  {item.badge}
+                </Badge>
+              )}
+            </Link>
+          );
+        })}
+
+        {/* Admin Menu */}
+        {isAdmin && (
+          <div className="mt-8 space-y-1">
+            <div className="px-3 mb-2">
+              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Admin</span>
+            </div>
+            {adminMenuItems.map((item) => {
+              const isActive = location.pathname === item.path;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                    isActive
+                      ? "bg-secondary/10 text-secondary border border-secondary/20 shadow-lg shadow-secondary/10"
+                      : "text-muted-foreground/80 hover:text-foreground hover:bg-accent/50 border border-transparent"
+                  }`}
+                >
+                  <item.icon className={`w-4 h-4 transition-transform duration-200 ${isActive ? "scale-110" : "group-hover:scale-105"}`} />
+                  <span className="text-xs font-medium tracking-wide">{item.label}</span>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </nav>
+
+      {/* Upgrade CTA */}
+      {!isPro && (
+        <div className="px-2 mb-4">
+          <div className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/20">
+            <div className="flex items-center gap-2 mb-2">
+              <Crown className="w-5 h-5 text-primary" />
+              <span className="text-sm font-semibold">Assinar Pro</span>
+            </div>
+            <p className="text-[10px] text-muted-foreground mb-3">
+              Gerações em HD, mais créditos e suporte prioritário.
+            </p>
+            <Button 
+              size="sm" 
+              className="w-full bg-gradient-to-r from-primary to-secondary text-xs h-8"
+              onClick={() => navigate("/app/planos")}
+            >
+              Ver Planos
             </Button>
-          )}
+          </div>
         </div>
-      </aside>
-    </TooltipProvider>
+      )}
+
+      {/* Logout */}
+      <div className="pt-4 border-t border-border/30">
+        <Button
+          variant="ghost"
+          onClick={handleLogout}
+          className="w-full justify-start gap-3 px-3 py-2 text-muted-foreground/80 hover:text-destructive hover:bg-destructive/10 h-9"
+        >
+          <LogOut className="w-4 h-4" />
+          <span className="text-xs font-medium tracking-wide">Sair</span>
+        </Button>
+      </div>
+    </aside>
   );
 };
