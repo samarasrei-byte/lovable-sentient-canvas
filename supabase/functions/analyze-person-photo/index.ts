@@ -37,6 +37,16 @@ serve(async (req) => {
     "contexto": "individual",
     "animais": []
   },
+  "audit_qualidade": {
+    "rosto_detectado": true,
+    "olhando_camera": true,
+    "iluminacao_boa": true,
+    "rosto_centralizado": true,
+    "sem_obstrucoes": true,
+    "resolucao_ok": true,
+    "score_identidade": 0.95,
+    "recomendacoes": ["Remova óculos de sol", "Vá para um lugar mais iluminado"]
+  },
   "areas_editaveis": [
     {
       "tipo": "pessoa",
@@ -63,6 +73,14 @@ serve(async (req) => {
   "suggestedCategory": "retrato_pessoal",
   "summary": "short phrase"
 }
+
+Rules:
+- In "audit_qualidade", be very strict. If it's a child photo, "score_identidade" measures how well the features (eyes, nose, mouth) are visible for AI cloning.
+- "rosto_detectado": true if a face is clearly visible.
+- "olhando_camera": true if the person is looking frontally.
+- "iluminacao_boa": false if there are harsh shadows on the face or it's too dark.
+- "sem_obstrucoes": false if there are hands, pacifiers, hair, or glasses covering the face.
+- "recomendacoes": suggest specific improvements in Portuguese.
 
 Rules:
 - "tipo" for each pessoa must be one of: bebe, crianca, adolescente, adulto, idoso
