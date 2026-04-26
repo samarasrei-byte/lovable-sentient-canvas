@@ -150,6 +150,11 @@ Standard Rules:
     const result = JSON.parse(jsonMatch[0]);
 
     const finalResult = {
+      seguranca: result.seguranca || {
+        conteudo_seguro: true,
+        motivo_bloqueio: null,
+        rating: "G"
+      },
       ageGroup: result.ageGroup || "adulto",
       presentation: result.presentation || "indefinida",
       suggestedCategory: result.suggestedCategory || "retrato_pessoal",
