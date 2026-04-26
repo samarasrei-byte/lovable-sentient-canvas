@@ -2082,6 +2082,46 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   </div>
                 )}
 
+                {/* STYLE SELECTION */}
+                <div className="space-y-3">
+                  <Label className="text-xs sm:text-sm flex items-center gap-2">
+                    <Palette className="w-4 h-4 text-primary" />
+                    Escolha o Estilo Artístico
+                  </Label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedStyle('realistic')}
+                      className={`flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all ${
+                        selectedStyle === 'realistic' 
+                        ? 'bg-primary/10 border-primary shadow-lg shadow-primary/10' 
+                        : 'bg-card border-border/10 hover:bg-muted/30'
+                      }`}
+                    >
+                      <Camera className={`w-6 h-6 ${selectedStyle === 'realistic' ? 'text-primary' : 'text-muted-foreground'}`} />
+                      <div className="text-center">
+                        <p className="text-xs font-bold">Realista</p>
+                        <p className="text-[9px] text-muted-foreground">Foto profissional real</p>
+                      </div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedStyle('artistic')}
+                      className={`flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all ${
+                        selectedStyle === 'artistic' 
+                        ? 'bg-secondary/10 border-secondary shadow-lg shadow-secondary/10' 
+                        : 'bg-card border-border/10 hover:bg-muted/30'
+                      }`}
+                    >
+                      <Palette className={`w-6 h-6 ${selectedStyle === 'artistic' ? 'text-secondary' : 'text-muted-foreground'}`} />
+                      <div className="text-center">
+                        <p className="text-xs font-bold">Artístico</p>
+                        <p className="text-[9px] text-muted-foreground">Leve toque de pintura</p>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+
                 {/* Per-person naming for multi-photo uploads */}
                 {needsPersonNames && activePhotoCount > 1 && (
                   <div className="space-y-2">
