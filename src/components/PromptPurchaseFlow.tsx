@@ -703,10 +703,12 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
     const {
       promptTemplate: overridePromptTemplate,
       exampleImageUrl: overrideExampleImageUrl,
+      style: overrideStyle,
       ...restOverrides
     } = overrides as Record<string, unknown> & {
       promptTemplate?: string;
       exampleImageUrl?: string | null;
+      style?: string;
     };
     
     // Build age/position context from rich analysis
