@@ -70,6 +70,16 @@ interface PhotoProfile {
   ageGroup: string;
   presentation: string;
   suggestedCategory?: string;
+  audit_qualidade?: {
+    rosto_detectado: boolean;
+    olhando_camera: boolean;
+    iluminacao_boa: boolean;
+    rosto_centralizado: boolean;
+    sem_obstrucoes: boolean;
+    resolucao_ok: boolean;
+    score_identidade: number;
+    recomendacoes: string[];
+  };
   analise?: {
     quantidade_pessoas: number;
     pessoas: AnalisePersona[];
