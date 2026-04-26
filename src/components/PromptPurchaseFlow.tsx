@@ -2287,12 +2287,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                     className="py-12 sm:py-16 text-center space-y-6"
                   >
                     {/* Animated success ring */}
-                    <motion.div 
-                      initial={{ scale: 0 }} 
-                      animate={{ scale: 1 }} 
-                      transition={{ delay: 0.2, type: "spring", stiffness: 300 }}
-                      className="relative w-24 h-24 mx-auto"
-                    >
+                    <div className="relative w-24 h-24 mx-auto">
                       <div className="absolute inset-0 rounded-full bg-green-500/20 animate-ping" />
                       <div className="absolute inset-0 rounded-full bg-gradient-to-br from-green-400/30 to-emerald-500/30 backdrop-blur-sm" />
                       <div className="relative w-full h-full rounded-full bg-green-500/10 border-2 border-green-500/50 flex items-center justify-center">
@@ -2303,10 +2298,8 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                         >
                           <CheckCircle2 className="w-12 h-12 text-green-400" />
                         </motion.div>
-                              </div>
-
-                              </div>
-                            </motion.div>
+                      </div>
+                    </div>
 
                     {/* Confirmed badge */}
                     <motion.div
