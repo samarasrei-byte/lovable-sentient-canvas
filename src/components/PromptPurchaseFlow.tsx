@@ -1636,7 +1636,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                     <div className="space-y-2">
                       <h3 className="text-lg font-bold tracking-tight flex items-center gap-2">
                         <Pencil className="w-5 h-5 text-primary" />
-                        1. Personalização
+                        1. Dados da Criança
                       </h3>
                       <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                         Preencha os dados abaixo para que a IA capture cada detalhe.
