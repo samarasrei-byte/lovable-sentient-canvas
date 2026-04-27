@@ -1630,16 +1630,16 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
 
             {authStep === 'done' && step === 'form' && (
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-                <div className="flex flex-col lg:flex-row lg:gap-8 items-start">
+                <div className="flex flex-col lg:flex-row lg:gap-10 items-start">
                   {/* Left Column: Details */}
-                  <div className="space-y-6 w-full lg:max-w-[420px] order-2 lg:order-1">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm">1</div>
-                        <h3 className="text-lg font-bold tracking-tight">Dados da Criança</h3>
+                  <div className="space-y-8 w-full lg:max-w-[420px] order-2 lg:order-1">
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-2xl bg-primary/20 flex items-center justify-center text-primary font-bold text-base shadow-[0_0_20px_rgba(var(--primary),0.3)]">1</div>
+                        <h3 className="text-xl font-black tracking-tight uppercase bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">Configurações</h3>
                       </div>
-                      <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed pl-10">
-                        Preencha o nome e idade para que a IA gere a arte personalizada.
+                      <p className="text-xs sm:text-sm text-muted-foreground/80 leading-relaxed pl-13">
+                        Personalize os detalhes para que a nossa IA capture cada traço com precisão.
                       </p>
                     </div>
 
@@ -1755,13 +1755,13 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
 
                   {/* Right Column: Photo Uploads */}
                   <div className="space-y-6 w-full flex-1 order-1 lg:order-2 mb-8 lg:mb-0">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm">2</div>
-                        <h3 className="text-lg font-bold tracking-tight">Fotos de Referência</h3>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-2xl bg-secondary/20 flex items-center justify-center text-secondary font-bold text-base shadow-[0_0_20px_rgba(var(--secondary),0.3)]">2</div>
+                        <h3 className="text-xl font-black tracking-tight uppercase bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">Upload Premium</h3>
                       </div>
-                      <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed pl-10">
-                        A qualidade da sua imagem final depende dessas fotos. Use fotos de rosto nítidas.
+                      <p className="text-xs sm:text-sm text-muted-foreground/80 leading-relaxed pl-13">
+                        A fidelidade da arte final depende dessas fotos. Priorize imagens nítidas e com boa iluminação.
                       </p>
                     </div>
 
@@ -1789,12 +1789,12 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                 key={index}
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                className={`relative aspect-[3/4] rounded-2xl border-2 transition-all overflow-hidden group shadow-xl backdrop-blur-md ${
+                                className={`relative aspect-[3/4] rounded-[24px] border transition-all overflow-hidden group shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-xl ${
                                   isBlocked 
                                     ? 'border-red-500/50 bg-red-950/20' 
                                     : photo.preview 
-                                      ? 'border-white/20 bg-black/40 ring-1 ring-white/10' 
-                                      : 'border-dashed border-white/10 bg-white/5 hover:border-primary/40 hover:bg-white/10'
+                                      ? 'border-white/20 bg-black/40 ring-1 ring-white/10 shadow-[0_0_30px_rgba(var(--primary),0.1)]' 
+                                      : 'border-white/5 bg-gradient-to-br from-white/5 to-transparent hover:border-primary/40 hover:bg-white/10'
                                 }`}
                               >
                                 {photo.preview ? (
@@ -1861,8 +1861,8 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                           
                           {photos.length < maxPhotos && activePhotoCount >= (prompt.min_photos || 1) && (
                             <button
-                              onClick={addPhotoSlot}
-                                className="aspect-[3/4] rounded-2xl border-2 border-dashed border-white/10 bg-white/5 flex flex-col items-center justify-center gap-3 hover:bg-white/10 hover:border-primary/30 transition-all group backdrop-blur-sm"
+                                onClick={addPhotoSlot}
+                                className="aspect-[3/4] rounded-[24px] border border-white/5 bg-gradient-to-br from-white/5 to-transparent flex flex-col items-center justify-center gap-3 hover:bg-white/10 hover:border-primary/30 transition-all group backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.3)]"
                             >
                               <div className="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-primary/10 transition-all">
                                 <Plus className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
