@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import {
   X, Upload, User, AtSign, Sparkles, QrCode, Copy, Check, Download,
   Loader2, CheckCircle2, Clock, Pencil, Plus, Trash2,
@@ -1474,33 +1475,21 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm overflow-hidden overscroll-contain p-0 sm:p-4"
-      onClick={(e) => e.target === e.currentTarget && onClose()}
-    >
-      <motion.div
-        initial={{ y: "100%", opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: "100%", opacity: 0 }}
-        transition={{ type: "spring", damping: 30, stiffness: 300 }}
-        className="w-full h-[100dvh] sm:h-auto sm:max-w-4xl [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-      >
-        <div className="relative overflow-hidden h-full sm:h-auto sm:max-h-[90vh] flex flex-col overscroll-contain sm:rounded-3xl border border-white/[0.1] bg-[hsl(var(--background)/0.9)] backdrop-blur-2xl shadow-2xl pb-[env(safe-area-inset-bottom)] pt-[env(safe-area-inset-top)] sm:pb-0 sm:pt-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          {/* Liquid Glass ambient effects */}
-          <div className="absolute -top-[20%] -left-[20%] w-[60%] h-[60%] rounded-full bg-primary/20 blur-[120px] pointer-events-none animate-pulse" />
-          <div className="absolute -bottom-[20%] -right-[20%] w-[60%] h-[60%] rounded-full bg-secondary/20 blur-[120px] pointer-events-none animate-pulse" style={{ animationDelay: '1s' }} />
-
+    <Dialog open={!!prompt} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-4xl p-0 overflow-hidden bg-[#0A0A0B]/95 backdrop-blur-3xl border-white/10 shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] rounded-[32px] sm:rounded-[40px] h-[100dvh] sm:h-auto sm:max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 duration-300">
+        <div className="relative overflow-hidden h-full flex flex-col overscroll-contain">
+          {/* Ambient light effects */}
+          <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] rounded-full bg-primary/10 blur-[100px] pointer-events-none animate-pulse" />
+          <div className="absolute -bottom-[10%] -right-[10%] w-[40%] h-[40%] rounded-full bg-secondary/10 blur-[100px] pointer-events-none animate-pulse" style={{ animationDelay: '1s' }} />
 
           <button 
             onClick={onClose} 
             aria-label="Fechar" 
-            className="absolute top-4 right-4 z-50 p-2.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 active:scale-90 transition-all backdrop-blur-md group/close"
+            className="absolute top-4 right-4 z-[70] p-2.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 active:scale-90 transition-all backdrop-blur-md group/close"
           >
             <X className="w-5 h-5 text-foreground/70 group-hover/close:text-foreground" />
           </button>
+
 
 
           <GlassCardHeader className="pb-4 pt-6">
@@ -1642,28 +1631,19 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
             {authStep === 'done' && step === 'form' && (
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
                 <div className="flex flex-col lg:grid lg:grid-cols-2 lg:gap-10 items-start">
-                  {/* Left Column: Instructions & Details */}
-                  <div className="space-y-6 w-full order-2 lg:order-1">
-                    <div className="space-y-2 hidden lg:block">
+                  {/* Left Column: Details */}
+                  <div className="space-y-6 w-full order-1">
+                    <div className="space-y-2">
                       <h3 className="text-lg font-bold tracking-tight flex items-center gap-2">
                         <Pencil className="w-5 h-5 text-primary" />
-                        Personalização
+                        1. Personalização
                       </h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        Preencha os dados abaixo para que a inteligência artificial capture cada detalhe do seu pedido.
+                      <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                        Preencha os dados abaixo para que a IA capture cada detalhe.
                       </p>
                     </div>
 
-                    {/* Safety Warning UX */}
-                    <div className="flex items-start gap-3 p-4 rounded-2xl bg-destructive/10 border border-destructive/20 shadow-lg shadow-destructive/5 animate-in fade-in slide-in-from-top-2">
-                      <AlertTriangle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
-                      <div className="space-y-1">
-                        <p className="text-xs leading-tight text-destructive-foreground font-bold">Aviso de Segurança</p>
-                        <p className="text-[11px] leading-tight text-destructive-foreground/80">
-                          Conteúdos inadequados, sexualizados ou que violem nossas diretrizes serão bloqueados automaticamente.
-                        </p>
-                      </div>
-                    </div>
+
 
                     <div className="space-y-4">
 
@@ -1762,7 +1742,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   </div>
 
                   {/* Right Column: Photo Uploads */}
-                  <div className="space-y-6 w-full order-1 lg:order-2 mb-8 lg:mb-0">
+                  <div className="space-y-6 w-full order-2 mb-8 lg:mb-0">
                     <div className="space-y-2">
                       <h3 className="text-lg font-bold tracking-tight flex items-center gap-2">
                         <Camera className="w-5 h-5 text-primary" />
@@ -2450,7 +2430,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
             )}
           </GlassCardContent>
         </div>
-      </motion.div>
+      </DialogContent>
 
       <ModerationAppealModal
         isOpen={appealModal.isOpen}
@@ -2460,6 +2440,6 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
         reason={appealModal.reason}
         purchaseId={purchaseId || undefined}
       />
-    </motion.div>
+    </Dialog>
   );
 };
