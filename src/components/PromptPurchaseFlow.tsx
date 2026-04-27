@@ -1633,14 +1633,16 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                 <div className="flex flex-col lg:flex-row lg:gap-10 items-start">
                   {/* Left Column: Details */}
                   <div className="space-y-8 w-full lg:max-w-[420px] order-2 lg:order-1">
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-2xl bg-primary/20 flex items-center justify-center text-primary font-bold text-base shadow-[0_0_20px_rgba(var(--primary),0.3)]">1</div>
-                        <h3 className="text-xl font-black tracking-tight uppercase bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">Configurações</h3>
+                    <div className="space-y-4 p-6 rounded-[24px] bg-white/5 border border-white/10 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.2)]">
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-2xl bg-primary/20 flex items-center justify-center text-primary font-bold text-base shadow-[0_0_20px_rgba(var(--primary),0.3)]">1</div>
+                          <h3 className="text-xl font-black tracking-tight uppercase bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">Configurações</h3>
+                        </div>
+                        <p className="text-xs sm:text-sm text-muted-foreground/80 leading-relaxed pl-1">
+                          Personalize os detalhes para que a nossa IA capture cada traço com precisão.
+                        </p>
                       </div>
-                      <p className="text-xs sm:text-sm text-muted-foreground/80 leading-relaxed pl-13">
-                        Personalize os detalhes para que a nossa IA capture cada traço com precisão.
-                      </p>
                     </div>
 
                     {/* Safety Warning UX */}
