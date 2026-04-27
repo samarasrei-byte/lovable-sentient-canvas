@@ -1640,11 +1640,11 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
             )}
 
             {authStep === 'done' && step === 'form' && (
-              <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
-                <div className="sm:grid sm:grid-cols-2 sm:gap-10 items-start">
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+                <div className="flex flex-col lg:grid lg:grid-cols-2 lg:gap-10 items-start">
                   {/* Left Column: Instructions & Details */}
-                  <div className="space-y-6">
-                    <div className="space-y-2">
+                  <div className="space-y-6 w-full order-2 lg:order-1">
+                    <div className="space-y-2 hidden lg:block">
                       <h3 className="text-lg font-bold tracking-tight flex items-center gap-2">
                         <Pencil className="w-5 h-5 text-primary" />
                         Personalização
@@ -1762,13 +1762,13 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   </div>
 
                   {/* Right Column: Photo Uploads */}
-                  <div className="space-y-6">
+                  <div className="space-y-6 w-full order-1 lg:order-2 mb-8 lg:mb-0">
                     <div className="space-y-2">
                       <h3 className="text-lg font-bold tracking-tight flex items-center gap-2">
                         <Camera className="w-5 h-5 text-primary" />
                         Fotos de Referência
                       </h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
+                      <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                         A qualidade da sua imagem final depende dessas fotos. Use fotos de rosto nítidas.
                       </p>
                     </div>
@@ -1786,7 +1786,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                 {activePhotoCount}/{maxPhotos}
                               </span>
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-2 md:grid-cols-2 gap-3 sm:gap-4">
                           {photos.map((photo, index) => {
                             const photoProfile = photoProfiles[index];
                             const isAnalyzing = analyzingPhotoSlots.includes(index) || photo.status === 'uploading' || photo.status === 'analyzing';
