@@ -1789,12 +1789,12 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                 key={index}
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                className={`relative aspect-[3/4] rounded-2xl border-2 transition-all overflow-hidden group shadow-xl backdrop-blur-md ${
+                                className={`relative aspect-[3/4] rounded-[24px] border transition-all overflow-hidden group shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-xl ${
                                   isBlocked 
                                     ? 'border-red-500/50 bg-red-950/20' 
                                     : photo.preview 
-                                      ? 'border-white/20 bg-black/40 ring-1 ring-white/10' 
-                                      : 'border-dashed border-white/10 bg-white/5 hover:border-primary/40 hover:bg-white/10'
+                                      ? 'border-white/20 bg-black/40 ring-1 ring-white/10 shadow-[0_0_30px_rgba(var(--primary),0.1)]' 
+                                      : 'border-white/5 bg-gradient-to-br from-white/5 to-transparent hover:border-primary/40 hover:bg-white/10'
                                 }`}
                               >
                                 {photo.preview ? (
