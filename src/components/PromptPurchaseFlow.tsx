@@ -1631,17 +1631,18 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
             {authStep === 'done' && step === 'form' && (
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
                 <div className="flex flex-col lg:grid lg:grid-cols-2 lg:gap-10 items-start">
-                  {/* Left Column: Instructions & Details */}
+                  {/* Left Column: Details */}
                   <div className="space-y-6 w-full order-1">
-                    <div className="space-y-2 hidden lg:block">
+                    <div className="space-y-2">
                       <h3 className="text-lg font-bold tracking-tight flex items-center gap-2">
                         <Pencil className="w-5 h-5 text-primary" />
-                        Personalização
+                        1. Personalização
                       </h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        Preencha os dados abaixo para que a inteligência artificial capture cada detalhe do seu pedido.
+                      <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                        Preencha os dados abaixo para que a IA capture cada detalhe.
                       </p>
                     </div>
+
 
 
                     <div className="space-y-4">
