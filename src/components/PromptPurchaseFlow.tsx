@@ -1769,6 +1769,19 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
 
                         {prompt.required_fields.includes('photo') && (
                           <div className="space-y-4">
+                            {/* Tips for better results */}
+                            <div className="flex flex-wrap gap-2 mb-4">
+                              <Badge variant="outline" className="text-[9px] bg-primary/5 border-primary/20 py-1 flex items-center gap-1.5">
+                                <Check className="w-2.5 h-2.5" /> De frente
+                              </Badge>
+                              <Badge variant="outline" className="text-[9px] bg-primary/5 border-primary/20 py-1 flex items-center gap-1.5">
+                                <Check className="w-2.5 h-2.5" /> Boa luz
+                              </Badge>
+                              <Badge variant="outline" className="text-[9px] bg-primary/5 border-primary/20 py-1 flex items-center gap-1.5">
+                                <Check className="w-2.5 h-2.5" /> Sem filtros
+                              </Badge>
+                            </div>
+
                             <div className="flex items-center justify-between mb-2">
                               <span className="text-[10px] font-bold uppercase tracking-widest text-primary/70">
                                 {activePhotoCount < (prompt.min_photos || 1)
@@ -1901,7 +1914,9 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   </div>
                 </div>
 
-                <div className="pt-8 mt-4 border-t border-white/5 flex flex-col items-center gap-5">
+                <div className="pt-8 mt-4 border-t border-white/5 flex flex-col items-center gap-5 w-full">
+                  <StayOnPageCard className="w-full sm:max-w-md animate-in fade-in slide-in-from-bottom-4 duration-700" />
+                  
                   <GlassButton 
                     onClick={handleSubmitForm} 
                     className="w-full sm:max-w-md h-16 text-xl font-black shadow-[0_20px_40px_-15px_hsl(var(--primary)/0.4)] hover:shadow-[0_25px_50px_-12px_hsl(var(--primary)/0.5)] active:scale-95 transition-all group overflow-hidden relative"

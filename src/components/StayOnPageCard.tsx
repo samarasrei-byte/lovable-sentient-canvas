@@ -23,9 +23,10 @@ const REASSURANCE_MESSAGES = [
 interface StayOnPageCardProps {
   /** True when background photo upload finished — shows reassurance badge */
   photosReady?: boolean;
+  className?: string;
 }
 
-export const StayOnPageCard = ({ photosReady }: StayOnPageCardProps) => {
+export const StayOnPageCard = ({ photosReady, className }: StayOnPageCardProps) => {
   const [messageIndex, setMessageIndex] = useState(0);
 
   useEffect(() => {
@@ -51,7 +52,7 @@ export const StayOnPageCard = ({ photosReady }: StayOnPageCardProps) => {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3 }}
-      className="mt-6 rounded-3xl overflow-hidden border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-orange-500/10 to-rose-500/10 backdrop-blur-xl shadow-[0_0_30px_-10px_rgba(245,158,11,0.2)]"
+      className={`mt-6 rounded-3xl overflow-hidden border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-orange-500/10 to-rose-500/10 backdrop-blur-xl shadow-[0_0_30px_-10px_rgba(245,158,11,0.2)] ${className}`}
     >
       {/* Warning header */}
       <div className="flex items-start gap-2.5 px-4 py-3 border-b border-amber-500/10">
