@@ -1741,7 +1741,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   </div>
 
                   {/* Right Column: Photo Uploads */}
-                  <div className="space-y-6 w-full order-1 lg:order-2 mb-8 lg:mb-0">
+                  <div className="space-y-6 w-full order-2 mb-8 lg:mb-0">
                     <div className="space-y-2">
                       <h3 className="text-lg font-bold tracking-tight flex items-center gap-2">
                         <Camera className="w-5 h-5 text-primary" />
