@@ -1478,7 +1478,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm overflow-hidden overscroll-contain"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm overflow-hidden overscroll-contain p-0 sm:p-4"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <motion.div
@@ -1486,16 +1486,20 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: "100%", opacity: 0 }}
         transition={{ type: "spring", damping: 30, stiffness: 300 }}
-        className="w-full h-[100dvh] sm:h-auto sm:max-w-4xl sm:px-4 sm:py-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+        className="w-full h-[100dvh] sm:h-auto sm:max-w-4xl [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
       >
-        <div className="relative overflow-hidden h-full sm:h-auto sm:max-h-[90vh] overflow-y-auto overscroll-contain sm:rounded-2xl border border-white/[0.1] bg-[hsl(var(--background)/0.8)] backdrop-blur-2xl shadow-2xl pb-[env(safe-area-inset-bottom)] pt-[env(safe-area-inset-top)] sm:pb-0 sm:pt-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <div className="relative overflow-hidden h-full sm:h-auto sm:max-h-[90vh] flex flex-col overscroll-contain sm:rounded-3xl border border-white/[0.1] bg-[hsl(var(--background)/0.9)] backdrop-blur-2xl shadow-2xl pb-[env(safe-area-inset-bottom)] pt-[env(safe-area-inset-top)] sm:pb-0 sm:pt-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {/* Liquid Glass ambient effects */}
           <div className="absolute -top-[20%] -left-[20%] w-[60%] h-[60%] rounded-full bg-primary/20 blur-[120px] pointer-events-none animate-pulse" />
           <div className="absolute -bottom-[20%] -right-[20%] w-[60%] h-[60%] rounded-full bg-secondary/20 blur-[120px] pointer-events-none animate-pulse" style={{ animationDelay: '1s' }} />
 
 
-          <button onClick={onClose} aria-label="Fechar" className="absolute top-4 right-4 z-50 p-2 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 active:scale-90 transition-all backdrop-blur-md">
-            <X className="w-4 h-4" />
+          <button 
+            onClick={onClose} 
+            aria-label="Fechar" 
+            className="absolute top-4 right-4 z-50 p-2.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 active:scale-90 transition-all backdrop-blur-md group/close"
+          >
+            <X className="w-5 h-5 text-foreground/70 group-hover/close:text-foreground" />
           </button>
 
 
@@ -1521,10 +1525,10 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
             </div>
           </GlassCardHeader>
 
-          <GlassCardContent className="space-y-6 sm:space-y-8 pb-8">
+          <GlassCardContent className="flex-1 overflow-y-auto space-y-6 sm:space-y-8 pb-8 custom-scrollbar">
             {/* Steps Progress */}
             {authStep === 'done' && (
-              <div className="flex items-center justify-between px-2">
+              <div className="flex items-center justify-between px-2 max-w-lg mx-auto w-full">
                 {(['form', 'payment', 'generating', 'complete'] as const).map((status, index) => {
                   const labels = ['Fotos', 'Pagar', 'Gerar', 'Pronto'];
                   const stepOrder = ['form', 'payment', 'generating', 'complete'];
@@ -1534,13 +1538,13 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   
                   return (
                     <div key={status} className="flex items-center flex-1 last:flex-none">
-                      <div className="flex flex-col items-center gap-1.5 relative group">
-                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-500 border shadow-lg ${
+                      <div className="flex flex-col items-center gap-1.5 relative group shrink-0">
+                        <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition-all duration-500 border shadow-lg ${
                           isCurrent 
                             ? 'bg-primary text-primary-foreground border-primary shadow-primary/30 scale-110' 
                             : isPast 
                               ? 'bg-primary/20 text-primary border-primary/20' 
-                              : 'bg-white/5 text-muted-foreground border-white/10 opacity-50'
+                              : 'bg-white/5 text-muted-foreground border-white/10'
                         }`}>
                           {isPast ? <Check className="w-4 h-4" /> : <span className="text-xs font-bold">{index + 1}</span>}
                         </div>
@@ -1549,7 +1553,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                         </span>
                       </div>
                       {index < 3 && (
-                        <div className="flex-1 px-2 mb-4">
+                        <div className="flex-1 px-1 sm:px-2">
                           <div className={`h-[2px] w-full rounded-full transition-all duration-700 ${isPast ? 'bg-primary/30' : 'bg-white/5'}`} />
                         </div>
                       )}
