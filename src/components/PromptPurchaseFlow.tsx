@@ -1755,13 +1755,13 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
 
                   {/* Right Column: Photo Uploads */}
                   <div className="space-y-6 w-full flex-1 order-1 lg:order-2 mb-8 lg:mb-0">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm">2</div>
-                        <h3 className="text-lg font-bold tracking-tight">Fotos de Referência</h3>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-2xl bg-secondary/20 flex items-center justify-center text-secondary font-bold text-base shadow-[0_0_20px_rgba(var(--secondary),0.3)]">2</div>
+                        <h3 className="text-xl font-black tracking-tight uppercase bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">Upload Premium</h3>
                       </div>
-                      <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed pl-10">
-                        A qualidade da sua imagem final depende dessas fotos. Use fotos de rosto nítidas.
+                      <p className="text-xs sm:text-sm text-muted-foreground/80 leading-relaxed pl-13">
+                        A fidelidade da arte final depende dessas fotos. Priorize imagens nítidas e com boa iluminação.
                       </p>
                     </div>
 
