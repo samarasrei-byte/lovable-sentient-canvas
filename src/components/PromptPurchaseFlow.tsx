@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import {
   X, Upload, User, AtSign, Sparkles, QrCode, Copy, Check, Download,
   Loader2, CheckCircle2, Clock, Pencil, Plus, Trash2,
