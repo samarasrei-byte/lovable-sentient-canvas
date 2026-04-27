@@ -1639,7 +1639,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                         1. Dados da Criança
                       </h3>
                       <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                        Preencha os dados abaixo para que a IA capture cada detalhe.
+                        Preencha o nome e idade para que a IA gere a arte personalizada.
                       </p>
                     </div>
 
