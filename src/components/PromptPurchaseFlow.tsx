@@ -1861,8 +1861,8 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                           
                           {photos.length < maxPhotos && activePhotoCount >= (prompt.min_photos || 1) && (
                             <button
-                              onClick={addPhotoSlot}
-                                className="aspect-[3/4] rounded-2xl border-2 border-dashed border-white/10 bg-white/5 flex flex-col items-center justify-center gap-3 hover:bg-white/10 hover:border-primary/30 transition-all group backdrop-blur-sm"
+                                onClick={addPhotoSlot}
+                                className="aspect-[3/4] rounded-[24px] border border-white/5 bg-gradient-to-br from-white/5 to-transparent flex flex-col items-center justify-center gap-3 hover:bg-white/10 hover:border-primary/30 transition-all group backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.3)]"
                             >
                               <div className="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-primary/10 transition-all">
                                 <Plus className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
