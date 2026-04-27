@@ -25,7 +25,7 @@ interface StayOnPageCardProps {
   photosReady?: boolean;
   className?: string;
 }
-...
+
 export const StayOnPageCard = ({ photosReady, className }: StayOnPageCardProps) => {
   const [messageIndex, setMessageIndex] = useState(0);
 
