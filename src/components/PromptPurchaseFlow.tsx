@@ -205,7 +205,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const isFamilyInit = /família|familia|family/i.test(prompt.category || '') || /família|familia|family/i.test(prompt.name || '');
   const isCoupleInit = /casais|casal|couple/i.test(prompt.category || '') || /casais|casal|couple/i.test(prompt.name || '');
   const isMultiPersonPrompt = (prompt.min_photos || 1) >= 2;
-  const initialPhotoSlots = isMultiPersonPrompt ? Math.max(prompt.min_photos || 2, 2) : isFamilyInit ? Math.max(prompt.min_photos || 2, 2) : 1;
+  const initialPhotoSlots = Math.max(prompt.min_photos || 1, 1);
   const [photos, setPhotos] = useState<PhotoSlot[]>(Array.from({ length: initialPhotoSlots }, () => ({ file: null, preview: '' })));
   const [photoProfiles, setPhotoProfiles] = useState<(PhotoProfile | null)[]>(Array.from({ length: initialPhotoSlots }, () => null));
   const [analyzingPhotoSlots, setAnalyzingPhotoSlots] = useState<number[]>([]);
@@ -1662,27 +1662,6 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                     </div>
 
                     <div className="space-y-4">
-                      {/* Person context - NEW */}
-                      <div className="space-y-2">
-                        <Label className="text-xs sm:text-sm font-semibold ml-1">Quem está na foto?</Label>
-                        <div className="grid grid-cols-2 gap-2">
-                          {['bebê', 'criança', 'adulto', 'pet'].map((tipo) => (
-                            <button
-                              key={tipo}
-                              type="button"
-                              onClick={() => setFormData(prev => ({ ...prev, description: tipo }))}
-                              className={cn(
-                                "py-2 px-3 rounded-xl border text-[10px] font-bold uppercase tracking-wider transition-all",
-                                formData.description === tipo 
-                                  ? "bg-primary/20 border-primary text-primary shadow-lg shadow-primary/10" 
-                                  : "bg-white/5 border-white/10 text-muted-foreground hover:border-white/20"
-                              )}
-                            >
-                              {tipo}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
 
                       {/* Name field */}
                       {prompt.required_fields.includes('name') && (() => {
@@ -1793,12 +1772,10 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                         {prompt.required_fields.includes('photo') && (
                           <div className="space-y-4">
                             <div className="flex items-center justify-between mb-2">
-                              <span className="text-[10px] font-bold uppercase tracking-widest text-primary">
-                                {activePhotoCount === 0 
-                                  ? `Mínimo: ${prompt.min_photos || 1} foto` 
-                                  : activePhotoCount < (prompt.min_photos || 1)
-                                    ? `Faltam ${ (prompt.min_photos || 1) - activePhotoCount } fotos`
-                                    : "Fotos prontas"
+                              <span className="text-[10px] font-bold uppercase tracking-widest text-primary/70">
+                                {activePhotoCount < (prompt.min_photos || 1)
+                                  ? `Necessário: ${prompt.min_photos || 1} ${ (prompt.min_photos || 1) === 1 ? 'foto' : 'fotos' }`
+                                  : "Fotos validadas"
                                 }
                               </span>
                               <span className="text-[10px] font-bold text-muted-foreground/50">
@@ -1886,17 +1863,17 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                             );
                           })}
                           
-                          {photos.length < maxPhotos && (
+                          {photos.length < maxPhotos && activePhotoCount >= (prompt.min_photos || 1) && (
                             <button
                               onClick={addPhotoSlot}
                               className="aspect-[3/4] rounded-2xl border-2 border-dashed border-white/10 bg-white/5 flex flex-col items-center justify-center gap-3 hover:bg-white/10 hover:border-primary/30 transition-all group"
                             >
-                              <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-primary/10 transition-all">
-                                <Plus className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
+                              <div className="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-primary/10 transition-all">
+                                <Plus className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
                               </div>
                               <div className="flex flex-col items-center gap-1">
-                                <span className="text-[11px] font-bold text-muted-foreground group-hover:text-primary transition-colors">Nova Pessoa</span>
-                                <span className="text-[9px] text-muted-foreground/40 font-medium">Opcional</span>
+                                <span className="text-[10px] font-bold text-muted-foreground group-hover:text-primary transition-colors">Nova Foto</span>
+                                <span className="text-[8px] text-muted-foreground/40 font-medium uppercase tracking-tighter">Opcional</span>
                               </div>
                             </button>
                           )}
@@ -1923,8 +1900,8 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                         Gerar minha arte ({formatPrice(prompt.price_cents)})
                       </span>
                       {activePhotoCount < (prompt.min_photos || 1) && (
-                        <span className="text-[10px] font-bold opacity-60 mt-1 uppercase tracking-tighter">
-                          Faltam {(prompt.min_photos || 1) - activePhotoCount} fotos para liberar
+                        <span className="text-[10px] font-bold opacity-40 mt-1 uppercase tracking-widest">
+                          Aguardando fotos de referência
                         </span>
                       )}
                     </span>
