@@ -23,9 +23,10 @@ const REASSURANCE_MESSAGES = [
 interface StayOnPageCardProps {
   /** True when background photo upload finished — shows reassurance badge */
   photosReady?: boolean;
+  className?: string;
 }
-
-export const StayOnPageCard = ({ photosReady }: StayOnPageCardProps) => {
+...
+export const StayOnPageCard = ({ photosReady, className }: StayOnPageCardProps) => {
   const [messageIndex, setMessageIndex] = useState(0);
 
   useEffect(() => {
