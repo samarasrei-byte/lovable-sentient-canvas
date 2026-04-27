@@ -1758,7 +1758,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                     <div className="space-y-2">
                       <h3 className="text-lg font-bold tracking-tight flex items-center gap-2">
                         <Camera className="w-5 h-5 text-primary" />
-                        Fotos de Referência
+                        2. Fotos de Referência
                       </h3>
                       <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                         A qualidade da sua imagem final depende dessas fotos. Use fotos de rosto nítidas.
