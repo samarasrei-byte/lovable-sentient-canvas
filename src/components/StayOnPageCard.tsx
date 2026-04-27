@@ -60,7 +60,7 @@ export const StayOnPageCard = ({ photosReady }: StayOnPageCardProps) => {
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-xs font-semibold text-amber-200/95 leading-tight">
-            Não saia da página
+            Não saia da página!
           </p>
           <p className="text-[10px] text-amber-100/50 leading-relaxed mt-0.5">
             Se você fechar agora, perde o resultado. Vale a pena esperar — o resultado final é absurdo.
