@@ -1633,14 +1633,16 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                 <div className="flex flex-col lg:flex-row lg:gap-10 items-start">
                   {/* Left Column: Details */}
                   <div className="space-y-8 w-full lg:max-w-[420px] order-2 lg:order-1">
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-2xl bg-primary/20 flex items-center justify-center text-primary font-bold text-base shadow-[0_0_20px_rgba(var(--primary),0.3)]">1</div>
-                        <h3 className="text-xl font-black tracking-tight uppercase bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">Configurações</h3>
+                    <div className="space-y-4 p-6 rounded-[24px] bg-white/5 border border-white/10 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.2)]">
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-2xl bg-primary/20 flex items-center justify-center text-primary font-bold text-base shadow-[0_0_20px_rgba(var(--primary),0.3)]">1</div>
+                          <h3 className="text-xl font-black tracking-tight uppercase bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">Configurações</h3>
+                        </div>
+                        <p className="text-xs sm:text-sm text-muted-foreground/80 leading-relaxed pl-1">
+                          Personalize os detalhes para que a nossa IA capture cada traço com precisão.
+                        </p>
                       </div>
-                      <p className="text-xs sm:text-sm text-muted-foreground/80 leading-relaxed pl-13">
-                        Personalize os detalhes para que a nossa IA capture cada traço com precisão.
-                      </p>
                     </div>
 
                     {/* Safety Warning UX */}
@@ -1810,12 +1812,16 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                     </button>
 
                                     {photoProfile?.audit_qualidade && !isAnalyzing && !isBlocked && (
-                                      <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform">
-                                        <div className="flex items-center gap-2">
-                                          <div className={`w-2 h-2 rounded-full ${photoProfile.audit_qualidade.score_identidade > 0.8 ? 'bg-green-500 shadow-[0_0_8px_hsl(var(--green-500))]' : 'bg-yellow-500'}`} />
-                                          <span className="text-[10px] font-bold text-white uppercase tracking-wider">Identidade OK</span>
+                                      <motion.div 
+                                        initial={{ y: 20, opacity: 0 }}
+                                        animate={{ y: 0, opacity: 1 }}
+                                        className="absolute bottom-3 left-3 right-3 p-3 rounded-xl bg-green-500/10 border border-green-500/20 backdrop-blur-md flex items-center gap-3"
+                                      >
+                                        <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center shadow-[0_0_15px_rgba(34,197,94,0.4)]">
+                                          <CheckCircle2 className="w-4 h-4 text-white" />
                                         </div>
-                                      </div>
+                                        <span className="text-[10px] font-black text-green-400 uppercase tracking-widest">Sucesso</span>
+                                      </motion.div>
                                     )}
                                   </>
                                 ) : (
@@ -1837,9 +1843,25 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                 )}
 
                                 {isAnalyzing && (
-                                  <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center gap-3 backdrop-blur-md">
-                                    <Loader2 className="w-8 h-8 text-primary animate-spin" />
-                                    <span className="text-[10px] font-bold text-primary animate-pulse tracking-widest uppercase">Analisando...</span>
+                                  <div className="absolute inset-0 bg-black/90 flex flex-col items-center justify-center p-6 gap-4 backdrop-blur-xl">
+                                    <div className="relative w-16 h-16">
+                                      <div className="absolute inset-0 rounded-full border-2 border-primary/20" />
+                                      <div className="absolute inset-0 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                                      <div className="absolute inset-0 flex items-center justify-center">
+                                        <Sparkles className="w-6 h-6 text-primary animate-pulse" />
+                                      </div>
+                                    </div>
+                                    <div className="space-y-2 text-center">
+                                      <span className="text-[11px] font-black text-primary animate-pulse tracking-[0.2em] uppercase block">Analisando</span>
+                                      <div className="w-24 h-1 bg-white/10 rounded-full overflow-hidden">
+                                        <motion.div 
+                                          className="h-full bg-primary"
+                                          initial={{ width: "0%" }}
+                                          animate={{ width: "100%" }}
+                                          transition={{ duration: 2, repeat: Infinity }}
+                                        />
+                                      </div>
+                                    </div>
                                   </div>
                                 )}
 
