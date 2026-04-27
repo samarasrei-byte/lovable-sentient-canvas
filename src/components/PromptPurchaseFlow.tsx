@@ -1538,13 +1538,13 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   
                   return (
                     <div key={status} className="flex items-center flex-1 last:flex-none">
-                      <div className="flex flex-col items-center gap-1.5 relative group">
-                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-500 border shadow-lg ${
+                      <div className="flex flex-col items-center gap-1.5 relative group shrink-0">
+                        <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition-all duration-500 border shadow-lg ${
                           isCurrent 
                             ? 'bg-primary text-primary-foreground border-primary shadow-primary/30 scale-110' 
                             : isPast 
                               ? 'bg-primary/20 text-primary border-primary/20' 
-                              : 'bg-white/5 text-muted-foreground border-white/10 opacity-50'
+                              : 'bg-white/5 text-muted-foreground border-white/10'
                         }`}>
                           {isPast ? <Check className="w-4 h-4" /> : <span className="text-xs font-bold">{index + 1}</span>}
                         </div>
