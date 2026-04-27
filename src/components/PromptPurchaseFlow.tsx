@@ -1632,7 +1632,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
                 <div className="flex flex-col lg:grid lg:grid-cols-2 lg:gap-10 items-start">
                   {/* Left Column: Instructions & Details */}
-                  <div className="space-y-6 w-full order-2 lg:order-1">
+                  <div className="space-y-6 w-full order-1">
                     <div className="space-y-2 hidden lg:block">
                       <h3 className="text-lg font-bold tracking-tight flex items-center gap-2">
                         <Pencil className="w-5 h-5 text-primary" />
@@ -1643,16 +1643,6 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                       </p>
                     </div>
 
-                    {/* Safety Warning UX */}
-                    <div className="flex items-start gap-3 p-4 rounded-2xl bg-destructive/10 border border-destructive/20 shadow-lg shadow-destructive/5 animate-in fade-in slide-in-from-top-2">
-                      <AlertTriangle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
-                      <div className="space-y-1">
-                        <p className="text-xs leading-tight text-destructive-foreground font-bold">Aviso de Segurança</p>
-                        <p className="text-[11px] leading-tight text-destructive-foreground/80">
-                          Conteúdos inadequados, sexualizados ou que violem nossas diretrizes serão bloqueados automaticamente.
-                        </p>
-                      </div>
-                    </div>
 
                     <div className="space-y-4">
 
