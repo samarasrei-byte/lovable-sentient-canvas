@@ -1630,15 +1630,15 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
 
             {authStep === 'done' && step === 'form' && (
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-                <div className="flex flex-col lg:grid lg:grid-cols-2 lg:gap-10 items-start">
+                <div className="flex flex-col lg:flex-row lg:gap-8 items-start">
                   {/* Left Column: Details */}
-                  <div className="space-y-6 w-full order-1">
+                  <div className="space-y-6 w-full lg:max-w-[420px] order-2 lg:order-1">
                     <div className="space-y-2">
-                      <h3 className="text-lg font-bold tracking-tight flex items-center gap-2">
-                        <Pencil className="w-5 h-5 text-primary" />
-                        1. Dados da Criança
-                      </h3>
-                      <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm">1</div>
+                        <h3 className="text-lg font-bold tracking-tight">Dados da Criança</h3>
+                      </div>
+                      <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed pl-10">
                         Preencha o nome e idade para que a IA gere a arte personalizada.
                       </p>
                     </div>
@@ -1754,13 +1754,13 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   </div>
 
                   {/* Right Column: Photo Uploads */}
-                  <div className="space-y-6 w-full order-2 mb-8 lg:mb-0">
+                  <div className="space-y-6 w-full flex-1 order-1 lg:order-2 mb-8 lg:mb-0">
                     <div className="space-y-2">
-                      <h3 className="text-lg font-bold tracking-tight flex items-center gap-2">
-                        <Camera className="w-5 h-5 text-primary" />
-                        2. Fotos de Referência
-                      </h3>
-                      <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm">2</div>
+                        <h3 className="text-lg font-bold tracking-tight">Fotos de Referência</h3>
+                      </div>
+                      <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed pl-10">
                         A qualidade da sua imagem final depende dessas fotos. Use fotos de rosto nítidas.
                       </p>
                     </div>
@@ -1778,7 +1778,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                 {activePhotoCount}/{maxPhotos}
                               </span>
                             </div>
-                            <div className="grid grid-cols-2 md:grid-cols-2 gap-3 sm:gap-4">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
                           {photos.map((photo, index) => {
                             const photoProfile = photoProfiles[index];
                             const isAnalyzing = analyzingPhotoSlots.includes(index) || photo.status === 'uploading' || photo.status === 'analyzing';
@@ -1789,11 +1789,11 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                 key={index}
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                className={`relative aspect-[3/4] rounded-2xl border-2 transition-all overflow-hidden group shadow-lg ${
+                                className={`relative aspect-[3/4] rounded-2xl border-2 transition-all overflow-hidden group shadow-xl backdrop-blur-md ${
                                   isBlocked 
                                     ? 'border-red-500/50 bg-red-950/20' 
                                     : photo.preview 
-                                      ? 'border-white/10 bg-black/40' 
+                                      ? 'border-white/20 bg-black/40 ring-1 ring-white/10' 
                                       : 'border-dashed border-white/10 bg-white/5 hover:border-primary/40 hover:bg-white/10'
                                 }`}
                               >
@@ -1862,7 +1862,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                           {photos.length < maxPhotos && activePhotoCount >= (prompt.min_photos || 1) && (
                             <button
                               onClick={addPhotoSlot}
-                              className="aspect-[3/4] rounded-2xl border-2 border-dashed border-white/10 bg-white/5 flex flex-col items-center justify-center gap-3 hover:bg-white/10 hover:border-primary/30 transition-all group"
+                                className="aspect-[3/4] rounded-2xl border-2 border-dashed border-white/10 bg-white/5 flex flex-col items-center justify-center gap-3 hover:bg-white/10 hover:border-primary/30 transition-all group backdrop-blur-sm"
                             >
                               <div className="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-primary/10 transition-all">
                                 <Plus className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
