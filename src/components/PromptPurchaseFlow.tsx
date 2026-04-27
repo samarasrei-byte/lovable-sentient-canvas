@@ -1474,33 +1474,21 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm overflow-hidden overscroll-contain p-0 sm:p-4"
-      onClick={(e) => e.target === e.currentTarget && onClose()}
-    >
-      <motion.div
-        initial={{ y: "100%", opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: "100%", opacity: 0 }}
-        transition={{ type: "spring", damping: 30, stiffness: 300 }}
-        className="w-full h-[100dvh] sm:h-auto sm:max-w-4xl [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-      >
-        <div className="relative overflow-hidden h-full sm:h-auto sm:max-h-[90vh] flex flex-col overscroll-contain sm:rounded-3xl border border-white/[0.1] bg-[hsl(var(--background)/0.9)] backdrop-blur-2xl shadow-2xl pb-[env(safe-area-inset-bottom)] pt-[env(safe-area-inset-top)] sm:pb-0 sm:pt-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          {/* Liquid Glass ambient effects */}
-          <div className="absolute -top-[20%] -left-[20%] w-[60%] h-[60%] rounded-full bg-primary/20 blur-[120px] pointer-events-none animate-pulse" />
-          <div className="absolute -bottom-[20%] -right-[20%] w-[60%] h-[60%] rounded-full bg-secondary/20 blur-[120px] pointer-events-none animate-pulse" style={{ animationDelay: '1s' }} />
-
+    <Dialog open={!!prompt} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-4xl p-0 overflow-hidden bg-[#0A0A0B]/95 backdrop-blur-3xl border-white/10 shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] rounded-[32px] sm:rounded-[40px] h-[100dvh] sm:h-auto sm:max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 duration-300">
+        <div className="relative overflow-hidden h-full flex flex-col overscroll-contain">
+          {/* Ambient light effects */}
+          <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] rounded-full bg-primary/10 blur-[100px] pointer-events-none animate-pulse" />
+          <div className="absolute -bottom-[10%] -right-[10%] w-[40%] h-[40%] rounded-full bg-secondary/10 blur-[100px] pointer-events-none animate-pulse" style={{ animationDelay: '1s' }} />
 
           <button 
             onClick={onClose} 
             aria-label="Fechar" 
-            className="absolute top-4 right-4 z-50 p-2.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 active:scale-90 transition-all backdrop-blur-md group/close"
+            className="absolute top-4 right-4 z-[70] p-2.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 active:scale-90 transition-all backdrop-blur-md group/close"
           >
             <X className="w-5 h-5 text-foreground/70 group-hover/close:text-foreground" />
           </button>
+
 
 
           <GlassCardHeader className="pb-4 pt-6">
