@@ -51,7 +51,7 @@ export const StayOnPageCard = ({ photosReady }: StayOnPageCardProps) => {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3 }}
-      className="mt-5 rounded-2xl overflow-hidden border border-amber-500/20 bg-gradient-to-br from-amber-500/8 via-orange-500/5 to-rose-500/8"
+      className="mt-6 rounded-3xl overflow-hidden border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-orange-500/10 to-rose-500/10 backdrop-blur-xl shadow-[0_0_30px_-10px_rgba(245,158,11,0.2)]"
     >
       {/* Warning header */}
       <div className="flex items-start gap-2.5 px-4 py-3 border-b border-amber-500/10">
