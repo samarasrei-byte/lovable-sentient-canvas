@@ -1812,12 +1812,16 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                     </button>
 
                                     {photoProfile?.audit_qualidade && !isAnalyzing && !isBlocked && (
-                                      <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform">
-                                        <div className="flex items-center gap-2">
-                                          <div className={`w-2 h-2 rounded-full ${photoProfile.audit_qualidade.score_identidade > 0.8 ? 'bg-green-500 shadow-[0_0_8px_hsl(var(--green-500))]' : 'bg-yellow-500'}`} />
-                                          <span className="text-[10px] font-bold text-white uppercase tracking-wider">Identidade OK</span>
+                                      <motion.div 
+                                        initial={{ y: 20, opacity: 0 }}
+                                        animate={{ y: 0, opacity: 1 }}
+                                        className="absolute bottom-3 left-3 right-3 p-3 rounded-xl bg-green-500/10 border border-green-500/20 backdrop-blur-md flex items-center gap-3"
+                                      >
+                                        <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center shadow-[0_0_15px_rgba(34,197,94,0.4)]">
+                                          <CheckCircle2 className="w-4 h-4 text-white" />
                                         </div>
-                                      </div>
+                                        <span className="text-[10px] font-black text-green-400 uppercase tracking-widest">Sucesso</span>
+                                      </motion.div>
                                     )}
                                   </>
                                 ) : (
