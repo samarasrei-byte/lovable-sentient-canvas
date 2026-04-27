@@ -1636,12 +1636,24 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                     <div className="space-y-2">
                       <h3 className="text-lg font-bold tracking-tight flex items-center gap-2">
                         <Pencil className="w-5 h-5 text-primary" />
-                        1. Personalização
+                        1. Dados da Criança
                       </h3>
                       <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                        Preencha os dados abaixo para que a IA capture cada detalhe.
+                        Preencha o nome e idade para que a IA gere a arte personalizada.
                       </p>
                     </div>
+
+                    {/* Safety Warning UX */}
+                    <div className="flex items-start gap-3 p-4 rounded-2xl bg-amber-500/5 border border-amber-500/10 shadow-lg shadow-amber-500/5 animate-in fade-in slide-in-from-top-2">
+                      <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                      <div className="space-y-1">
+                        <p className="text-xs leading-tight text-amber-200 font-bold">Diretrizes de Uso</p>
+                        <p className="text-[11px] leading-tight text-amber-100/60">
+                          Conteúdos inadequados, sexualizados ou que violem nossas diretrizes serão bloqueados pela IA.
+                        </p>
+                      </div>
+                    </div>
+
 
 
 
@@ -1746,7 +1758,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                     <div className="space-y-2">
                       <h3 className="text-lg font-bold tracking-tight flex items-center gap-2">
                         <Camera className="w-5 h-5 text-primary" />
-                        Fotos de Referência
+                        2. Fotos de Referência
                       </h3>
                       <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                         A qualidade da sua imagem final depende dessas fotos. Use fotos de rosto nítidas.
