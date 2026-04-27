@@ -1772,12 +1772,10 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                         {prompt.required_fields.includes('photo') && (
                           <div className="space-y-4">
                             <div className="flex items-center justify-between mb-2">
-                              <span className="text-[10px] font-bold uppercase tracking-widest text-primary">
-                                {activePhotoCount === 0 
-                                  ? `Mínimo: ${prompt.min_photos || 1} foto` 
-                                  : activePhotoCount < (prompt.min_photos || 1)
-                                    ? `Faltam ${ (prompt.min_photos || 1) - activePhotoCount } fotos`
-                                    : "Fotos prontas"
+                              <span className="text-[10px] font-bold uppercase tracking-widest text-primary/70">
+                                {activePhotoCount < (prompt.min_photos || 1)
+                                  ? `Necessário: ${prompt.min_photos || 1} ${ (prompt.min_photos || 1) === 1 ? 'foto' : 'fotos' }`
+                                  : "Fotos validadas"
                                 }
                               </span>
                               <span className="text-[10px] font-bold text-muted-foreground/50">
@@ -1902,8 +1900,8 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                         Gerar minha arte ({formatPrice(prompt.price_cents)})
                       </span>
                       {activePhotoCount < (prompt.min_photos || 1) && (
-                        <span className="text-[10px] font-bold opacity-60 mt-1 uppercase tracking-tighter">
-                          Faltam {(prompt.min_photos || 1) - activePhotoCount} fotos para liberar
+                        <span className="text-[10px] font-bold opacity-40 mt-1 uppercase tracking-widest">
+                          Aguardando fotos de referência
                         </span>
                       )}
                     </span>
