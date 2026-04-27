@@ -1769,6 +1769,19 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
 
                         {prompt.required_fields.includes('photo') && (
                           <div className="space-y-4">
+                            {/* Tips for better results */}
+                            <div className="flex flex-wrap gap-2 mb-4">
+                              <Badge variant="outline" className="text-[9px] bg-primary/5 border-primary/20 py-1 flex items-center gap-1.5">
+                                <Check className="w-2.5 h-2.5" /> De frente
+                              </Badge>
+                              <Badge variant="outline" className="text-[9px] bg-primary/5 border-primary/20 py-1 flex items-center gap-1.5">
+                                <Check className="w-2.5 h-2.5" /> Boa luz
+                              </Badge>
+                              <Badge variant="outline" className="text-[9px] bg-primary/5 border-primary/20 py-1 flex items-center gap-1.5">
+                                <Check className="w-2.5 h-2.5" /> Sem filtros
+                              </Badge>
+                            </div>
+
                             <div className="flex items-center justify-between mb-2">
                               <span className="text-[10px] font-bold uppercase tracking-widest text-primary/70">
                                 {activePhotoCount < (prompt.min_photos || 1)
