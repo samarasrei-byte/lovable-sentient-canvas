@@ -2440,6 +2440,15 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
           </GlassCardContent>
         </div>
       </DialogContent>
+
+      <ModerationAppealModal
+        isOpen={appealModal.isOpen}
+        onClose={() => setAppealModal(prev => ({ ...prev, isOpen: false }))}
+        type={appealModal.type}
+        photoUrl={appealModal.photoUrl}
+        reason={appealModal.reason}
+        purchaseId={purchaseId || undefined}
+      />
     </Dialog>
   );
 };
