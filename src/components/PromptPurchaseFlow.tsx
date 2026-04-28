@@ -1790,20 +1790,32 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                             const photoProfile = photoProfiles[index];
                             const isAnalyzing = analyzingPhotoSlots.includes(index) || photo.status === 'uploading' || photo.status === 'analyzing';
                             const isBlocked = photo.status === 'blocked';
+                            const isEmpty = !photo.preview && !isAnalyzing && !isBlocked;
                             
                             return (
                               <motion.div
                                 key={index}
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                className={`relative aspect-[3/4] rounded-[24px] border transition-all overflow-hidden group shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-xl ${
+                                className={`relative aspect-[3/4] rounded-[28px] border transition-all overflow-hidden group shadow-[0_20px_50px_rgba(0,0,0,0.35)] backdrop-blur-xl ${
                                   isBlocked 
                                     ? 'border-red-500/50 bg-red-950/20' 
                                     : photo.preview 
-                                      ? 'border-white/20 bg-black/40 ring-1 ring-white/10 shadow-[0_0_30px_rgba(var(--primary),0.1)]' 
-                                      : 'border-white/5 bg-gradient-to-br from-white/5 to-transparent hover:border-primary/40 hover:bg-white/10'
+                                      ? 'border-white/20 bg-black/40 ring-1 ring-white/10 shadow-[0_0_40px_rgba(168,85,247,0.15)]' 
+                                      : 'border-white/10 bg-gradient-to-br from-white/[0.06] via-white/[0.02] to-transparent hover:border-primary/40'
                                 }`}
                               >
+                                {/* LED glow ring for empty slots */}
+                                {isEmpty && (
+                                  <>
+                                    <div className="absolute -inset-px rounded-[28px] bg-gradient-to-br from-primary/30 via-secondary/20 to-primary/30 opacity-0 group-hover:opacity-100 blur-md transition-opacity duration-500 pointer-events-none" />
+                                    <div className="absolute inset-0 rounded-[28px] pointer-events-none overflow-hidden">
+                                      <div className="absolute inset-[-50%] bg-[conic-gradient(from_0deg,transparent_0deg,hsl(var(--primary)/0.4)_60deg,transparent_120deg,transparent_240deg,hsl(var(--secondary)/0.3)_300deg,transparent_360deg)] animate-[spin_4s_linear_infinite] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                    </div>
+                                    <div className="absolute inset-[1.5px] rounded-[27px] bg-[#0A0A0B]/95 pointer-events-none" />
+                                  </>
+                                )}
+
                                 {photo.preview ? (
                                   <>
                                     <img src={photo.preview} alt="Upload" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
@@ -1830,19 +1842,22 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                     )}
                                   </>
                                 ) : (
-                                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 cursor-pointer p-4 text-center">
-                                    <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-primary/20 group-hover:border-primary/40 transition-all">
-                                      <Plus className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
+                                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 cursor-pointer p-4 text-center z-10">
+                                    <div className="relative">
+                                      <div className="absolute inset-0 rounded-2xl bg-primary/30 blur-xl opacity-60 group-hover:opacity-100 transition-opacity animate-pulse" />
+                                      <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-white/10 to-white/[0.02] border border-white/15 flex items-center justify-center group-hover:from-primary/20 group-hover:border-primary/50 transition-all shadow-[0_0_20px_rgba(168,85,247,0.15)]">
+                                        <Plus className="w-7 h-7 text-foreground/70 group-hover:text-primary group-hover:rotate-90 transition-all duration-300" />
+                                      </div>
                                     </div>
                                     <div className="space-y-1">
-                                      <p className="text-[11px] font-bold text-muted-foreground group-hover:text-primary transition-colors">Adicionar Foto</p>
-                                      <p className="text-[9px] text-muted-foreground/50">Clique para enviar</p>
+                                      <p className="text-[12px] font-bold text-foreground/80 group-hover:text-primary transition-colors tracking-tight">Adicionar foto</p>
+                                      <p className="text-[9px] text-muted-foreground/50 uppercase tracking-widest">Toque para enviar</p>
                                     </div>
                                     <input
                                       type="file"
                                       accept="image/*"
                                       onChange={(e) => handlePhotoUpload(index, e)}
-                                      className="absolute inset-0 opacity-0 cursor-pointer"
+                                      className="absolute inset-0 opacity-0 cursor-pointer z-20"
                                     />
                                   </div>
                                 )}
