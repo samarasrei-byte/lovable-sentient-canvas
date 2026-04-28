@@ -1744,15 +1744,18 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                     </div>
                   </div>
 
-                  {/* Right Column: Photo Uploads */}
-                  <div className="space-y-6 w-full flex-1 order-1 lg:order-2 mb-8 lg:mb-0">
-                    <div className="space-y-3">
+                  {/* Right Column: Photo Uploads — HERO AREA */}
+                  <div className="space-y-5 w-full flex-1 order-1 lg:order-2 mb-8 lg:mb-0">
+                    <div className="space-y-2">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-2xl bg-secondary/20 flex items-center justify-center text-secondary font-bold text-base shadow-[0_0_20px_rgba(var(--secondary),0.3)]">2</div>
-                        <h3 className="text-xl font-black tracking-tight uppercase bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">Upload Premium</h3>
+                        <div className="relative">
+                          <div className="absolute inset-0 rounded-2xl bg-secondary/40 blur-xl animate-pulse" />
+                          <div className="relative w-11 h-11 rounded-2xl bg-gradient-to-br from-secondary/40 to-primary/20 flex items-center justify-center text-white font-black text-base border border-white/15 shadow-[0_0_30px_rgba(168,85,247,0.4)]">2</div>
+                        </div>
+                        <h3 className="text-2xl sm:text-3xl font-black tracking-[-0.03em] bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-white/50">Suas fotos</h3>
                       </div>
-                      <p className="text-xs sm:text-sm text-muted-foreground/80 leading-relaxed pl-13">
-                        A fidelidade da arte final depende dessas fotos. Priorize imagens nítidas e com boa iluminação.
+                      <p className="text-xs sm:text-sm text-muted-foreground/70 leading-relaxed pl-14">
+                        A fidelidade depende dessas fotos. Quanto mais nítidas e bem iluminadas, melhor o resultado.
                       </p>
                     </div>
 
