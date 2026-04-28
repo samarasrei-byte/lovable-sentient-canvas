@@ -1630,20 +1630,9 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
 
             {authStep === 'done' && step === 'form' && (
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-                <div className="flex flex-col lg:flex-row lg:gap-10 items-start">
-                  {/* Left Column: Details */}
-                  <div className="space-y-8 w-full lg:max-w-[420px] order-2 lg:order-1">
-                    <div className="space-y-4 p-6 rounded-[24px] bg-white/5 border border-white/10 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.2)]">
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-2xl bg-primary/20 flex items-center justify-center text-primary font-bold text-base shadow-[0_0_20px_rgba(var(--primary),0.3)]">1</div>
-                          <h3 className="text-xl font-black tracking-tight uppercase bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">Configurações</h3>
-                        </div>
-                        <p className="text-xs sm:text-sm text-muted-foreground/80 leading-relaxed pl-1">
-                          Personalize os detalhes para que a nossa IA capture cada traço com precisão.
-                        </p>
-                      </div>
-                    </div>
+                <div className="flex flex-col lg:flex-row lg:gap-8 items-start">
+                  {/* Left Column: Details (compact) */}
+                  <div className="space-y-5 w-full lg:max-w-[320px] order-2 lg:order-1">
 
                     {/* Safety Warning UX */}
                     <div className="flex items-start gap-3 p-4 rounded-2xl bg-amber-500/5 border border-amber-500/10 shadow-lg shadow-amber-500/5 animate-in fade-in slide-in-from-top-2">
@@ -1755,15 +1744,18 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                     </div>
                   </div>
 
-                  {/* Right Column: Photo Uploads */}
-                  <div className="space-y-6 w-full flex-1 order-1 lg:order-2 mb-8 lg:mb-0">
-                    <div className="space-y-3">
+                  {/* Right Column: Photo Uploads — HERO AREA */}
+                  <div className="space-y-5 w-full flex-1 order-1 lg:order-2 mb-8 lg:mb-0">
+                    <div className="space-y-2">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-2xl bg-secondary/20 flex items-center justify-center text-secondary font-bold text-base shadow-[0_0_20px_rgba(var(--secondary),0.3)]">2</div>
-                        <h3 className="text-xl font-black tracking-tight uppercase bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">Upload Premium</h3>
+                        <div className="relative">
+                          <div className="absolute inset-0 rounded-2xl bg-secondary/40 blur-xl animate-pulse" />
+                          <div className="relative w-11 h-11 rounded-2xl bg-gradient-to-br from-secondary/40 to-primary/20 flex items-center justify-center text-white font-black text-base border border-white/15 shadow-[0_0_30px_rgba(168,85,247,0.4)]">2</div>
+                        </div>
+                        <h3 className="text-2xl sm:text-3xl font-black tracking-[-0.03em] bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-white/50">Suas fotos</h3>
                       </div>
-                      <p className="text-xs sm:text-sm text-muted-foreground/80 leading-relaxed pl-13">
-                        A fidelidade da arte final depende dessas fotos. Priorize imagens nítidas e com boa iluminação.
+                      <p className="text-xs sm:text-sm text-muted-foreground/70 leading-relaxed pl-14">
+                        A fidelidade depende dessas fotos. Quanto mais nítidas e bem iluminadas, melhor o resultado.
                       </p>
                     </div>
 
@@ -1798,20 +1790,32 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                             const photoProfile = photoProfiles[index];
                             const isAnalyzing = analyzingPhotoSlots.includes(index) || photo.status === 'uploading' || photo.status === 'analyzing';
                             const isBlocked = photo.status === 'blocked';
+                            const isEmpty = !photo.preview && !isAnalyzing && !isBlocked;
                             
                             return (
                               <motion.div
                                 key={index}
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                className={`relative aspect-[3/4] rounded-[24px] border transition-all overflow-hidden group shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-xl ${
+                                className={`relative aspect-[3/4] rounded-[28px] border transition-all overflow-hidden group shadow-[0_20px_50px_rgba(0,0,0,0.35)] backdrop-blur-xl ${
                                   isBlocked 
                                     ? 'border-red-500/50 bg-red-950/20' 
                                     : photo.preview 
-                                      ? 'border-white/20 bg-black/40 ring-1 ring-white/10 shadow-[0_0_30px_rgba(var(--primary),0.1)]' 
-                                      : 'border-white/5 bg-gradient-to-br from-white/5 to-transparent hover:border-primary/40 hover:bg-white/10'
+                                      ? 'border-white/20 bg-black/40 ring-1 ring-white/10 shadow-[0_0_40px_rgba(168,85,247,0.15)]' 
+                                      : 'border-white/10 bg-gradient-to-br from-white/[0.06] via-white/[0.02] to-transparent hover:border-primary/40'
                                 }`}
                               >
+                                {/* LED glow ring for empty slots */}
+                                {isEmpty && (
+                                  <>
+                                    <div className="absolute -inset-px rounded-[28px] bg-gradient-to-br from-primary/30 via-secondary/20 to-primary/30 opacity-0 group-hover:opacity-100 blur-md transition-opacity duration-500 pointer-events-none" />
+                                    <div className="absolute inset-0 rounded-[28px] pointer-events-none overflow-hidden">
+                                      <div className="absolute inset-[-50%] bg-[conic-gradient(from_0deg,transparent_0deg,hsl(var(--primary)/0.4)_60deg,transparent_120deg,transparent_240deg,hsl(var(--secondary)/0.3)_300deg,transparent_360deg)] animate-[spin_4s_linear_infinite] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                    </div>
+                                    <div className="absolute inset-[1.5px] rounded-[27px] bg-[#0A0A0B]/95 pointer-events-none" />
+                                  </>
+                                )}
+
                                 {photo.preview ? (
                                   <>
                                     <img src={photo.preview} alt="Upload" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
@@ -1838,19 +1842,22 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                     )}
                                   </>
                                 ) : (
-                                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 cursor-pointer p-4 text-center">
-                                    <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-primary/20 group-hover:border-primary/40 transition-all">
-                                      <Plus className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
+                                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 cursor-pointer p-4 text-center z-10">
+                                    <div className="relative">
+                                      <div className="absolute inset-0 rounded-2xl bg-primary/30 blur-xl opacity-60 group-hover:opacity-100 transition-opacity animate-pulse" />
+                                      <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-white/10 to-white/[0.02] border border-white/15 flex items-center justify-center group-hover:from-primary/20 group-hover:border-primary/50 transition-all shadow-[0_0_20px_rgba(168,85,247,0.15)]">
+                                        <Plus className="w-7 h-7 text-foreground/70 group-hover:text-primary group-hover:rotate-90 transition-all duration-300" />
+                                      </div>
                                     </div>
                                     <div className="space-y-1">
-                                      <p className="text-[11px] font-bold text-muted-foreground group-hover:text-primary transition-colors">Adicionar Foto</p>
-                                      <p className="text-[9px] text-muted-foreground/50">Clique para enviar</p>
+                                      <p className="text-[12px] font-bold text-foreground/80 group-hover:text-primary transition-colors tracking-tight">Adicionar foto</p>
+                                      <p className="text-[9px] text-muted-foreground/50 uppercase tracking-widest">Toque para enviar</p>
                                     </div>
                                     <input
                                       type="file"
                                       accept="image/*"
                                       onChange={(e) => handlePhotoUpload(index, e)}
-                                      className="absolute inset-0 opacity-0 cursor-pointer"
+                                      className="absolute inset-0 opacity-0 cursor-pointer z-20"
                                     />
                                   </div>
                                 )}
