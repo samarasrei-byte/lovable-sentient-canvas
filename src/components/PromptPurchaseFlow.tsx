@@ -1630,20 +1630,9 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
 
             {authStep === 'done' && step === 'form' && (
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-                <div className="flex flex-col lg:flex-row lg:gap-10 items-start">
-                  {/* Left Column: Details */}
-                  <div className="space-y-8 w-full lg:max-w-[420px] order-2 lg:order-1">
-                    <div className="space-y-4 p-6 rounded-[24px] bg-white/5 border border-white/10 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.2)]">
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-2xl bg-primary/20 flex items-center justify-center text-primary font-bold text-base shadow-[0_0_20px_rgba(var(--primary),0.3)]">1</div>
-                          <h3 className="text-xl font-black tracking-tight uppercase bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">Configurações</h3>
-                        </div>
-                        <p className="text-xs sm:text-sm text-muted-foreground/80 leading-relaxed pl-1">
-                          Personalize os detalhes para que a nossa IA capture cada traço com precisão.
-                        </p>
-                      </div>
-                    </div>
+                <div className="flex flex-col lg:flex-row lg:gap-8 items-start">
+                  {/* Left Column: Details (compact) */}
+                  <div className="space-y-5 w-full lg:max-w-[320px] order-2 lg:order-1">
 
                     {/* Safety Warning UX */}
                     <div className="flex items-start gap-3 p-4 rounded-2xl bg-amber-500/5 border border-amber-500/10 shadow-lg shadow-amber-500/5 animate-in fade-in slide-in-from-top-2">
