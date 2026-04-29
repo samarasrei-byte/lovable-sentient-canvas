@@ -1559,12 +1559,14 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
             {/* Steps Progress */}
             {authStep === 'done' && (
               <div className="flex items-center justify-between px-2 max-w-lg mx-auto w-full">
-                {(['form', 'payment', 'generating', 'complete'] as const).map((status, index) => {
-                  const labels = ['Fotos', 'Pagar', 'Gerar', 'Pronto'];
-                  const stepOrder = ['form', 'payment', 'generating', 'complete'];
-                  const currentStepIndex = step === 'editing' ? 3 : stepOrder.indexOf(step);
+                {(['details', 'upload', 'payment', 'complete'] as const).map((status, index) => {
+                  const labels = ['Dados', 'Fotos', 'Pagar', 'Pronto'];
+                  const stepOrder = ['details', 'upload', 'payment', 'generating', 'complete'];
+                  const currentStepIndex = step === 'editing' ? 4 : stepOrder.indexOf(step);
                   const isPast = currentStepIndex > index;
-                  const isCurrent = (step === status) || (step === 'editing' && status === 'complete');
+                  const isCurrent = (step === status) || 
+                                   (step === 'generating' && status === 'payment') ||
+                                   (step === 'editing' && status === 'complete');
                   
                   return (
                     <div key={status} className="flex items-center flex-1 last:flex-none">
