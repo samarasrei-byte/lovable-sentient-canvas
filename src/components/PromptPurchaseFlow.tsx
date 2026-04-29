@@ -166,7 +166,11 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const [authForm, setAuthForm] = useState({ email: '', password: '', confirmPassword: '' });
   const [qualityChecks, setQualityChecks] = useState<{ [key: string]: boolean }>({});
 
-  const maxPhotos = prompt.min_photos && prompt.min_photos > 1 ? Math.min(prompt.min_photos, 5) : 5;
+  // User-controlled person count (1-5). Initialized from prompt's min_photos.
+  const initialPersonCount = Math.min(Math.max(prompt.min_photos || 1, 1), 5);
+  const [personCount, setPersonCount] = useState<number>(initialPersonCount);
+  const [aiSuggestedPersonCount, setAiSuggestedPersonCount] = useState<number | null>(null);
+  const maxPhotos = personCount;
   const [formData, setFormData] = useState({ 
     name: '', 
     instagram: '', 
@@ -234,6 +238,29 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const [editCount, setEditCount] = useState(0);
   const [showBeforeAfter, setShowBeforeAfter] = useState(false);
   const [selectedStyle, setSelectedStyle] = useState<'realistic' | 'artistic'>('realistic');
+
+  // Sync photo slots with personCount: trim empty slots when reducing, ensure at least 1.
+  useEffect(() => {
+    setPhotos((prev) => {
+      if (prev.length === personCount) return prev;
+      if (prev.length < personCount) {
+        const toAdd = personCount - prev.length;
+        return [...prev, ...Array.from({ length: toAdd }, () => ({ file: null, preview: '' as string }))];
+      }
+      // Reducing: keep filled slots first, then drop empties from the end.
+      const filled = prev.filter(p => p.file);
+      const empties = prev.filter(p => !p.file);
+      const kept = [...filled, ...empties].slice(0, personCount);
+      return kept.length > 0 ? kept : [{ file: null, preview: '' }];
+    });
+    setPhotoProfiles((prev) => {
+      if (prev.length === personCount) return prev;
+      if (prev.length < personCount) {
+        return [...prev, ...Array.from({ length: personCount - prev.length }, () => null)];
+      }
+      return prev.slice(0, personCount);
+    });
+  }, [personCount]);
   const [showSupportForm, setShowSupportForm] = useState(false);
   const [showSafetyModal, setShowSafetyModal] = useState(false);
   const [appealModal, setAppealModal] = useState<{ 
@@ -341,6 +368,15 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       // Auto-detect age for birthday prompts
       if (data?.metadados?.idade_detectada && isBirthdayPrompt && !formData.age) {
         setFormData(prev => ({ ...prev, age: String(data.metadados.idade_detectada) }));
+      }
+
+      // AI suggestion: detect number of people in the FIRST uploaded photo
+      const detectedPeople = data?.analise?.quantidade_pessoas || data?.metadados?.pessoas;
+      if (index === 0 && typeof detectedPeople === 'number' && detectedPeople >= 1) {
+        const suggested = Math.min(detectedPeople, 5);
+        if (suggested !== personCount) {
+          setAiSuggestedPersonCount(suggested);
+        }
       }
     } catch (error) {
       console.error('Error analyzing uploaded photo:', error);
@@ -497,9 +533,8 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       return;
     }
 
-    if ((isFamilyPrompt || isCouplePrompt || isMultiPersonPrompt) && activePhotoCount < (prompt.min_photos || 2)) {
-      const label = isCouplePrompt ? 'de casal' : isFamilyPrompt ? 'de família' : 'com múltiplas pessoas';
-      toast.error(`Para fotos ${label}, envie pelo menos ${prompt.min_photos || 2} fotos (uma de cada pessoa).`);
+    if (activePhotoCount < personCount) {
+      toast.error(`Envie ${personCount} ${personCount === 1 ? 'foto' : 'fotos'} (uma para cada pessoa).`);
       return;
     }
 
@@ -1808,6 +1843,64 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                       </p>
                     </div>
 
+                    {/* Person count selector — controls how many photos can be uploaded */}
+                    {prompt.required_fields.includes('photo') && (
+                      <div className="rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-xl p-4 sm:p-5 space-y-3">
+                        <div className="flex items-center justify-between gap-3 flex-wrap">
+                          <div>
+                            <p className="text-[11px] font-bold uppercase tracking-widest text-white/80">Quantas pessoas?</p>
+                            <p className="text-[10px] text-muted-foreground/60 mt-0.5">Você terá controle total sobre quantas fotos enviar.</p>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            {[1, 2, 3, 4, 5].map((n) => {
+                              const isActive = personCount === n;
+                              return (
+                                <button
+                                  key={n}
+                                  type="button"
+                                  onClick={() => { setPersonCount(n); setAiSuggestedPersonCount(null); }}
+                                  className={`w-9 h-9 rounded-xl text-sm font-bold transition-all ${
+                                    isActive
+                                      ? 'bg-gradient-to-br from-primary to-secondary text-white shadow-[0_0_20px_rgba(168,85,247,0.5)] scale-105'
+                                      : 'bg-white/5 text-white/60 border border-white/10 hover:border-primary/40 hover:text-white'
+                                  }`}
+                                >
+                                  {n}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                        {aiSuggestedPersonCount && aiSuggestedPersonCount !== personCount && (
+                          <motion.div
+                            initial={{ opacity: 0, y: -4 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="flex items-center justify-between gap-3 p-2.5 rounded-xl bg-primary/10 border border-primary/30"
+                          >
+                            <div className="flex items-center gap-2 text-[11px] text-primary font-medium">
+                              <Sparkles className="w-3.5 h-3.5 flex-shrink-0" />
+                              <span>Detectamos {aiSuggestedPersonCount} {aiSuggestedPersonCount === 1 ? 'pessoa' : 'pessoas'} na sua foto. Ajustar?</span>
+                            </div>
+                            <div className="flex gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => { setPersonCount(aiSuggestedPersonCount); setAiSuggestedPersonCount(null); }}
+                                className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-primary text-white hover:bg-primary/90"
+                              >
+                                Sim
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setAiSuggestedPersonCount(null)}
+                                className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-white/5 text-white/60 hover:text-white"
+                              >
+                                Não
+                              </button>
+                            </div>
+                          </motion.div>
+                        )}
+                      </div>
+                    )}
                         {prompt.required_fields.includes('photo') && (
                           <div className="space-y-4">
                             {/* Tips for better results */}
@@ -1825,8 +1918,8 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
 
                             <div className="flex items-center justify-between mb-2">
                               <span className="text-[10px] font-bold uppercase tracking-widest text-primary/70">
-                                {activePhotoCount < (prompt.min_photos || 1)
-                                  ? `Necessário: ${prompt.min_photos || 1} ${ (prompt.min_photos || 1) === 1 ? 'foto' : 'fotos' }`
+                                {activePhotoCount < personCount
+                                  ? `Necessário: ${personCount} ${personCount === 1 ? 'foto' : 'fotos'}`
                                   : "Fotos validadas"
                                 }
                               </span>
@@ -1834,19 +1927,24 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                 {activePhotoCount}/{maxPhotos}
                               </span>
                             </div>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+                            <div className={personCount === 1 ? "grid grid-cols-1 gap-4" : "grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4"}>
                           {photos.map((photo, index) => {
                             const photoProfile = photoProfiles[index];
                             const isAnalyzing = analyzingPhotoSlots.includes(index) || photo.status === 'uploading' || photo.status === 'analyzing';
                             const isBlocked = photo.status === 'blocked';
                             const isEmpty = !photo.preview && !isAnalyzing && !isBlocked;
-                            
+                            const isHero = personCount === 1 || index === 0;
+                            const heroClasses = personCount === 1
+                              ? 'aspect-[4/5] w-full'
+                              : 'col-span-2 sm:col-span-2 row-span-2 aspect-[4/5]';
+                            const miniClasses = 'aspect-[3/4]';
+
                             return (
                               <motion.div
                                 key={index}
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                className={`relative aspect-[3/4] rounded-[28px] border transition-all overflow-hidden group shadow-[0_20px_50px_rgba(0,0,0,0.35)] backdrop-blur-xl ${
+                                className={`relative ${isHero ? heroClasses : miniClasses} rounded-[28px] border transition-all overflow-hidden group shadow-[0_20px_50px_rgba(0,0,0,0.35)] backdrop-blur-xl ${
                                   isBlocked 
                                     ? 'border-red-500/50 bg-red-950/20' 
                                     : photo.preview 
@@ -1893,14 +1991,18 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                 ) : (
                                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 cursor-pointer p-4 text-center z-10">
                                     <div className="relative">
-                                      <div className="absolute inset-0 rounded-2xl bg-primary/30 blur-xl opacity-60 group-hover:opacity-100 transition-opacity animate-pulse" />
-                                      <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-white/10 to-white/[0.02] border border-white/15 flex items-center justify-center group-hover:from-primary/20 group-hover:border-primary/50 transition-all shadow-[0_0_20px_rgba(168,85,247,0.15)]">
-                                        <Plus className="w-7 h-7 text-foreground/70 group-hover:text-primary group-hover:rotate-90 transition-all duration-300" />
+                                      <div className={`absolute inset-0 rounded-2xl bg-primary/30 blur-xl opacity-60 group-hover:opacity-100 transition-opacity animate-pulse`} />
+                                      <div className={`relative ${isHero ? 'w-20 h-20' : 'w-14 h-14'} rounded-2xl bg-gradient-to-br from-white/10 to-white/[0.02] border border-white/15 flex items-center justify-center group-hover:from-primary/20 group-hover:border-primary/50 transition-all shadow-[0_0_20px_rgba(168,85,247,0.15)]`}>
+                                        <Plus className={`${isHero ? 'w-10 h-10' : 'w-7 h-7'} text-foreground/70 group-hover:text-primary group-hover:rotate-90 transition-all duration-300`} />
                                       </div>
                                     </div>
                                     <div className="space-y-1">
-                                      <p className="text-[12px] font-bold text-foreground/80 group-hover:text-primary transition-colors tracking-tight">Adicionar foto</p>
-                                      <p className="text-[9px] text-muted-foreground/50 uppercase tracking-widest">Toque para enviar</p>
+                                      <p className={`${isHero ? 'text-base sm:text-lg' : 'text-[12px]'} font-bold text-foreground/90 group-hover:text-primary transition-colors tracking-tight`}>
+                                        {isHero ? (index === 0 ? 'Envie a foto principal' : `Foto da pessoa ${index + 1}`) : `Pessoa ${index + 1}`}
+                                      </p>
+                                      <p className={`${isHero ? 'text-[10px]' : 'text-[9px]'} text-muted-foreground/60 uppercase tracking-widest`}>
+                                        {isHero ? 'Boa luz · De frente · Sem filtros' : 'Toque para enviar'}
+                                      </p>
                                     </div>
                                     <input
                                       type="file"
@@ -1950,20 +2052,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                             );
                           })}
                           
-                          {photos.length < maxPhotos && activePhotoCount >= (prompt.min_photos || 1) && (
-                            <button
-                                onClick={addPhotoSlot}
-                                className="aspect-[3/4] rounded-[24px] border border-white/5 bg-gradient-to-br from-white/5 to-transparent flex flex-col items-center justify-center gap-3 hover:bg-white/10 hover:border-primary/30 transition-all group backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.3)]"
-                            >
-                              <div className="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-primary/10 transition-all">
-                                <Plus className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
-                              </div>
-                              <div className="flex flex-col items-center gap-1">
-                                <span className="text-[10px] font-bold text-muted-foreground group-hover:text-primary transition-colors">Nova Foto</span>
-                                <span className="text-[8px] text-muted-foreground/40 font-medium uppercase tracking-tighter">Opcional</span>
-                              </div>
-                            </button>
-                          )}
+                          {/* Slots are controlled by personCount selector above — no extra add button */}
                         </div>
                       </div>
                     )}
@@ -1977,7 +2066,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                     onClick={handleSubmitForm} 
                     className="w-full sm:max-w-md h-16 text-xl font-black shadow-[0_20px_40px_-15px_hsl(var(--primary)/0.4)] hover:shadow-[0_25px_50px_-12px_hsl(var(--primary)/0.5)] active:scale-95 transition-all group overflow-hidden relative"
                     disabled={
-                      (prompt.required_fields.includes('photo') && activePhotoCount < (prompt.min_photos || 1)) ||
+                      (prompt.required_fields.includes('photo') && activePhotoCount < personCount) ||
                       (prompt.required_fields.includes('name') && !formData.name.trim()) ||
                       (analyzingPhotoSlots.length > 0)
                     }
@@ -1988,9 +2077,9 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                         <Sparkles className="w-6 h-6 animate-pulse" />
                         Gerar minha arte ({formatPrice(prompt.price_cents)})
                       </span>
-                      {activePhotoCount < (prompt.min_photos || 1) && (
+                      {activePhotoCount < personCount && (
                         <span className="text-[10px] font-bold opacity-40 mt-1 uppercase tracking-widest">
-                          Aguardando fotos de referência
+                          Envie {personCount - activePhotoCount} {personCount - activePhotoCount === 1 ? 'foto' : 'fotos'} para continuar
                         </span>
                       )}
                     </span>
