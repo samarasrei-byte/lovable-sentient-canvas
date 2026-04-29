@@ -2243,7 +2243,11 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
             )}
 
             {step === 'complete' && generatedImage && (
-              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="space-y-3 sm:space-y-4">
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }} 
+                animate={{ opacity: 1, scale: 1 }} 
+                className="flex flex-col h-full max-w-2xl mx-auto w-full space-y-4 py-4"
+              >
                 <div className="text-center mb-2">
                   <CheckCircle2 className="w-8 h-8 sm:w-10 sm:h-10 text-primary mx-auto mb-1.5" />
                   <h3 className="text-base sm:text-lg font-medium">Imagem gerada!</h3>
