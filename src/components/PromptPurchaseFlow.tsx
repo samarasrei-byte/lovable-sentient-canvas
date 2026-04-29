@@ -2063,29 +2063,34 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                 <div className="pt-8 mt-4 border-t border-white/5 flex flex-col items-center gap-5 w-full">
                   <StayOnPageCard className="w-full sm:max-w-md animate-in fade-in slide-in-from-bottom-4 duration-700" />
                   
-                  <GlassButton 
-                    onClick={handleSubmitForm} 
-                    className="w-full sm:max-w-md h-16 text-xl font-black shadow-[0_20px_40px_-15px_hsl(var(--primary)/0.4)] hover:shadow-[0_25px_50px_-12px_hsl(var(--primary)/0.5)] active:scale-95 transition-all group overflow-hidden relative"
-                    disabled={
-                      (prompt.required_fields.includes('photo') && activePhotoCount < (manualPersonCount || aiSuggestedPersonCount || personCount)) ||
-                      (prompt.required_fields.includes('name') && !formData.name.trim()) ||
-                      (analyzingPhotoSlots.length > 0) ||
-                      (authStep !== 'done')
-                    }
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-r from-primary via-secondary to-primary bg-[length:200%_100%] animate-shimmer opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <span className="relative flex flex-col items-center">
-                      <span className="flex items-center gap-3">
-                        <Sparkles className="w-6 h-6 animate-pulse" />
-                        Gerar minha arte ({formatPrice(prompt.price_cents)})
-                      </span>
-                      {activePhotoCount < (manualPersonCount || aiSuggestedPersonCount || personCount) && (
-                        <span className="text-[10px] font-bold opacity-40 mt-1 uppercase tracking-widest">
-                          Envie {(manualPersonCount || aiSuggestedPersonCount || personCount) - activePhotoCount} {(manualPersonCount || aiSuggestedPersonCount || personCount) - activePhotoCount === 1 ? 'foto' : 'fotos'} para continuar
+                  {authStep === 'done' ? (
+                    <GlassButton 
+                      onClick={handleSubmitForm} 
+                      className="w-full sm:max-w-md h-16 text-xl font-black shadow-[0_20px_40px_-15px_hsl(var(--primary)/0.4)] hover:shadow-[0_25px_50px_-12px_hsl(var(--primary)/0.5)] active:scale-95 transition-all group overflow-hidden relative"
+                      disabled={
+                        (prompt.required_fields.includes('photo') && activePhotoCount < (manualPersonCount || aiSuggestedPersonCount || personCount)) ||
+                        (prompt.required_fields.includes('name') && !formData.name.trim()) ||
+                        (analyzingPhotoSlots.length > 0)
+                      }
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-r from-primary via-secondary to-primary bg-[length:200%_100%] animate-shimmer opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <span className="relative flex flex-col items-center">
+                        <span className="flex items-center gap-3">
+                          <Sparkles className="w-6 h-6 animate-pulse" />
+                          Finalizar pedido ({formatPrice(prompt.price_cents)})
                         </span>
-                      )}
-                    </span>
-                  </GlassButton>
+                        {activePhotoCount < (manualPersonCount || aiSuggestedPersonCount || personCount) && (
+                          <span className="text-[10px] font-bold opacity-40 mt-1 uppercase tracking-widest">
+                            Envie {(manualPersonCount || aiSuggestedPersonCount || personCount) - activePhotoCount} {(manualPersonCount || aiSuggestedPersonCount || personCount) - activePhotoCount === 1 ? 'foto' : 'fotos'} para continuar
+                          </span>
+                        )}
+                      </span>
+                    </GlassButton>
+                  ) : (
+                    <div className="w-full sm:max-w-md p-4 rounded-2xl bg-white/[0.02] border border-white/5 text-center">
+                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/20">Acesse ou continue como convidado para prosseguir</p>
+                    </div>
+                  )}
                   
                   <div className="flex items-center gap-6 opacity-40">
                     <div className="flex items-center gap-1.5">
