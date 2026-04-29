@@ -539,8 +539,8 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       return;
     }
 
-    if (activePhotoCount < personCount) {
-      toast.error(`Envie ${personCount} ${personCount === 1 ? 'foto' : 'fotos'} (uma para cada pessoa).`);
+    if (activePhotoCount < (manualPersonCount || aiSuggestedPersonCount || personCount)) {
+      toast.error(`Envie ${(manualPersonCount || aiSuggestedPersonCount || personCount)} ${(manualPersonCount || aiSuggestedPersonCount || personCount) === 1 ? 'foto' : 'fotos'} (uma para cada pessoa).`);
       return;
     }
 
