@@ -2068,7 +2068,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                     onClick={handleSubmitForm} 
                     className="w-full sm:max-w-md h-16 text-xl font-black shadow-[0_20px_40px_-15px_hsl(var(--primary)/0.4)] hover:shadow-[0_25px_50px_-12px_hsl(var(--primary)/0.5)] active:scale-95 transition-all group overflow-hidden relative"
                     disabled={
-                      (prompt.required_fields.includes('photo') && activePhotoCount < personCount) ||
+                      (prompt.required_fields.includes('photo') && activePhotoCount < (manualPersonCount || aiSuggestedPersonCount || personCount)) ||
                       (prompt.required_fields.includes('name') && !formData.name.trim()) ||
                       (analyzingPhotoSlots.length > 0)
                     }
