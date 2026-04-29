@@ -609,7 +609,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
     } catch (error) {
       console.error('Error creating purchase:', error);
       toast.error('Erro ao processar. Tente novamente.');
-      setStep('form');
+      setStep(prompt.required_fields.length > 0 ? 'details' : 'upload');
     }
   };
 
