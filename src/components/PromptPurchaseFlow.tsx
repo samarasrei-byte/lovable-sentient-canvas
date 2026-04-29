@@ -170,7 +170,8 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const initialPersonCount = Math.min(Math.max(prompt.min_photos || 1, 1), 5);
   const [personCount, setPersonCount] = useState<number>(initialPersonCount);
   const [aiSuggestedPersonCount, setAiSuggestedPersonCount] = useState<number | null>(null);
-  const maxPhotos = personCount;
+  const [manualPersonCount, setManualPersonCount] = useState<number | null>(null);
+  const maxPhotos = manualPersonCount || aiSuggestedPersonCount || personCount;
   const [formData, setFormData] = useState({ 
     name: '', 
     instagram: '', 
