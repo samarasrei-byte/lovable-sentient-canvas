@@ -2641,6 +2641,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                 </div>
               </motion.div>
             )}
+            </div>
           </GlassCardContent>
         </div>
       </DialogContent>
