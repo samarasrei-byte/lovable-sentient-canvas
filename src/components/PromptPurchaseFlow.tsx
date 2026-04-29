@@ -1920,7 +1920,11 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
             )}
 
             {step === 'payment' && (
-              <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }} 
+                animate={{ opacity: 1, scale: 1 }} 
+                className="flex flex-col h-full max-w-md mx-auto w-full space-y-6 py-4"
+              >
                 {paymentStatus === 'paid' ? (
                   <motion.div 
                     initial={{ opacity: 0, scale: 0.8 }} 
