@@ -512,6 +512,29 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
     setUploadedPhotoUrls([]);
   };
 
+  const handleNextStep = async () => {
+    if (step === 'details') {
+      if (prompt.required_fields.includes('name') && !formData.name.trim()) {
+        toast.error('Por favor, informe seu nome.');
+        return;
+      }
+      if (isBirthdayPrompt && !formData.age?.trim()) {
+        toast.error('Por favor, informe a idade.');
+        return;
+      }
+      if (prompt.required_fields.includes('team_name') && !formData.team_name.trim()) {
+        toast.error('Por favor, informe o nome do time.');
+        return;
+      }
+      setStep('upload');
+      return;
+    }
+
+    if (step === 'upload') {
+      await handleSubmitForm();
+    }
+  };
+
   const handleSubmitForm = async () => {
     const hasAnyPhoto = photos.some((photo) => photo.file);
 
