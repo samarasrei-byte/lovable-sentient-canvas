@@ -1929,14 +1929,14 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                 {activePhotoCount}/{maxPhotos}
                               </span>
                             </div>
-                            <div className={personCount === 1 ? "grid grid-cols-1 gap-4" : "grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4"}>
+                            <div className={(manualPersonCount || aiSuggestedPersonCount || personCount) === 1 ? "grid grid-cols-1 gap-4" : "grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4"}>
                           {photos.map((photo, index) => {
                             const photoProfile = photoProfiles[index];
                             const isAnalyzing = analyzingPhotoSlots.includes(index) || photo.status === 'uploading' || photo.status === 'analyzing';
                             const isBlocked = photo.status === 'blocked';
                             const isEmpty = !photo.preview && !isAnalyzing && !isBlocked;
-                            const isHero = personCount === 1 || index === 0;
-                            const heroClasses = personCount === 1
+                            const isHero = (manualPersonCount || aiSuggestedPersonCount || personCount) === 1 || index === 0;
+                            const heroClasses = (manualPersonCount || aiSuggestedPersonCount || personCount) === 1
                               ? 'aspect-[4/5] w-full'
                               : 'col-span-2 sm:col-span-2 row-span-2 aspect-[4/5]';
                             const miniClasses = 'aspect-[3/4]';
