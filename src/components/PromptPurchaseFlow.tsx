@@ -2070,7 +2070,8 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                     disabled={
                       (prompt.required_fields.includes('photo') && activePhotoCount < (manualPersonCount || aiSuggestedPersonCount || personCount)) ||
                       (prompt.required_fields.includes('name') && !formData.name.trim()) ||
-                      (analyzingPhotoSlots.length > 0)
+                      (analyzingPhotoSlots.length > 0) ||
+                      (authStep !== 'done')
                     }
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-primary via-secondary to-primary bg-[length:200%_100%] animate-shimmer opacity-0 group-hover:opacity-100 transition-opacity" />
