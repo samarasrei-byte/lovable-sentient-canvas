@@ -1555,7 +1555,8 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
             </div>
           </GlassCardHeader>
 
-          <GlassCardContent className="flex-1 overflow-y-auto space-y-6 sm:space-y-8 pb-8 custom-scrollbar">
+          <GlassCardContent className="flex-1 overflow-hidden relative flex flex-col p-0">
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-6 sm:p-8 space-y-6 sm:space-y-8">
             {/* Steps Progress */}
             {authStep === 'done' && (
               <div className="flex items-center justify-between px-2 max-w-lg mx-auto w-full">
