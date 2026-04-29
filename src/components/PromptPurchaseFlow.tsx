@@ -1581,7 +1581,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
           <GlassCardContent className="flex-1 overflow-hidden relative flex flex-col p-0">
             <div className="flex-1 overflow-y-auto custom-scrollbar p-6 sm:p-8 space-y-6 sm:space-y-8">
             {/* Steps Progress */}
-            {authStep !== 'complete' && (
+            {step !== 'complete' && (
               <div className="flex items-center justify-between px-6 max-w-lg mx-auto w-full pt-4">
                 {(['details', 'upload', 'payment', 'complete'] as const).map((status, index) => {
                   const labels = ['Dados', 'Fotos', 'Pagar', 'Pronto'];
