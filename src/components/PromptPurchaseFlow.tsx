@@ -2144,7 +2144,11 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
 
 
             {step === 'generating' && (
-              <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.4 }} className="py-4 sm:py-6">
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }} 
+                animate={{ opacity: 1, scale: 1 }} 
+                className="flex flex-col h-full max-w-lg mx-auto w-full space-y-8 py-4"
+              >
                 
                 {/* Hero generating state */}
                 <div className="relative flex flex-col items-center mb-6">
