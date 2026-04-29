@@ -1668,7 +1668,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
               </motion.div>
             )}
 
-            {authStep === 'done' && step === 'form' && (
+            {authStep === 'done' && (step === 'details' || step === 'upload') && (
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
                 <div className="flex flex-col lg:flex-row lg:gap-8 items-start">
                   {/* Left Column: Details — Ultra-modern Glass Card */}
