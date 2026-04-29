@@ -170,7 +170,8 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const initialPersonCount = Math.min(Math.max(prompt.min_photos || 1, 1), 5);
   const [personCount, setPersonCount] = useState<number>(initialPersonCount);
   const [aiSuggestedPersonCount, setAiSuggestedPersonCount] = useState<number | null>(null);
-  const maxPhotos = personCount;
+  const [manualPersonCount, setManualPersonCount] = useState<number | null>(null);
+  const maxPhotos = manualPersonCount || aiSuggestedPersonCount || personCount;
   const [formData, setFormData] = useState({ 
     name: '', 
     instagram: '', 
@@ -239,28 +240,29 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const [showBeforeAfter, setShowBeforeAfter] = useState(false);
   const [selectedStyle, setSelectedStyle] = useState<'realistic' | 'artistic'>('realistic');
 
-  // Sync photo slots with personCount: trim empty slots when reducing, ensure at least 1.
+  // Sync photo slots with current target count: trim empty slots when reducing, ensure at least 1.
   useEffect(() => {
+    const targetCount = manualPersonCount || aiSuggestedPersonCount || personCount;
     setPhotos((prev) => {
-      if (prev.length === personCount) return prev;
-      if (prev.length < personCount) {
-        const toAdd = personCount - prev.length;
+      if (prev.length === targetCount) return prev;
+      if (prev.length < targetCount) {
+        const toAdd = targetCount - prev.length;
         return [...prev, ...Array.from({ length: toAdd }, () => ({ file: null, preview: '' as string }))];
       }
       // Reducing: keep filled slots first, then drop empties from the end.
       const filled = prev.filter(p => p.file);
       const empties = prev.filter(p => !p.file);
-      const kept = [...filled, ...empties].slice(0, personCount);
+      const kept = [...filled, ...empties].slice(0, targetCount);
       return kept.length > 0 ? kept : [{ file: null, preview: '' }];
     });
     setPhotoProfiles((prev) => {
-      if (prev.length === personCount) return prev;
-      if (prev.length < personCount) {
-        return [...prev, ...Array.from({ length: personCount - prev.length }, () => null)];
+      if (prev.length === targetCount) return prev;
+      if (prev.length < targetCount) {
+        return [...prev, ...Array.from({ length: targetCount - prev.length }, () => null)];
       }
-      return prev.slice(0, personCount);
+      return prev.slice(0, targetCount);
     });
-  }, [personCount]);
+  }, [personCount, aiSuggestedPersonCount, manualPersonCount]);
   const [showSupportForm, setShowSupportForm] = useState(false);
   const [showSafetyModal, setShowSafetyModal] = useState(false);
   const [appealModal, setAppealModal] = useState<{ 
@@ -374,8 +376,12 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       const detectedPeople = data?.analise?.quantidade_pessoas || data?.metadados?.pessoas;
       if (index === 0 && typeof detectedPeople === 'number' && detectedPeople >= 1) {
         const suggested = Math.min(detectedPeople, 5);
-        if (suggested !== personCount) {
-          setAiSuggestedPersonCount(suggested);
+        // Automática inteligente: se for 1 pessoa, trava em 1. Se for mais, permite adicionar.
+        setAiSuggestedPersonCount(suggested);
+        if (suggested > 1) {
+          toast.success(`Detectamos ${suggested} pessoas na foto!`, {
+            description: "Você pode adicionar os dados de cada uma agora."
+          });
         }
       }
     } catch (error) {
@@ -533,8 +539,8 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       return;
     }
 
-    if (activePhotoCount < personCount) {
-      toast.error(`Envie ${personCount} ${personCount === 1 ? 'foto' : 'fotos'} (uma para cada pessoa).`);
+    if (activePhotoCount < (manualPersonCount || aiSuggestedPersonCount || personCount)) {
+      toast.error(`Envie ${(manualPersonCount || aiSuggestedPersonCount || personCount)} ${(manualPersonCount || aiSuggestedPersonCount || personCount) === 1 ? 'foto' : 'fotos'} (uma para cada pessoa).`);
       return;
     }
 
@@ -1588,73 +1594,72 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
             )}
 
 
-            {/* Auth Step (Inside Card) */}
+            {/* Integrated Auth Flow */}
             {authStep !== 'done' && (
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-                <div className="text-center space-y-1">
-                  <h3 className="text-lg font-bold tracking-tight">
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8 p-6 bg-white/[0.02] border border-white/5 rounded-[32px] backdrop-blur-2xl">
+                <div className="text-center space-y-2">
+                  <div className="w-16 h-16 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-4">
+                    <User className="w-8 h-8 text-primary" />
+                  </div>
+                  <h3 className="text-2xl font-black tracking-tight text-white">
                     {authStep === 'login' ? 'Bem-vindo de volta' : 'Crie sua conta'}
                   </h3>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-sm text-muted-foreground/60 max-w-[280px] mx-auto leading-relaxed">
                     {authStep === 'login' ? 'Acesse para salvar suas criações' : 'Salve suas fotos e acompanhe seus pedidos'}
                   </p>
                 </div>
 
-                <form onSubmit={handleAuth} className="space-y-4">
-                  <div className="space-y-3">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs">E-mail</Label>
-                      <Input 
-                        type="email" 
-                        required
-                        value={authForm.email}
-                        onChange={e => setAuthForm(prev => ({ ...prev, email: e.target.value }))}
-                        placeholder="exemplo@email.com"
-                        className="bg-white/5 border-white/10"
-                      />
+                <form onSubmit={handleAuth} className="space-y-6">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label className="text-[10px] uppercase tracking-[0.2em] font-black text-white/40 ml-1">E-mail</Label>
+                      <div className="relative group">
+                        <AtSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-primary transition-colors" />
+                        <Input 
+                          type="email" 
+                          required
+                          value={authForm.email}
+                          onChange={e => setAuthForm(prev => ({ ...prev, email: e.target.value }))}
+                          placeholder="seu@email.com"
+                          className="pl-11 h-14 bg-white/[0.03] border-white/10 rounded-2xl focus:bg-white/[0.05] transition-all"
+                        />
+                      </div>
                     </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs">Senha</Label>
-                      <Input 
-                        type="password" 
-                        required
-                        value={authForm.password}
-                        onChange={e => setAuthForm(prev => ({ ...prev, password: e.target.value }))}
-                        placeholder="••••••••"
-                        className="bg-white/5 border-white/10"
-                      />
-                    </div>
-                    {authStep === 'register' && (
-                      <div className="space-y-1.5">
-                        <Label className="text-xs">Confirmar Senha</Label>
+                    <div className="space-y-2">
+                      <Label className="text-[10px] uppercase tracking-[0.2em] font-black text-white/40 ml-1">Senha</Label>
+                      <div className="relative group">
+                        <Check className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-primary transition-colors" />
                         <Input 
                           type="password" 
                           required
-                          value={authForm.confirmPassword}
-                          onChange={e => setAuthForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                          value={authForm.password}
+                          onChange={e => setAuthForm(prev => ({ ...prev, password: e.target.value }))}
                           placeholder="••••••••"
-                          className="bg-white/5 border-white/10"
+                          className="pl-11 h-14 bg-white/[0.03] border-white/10 rounded-2xl focus:bg-white/[0.05] transition-all"
                         />
                       </div>
-                    )}
+                    </div>
                   </div>
 
-                  <Button disabled={authLoading} type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-lg shadow-primary/20">
-                    {authLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : (authStep === 'login' ? 'Entrar' : 'Criar Conta')}
-                  </Button>
+                  <GlassButton disabled={authLoading} type="submit" className="w-full h-14 text-sm font-black uppercase tracking-widest shadow-2xl shadow-primary/20">
+                    {authLoading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : (authStep === 'login' ? 'Acessar agora' : 'Criar minha conta')}
+                  </GlassButton>
 
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-4">
                     <button 
                       type="button"
                       onClick={() => setAuthStep(authStep === 'login' ? 'register' : 'login')}
-                      className="text-xs text-muted-foreground hover:text-primary transition-colors text-center"
+                      className="text-[11px] font-bold text-muted-foreground/60 hover:text-white transition-all text-center uppercase tracking-widest"
                     >
-                      {authStep === 'login' ? 'Não tem conta? Cadastre-se' : 'Já tem conta? Entre aqui'}
+                      {authStep === 'login' ? 'Não tem conta? Registre-se' : 'Já tem uma conta? Entre'}
                     </button>
+                    <div className="h-px bg-white/5 w-full relative">
+                      <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 px-3 bg-[#0A0A0B] text-[9px] font-black text-white/20 uppercase tracking-[0.3em]">Ou</span>
+                    </div>
                     <button 
                       type="button"
                       onClick={() => setAuthStep('done')}
-                      className="text-xs text-primary/60 hover:text-primary transition-colors text-center font-medium"
+                      className="text-[11px] font-black text-primary/60 hover:text-primary transition-all text-center uppercase tracking-[0.2em]"
                     >
                       Continuar como convidado
                     </button>
@@ -1844,61 +1849,57 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                     </div>
 
                     {/* Person count selector — controls how many photos can be uploaded */}
-                    {prompt.required_fields.includes('photo') && (
-                      <div className="rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-xl p-4 sm:p-5 space-y-3">
-                        <div className="flex items-center justify-between gap-3 flex-wrap">
-                          <div>
-                            <p className="text-[11px] font-bold uppercase tracking-widest text-white/80">Quantas pessoas?</p>
-                            <p className="text-[10px] text-muted-foreground/60 mt-0.5">Você terá controle total sobre quantas fotos enviar.</p>
+                    {prompt.required_fields.includes('photo') && (aiSuggestedPersonCount && aiSuggestedPersonCount > 1) && (
+                      <motion.div 
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="rounded-[28px] border border-primary/20 bg-primary/5 backdrop-blur-3xl p-5 space-y-4 shadow-[0_20px_50px_rgba(168,85,247,0.15)] overflow-hidden relative"
+                      >
+                        <div className="absolute top-0 right-0 p-4 opacity-10">
+                          <Sparkles className="w-12 h-12 text-primary" />
+                        </div>
+                        <div className="relative space-y-3">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-2xl bg-primary/20 border border-primary/30 flex items-center justify-center">
+                              <User className="w-5 h-5 text-primary" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-black tracking-tight text-white uppercase italic">IA Detectou {aiSuggestedPersonCount} pessoas</p>
+                              <p className="text-[11px] text-white/50 leading-tight">Queremos garantir que todos apareçam na arte final.</p>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-1.5">
-                            {[1, 2, 3, 4, 5].map((n) => {
-                              const isActive = personCount === n;
-                              return (
-                                <button
-                                  key={n}
-                                  type="button"
-                                  onClick={() => { setPersonCount(n); setAiSuggestedPersonCount(null); }}
-                                  className={`w-9 h-9 rounded-xl text-sm font-bold transition-all ${
-                                    isActive
-                                      ? 'bg-gradient-to-br from-primary to-secondary text-white shadow-[0_0_20px_rgba(168,85,247,0.5)] scale-105'
-                                      : 'bg-white/5 text-white/60 border border-white/10 hover:border-primary/40 hover:text-white'
-                                  }`}
-                                >
-                                  {n}
-                                </button>
-                              );
-                            })}
+                          
+                          <div className="flex items-center gap-2">
+                            <GlassButton 
+                              onClick={() => { setManualPersonCount(aiSuggestedPersonCount); setAiSuggestedPersonCount(null); }}
+                              className="flex-1 bg-primary text-primary-foreground border-primary/50 text-[10px] font-black uppercase tracking-widest h-11"
+                            >
+                              <Check className="w-3.5 h-3.5 mr-2" /> Sim, adicionar todos
+                            </GlassButton>
+                            <button 
+                              onClick={() => { setAiSuggestedPersonCount(null); setManualPersonCount(1); }}
+                              className="px-4 h-11 rounded-2xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-all"
+                            >
+                              Não, apenas 1
+                            </button>
                           </div>
                         </div>
-                        {aiSuggestedPersonCount && aiSuggestedPersonCount !== personCount && (
-                          <motion.div
-                            initial={{ opacity: 0, y: -4 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="flex items-center justify-between gap-3 p-2.5 rounded-xl bg-primary/10 border border-primary/30"
-                          >
-                            <div className="flex items-center gap-2 text-[11px] text-primary font-medium">
-                              <Sparkles className="w-3.5 h-3.5 flex-shrink-0" />
-                              <span>Detectamos {aiSuggestedPersonCount} {aiSuggestedPersonCount === 1 ? 'pessoa' : 'pessoas'} na sua foto. Ajustar?</span>
-                            </div>
-                            <div className="flex gap-1.5">
-                              <button
-                                type="button"
-                                onClick={() => { setPersonCount(aiSuggestedPersonCount); setAiSuggestedPersonCount(null); }}
-                                className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-primary text-white hover:bg-primary/90"
-                              >
-                                Sim
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => setAiSuggestedPersonCount(null)}
-                                className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-white/5 text-white/60 hover:text-white"
-                              >
-                                Não
-                              </button>
-                            </div>
-                          </motion.div>
-                        )}
+                      </motion.div>
+                    )}
+
+                    {/* Manual "Add Person" button (only visible if multi-person is needed or detected) */}
+                    {prompt.required_fields.includes('photo') && !aiSuggestedPersonCount && (manualPersonCount || personCount) < 5 && (
+                      <div className="flex justify-center">
+                        <button
+                          onClick={() => setManualPersonCount(((manualPersonCount || personCount) + 1) as number)}
+                          className="group relative flex items-center gap-2 px-6 py-3 rounded-full bg-white/[0.03] border border-white/10 hover:border-primary/40 transition-all duration-300 shadow-xl overflow-hidden"
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-secondary/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                          <div className="relative flex items-center gap-2">
+                            <Plus className="w-4 h-4 text-primary group-hover:rotate-90 transition-transform duration-300" />
+                            <span className="text-xs font-black uppercase tracking-[0.15em] text-white/70 group-hover:text-white">Adicionar outra pessoa</span>
+                          </div>
+                        </button>
                       </div>
                     )}
                         {prompt.required_fields.includes('photo') && (
@@ -1918,8 +1919,8 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
 
                             <div className="flex items-center justify-between mb-2">
                               <span className="text-[10px] font-bold uppercase tracking-widest text-primary/70">
-                                {activePhotoCount < personCount
-                                  ? `Necessário: ${personCount} ${personCount === 1 ? 'foto' : 'fotos'}`
+                                {activePhotoCount < (manualPersonCount || aiSuggestedPersonCount || personCount)
+                                  ? `Necessário: ${(manualPersonCount || aiSuggestedPersonCount || personCount)} ${(manualPersonCount || aiSuggestedPersonCount || personCount) === 1 ? 'foto' : 'fotos'}`
                                   : "Fotos validadas"
                                 }
                               </span>
@@ -1927,14 +1928,14 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                 {activePhotoCount}/{maxPhotos}
                               </span>
                             </div>
-                            <div className={personCount === 1 ? "grid grid-cols-1 gap-4" : "grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4"}>
+                            <div className={(manualPersonCount || aiSuggestedPersonCount || personCount) === 1 ? "grid grid-cols-1 gap-4" : "grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4"}>
                           {photos.map((photo, index) => {
                             const photoProfile = photoProfiles[index];
                             const isAnalyzing = analyzingPhotoSlots.includes(index) || photo.status === 'uploading' || photo.status === 'analyzing';
                             const isBlocked = photo.status === 'blocked';
                             const isEmpty = !photo.preview && !isAnalyzing && !isBlocked;
-                            const isHero = personCount === 1 || index === 0;
-                            const heroClasses = personCount === 1
+                            const isHero = (manualPersonCount || aiSuggestedPersonCount || personCount) === 1 || index === 0;
+                            const heroClasses = (manualPersonCount || aiSuggestedPersonCount || personCount) === 1
                               ? 'aspect-[4/5] w-full'
                               : 'col-span-2 sm:col-span-2 row-span-2 aspect-[4/5]';
                             const miniClasses = 'aspect-[3/4]';
@@ -2062,28 +2063,34 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                 <div className="pt-8 mt-4 border-t border-white/5 flex flex-col items-center gap-5 w-full">
                   <StayOnPageCard className="w-full sm:max-w-md animate-in fade-in slide-in-from-bottom-4 duration-700" />
                   
-                  <GlassButton 
-                    onClick={handleSubmitForm} 
-                    className="w-full sm:max-w-md h-16 text-xl font-black shadow-[0_20px_40px_-15px_hsl(var(--primary)/0.4)] hover:shadow-[0_25px_50px_-12px_hsl(var(--primary)/0.5)] active:scale-95 transition-all group overflow-hidden relative"
-                    disabled={
-                      (prompt.required_fields.includes('photo') && activePhotoCount < personCount) ||
-                      (prompt.required_fields.includes('name') && !formData.name.trim()) ||
-                      (analyzingPhotoSlots.length > 0)
-                    }
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-r from-primary via-secondary to-primary bg-[length:200%_100%] animate-shimmer opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <span className="relative flex flex-col items-center">
-                      <span className="flex items-center gap-3">
-                        <Sparkles className="w-6 h-6 animate-pulse" />
-                        Gerar minha arte ({formatPrice(prompt.price_cents)})
-                      </span>
-                      {activePhotoCount < personCount && (
-                        <span className="text-[10px] font-bold opacity-40 mt-1 uppercase tracking-widest">
-                          Envie {personCount - activePhotoCount} {personCount - activePhotoCount === 1 ? 'foto' : 'fotos'} para continuar
+                  {authStep === 'done' ? (
+                    <GlassButton 
+                      onClick={handleSubmitForm} 
+                      className="w-full sm:max-w-md h-16 text-xl font-black shadow-[0_20px_40px_-15px_hsl(var(--primary)/0.4)] hover:shadow-[0_25px_50px_-12px_hsl(var(--primary)/0.5)] active:scale-95 transition-all group overflow-hidden relative"
+                      disabled={
+                        (prompt.required_fields.includes('photo') && activePhotoCount < (manualPersonCount || aiSuggestedPersonCount || personCount)) ||
+                        (prompt.required_fields.includes('name') && !formData.name.trim()) ||
+                        (analyzingPhotoSlots.length > 0)
+                      }
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-r from-primary via-secondary to-primary bg-[length:200%_100%] animate-shimmer opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <span className="relative flex flex-col items-center">
+                        <span className="flex items-center gap-3">
+                          <Sparkles className="w-6 h-6 animate-pulse" />
+                          Finalizar pedido ({formatPrice(prompt.price_cents)})
                         </span>
-                      )}
-                    </span>
-                  </GlassButton>
+                        {activePhotoCount < (manualPersonCount || aiSuggestedPersonCount || personCount) && (
+                          <span className="text-[10px] font-bold opacity-40 mt-1 uppercase tracking-widest">
+                            Envie {(manualPersonCount || aiSuggestedPersonCount || personCount) - activePhotoCount} {(manualPersonCount || aiSuggestedPersonCount || personCount) - activePhotoCount === 1 ? 'foto' : 'fotos'} para continuar
+                          </span>
+                        )}
+                      </span>
+                    </GlassButton>
+                  ) : (
+                    <div className="w-full sm:max-w-md p-4 rounded-2xl bg-white/[0.02] border border-white/5 text-center">
+                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/20">Acesse ou continue como convidado para prosseguir</p>
+                    </div>
+                  )}
                   
                   <div className="flex items-center gap-6 opacity-40">
                     <div className="flex items-center gap-1.5">
@@ -2146,10 +2153,10 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                       className="space-y-3"
                     >
                       <h3 className="text-2xl sm:text-3xl font-black tracking-tight bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
-                        Sua imagem será gerada agora
+                        Estamos criando algo incrível...
                       </h3>
                       <p className="text-sm text-muted-foreground/70 max-w-xs mx-auto">
-                        Nossa IA está preparando algo incrível para você ✨
+                        Sua obra de arte premium está sendo processada por nossa IA. ✨
                       </p>
                     </motion.div>
 
@@ -2574,7 +2581,16 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   2 variações grátis + 1 edição por compra • Sua imagem, seus direitos 💎
                 </p>
 
-                <GlassButton onClick={onClose} variant="outline" className="w-full" size="sm">Fechar</GlassButton>
+                <div className="flex gap-2">
+                  <GlassButton onClick={onClose} variant="outline" className="flex-1" size="sm">Fechar</GlassButton>
+                  <GlassButton 
+                    onClick={() => { setStep('form'); setGeneratedImage(null); setGeneratedVariants([]); }} 
+                    className="flex-1 bg-primary/20 hover:bg-primary/30 text-primary border-primary/20" 
+                    size="sm"
+                  >
+                    Gerar mais variações
+                  </GlassButton>
+                </div>
               </motion.div>
             )}
 
