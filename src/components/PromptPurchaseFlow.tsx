@@ -42,7 +42,7 @@ interface PromptPurchaseFlowProps {
   onClose: () => void;
 }
 
-type FlowStep = 'form' | 'payment' | 'generating' | 'complete' | 'editing';
+type FlowStep = 'details' | 'upload' | 'payment' | 'generating' | 'complete' | 'editing';
 
 interface PhotoSlot {
   file: File | null;
