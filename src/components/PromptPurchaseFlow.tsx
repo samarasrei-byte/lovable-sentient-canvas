@@ -1919,8 +1919,8 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
 
                             <div className="flex items-center justify-between mb-2">
                               <span className="text-[10px] font-bold uppercase tracking-widest text-primary/70">
-                                {activePhotoCount < (prompt.min_photos || 1)
-                                  ? `Necessário: ${prompt.min_photos || 1} ${ (prompt.min_photos || 1) === 1 ? 'foto' : 'fotos' }`
+                                {activePhotoCount < personCount
+                                  ? `Necessário: ${personCount} ${personCount === 1 ? 'foto' : 'fotos'}`
                                   : "Fotos validadas"
                                 }
                               </span>
