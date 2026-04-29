@@ -376,8 +376,12 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       const detectedPeople = data?.analise?.quantidade_pessoas || data?.metadados?.pessoas;
       if (index === 0 && typeof detectedPeople === 'number' && detectedPeople >= 1) {
         const suggested = Math.min(detectedPeople, 5);
-        if (suggested !== personCount) {
-          setAiSuggestedPersonCount(suggested);
+        // Automática inteligente: se for 1 pessoa, trava em 1. Se for mais, permite adicionar.
+        setAiSuggestedPersonCount(suggested);
+        if (suggested > 1) {
+          toast.success(`Detectamos ${suggested} pessoas na foto!`, {
+            description: "Você pode adicionar os dados de cada uma agora."
+          });
         }
       }
     } catch (error) {
