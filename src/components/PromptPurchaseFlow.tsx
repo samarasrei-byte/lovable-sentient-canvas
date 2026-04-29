@@ -346,6 +346,15 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       if (data?.metadados?.idade_detectada && isBirthdayPrompt && !formData.age) {
         setFormData(prev => ({ ...prev, age: String(data.metadados.idade_detectada) }));
       }
+
+      // AI suggestion: detect number of people in the FIRST uploaded photo
+      const detectedPeople = data?.analise?.quantidade_pessoas || data?.metadados?.pessoas;
+      if (index === 0 && typeof detectedPeople === 'number' && detectedPeople >= 1) {
+        const suggested = Math.min(detectedPeople, 5);
+        if (suggested !== personCount) {
+          setAiSuggestedPersonCount(suggested);
+        }
+      }
     } catch (error) {
       console.error('Error analyzing uploaded photo:', error);
       setPhotoProfiles((prev) => {
