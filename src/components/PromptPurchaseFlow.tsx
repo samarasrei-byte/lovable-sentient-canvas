@@ -1581,14 +1581,15 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
           <GlassCardContent className="flex-1 overflow-hidden relative flex flex-col p-0">
             <div className="flex-1 overflow-y-auto custom-scrollbar p-6 sm:p-8 space-y-6 sm:space-y-8">
             {/* Steps Progress */}
-            {authStep === 'done' && (
-              <div className="flex items-center justify-between px-2 max-w-lg mx-auto w-full">
+            {authStep !== 'complete' && (
+              <div className="flex items-center justify-between px-6 max-w-lg mx-auto w-full pt-4">
                 {(['details', 'upload', 'payment', 'complete'] as const).map((status, index) => {
                   const labels = ['Dados', 'Fotos', 'Pagar', 'Pronto'];
                   const stepOrder = ['details', 'upload', 'payment', 'generating', 'complete'];
-                  const currentStepIndex = step === 'editing' ? 4 : stepOrder.indexOf(step);
+                  const currentStepIndex = authStep !== 'done' ? 0 : (step === 'editing' ? 4 : stepOrder.indexOf(step));
                   const isPast = currentStepIndex > index;
-                  const isCurrent = (step === status) || 
+                  const isCurrent = (authStep !== 'done' && index === 0) || 
+                                   (authStep === 'done' && step === status) || 
                                    (step === 'generating' && status === 'payment') ||
                                    (step === 'editing' && status === 'complete');
                   
