@@ -1631,24 +1631,54 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
             {authStep === 'done' && step === 'form' && (
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
                 <div className="flex flex-col lg:flex-row lg:gap-8 items-start">
-                  {/* Left Column: Details (compact) */}
-                  <div className="space-y-5 w-full lg:max-w-[320px] order-2 lg:order-1">
+                  {/* Left Column: Details — Ultra-modern Glass Card */}
+                  <div className="space-y-5 w-full lg:max-w-[340px] order-2 lg:order-1">
 
-                    {/* Safety Warning UX */}
-                    <div className="flex items-start gap-3 p-4 rounded-2xl bg-amber-500/5 border border-amber-500/10 shadow-lg shadow-amber-500/5 animate-in fade-in slide-in-from-top-2">
-                      <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-                      <div className="space-y-1">
-                        <p className="text-xs leading-tight text-amber-200 font-bold">Diretrizes de Uso</p>
-                        <p className="text-[11px] leading-tight text-amber-100/60">
-                          Conteúdos inadequados, sexualizados ou que violem nossas diretrizes serão bloqueados pela IA.
-                        </p>
+                    {/* Section Header (matches "Suas fotos" hierarchy) */}
+                    {(() => {
+                      const isChildSection = /infantil|bebê|bebe|newborn|criança|crianca|kids|baby|aniversário|aniversario/i.test(
+                        `${prompt.category || ''} ${prompt.name || ''}`
+                      );
+                      return (
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-3">
+                            <div className="relative">
+                              <div className="absolute inset-0 rounded-2xl bg-primary/40 blur-xl animate-pulse" />
+                              <div className="relative w-11 h-11 rounded-2xl bg-gradient-to-br from-primary/40 to-secondary/20 flex items-center justify-center text-white font-black text-base border border-white/15 shadow-[0_0_30px_rgba(168,85,247,0.4)]">1</div>
+                            </div>
+                            <h3 className="text-2xl sm:text-3xl font-black tracking-[-0.03em] bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-white/50">
+                              {isChildSection ? 'Dados da criança' : 'Seus dados'}
+                            </h3>
+                          </div>
+                          <p className="text-xs sm:text-sm text-muted-foreground/70 leading-relaxed pl-14">
+                            {isChildSection
+                              ? 'Informações que aparecerão na arte final (nome e idade).'
+                              : 'Preencha rapidamente — vamos personalizar tudo pra você.'}
+                          </p>
+                        </div>
+                      );
+                    })()}
+
+                    {/* Safety Warning UX — refined glass */}
+                    <div className="relative group animate-in fade-in slide-in-from-top-2">
+                      <div className="absolute -inset-px rounded-2xl bg-gradient-to-br from-amber-500/30 via-orange-500/20 to-transparent opacity-60 blur-sm" />
+                      <div className="relative flex items-start gap-3 p-4 rounded-2xl bg-white/[0.03] backdrop-blur-2xl border border-amber-500/20 shadow-[0_8px_32px_-12px_rgba(245,158,11,0.25)]">
+                        <div className="shrink-0 w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+                          <AlertTriangle className="w-4 h-4 text-amber-400" />
+                        </div>
+                        <div className="space-y-1 flex-1 min-w-0">
+                          <p className="text-[11px] tracking-[-0.01em] text-amber-200 font-bold leading-tight">Diretrizes de Uso</p>
+                          <p className="text-[10.5px] leading-snug text-amber-100/60">
+                            Conteúdos inadequados, sexualizados ou que violem nossas diretrizes serão bloqueados pela IA.
+                          </p>
+                        </div>
                       </div>
                     </div>
 
-
-
-
-                    <div className="space-y-4">
+                    {/* Glassmorphism container wrapping the form fields */}
+                    <div className="relative">
+                      <div className="absolute -inset-px rounded-3xl bg-gradient-to-br from-primary/20 via-white/5 to-transparent opacity-50 blur-md pointer-events-none" />
+                      <div className="relative space-y-5 p-5 sm:p-6 rounded-3xl bg-white/[0.03] backdrop-blur-2xl border border-white/10 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.5)]">
 
                       {/* Name field */}
                       {prompt.required_fields.includes('name') && (() => {
@@ -1657,18 +1687,23 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                         );
                         return (
                           <div className="space-y-2">
-                            <Label className="text-xs sm:text-sm font-semibold ml-1">
-                              {isChildPrompt ? '👶 Nome da criança' : 'Seu nome completo'}
+                            <Label className="text-[11px] sm:text-xs uppercase tracking-[0.12em] font-bold text-white/70 ml-1 flex items-center gap-1.5">
+                              {isChildPrompt ? <span>👶</span> : <User className="w-3 h-3 text-primary" />}
+                              {isChildPrompt ? 'Nome da criança' : 'Seu nome'}
+                              <span className="text-rose-400/80 ml-0.5">*</span>
                             </Label>
                             <div className="relative group">
-                              <div className="absolute inset-0 bg-primary/5 rounded-xl blur-md opacity-0 group-focus-within:opacity-100 transition-opacity" />
-                              <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                              <Input
-                                value={formData.name}
-                                onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
-                                placeholder={isChildPrompt ? 'Ex: Helena, Theo, Maria Júlia' : 'Como você quer ser chamado'}
-                                className="pl-11 bg-white/5 border-white/10 hover:border-white/20 focus:border-primary/50 text-sm h-12 rounded-xl transition-all"
-                              />
+                              <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/40 via-secondary/30 to-primary/40 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition-opacity duration-500" />
+                              <div className="relative">
+                                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 group-focus-within:text-primary transition-colors" />
+                                <Input
+                                  value={formData.name}
+                                  onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
+                                  placeholder={isChildPrompt ? 'Ex: Helena, Theo, Maria Júlia' : 'Como você quer ser chamado'}
+                                  className="pl-11 bg-white/[0.04] border-white/10 hover:border-white/20 focus:border-primary/60 focus:bg-white/[0.06] text-sm font-medium h-13 rounded-2xl transition-all placeholder:text-white/30"
+                                  style={{ height: '52px' }}
+                                />
+                              </div>
                             </div>
                           </div>
                         );
@@ -1681,31 +1716,44 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                         );
                         return (
                           <div className="space-y-2">
-                            <Label className="text-xs sm:text-sm font-semibold ml-1">Idade {isChildMode && 'ou Meses'}</Label>
+                            <Label className="text-[11px] sm:text-xs uppercase tracking-[0.12em] font-bold text-white/70 ml-1 flex items-center gap-1.5">
+                              <Sparkles className="w-3 h-3 text-primary" />
+                              Idade {isChildMode && 'ou Meses'}
+                              <span className="text-rose-400/80 ml-0.5">*</span>
+                            </Label>
                             <div className="grid grid-cols-2 gap-3">
-                              <div className="relative">
-                                <Input
-                                  value={formData.age}
-                                  onChange={(e) => setFormData((prev) => ({ ...prev, age: e.target.value.replace(/\D/g, ''), months: '' }))}
-                                  placeholder="Anos"
-                                  className="bg-white/5 border-white/10 text-sm h-12 rounded-xl"
-                                />
-                                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground font-bold uppercase">Anos</span>
-                              </div>
-                              {isChildMode && (
+                              <div className="relative group">
+                                <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/40 to-secondary/30 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition-opacity duration-500" />
                                 <div className="relative">
                                   <Input
-                                    value={formData.months}
-                                    onChange={(e) => setFormData((prev) => ({ ...prev, months: e.target.value.replace(/\D/g, ''), age: '' }))}
-                                    placeholder="Meses"
-                                    className="bg-white/5 border-white/10 text-sm h-12 rounded-xl"
+                                    value={formData.age}
+                                    onChange={(e) => setFormData((prev) => ({ ...prev, age: e.target.value.replace(/\D/g, ''), months: '' }))}
+                                    placeholder="0"
+                                    className="bg-white/[0.04] border-white/10 hover:border-white/20 focus:border-primary/60 text-base font-bold h-13 rounded-2xl pr-14 placeholder:text-white/20"
+                                    style={{ height: '52px' }}
                                   />
-                                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground font-bold uppercase">Meses</span>
+                                  <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[9px] text-white/40 font-black uppercase tracking-wider">Anos</span>
+                                </div>
+                              </div>
+                              {isChildMode && (
+                                <div className="relative group">
+                                  <div className="absolute -inset-0.5 bg-gradient-to-r from-secondary/40 to-primary/30 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition-opacity duration-500" />
+                                  <div className="relative">
+                                    <Input
+                                      value={formData.months}
+                                      onChange={(e) => setFormData((prev) => ({ ...prev, months: e.target.value.replace(/\D/g, ''), age: '' }))}
+                                      placeholder="0"
+                                      className="bg-white/[0.04] border-white/10 hover:border-white/20 focus:border-primary/60 text-base font-bold h-13 rounded-2xl pr-16 placeholder:text-white/20"
+                                      style={{ height: '52px' }}
+                                    />
+                                    <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[9px] text-white/40 font-black uppercase tracking-wider">Meses</span>
+                                  </div>
                                 </div>
                               )}
                             </div>
-                            <p className="text-[10px] text-muted-foreground/60 ml-1 leading-tight">
-                              A idade aparecerá em velas, balões ou decorações na imagem gerada.
+                            <p className="text-[10px] text-white/40 ml-1 leading-tight flex items-center gap-1.5 mt-2">
+                              <Sparkles className="w-2.5 h-2.5 text-primary/60" />
+                              Aparecerá em velas, balões ou decorações na arte.
                             </p>
                           </div>
                         );
