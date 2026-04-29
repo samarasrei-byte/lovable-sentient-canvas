@@ -1622,75 +1622,92 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
 
             {/* Integrated Auth Flow */}
             {authStep !== 'done' && (
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8 p-6 bg-white/[0.02] border border-white/5 rounded-[32px] backdrop-blur-2xl">
-                <div className="text-center space-y-2">
-                  <div className="w-16 h-16 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-4">
-                    <User className="w-8 h-8 text-primary" />
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }} 
+                animate={{ opacity: 1, scale: 1 }} 
+                className="flex flex-col h-full max-w-md mx-auto w-full space-y-8 py-8"
+              >
+                <div className="text-center space-y-4">
+                  <div className="relative inline-block">
+                    <div className="absolute inset-0 rounded-[28px] bg-primary/20 blur-xl animate-pulse" />
+                    <div className="relative w-20 h-20 rounded-[28px] bg-gradient-to-br from-primary/20 to-secondary/10 border border-white/10 flex items-center justify-center mx-auto shadow-2xl">
+                      <User className="w-10 h-10 text-primary" />
+                    </div>
                   </div>
-                  <h3 className="text-2xl font-black tracking-tight text-white">
-                    {authStep === 'login' ? 'Bem-vindo de volta' : 'Crie sua conta'}
-                  </h3>
-                  <p className="text-sm text-muted-foreground/60 max-w-[280px] mx-auto leading-relaxed">
-                    {authStep === 'login' ? 'Acesse para salvar suas criações' : 'Salve suas fotos e acompanhe seus pedidos'}
-                  </p>
+                  <div className="space-y-2">
+                    <h3 className="text-3xl font-black tracking-tight text-white uppercase">
+                      {authStep === 'login' ? 'Bem-vindo' : 'Criar Conta'}
+                    </h3>
+                    <p className="text-sm text-muted-foreground/60 leading-relaxed">
+                      {authStep === 'login' ? 'Acesse para salvar suas artes 4K' : 'Salve suas criações e acompanhe pedidos'}
+                    </p>
+                  </div>
                 </div>
 
-                <form onSubmit={handleAuth} className="space-y-6">
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label className="text-[10px] uppercase tracking-[0.2em] font-black text-white/40 ml-1">E-mail</Label>
-                      <div className="relative group">
-                        <AtSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-primary transition-colors" />
-                        <Input 
-                          type="email" 
-                          required
-                          value={authForm.email}
-                          onChange={e => setAuthForm(prev => ({ ...prev, email: e.target.value }))}
-                          placeholder="seu@email.com"
-                          className="pl-11 h-14 bg-white/[0.03] border-white/10 rounded-2xl focus:bg-white/[0.05] transition-all"
-                        />
+                <div className="space-y-6 bg-white/[0.03] backdrop-blur-2xl border border-white/10 rounded-[40px] p-8 shadow-2xl relative overflow-hidden group">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/0 via-primary/40 to-primary/0" />
+                  
+                  <form onSubmit={handleAuth} className="space-y-5">
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label className="text-[10px] uppercase tracking-[0.2em] font-black text-white/30 ml-1">E-mail</Label>
+                        <div className="relative group/input">
+                          <AtSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within/input:text-primary transition-colors" />
+                          <Input 
+                            type="email" 
+                            required
+                            value={authForm.email}
+                            onChange={e => setAuthForm(prev => ({ ...prev, email: e.target.value }))}
+                            placeholder="seu@email.com"
+                            className="pl-11 h-14 bg-white/[0.03] border-white/10 rounded-2xl focus:bg-white/[0.05] transition-all text-base"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-[10px] uppercase tracking-[0.2em] font-black text-white/30 ml-1">Senha</Label>
+                        <div className="relative group/input">
+                          <Check className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within/input:text-primary transition-colors" />
+                          <Input 
+                            type="password" 
+                            required
+                            value={authForm.password}
+                            onChange={e => setAuthForm(prev => ({ ...prev, password: e.target.value }))}
+                            placeholder="••••••••"
+                            className="pl-11 h-14 bg-white/[0.03] border-white/10 rounded-2xl focus:bg-white/[0.05] transition-all text-base"
+                          />
+                        </div>
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label className="text-[10px] uppercase tracking-[0.2em] font-black text-white/40 ml-1">Senha</Label>
-                      <div className="relative group">
-                        <Check className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-primary transition-colors" />
-                        <Input 
-                          type="password" 
-                          required
-                          value={authForm.password}
-                          onChange={e => setAuthForm(prev => ({ ...prev, password: e.target.value }))}
-                          placeholder="••••••••"
-                          className="pl-11 h-14 bg-white/[0.03] border-white/10 rounded-2xl focus:bg-white/[0.05] transition-all"
-                        />
+
+                    <GlassButton disabled={authLoading} type="submit" className="w-full h-16 text-sm font-black uppercase tracking-widest shadow-2xl shadow-primary/20 rounded-2xl">
+                      {authLoading ? <Loader2 className="w-6 h-6 animate-spin mx-auto" /> : (authStep === 'login' ? 'Acessar agora' : 'Criar minha conta')}
+                    </GlassButton>
+
+                    <div className="flex flex-col gap-5 pt-2">
+                      <button 
+                        type="button"
+                        onClick={() => setAuthStep(authStep === 'login' ? 'register' : 'login')}
+                        className="text-[11px] font-bold text-muted-foreground/40 hover:text-white transition-all text-center uppercase tracking-widest"
+                      >
+                        {authStep === 'login' ? 'Não tem conta? Registre-se' : 'Já tem uma conta? Entre'}
+                      </button>
+                      
+                      <div className="relative py-2">
+                        <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/5"></div></div>
+                        <div className="relative flex justify-center"><span className="px-3 bg-transparent text-[9px] font-black text-white/20 uppercase tracking-[0.4em]">Ou</span></div>
                       </div>
-                    </div>
-                  </div>
 
-                  <GlassButton disabled={authLoading} type="submit" className="w-full h-14 text-sm font-black uppercase tracking-widest shadow-2xl shadow-primary/20">
-                    {authLoading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : (authStep === 'login' ? 'Acessar agora' : 'Criar minha conta')}
-                  </GlassButton>
-
-                  <div className="flex flex-col gap-4">
-                    <button 
-                      type="button"
-                      onClick={() => setAuthStep(authStep === 'login' ? 'register' : 'login')}
-                      className="text-[11px] font-bold text-muted-foreground/60 hover:text-white transition-all text-center uppercase tracking-widest"
-                    >
-                      {authStep === 'login' ? 'Não tem conta? Registre-se' : 'Já tem uma conta? Entre'}
-                    </button>
-                    <div className="h-px bg-white/5 w-full relative">
-                      <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 px-3 bg-[#0A0A0B] text-[9px] font-black text-white/20 uppercase tracking-[0.3em]">Ou</span>
+                      <button 
+                        type="button"
+                        onClick={() => setAuthStep('done')}
+                        className="group flex items-center justify-center gap-2 text-xs font-black text-primary/60 hover:text-primary transition-all uppercase tracking-[0.2em]"
+                      >
+                        Pular e continuar
+                        <Sparkles className="w-4 h-4 animate-pulse group-hover:scale-110 transition-transform" />
+                      </button>
                     </div>
-                    <button 
-                      type="button"
-                      onClick={() => setAuthStep('done')}
-                      className="text-[11px] font-black text-primary/60 hover:text-primary transition-all text-center uppercase tracking-[0.2em]"
-                    >
-                      Continuar como convidado
-                    </button>
-                  </div>
-                </form>
+                  </form>
+                </div>
               </motion.div>
             )}
 
