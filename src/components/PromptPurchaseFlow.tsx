@@ -2317,7 +2317,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                         onClick={() => {
                           if (paymentPollRef.current) clearInterval(paymentPollRef.current);
                           setVerifyingPayment(false);
-                          setStep('form');
+                          setStep(prompt.required_fields.length > 0 ? 'details' : 'upload');
                         }}
                         className="w-full text-xs"
                       >
