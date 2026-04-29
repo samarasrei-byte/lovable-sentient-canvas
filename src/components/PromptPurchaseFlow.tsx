@@ -159,7 +159,7 @@ const presentationLabel: Record<string, string> = {
 };
 
 export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps) => {
-  const [step, setStep] = useState<FlowStep>('form');
+  const [step, setStep] = useState<FlowStep>(prompt.required_fields.length > 0 ? 'details' : 'upload');
   const [authStep, setAuthStep] = useState<'login' | 'register' | 'done'>('done');
   const [user, setUser] = useState<any>(null);
   const [authLoading, setAuthLoading] = useState(false);
