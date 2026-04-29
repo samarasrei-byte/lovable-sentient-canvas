@@ -533,9 +533,8 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       return;
     }
 
-    if ((isFamilyPrompt || isCouplePrompt || isMultiPersonPrompt) && activePhotoCount < (prompt.min_photos || 2)) {
-      const label = isCouplePrompt ? 'de casal' : isFamilyPrompt ? 'de família' : 'com múltiplas pessoas';
-      toast.error(`Para fotos ${label}, envie pelo menos ${prompt.min_photos || 2} fotos (uma de cada pessoa).`);
+    if (activePhotoCount < personCount) {
+      toast.error(`Envie ${personCount} ${personCount === 1 ? 'foto' : 'fotos'} (uma para cada pessoa).`);
       return;
     }
 
