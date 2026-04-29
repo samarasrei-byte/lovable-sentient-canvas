@@ -1195,10 +1195,10 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       if (purchaseId && !(window as any).__arcanaRetried?.[purchaseId]) {
         (window as any).__arcanaRetried = { ...((window as any).__arcanaRetried || {}), [purchaseId]: true };
         setTimeout(() => {
-          generateImage(purchaseId).catch(() => setStep('form'));
+          generateImage(purchaseId).catch(() => setStep(prompt.required_fields.length > 0 ? 'details' : 'upload'));
         }, 3000);
       } else {
-        setStep('form');
+        setStep(prompt.required_fields.length > 0 ? 'details' : 'upload');
       }
     }
   };
