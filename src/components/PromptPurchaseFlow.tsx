@@ -2067,7 +2067,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                     onClick={handleSubmitForm} 
                     className="w-full sm:max-w-md h-16 text-xl font-black shadow-[0_20px_40px_-15px_hsl(var(--primary)/0.4)] hover:shadow-[0_25px_50px_-12px_hsl(var(--primary)/0.5)] active:scale-95 transition-all group overflow-hidden relative"
                     disabled={
-                      (prompt.required_fields.includes('photo') && activePhotoCount < (prompt.min_photos || 1)) ||
+                      (prompt.required_fields.includes('photo') && activePhotoCount < personCount) ||
                       (prompt.required_fields.includes('name') && !formData.name.trim()) ||
                       (analyzingPhotoSlots.length > 0)
                     }
@@ -2078,9 +2078,9 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                         <Sparkles className="w-6 h-6 animate-pulse" />
                         Gerar minha arte ({formatPrice(prompt.price_cents)})
                       </span>
-                      {activePhotoCount < (prompt.min_photos || 1) && (
+                      {activePhotoCount < personCount && (
                         <span className="text-[10px] font-bold opacity-40 mt-1 uppercase tracking-widest">
-                          Aguardando fotos de referência
+                          Envie {personCount - activePhotoCount} {personCount - activePhotoCount === 1 ? 'foto' : 'fotos'} para continuar
                         </span>
                       )}
                     </span>
