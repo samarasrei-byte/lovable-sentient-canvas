@@ -2079,9 +2079,9 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                         <Sparkles className="w-6 h-6 animate-pulse" />
                         Gerar minha arte ({formatPrice(prompt.price_cents)})
                       </span>
-                      {activePhotoCount < personCount && (
+                      {activePhotoCount < (manualPersonCount || aiSuggestedPersonCount || personCount) && (
                         <span className="text-[10px] font-bold opacity-40 mt-1 uppercase tracking-widest">
-                          Envie {personCount - activePhotoCount} {personCount - activePhotoCount === 1 ? 'foto' : 'fotos'} para continuar
+                          Envie {(manualPersonCount || aiSuggestedPersonCount || personCount) - activePhotoCount} {(manualPersonCount || aiSuggestedPersonCount || personCount) - activePhotoCount === 1 ? 'foto' : 'fotos'} para continuar
                         </span>
                       )}
                     </span>
