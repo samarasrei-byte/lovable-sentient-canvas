@@ -1850,61 +1850,57 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                     </div>
 
                     {/* Person count selector — controls how many photos can be uploaded */}
-                    {prompt.required_fields.includes('photo') && (
-                      <div className="rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-xl p-4 sm:p-5 space-y-3">
-                        <div className="flex items-center justify-between gap-3 flex-wrap">
-                          <div>
-                            <p className="text-[11px] font-bold uppercase tracking-widest text-white/80">Quantas pessoas?</p>
-                            <p className="text-[10px] text-muted-foreground/60 mt-0.5">Você terá controle total sobre quantas fotos enviar.</p>
+                    {prompt.required_fields.includes('photo') && (aiSuggestedPersonCount && aiSuggestedPersonCount > 1) && (
+                      <motion.div 
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="rounded-[28px] border border-primary/20 bg-primary/5 backdrop-blur-3xl p-5 space-y-4 shadow-[0_20px_50px_rgba(168,85,247,0.15)] overflow-hidden relative"
+                      >
+                        <div className="absolute top-0 right-0 p-4 opacity-10">
+                          <Sparkles className="w-12 h-12 text-primary" />
+                        </div>
+                        <div className="relative space-y-3">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-2xl bg-primary/20 border border-primary/30 flex items-center justify-center">
+                              <User className="w-5 h-5 text-primary" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-black tracking-tight text-white uppercase italic">IA Detectou {aiSuggestedPersonCount} pessoas</p>
+                              <p className="text-[11px] text-white/50 leading-tight">Queremos garantir que todos apareçam na arte final.</p>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-1.5">
-                            {[1, 2, 3, 4, 5].map((n) => {
-                              const isActive = personCount === n;
-                              return (
-                                <button
-                                  key={n}
-                                  type="button"
-                                  onClick={() => { setPersonCount(n); setAiSuggestedPersonCount(null); }}
-                                  className={`w-9 h-9 rounded-xl text-sm font-bold transition-all ${
-                                    isActive
-                                      ? 'bg-gradient-to-br from-primary to-secondary text-white shadow-[0_0_20px_rgba(168,85,247,0.5)] scale-105'
-                                      : 'bg-white/5 text-white/60 border border-white/10 hover:border-primary/40 hover:text-white'
-                                  }`}
-                                >
-                                  {n}
-                                </button>
-                              );
-                            })}
+                          
+                          <div className="flex items-center gap-2">
+                            <GlassButton 
+                              onClick={() => { setManualPersonCount(aiSuggestedPersonCount); setAiSuggestedPersonCount(null); }}
+                              className="flex-1 bg-primary text-primary-foreground border-primary/50 text-[10px] font-black uppercase tracking-widest h-11"
+                            >
+                              <Check className="w-3.5 h-3.5 mr-2" /> Sim, adicionar todos
+                            </GlassButton>
+                            <button 
+                              onClick={() => { setAiSuggestedPersonCount(null); setManualPersonCount(1); }}
+                              className="px-4 h-11 rounded-2xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-all"
+                            >
+                              Não, apenas 1
+                            </button>
                           </div>
                         </div>
-                        {aiSuggestedPersonCount && aiSuggestedPersonCount !== personCount && (
-                          <motion.div
-                            initial={{ opacity: 0, y: -4 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="flex items-center justify-between gap-3 p-2.5 rounded-xl bg-primary/10 border border-primary/30"
-                          >
-                            <div className="flex items-center gap-2 text-[11px] text-primary font-medium">
-                              <Sparkles className="w-3.5 h-3.5 flex-shrink-0" />
-                              <span>Detectamos {aiSuggestedPersonCount} {aiSuggestedPersonCount === 1 ? 'pessoa' : 'pessoas'} na sua foto. Ajustar?</span>
-                            </div>
-                            <div className="flex gap-1.5">
-                              <button
-                                type="button"
-                                onClick={() => { setPersonCount(aiSuggestedPersonCount); setAiSuggestedPersonCount(null); }}
-                                className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-primary text-white hover:bg-primary/90"
-                              >
-                                Sim
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => setAiSuggestedPersonCount(null)}
-                                className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-white/5 text-white/60 hover:text-white"
-                              >
-                                Não
-                              </button>
-                            </div>
-                          </motion.div>
-                        )}
+                      </motion.div>
+                    )}
+
+                    {/* Manual "Add Person" button (only visible if multi-person is needed or detected) */}
+                    {prompt.required_fields.includes('photo') && !aiSuggestedPersonCount && (manualPersonCount || personCount) < 5 && (
+                      <div className="flex justify-center">
+                        <button
+                          onClick={() => setManualPersonCount(((manualPersonCount || personCount) + 1) as number)}
+                          className="group relative flex items-center gap-2 px-6 py-3 rounded-full bg-white/[0.03] border border-white/10 hover:border-primary/40 transition-all duration-300 shadow-xl overflow-hidden"
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-secondary/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                          <div className="relative flex items-center gap-2">
+                            <Plus className="w-4 h-4 text-primary group-hover:rotate-90 transition-transform duration-300" />
+                            <span className="text-xs font-black uppercase tracking-[0.15em] text-white/70 group-hover:text-white">Adicionar outra pessoa</span>
+                          </div>
+                        </button>
                       </div>
                     )}
                         {prompt.required_fields.includes('photo') && (
