@@ -1992,14 +1992,18 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                 ) : (
                                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 cursor-pointer p-4 text-center z-10">
                                     <div className="relative">
-                                      <div className="absolute inset-0 rounded-2xl bg-primary/30 blur-xl opacity-60 group-hover:opacity-100 transition-opacity animate-pulse" />
-                                      <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-white/10 to-white/[0.02] border border-white/15 flex items-center justify-center group-hover:from-primary/20 group-hover:border-primary/50 transition-all shadow-[0_0_20px_rgba(168,85,247,0.15)]">
-                                        <Plus className="w-7 h-7 text-foreground/70 group-hover:text-primary group-hover:rotate-90 transition-all duration-300" />
+                                      <div className={`absolute inset-0 rounded-2xl bg-primary/30 blur-xl opacity-60 group-hover:opacity-100 transition-opacity animate-pulse`} />
+                                      <div className={`relative ${isHero ? 'w-20 h-20' : 'w-14 h-14'} rounded-2xl bg-gradient-to-br from-white/10 to-white/[0.02] border border-white/15 flex items-center justify-center group-hover:from-primary/20 group-hover:border-primary/50 transition-all shadow-[0_0_20px_rgba(168,85,247,0.15)]`}>
+                                        <Plus className={`${isHero ? 'w-10 h-10' : 'w-7 h-7'} text-foreground/70 group-hover:text-primary group-hover:rotate-90 transition-all duration-300`} />
                                       </div>
                                     </div>
                                     <div className="space-y-1">
-                                      <p className="text-[12px] font-bold text-foreground/80 group-hover:text-primary transition-colors tracking-tight">Adicionar foto</p>
-                                      <p className="text-[9px] text-muted-foreground/50 uppercase tracking-widest">Toque para enviar</p>
+                                      <p className={`${isHero ? 'text-base sm:text-lg' : 'text-[12px]'} font-bold text-foreground/90 group-hover:text-primary transition-colors tracking-tight`}>
+                                        {isHero ? (index === 0 ? 'Envie a foto principal' : `Foto da pessoa ${index + 1}`) : `Pessoa ${index + 1}`}
+                                      </p>
+                                      <p className={`${isHero ? 'text-[10px]' : 'text-[9px]'} text-muted-foreground/60 uppercase tracking-widest`}>
+                                        {isHero ? 'Boa luz · De frente · Sem filtros' : 'Toque para enviar'}
+                                      </p>
                                     </div>
                                     <input
                                       type="file"
