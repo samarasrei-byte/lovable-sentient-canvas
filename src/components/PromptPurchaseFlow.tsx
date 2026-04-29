@@ -166,7 +166,11 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const [authForm, setAuthForm] = useState({ email: '', password: '', confirmPassword: '' });
   const [qualityChecks, setQualityChecks] = useState<{ [key: string]: boolean }>({});
 
-  const maxPhotos = prompt.min_photos && prompt.min_photos > 1 ? Math.min(prompt.min_photos, 5) : 5;
+  // User-controlled person count (1-5). Initialized from prompt's min_photos.
+  const initialPersonCount = Math.min(Math.max(prompt.min_photos || 1, 1), 5);
+  const [personCount, setPersonCount] = useState<number>(initialPersonCount);
+  const [aiSuggestedPersonCount, setAiSuggestedPersonCount] = useState<number | null>(null);
+  const maxPhotos = personCount;
   const [formData, setFormData] = useState({ 
     name: '', 
     instagram: '', 
