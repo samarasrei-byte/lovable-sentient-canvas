@@ -1102,7 +1102,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
 
       // Block output moderation failures immediately
       if (qa.is_inappropriate) {
-        setStep('form');
+        setStep(prompt.required_fields.length > 0 ? 'details' : 'upload');
         toast.error('Conteúdo bloqueado por segurança', {
           description: 'A imagem gerada violou nossas diretrizes de segurança. Você pode solicitar uma revisão humana.',
           duration: 15000,
