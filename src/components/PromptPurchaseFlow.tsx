@@ -240,28 +240,29 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const [showBeforeAfter, setShowBeforeAfter] = useState(false);
   const [selectedStyle, setSelectedStyle] = useState<'realistic' | 'artistic'>('realistic');
 
-  // Sync photo slots with personCount: trim empty slots when reducing, ensure at least 1.
+  // Sync photo slots with current target count: trim empty slots when reducing, ensure at least 1.
   useEffect(() => {
+    const targetCount = manualPersonCount || aiSuggestedPersonCount || personCount;
     setPhotos((prev) => {
-      if (prev.length === personCount) return prev;
-      if (prev.length < personCount) {
-        const toAdd = personCount - prev.length;
+      if (prev.length === targetCount) return prev;
+      if (prev.length < targetCount) {
+        const toAdd = targetCount - prev.length;
         return [...prev, ...Array.from({ length: toAdd }, () => ({ file: null, preview: '' as string }))];
       }
       // Reducing: keep filled slots first, then drop empties from the end.
       const filled = prev.filter(p => p.file);
       const empties = prev.filter(p => !p.file);
-      const kept = [...filled, ...empties].slice(0, personCount);
+      const kept = [...filled, ...empties].slice(0, targetCount);
       return kept.length > 0 ? kept : [{ file: null, preview: '' }];
     });
     setPhotoProfiles((prev) => {
-      if (prev.length === personCount) return prev;
-      if (prev.length < personCount) {
-        return [...prev, ...Array.from({ length: personCount - prev.length }, () => null)];
+      if (prev.length === targetCount) return prev;
+      if (prev.length < targetCount) {
+        return [...prev, ...Array.from({ length: targetCount - prev.length }, () => null)];
       }
-      return prev.slice(0, personCount);
+      return prev.slice(0, targetCount);
     });
-  }, [personCount]);
+  }, [personCount, aiSuggestedPersonCount, manualPersonCount]);
   const [showSupportForm, setShowSupportForm] = useState(false);
   const [showSafetyModal, setShowSafetyModal] = useState(false);
   const [appealModal, setAppealModal] = useState<{ 
