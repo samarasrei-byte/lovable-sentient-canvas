@@ -1928,19 +1928,24 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                 {activePhotoCount}/{maxPhotos}
                               </span>
                             </div>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+                            <div className={personCount === 1 ? "grid grid-cols-1 gap-4" : "grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4"}>
                           {photos.map((photo, index) => {
                             const photoProfile = photoProfiles[index];
                             const isAnalyzing = analyzingPhotoSlots.includes(index) || photo.status === 'uploading' || photo.status === 'analyzing';
                             const isBlocked = photo.status === 'blocked';
                             const isEmpty = !photo.preview && !isAnalyzing && !isBlocked;
-                            
+                            const isHero = personCount === 1 || index === 0;
+                            const heroClasses = personCount === 1
+                              ? 'aspect-[4/5] w-full'
+                              : 'col-span-2 sm:col-span-2 row-span-2 aspect-[4/5]';
+                            const miniClasses = 'aspect-[3/4]';
+
                             return (
                               <motion.div
                                 key={index}
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                className={`relative aspect-[3/4] rounded-[28px] border transition-all overflow-hidden group shadow-[0_20px_50px_rgba(0,0,0,0.35)] backdrop-blur-xl ${
+                                className={`relative ${isHero ? heroClasses : miniClasses} rounded-[28px] border transition-all overflow-hidden group shadow-[0_20px_50px_rgba(0,0,0,0.35)] backdrop-blur-xl ${
                                   isBlocked 
                                     ? 'border-red-500/50 bg-red-950/20' 
                                     : photo.preview 
