@@ -2581,7 +2581,16 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   2 variações grátis + 1 edição por compra • Sua imagem, seus direitos 💎
                 </p>
 
-                <GlassButton onClick={onClose} variant="outline" className="w-full" size="sm">Fechar</GlassButton>
+                <div className="flex gap-2">
+                  <GlassButton onClick={onClose} variant="outline" className="flex-1" size="sm">Fechar</GlassButton>
+                  <GlassButton 
+                    onClick={() => { setStep('form'); setGeneratedImage(null); setGeneratedVariants([]); }} 
+                    className="flex-1 bg-primary/20 hover:bg-primary/30 text-primary border-primary/20" 
+                    size="sm"
+                  >
+                    Gerar mais variações
+                  </GlassButton>
+                </div>
               </motion.div>
             )}
 
