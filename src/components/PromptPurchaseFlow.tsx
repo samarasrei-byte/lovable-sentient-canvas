@@ -1145,7 +1145,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
           qa = await runQAValidation(finalImageUrl, referencePhotoUrls);
           
           if (qa.is_inappropriate) {
-            setStep('form');
+            setStep(prompt.required_fields.length > 0 ? 'details' : 'upload');
             toast.error('Conteúdo bloqueado por segurança', {
               description: 'A imagem gerada violou nossas diretrizes de segurança. Solicite uma revisão se achar que é um erro.',
               duration: 15000,
