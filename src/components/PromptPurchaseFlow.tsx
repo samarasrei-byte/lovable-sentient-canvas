@@ -2584,7 +2584,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                 <div className="flex gap-2">
                   <GlassButton onClick={onClose} variant="outline" className="flex-1" size="sm">Fechar</GlassButton>
                   <GlassButton 
-                    onClick={() => { setStep('form'); setGeneratedImage(null); setGeneratedVariants([]); }} 
+                    onClick={() => { setStep(prompt.required_fields.length > 0 ? 'details' : 'upload'); setGeneratedImage(null); setGeneratedVariants([]); }} 
                     className="flex-1 bg-primary/20 hover:bg-primary/30 text-primary border-primary/20" 
                     size="sm"
                   >
