@@ -1789,6 +1789,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                           </p>
                         </div>
                       )}
+                      </div>
                     </div>
                   </div>
 
