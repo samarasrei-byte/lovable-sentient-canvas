@@ -1760,10 +1760,12 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   )}
 
                   {/* Age/Months field */}
-                  {prompt.required_fields.includes('age') && (
+                  {showAgeMonthsField && (
                     <div className="space-y-2">
-                      <Label className="text-[11px] uppercase tracking-widest font-black text-white/40 ml-1">Idade / Meses</Label>
-                      <div className="grid grid-cols-2 gap-4">
+                      <Label className="text-[11px] uppercase tracking-widest font-black text-white/40 ml-1">
+                        {isChildPrompt || isMesversarioPrompt ? 'Idade da criança' : 'Idade'}
+                      </Label>
+                      <div className={cn("grid gap-4", (isChildPrompt || isMesversarioPrompt) ? "grid-cols-2" : "grid-cols-1")}>
                         <div className="relative group">
                           <Input
                             value={formData.age}
@@ -1773,7 +1775,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                           />
                           <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[9px] font-black uppercase text-white/20">Anos</span>
                         </div>
-                        {/infantil|bebê|bebe|newborn|criança|crianca|kids|baby/i.test(`${prompt.category || ''} ${prompt.name || ''}`) && (
+                        {(isChildPrompt || isMesversarioPrompt) && (
                           <div className="relative group">
                             <Input
                               value={formData.months}
