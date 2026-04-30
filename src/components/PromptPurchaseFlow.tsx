@@ -960,6 +960,15 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       template += `\n\nIDADE EM MESES — INSTRUÇÃO CRÍTICA: o bebê/criança tem ${formData.months} ${formData.months === '1' ? 'mês' : 'meses'}. Preserve essa fase real de desenvolvimento. Se houver decoração temática, vela, balão, banner ou topper, exiba apenas o número "${formData.months}" como meses. NÃO escreva a palavra "age" na imagem.`;
     }
 
+    // Generic age injection for child/infant prompts that are not birthday-specific
+    if (!isBirthdayPrompt && formData.age) {
+      template = template
+        .replace(/\[IDADE\]/g, `${formData.age} anos`)
+        .replace(/\{idade\}/g, `${formData.age} anos`)
+        .replace(/\{age\}/g, `${formData.age} anos`);
+      template += `\n\nIDADE OBRIGATÓRIA: a pessoa/criança da foto tem ${formData.age} anos. Preserve exatamente essa faixa etária aparente. Se houver texto decorativo de idade, use "${formData.age}". NÃO escreva a palavra "age" na imagem.`;
+    }
+
     // Inject age customization for birthday prompts
     if (isBirthdayPrompt && formData.age) {
       template = template
