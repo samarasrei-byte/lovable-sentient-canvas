@@ -179,7 +179,7 @@ serve(async (req) => {
     if (!response.ok) {
       const errorText = await response.text();
       console.error("AI gateway error:", errorText);
-      throw new Error(`AI Gateway error: ${response.status}`);
+      throw new Error(`AI Gateway error ${response.status}: ${errorText.slice(0, 240)}`);
     }
 
     const data = await response.json();
