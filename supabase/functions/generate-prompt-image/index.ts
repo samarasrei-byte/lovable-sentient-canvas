@@ -113,6 +113,7 @@ serve(async (req) => {
     }
 
     const fullPrompt = userPromptOverride || promptTemplate || "";
+    const referenceImageUrl = userPhotoUrl || body.userPhotoUrls?.[0] || body.sourceImageUrl;
 
     // 1. MODERATION CHECK
     const moderation = checkModeration(fullPrompt);
@@ -156,8 +157,8 @@ serve(async (req) => {
         role: "user", 
         content: [
           { type: "text", text: `CLONE THE FACE FROM IMAGE 1. Output a new image following this description: ${enhancedPrompt}. Use IMAGE 2 for style/lighting inspiration ONLY.` },
-          { type: "image_url", image_url: { url: userPhotoUrl } },
-          { type: "image_url", image_url: { url: exampleImageUrl || userPhotoUrl } }
+          { type: "image_url", image_url: { url: referenceImageUrl } },
+          { type: "image_url", image_url: { url: exampleImageUrl || referenceImageUrl } }
         ]
       }
     ];
@@ -191,7 +192,7 @@ serve(async (req) => {
       await supabaseAdmin.from("generated_images").insert({
         user_id: userId,
         image_url: imageUrl,
-        template_name: promptTemplate.substring(0, 50),
+        template_name: fullPrompt.substring(0, 50),
         original_purchase_id: purchaseId
       });
     }
