@@ -797,9 +797,11 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       }
       if (!uploadData) throw lastError || new Error(`Upload da foto ${i + 1} falhou`);
 
-      const { data: urlData } = supabase.storage.from('user-photos').getPublicUrl(uploadData.path);
-      if (!urlData.publicUrl) throw new Error(`Falha ao obter URL da foto ${i + 1}`);
-      return urlData.publicUrl;
+      const { data: signedData, error: signedError } = await supabase.storage
+        .from('user-photos')
+        .createSignedUrl(uploadData.path, 60 * 60);
+      if (signedError || !signedData?.signedUrl) throw new Error(`Falha ao liberar a foto ${i + 1} para a IA`);
+      return signedData.signedUrl;
     };
 
     try {
@@ -851,6 +853,12 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
 
   const isMesversarioPrompt = /mêsversário|mesversário|mesversario|newborn/i.test(prompt.name || '') ||
     /mêsversário|mesversário|mesversario/i.test(prompt.category || '');
+
+  const isChildPrompt = /infantil|bebê|bebe|newborn|criança|crianca|kids|baby|recem|recém/i.test(`${prompt.category || ''} ${prompt.name || ''} ${prompt.prompt_template || ''}`);
+
+  const promptHasAgeToken = /\{\s*(age|idade|months?|meses?)\s*\}|\[\s*(AGE|IDADE|MONTHS?|MESES?)\s*\]|<\s*(age|idade)\s*>/i.test(prompt.prompt_template || '');
+
+  const showAgeMonthsField = prompt.required_fields.includes('age') || isBirthdayPrompt || isMesversarioPrompt || isChildPrompt || promptHasAgeToken;
 
   const isEventPrompt = /evento|event|promoção|promocao|festa|party/i.test(prompt.category || '') ||
     /evento|event|promoção|promocao|festa|party/i.test(prompt.name || '');
