@@ -519,8 +519,8 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
         toast.error('Por favor, informe seu nome.');
         return;
       }
-      if (isBirthdayPrompt && !formData.age?.trim()) {
-        toast.error('Por favor, informe a idade.');
+      if (isBirthdayPrompt && !formData.age?.trim() && !formData.months?.trim()) {
+        toast.error('Por favor, informe a idade ou os meses.');
         return;
       }
       if (prompt.required_fields.includes('team_name') && !formData.team_name.trim()) {
@@ -580,13 +580,13 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       return;
     }
 
-    if (isBirthdayPrompt && !formData.age?.trim()) {
-      toast.error('Por favor, informe a idade para o prompt de aniversário.');
+    if (isBirthdayPrompt && !formData.age?.trim() && !formData.months?.trim()) {
+      toast.error('Por favor, informe a idade ou os meses para o prompt de aniversário.');
       return;
     }
 
-    if (isMesversarioPrompt && !formData.months) {
-      toast.error('Por favor, selecione quantos meses o bebê está fazendo.');
+    if (isMesversarioPrompt && !formData.months?.trim()) {
+      toast.error('Por favor, informe quantos meses o bebê está fazendo.');
       return;
     }
 
