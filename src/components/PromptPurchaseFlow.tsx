@@ -531,6 +531,18 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
     }
 
     if (step === 'upload') {
+      // GATE: usuário precisa estar autenticado antes de pagar/gerar
+      if (!user) {
+        // Pré-preenche email se já digitou
+        if (formData.email && !authForm.email) {
+          setAuthForm((prev) => ({ ...prev, email: formData.email }));
+        }
+        setAuthStep('register');
+        toast.info('Crie sua conta em 10 segundos para continuar', {
+          description: 'Você precisa de uma conta para receber e salvar sua arte 4K.',
+        });
+        return;
+      }
       await handleSubmitForm();
     }
   };
