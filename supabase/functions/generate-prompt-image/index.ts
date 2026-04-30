@@ -183,9 +183,11 @@ serve(async (req) => {
     }
 
     const data = await response.json();
+    const errorDetails = data?.error ? String(data.error) : "";
+    if (errorDetails) throw new Error(`AI respondeu sem imagem: ${errorDetails.slice(0, 240)}`);
     const imageUrl = extractGeneratedImageUrl(data);
 
-    if (!imageUrl) throw new Error("No image returned from AI");
+    if (!imageUrl) throw new Error("A IA não retornou uma imagem válida. Tente uma foto mais nítida ou um prompt mais simples.");
 
     // Save to generated_images if userId is provided
     if (userId) {
