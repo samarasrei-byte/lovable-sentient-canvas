@@ -949,15 +949,15 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       .replace(/<\s*age\s*>/gi, '')
       .replace(/<\s*idade\s*>/gi, '');
 
-    // Universal: if user picked months, always inject (even for non-mêsversário child prompts)
-    if (formData.months && !isMesversarioPrompt && !isBirthdayPrompt) {
+    // Universal: if user picked months, always inject (including birthday/child prompts)
+    if (formData.months) {
       template = template
         .replace(/\[MESES\]/g, formData.months)
         .replace(/\{meses\}/g, formData.months)
         .replace(/\{months\}/g, formData.months)
         .replace(/\{age\}/g, `${formData.months} ${formData.months === '1' ? 'mês' : 'meses'}`)
         .replace(/\[IDADE\]/g, `${formData.months} ${formData.months === '1' ? 'mês' : 'meses'}`);
-      template += `\n\nIDADE DO BEBÊ: ${formData.months} ${formData.months === '1' ? 'mês' : 'meses'}. Se houver decoração temática (vela, balão, banner), exiba "${formData.months}".`;
+      template += `\n\nIDADE EM MESES — INSTRUÇÃO CRÍTICA: o bebê/criança tem ${formData.months} ${formData.months === '1' ? 'mês' : 'meses'}. Preserve essa fase real de desenvolvimento. Se houver decoração temática, vela, balão, banner ou topper, exiba apenas o número "${formData.months}" como meses. NÃO escreva a palavra "age" na imagem.`;
     }
 
     // Inject age customization for birthday prompts
@@ -974,16 +974,6 @@ NÃO use outro número. NÃO omita o número. O número "${formData.age}" é o e
 Se houver bolo na cena, as velas ou topper DEVEM mostrar "${formData.age}".
 IGNORE COMPLETAMENTE qualquer número, idade, texto, nome, letras ou símbolos que apareçam na imagem de exemplo/referência de estilo.
 Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a imagem final DEVE mostrar apenas "${formData.age}".`;
-    }
-
-    // Inject month for foto infantil
-    if (isMesversarioPrompt && formData.months) {
-      template = template
-        .replace(/\[MESES\]/g, formData.months)
-        .replace(/\{meses\}/g, formData.months)
-        .replace(/\{age\}/g, formData.months)
-        .replace(/\[IDADE\]/g, formData.months);
-      template += `\n\nMESES DO BEBÊ: O bebê tem ${formData.months} meses. Exiba o número "${formData.months}" como decoração/tema na imagem (vela, balão, banner, etc). NÃO use outro número.`;
     }
 
     // Inject team name for football/team prompts
