@@ -57,6 +57,30 @@ const checkModeration = (text: string): { blocked: boolean; reason?: string } =>
   return { blocked: false };
 };
 
+const extractGeneratedImageUrl = (data: any): string | null => {
+  const message = data?.choices?.[0]?.message;
+  if (!message) return null;
+
+  if (Array.isArray(message.images)) {
+    const fromImages = message.images.find((img: any) => img?.image_url?.url)?.image_url?.url;
+    if (fromImages) return fromImages;
+  }
+
+  if (Array.isArray(message.content)) {
+    const fromImageUrl = message.content.find((c: any) => c?.type === "image_url" && c?.image_url?.url)?.image_url?.url;
+    if (fromImageUrl) return fromImageUrl;
+
+    const fromImage = message.content.find((c: any) => c?.type === "image" && c?.image_url?.url)?.image_url?.url;
+    if (fromImage) return fromImage;
+
+    const inline = message.content.find((c: any) => c?.inline_data?.data || c?.image?.url);
+    if (inline?.inline_data?.data) return `data:${inline.inline_data.mime_type || "image/png"};base64,${inline.inline_data.data}`;
+    if (inline?.image?.url) return inline.image.url;
+  }
+
+  return null;
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -158,8 +182,7 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    const imageUrl = data.choices[0].message.content.find((c: any) => c.type === "image")?.image_url?.url || 
-                     data.choices[0].message.content.find((c: any) => c.image_url)?.image_url?.url;
+    const imageUrl = extractGeneratedImageUrl(data);
 
     if (!imageUrl) throw new Error("No image returned from AI");
 
