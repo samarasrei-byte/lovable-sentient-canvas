@@ -81,6 +81,14 @@ const extractGeneratedImageUrl = (data: any): string | null => {
   return null;
 };
 
+const sanitizePromptForChildSafety = (text: string): string => {
+  return String(text || "")
+    .replace(/sem\s+roupa/gi, "com roupa newborn segura, body macio e tecido cobrindo o corpo")
+    .replace(/nu\b|nua\b|nude\b|naked\b/gi, "com roupa apropriada e totalmente coberta")
+    .replace(/exposed\b|exposto\b|exposta\b/gi, "coberto de forma segura")
+    .replace(/lingerie|underwear|calcinha|cueca|biquini|bikini/gi, "roupa infantil apropriada");
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -112,7 +120,7 @@ serve(async (req) => {
       });
     }
 
-    const fullPrompt = userPromptOverride || promptTemplate || "";
+    const fullPrompt = sanitizePromptForChildSafety(userPromptOverride || promptTemplate || "");
     const referenceImageUrl = userPhotoUrl || body.userPhotoUrls?.[0] || body.sourceImageUrl;
 
     // 1. MODERATION CHECK
