@@ -1111,6 +1111,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       if (attempt === 1) {
         setStep('generating');
         setQaStatus('idle');
+        setGenerationError(null);
       }
 
       // Step 1: Upload / Ensure photos (Progress: Receiving)
@@ -1215,27 +1216,31 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       setStep('complete');
     } catch (error) {
       console.error('Error generating image:', error);
-      const msg = error instanceof Error ? error.message : 'Erro na geração.';
-      // Não jogamos o cliente de volta pro formulário (perderia dados/pagamento).
-      // Mantemos no estado 'generating' com mensagem de erro + botão retry + suporte.
-      toast.error(`${msg} Estamos tentando novamente automaticamente. Se persistir, fale com o suporte.`, {
-        duration: 8000,
-        action: {
-          label: 'WhatsApp Suporte',
-          onClick: () => window.open('https://wa.me/5511985214895?text=Tive%20problema%20na%20geração%20da%20foto.%20ID:%20' + (purchaseId || 'N/A'), '_blank'),
-        },
-      });
+      const msg = error instanceof Error ? error.message : 'Erro inesperado na geração.';
+      const isFirstAttempt = !!purchaseId && !(window as any).__arcanaRetried?.[purchaseId];
+
+      // Erro persistente: mantém na tela 'generating' com cartão de erro visível + WhatsApp
+      if (!isFirstAttempt) {
+        setGenerationError(msg);
+        toast.error('Não conseguimos gerar sua imagem. Fale com o suporte para resolvermos agora.', { duration: 10000 });
+      } else {
+        toast.info('Tivemos um problema. Tentando novamente automaticamente…', { duration: 4000 });
+      }
+
       setQaStatus('idle');
       setQaIssues([]);
+
       // Auto-retry uma vez após 3s se foi a primeira tentativa
-      if (purchaseId && !(window as any).__arcanaRetried?.[purchaseId]) {
+      if (isFirstAttempt && purchaseId) {
         (window as any).__arcanaRetried = { ...((window as any).__arcanaRetried || {}), [purchaseId]: true };
         setTimeout(() => {
-          generateImage(purchaseId).catch(() => setStep(prompt.required_fields.length > 0 ? 'details' : 'upload'));
+          generateImage(purchaseId).catch((retryErr) => {
+            const retryMsg = retryErr instanceof Error ? retryErr.message : 'Erro persistente na geração.';
+            setGenerationError(retryMsg);
+          });
         }, 3000);
-      } else {
-        setStep(prompt.required_fields.length > 0 ? 'details' : 'upload');
       }
+      // NÃO jogamos o usuário pra trás — preserva pagamento e dados
     }
   };
 
