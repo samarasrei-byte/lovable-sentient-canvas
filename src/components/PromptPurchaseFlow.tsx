@@ -1221,7 +1221,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
         duration: 8000,
         action: {
           label: 'WhatsApp Suporte',
-          onClick: () => window.open('https://wa.me/5511999999999?text=Tive%20problema%20na%20geração%20da%20foto.%20ID:%20' + (purchaseId || 'N/A'), '_blank'),
+          onClick: () => window.open('https://wa.me/5511985214895?text=Tive%20problema%20na%20geração%20da%20foto.%20ID:%20' + (purchaseId || 'N/A'), '_blank'),
         },
       });
       setQaStatus('idle');
@@ -2024,7 +2024,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                 size="sm"
                                 variant="ghost"
                                 className="text-xs text-primary"
-                                onClick={() => window.open(`https://wa.me/5511999999999?text=Erro%20no%20pagamento.%20ID:%20${purchaseId?.slice(0, 8)}`, '_blank')}
+                                onClick={() => window.open(`https://wa.me/5511985214895?text=Erro%20no%20pagamento.%20ID:%20${purchaseId?.slice(0, 8)}`, '_blank')}
                               >
                                 💬 Falar com Suporte (WhatsApp)
                               </Button>
