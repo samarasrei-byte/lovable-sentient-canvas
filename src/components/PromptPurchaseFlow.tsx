@@ -1540,9 +1540,14 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
           }
         });
         if (error) throw error;
-        toast.success('Cadastro realizado! Verifique seu e-mail.');
+        toast.success('Cadastro realizado! Continuando seu pedido…');
       }
       setAuthStep('done');
+      // Se o usuário estava no upload, retoma o fluxo automaticamente
+      if (step === 'upload') {
+        // pequeno delay pra garantir que session foi setada
+        setTimeout(() => { void handleSubmitForm(); }, 300);
+      }
     } catch (err: any) {
       toast.error(err.message || 'Erro na autenticação');
     } finally {
@@ -1696,7 +1701,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                       {authLoading ? <Loader2 className="w-6 h-6 animate-spin mx-auto" /> : (authStep === 'login' ? 'Acessar agora' : 'Criar minha conta')}
                     </GlassButton>
 
-                    <div className="flex flex-col gap-5 pt-2">
+                    <div className="flex flex-col gap-3 pt-2">
                       <button 
                         type="button"
                         onClick={() => setAuthStep(authStep === 'login' ? 'register' : 'login')}
@@ -1704,20 +1709,9 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                       >
                         {authStep === 'login' ? 'Não tem conta? Registre-se' : 'Já tem uma conta? Entre'}
                       </button>
-                      
-                      <div className="relative py-2">
-                        <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/5"></div></div>
-                        <div className="relative flex justify-center"><span className="px-3 bg-transparent text-[9px] font-black text-white/20 uppercase tracking-[0.4em]">Ou</span></div>
-                      </div>
-
-                      <button 
-                        type="button"
-                        onClick={() => setAuthStep('done')}
-                        className="group flex items-center justify-center gap-2 text-xs font-black text-primary/60 hover:text-primary transition-all uppercase tracking-[0.2em]"
-                      >
-                        Pular e continuar
-                        <Sparkles className="w-4 h-4 animate-pulse group-hover:scale-110 transition-transform" />
-                      </button>
+                      <p className="text-[10px] text-center text-muted-foreground/40 leading-relaxed">
+                        Conta necessária para receber e salvar sua arte em 4K.
+                      </p>
                     </div>
                   </form>
                 </div>
