@@ -519,8 +519,8 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
         toast.error('Por favor, informe seu nome.');
         return;
       }
-      if (isBirthdayPrompt && !formData.age?.trim()) {
-        toast.error('Por favor, informe a idade.');
+      if (isBirthdayPrompt && !formData.age?.trim() && !formData.months?.trim()) {
+        toast.error('Por favor, informe a idade ou os meses.');
         return;
       }
       if (prompt.required_fields.includes('team_name') && !formData.team_name.trim()) {
@@ -580,13 +580,13 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       return;
     }
 
-    if (isBirthdayPrompt && !formData.age?.trim()) {
-      toast.error('Por favor, informe a idade para o prompt de aniversário.');
+    if (isBirthdayPrompt && !formData.age?.trim() && !formData.months?.trim()) {
+      toast.error('Por favor, informe a idade ou os meses para o prompt de aniversário.');
       return;
     }
 
-    if (isMesversarioPrompt && !formData.months) {
-      toast.error('Por favor, selecione quantos meses o bebê está fazendo.');
+    if (isMesversarioPrompt && !formData.months?.trim()) {
+      toast.error('Por favor, informe quantos meses o bebê está fazendo.');
       return;
     }
 
@@ -797,9 +797,11 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       }
       if (!uploadData) throw lastError || new Error(`Upload da foto ${i + 1} falhou`);
 
-      const { data: urlData } = supabase.storage.from('user-photos').getPublicUrl(uploadData.path);
-      if (!urlData.publicUrl) throw new Error(`Falha ao obter URL da foto ${i + 1}`);
-      return urlData.publicUrl;
+      const { data: signedData, error: signedError } = await supabase.storage
+        .from('user-photos')
+        .createSignedUrl(uploadData.path, 60 * 60);
+      if (signedError || !signedData?.signedUrl) throw new Error(`Falha ao liberar a foto ${i + 1} para a IA`);
+      return signedData.signedUrl;
     };
 
     try {
@@ -851,6 +853,12 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
 
   const isMesversarioPrompt = /mêsversário|mesversário|mesversario|newborn/i.test(prompt.name || '') ||
     /mêsversário|mesversário|mesversario/i.test(prompt.category || '');
+
+  const isChildPrompt = /infantil|bebê|bebe|newborn|criança|crianca|kids|baby|recem|recém/i.test(`${prompt.category || ''} ${prompt.name || ''} ${prompt.prompt_template || ''}`);
+
+  const promptHasAgeToken = /\{\s*(age|idade|months?|meses?)\s*\}|\[\s*(AGE|IDADE|MONTHS?|MESES?)\s*\]|<\s*(age|idade)\s*>/i.test(prompt.prompt_template || '');
+
+  const showAgeMonthsField = prompt.required_fields.includes('age') || isBirthdayPrompt || isMesversarioPrompt || isChildPrompt || promptHasAgeToken;
 
   const isEventPrompt = /evento|event|promoção|promocao|festa|party/i.test(prompt.category || '') ||
     /evento|event|promoção|promocao|festa|party/i.test(prompt.name || '');
@@ -941,15 +949,24 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       .replace(/<\s*age\s*>/gi, '')
       .replace(/<\s*idade\s*>/gi, '');
 
-    // Universal: if user picked months, always inject (even for non-mêsversário child prompts)
-    if (formData.months && !isMesversarioPrompt && !isBirthdayPrompt) {
+    // Universal: if user picked months, always inject (including birthday/child prompts)
+    if (formData.months) {
       template = template
         .replace(/\[MESES\]/g, formData.months)
         .replace(/\{meses\}/g, formData.months)
         .replace(/\{months\}/g, formData.months)
         .replace(/\{age\}/g, `${formData.months} ${formData.months === '1' ? 'mês' : 'meses'}`)
         .replace(/\[IDADE\]/g, `${formData.months} ${formData.months === '1' ? 'mês' : 'meses'}`);
-      template += `\n\nIDADE DO BEBÊ: ${formData.months} ${formData.months === '1' ? 'mês' : 'meses'}. Se houver decoração temática (vela, balão, banner), exiba "${formData.months}".`;
+      template += `\n\nIDADE EM MESES — INSTRUÇÃO CRÍTICA: o bebê/criança tem ${formData.months} ${formData.months === '1' ? 'mês' : 'meses'}. Preserve essa fase real de desenvolvimento. Se houver decoração temática, vela, balão, banner ou topper, exiba apenas o número "${formData.months}" como meses. NÃO escreva a palavra "age" na imagem.`;
+    }
+
+    // Generic age injection for child/infant prompts that are not birthday-specific
+    if (!isBirthdayPrompt && formData.age) {
+      template = template
+        .replace(/\[IDADE\]/g, `${formData.age} anos`)
+        .replace(/\{idade\}/g, `${formData.age} anos`)
+        .replace(/\{age\}/g, `${formData.age} anos`);
+      template += `\n\nIDADE OBRIGATÓRIA: a pessoa/criança da foto tem ${formData.age} anos. Preserve exatamente essa faixa etária aparente. Se houver texto decorativo de idade, use "${formData.age}". NÃO escreva a palavra "age" na imagem.`;
     }
 
     // Inject age customization for birthday prompts
@@ -966,16 +983,6 @@ NÃO use outro número. NÃO omita o número. O número "${formData.age}" é o e
 Se houver bolo na cena, as velas ou topper DEVEM mostrar "${formData.age}".
 IGNORE COMPLETAMENTE qualquer número, idade, texto, nome, letras ou símbolos que apareçam na imagem de exemplo/referência de estilo.
 Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a imagem final DEVE mostrar apenas "${formData.age}".`;
-    }
-
-    // Inject month for foto infantil
-    if (isMesversarioPrompt && formData.months) {
-      template = template
-        .replace(/\[MESES\]/g, formData.months)
-        .replace(/\{meses\}/g, formData.months)
-        .replace(/\{age\}/g, formData.months)
-        .replace(/\[IDADE\]/g, formData.months);
-      template += `\n\nMESES DO BEBÊ: O bebê tem ${formData.months} meses. Exiba o número "${formData.months}" como decoração/tema na imagem (vela, balão, banner, etc). NÃO use outro número.`;
     }
 
     // Inject team name for football/team prompts
@@ -1762,10 +1769,12 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   )}
 
                   {/* Age/Months field */}
-                  {prompt.required_fields.includes('age') && (
+                  {showAgeMonthsField && (
                     <div className="space-y-2">
-                      <Label className="text-[11px] uppercase tracking-widest font-black text-white/40 ml-1">Idade / Meses</Label>
-                      <div className="grid grid-cols-2 gap-4">
+                      <Label className="text-[11px] uppercase tracking-widest font-black text-white/40 ml-1">
+                        {isChildPrompt || isMesversarioPrompt ? 'Idade da criança' : 'Idade'}
+                      </Label>
+                      <div className={cn("grid gap-4", (isChildPrompt || isMesversarioPrompt) ? "grid-cols-2" : "grid-cols-1")}>
                         <div className="relative group">
                           <Input
                             value={formData.age}
@@ -1775,7 +1784,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                           />
                           <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[9px] font-black uppercase text-white/20">Anos</span>
                         </div>
-                        {/infantil|bebê|bebe|newborn|criança|crianca|kids|baby/i.test(`${prompt.category || ''} ${prompt.name || ''}`) && (
+                        {(isChildPrompt || isMesversarioPrompt) && (
                           <div className="relative group">
                             <Input
                               value={formData.months}

@@ -35,7 +35,7 @@ const FORBIDDEN_WORDS = [
 ];
 
 const checkModeration = (text: string): { blocked: boolean; reason?: string } => {
-  const normalized = text.toLowerCase().trim();
+  const normalized = String(text || "").toLowerCase().trim();
   
   // Rule 1: Direct forbidden words combination (Child + Sexual)
   const childTerms = ["criança", "bebê", "bebe", "infantil", "menor", "criança", "child", "kid", "baby", "toddler", "minor"];
@@ -57,6 +57,38 @@ const checkModeration = (text: string): { blocked: boolean; reason?: string } =>
   return { blocked: false };
 };
 
+const extractGeneratedImageUrl = (data: any): string | null => {
+  const message = data?.choices?.[0]?.message;
+  if (!message) return null;
+
+  if (Array.isArray(message.images)) {
+    const fromImages = message.images.find((img: any) => img?.image_url?.url)?.image_url?.url;
+    if (fromImages) return fromImages;
+  }
+
+  if (Array.isArray(message.content)) {
+    const fromImageUrl = message.content.find((c: any) => c?.type === "image_url" && c?.image_url?.url)?.image_url?.url;
+    if (fromImageUrl) return fromImageUrl;
+
+    const fromImage = message.content.find((c: any) => c?.type === "image" && c?.image_url?.url)?.image_url?.url;
+    if (fromImage) return fromImage;
+
+    const inline = message.content.find((c: any) => c?.inline_data?.data || c?.image?.url);
+    if (inline?.inline_data?.data) return `data:${inline.inline_data.mime_type || "image/png"};base64,${inline.inline_data.data}`;
+    if (inline?.image?.url) return inline.image.url;
+  }
+
+  return null;
+};
+
+const sanitizePromptForChildSafety = (text: string): string => {
+  return String(text || "")
+    .replace(/sem\s+roupa/gi, "com roupa newborn segura, body macio e tecido cobrindo o corpo")
+    .replace(/nu\b|nua\b|nude\b|naked\b/gi, "com roupa apropriada e totalmente coberta")
+    .replace(/exposed\b|exposto\b|exposta\b/gi, "coberto de forma segura")
+    .replace(/lingerie|underwear|calcinha|cueca|biquini|bikini/gi, "roupa infantil apropriada");
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -74,7 +106,22 @@ serve(async (req) => {
       userPromptOverride // User-provided text from "Edit" flow
     } = body;
 
-    const fullPrompt = userPromptOverride || promptTemplate;
+    if (!promptTemplate && !userPromptOverride) {
+      return new Response(JSON.stringify({ error: "Prompt de geração ausente." }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+
+    if (!userPhotoUrl && !body.userPhotoUrls?.[0] && !body.sourceImageUrl) {
+      return new Response(JSON.stringify({ error: "Foto de referência ausente ou inacessível." }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+
+    const fullPrompt = sanitizePromptForChildSafety(userPromptOverride || promptTemplate || "");
+    const referenceImageUrl = userPhotoUrl || body.userPhotoUrls?.[0] || body.sourceImageUrl;
 
     // 1. MODERATION CHECK
     const moderation = checkModeration(fullPrompt);
@@ -105,7 +152,7 @@ serve(async (req) => {
     if (!lovableKey) throw new Error("LOVABLE_API_KEY is missing");
 
     // Enhance prompt based on style
-    let enhancedPrompt = promptTemplate;
+    let enhancedPrompt = fullPrompt;
     if (style === "realistic") {
       enhancedPrompt += ", ultra-realistic photography, cinematic lighting, 8k resolution, highly detailed skin texture, shot on 85mm lens";
     } else if (style === "artistic") {
@@ -118,8 +165,8 @@ serve(async (req) => {
         role: "user", 
         content: [
           { type: "text", text: `CLONE THE FACE FROM IMAGE 1. Output a new image following this description: ${enhancedPrompt}. Use IMAGE 2 for style/lighting inspiration ONLY.` },
-          { type: "image_url", image_url: { url: userPhotoUrl } },
-          { type: "image_url", image_url: { url: exampleImageUrl || userPhotoUrl } }
+          { type: "image_url", image_url: { url: referenceImageUrl } },
+          { type: "image_url", image_url: { url: exampleImageUrl || referenceImageUrl } }
         ]
       }
     ];
@@ -140,21 +187,22 @@ serve(async (req) => {
     if (!response.ok) {
       const errorText = await response.text();
       console.error("AI gateway error:", errorText);
-      throw new Error(`AI Gateway error: ${response.status}`);
+      throw new Error(`AI Gateway error ${response.status}: ${errorText.slice(0, 240)}`);
     }
 
     const data = await response.json();
-    const imageUrl = data.choices[0].message.content.find((c: any) => c.type === "image")?.image_url?.url || 
-                     data.choices[0].message.content.find((c: any) => c.image_url)?.image_url?.url;
+    const errorDetails = data?.error ? String(data.error) : "";
+    if (errorDetails) throw new Error(`AI respondeu sem imagem: ${errorDetails.slice(0, 240)}`);
+    const imageUrl = extractGeneratedImageUrl(data);
 
-    if (!imageUrl) throw new Error("No image returned from AI");
+    if (!imageUrl) throw new Error("A IA não retornou uma imagem válida. Tente uma foto mais nítida ou um prompt mais simples.");
 
     // Save to generated_images if userId is provided
     if (userId) {
       await supabaseAdmin.from("generated_images").insert({
         user_id: userId,
         image_url: imageUrl,
-        template_name: promptTemplate.substring(0, 50),
+        template_name: fullPrompt.substring(0, 50),
         original_purchase_id: purchaseId
       });
     }
