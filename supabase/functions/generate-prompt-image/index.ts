@@ -35,7 +35,7 @@ const FORBIDDEN_WORDS = [
 ];
 
 const checkModeration = (text: string): { blocked: boolean; reason?: string } => {
-  const normalized = text.toLowerCase().trim();
+  const normalized = String(text || "").toLowerCase().trim();
   
   // Rule 1: Direct forbidden words combination (Child + Sexual)
   const childTerms = ["criança", "bebê", "bebe", "infantil", "menor", "criança", "child", "kid", "baby", "toddler", "minor"];
@@ -74,7 +74,21 @@ serve(async (req) => {
       userPromptOverride // User-provided text from "Edit" flow
     } = body;
 
-    const fullPrompt = userPromptOverride || promptTemplate;
+    if (!promptTemplate && !userPromptOverride) {
+      return new Response(JSON.stringify({ error: "Prompt de geração ausente." }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+
+    if (!userPhotoUrl && !body.userPhotoUrls?.[0] && !body.sourceImageUrl) {
+      return new Response(JSON.stringify({ error: "Foto de referência ausente ou inacessível." }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+
+    const fullPrompt = userPromptOverride || promptTemplate || "";
 
     // 1. MODERATION CHECK
     const moderation = checkModeration(fullPrompt);
@@ -105,7 +119,7 @@ serve(async (req) => {
     if (!lovableKey) throw new Error("LOVABLE_API_KEY is missing");
 
     // Enhance prompt based on style
-    let enhancedPrompt = promptTemplate;
+    let enhancedPrompt = fullPrompt;
     if (style === "realistic") {
       enhancedPrompt += ", ultra-realistic photography, cinematic lighting, 8k resolution, highly detailed skin texture, shot on 85mm lens";
     } else if (style === "artistic") {
