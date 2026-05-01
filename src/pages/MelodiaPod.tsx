@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import {
   Music,
   Play,
@@ -6,7 +7,6 @@ import {
   Heart,
   Gift,
   Cake,
-  Star,
   Sparkles,
   Mic,
   Headphones,
@@ -14,13 +14,13 @@ import {
   ChevronDown,
   Mail,
   Instagram,
-  Facebook,
   MessageCircle,
   Menu,
   X,
+  Star,
 } from "lucide-react";
 
-// MelodiaPod — Standalone landing page (cream + bordeaux)
+// MelodiaPod — Apple-inspired minimal, ARCANA aesthetic on light cream background.
 // Self-contained styling so it doesn't inherit ARCANA's dark theme.
 
 const WHATSAPP_URL =
@@ -28,19 +28,22 @@ const WHATSAPP_URL =
   encodeURIComponent("Olá, gostaria de saber mais sobre a MelodiaPod!");
 const EMAIL = "contato@arcana.app.br";
 
-const COLORS = {
-  bg: "#FDF8F3",
-  bgAlt: "#F6EFE6",
-  ink: "#1F1414",
-  inkSoft: "#5B4A45",
-  wine: "#5D1717",
-  wineDark: "#451010",
-  wineSoft: "#7A2424",
-  line: "#E8DDD0",
+// Light palette inspired by Apple + ARCANA accent
+const C = {
+  bg: "#FBF7F2",
+  bgAlt: "#F2EAE0",
+  surface: "rgba(255,255,255,0.65)",
+  ink: "#0E0A0A",
+  inkSoft: "rgba(14,10,10,0.62)",
+  inkMuted: "rgba(14,10,10,0.42)",
+  accent: "#5D1717",
+  accentSoft: "#8A2A2A",
+  line: "rgba(14,10,10,0.08)",
+  lineStrong: "rgba(14,10,10,0.12)",
 };
 
 const FONTS_HREF =
-  "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap";
+  "https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&display=swap";
 
 function useFonts() {
   useEffect(() => {
@@ -52,860 +55,923 @@ function useFonts() {
   }, []);
 }
 
-function useReveal() {
-  useEffect(() => {
-    const els = document.querySelectorAll<HTMLElement>("[data-reveal]");
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) {
-            e.target.classList.add("mp-in");
-            io.unobserve(e.target);
-          }
-        });
-      },
-      { threshold: 0.12 }
-    );
-    els.forEach((el) => io.observe(el));
-    return () => io.disconnect();
-  }, []);
-}
-
-const scrollTo = (id: string) => {
-  const el = document.getElementById(id);
-  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+const serif: React.CSSProperties = {
+  fontFamily: "'Instrument Serif', 'Times New Roman', serif",
+  fontWeight: 400,
+  letterSpacing: "-0.02em",
+};
+const sans: React.CSSProperties = {
+  fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
 };
 
-const Logo = ({ light = false }: { light?: boolean }) => (
-  <div className="flex items-center gap-2">
-    <div
-      className="w-9 h-9 rounded-full flex items-center justify-center"
-      style={{ background: light ? "#fff" : COLORS.wine }}
-    >
-      <Music size={18} color={light ? COLORS.wine : "#fff"} />
-    </div>
-    <span
-      style={{
-        fontFamily: "'Playfair Display', serif",
-        fontWeight: 700,
-        fontSize: 22,
-        color: light ? "#fff" : COLORS.wine,
-        letterSpacing: "-0.01em",
-      }}
-    >
-      MelodiaPod
-    </span>
+// ── Reusable bits ──────────────────────────────────────────────
+const Chip = ({ children }: { children: React.ReactNode }) => (
+  <div
+    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full"
+    style={{
+      ...sans,
+      background: "rgba(255,255,255,0.7)",
+      border: `1px solid ${C.line}`,
+      color: C.inkSoft,
+      fontSize: 11,
+      fontWeight: 500,
+      letterSpacing: "0.06em",
+      textTransform: "uppercase",
+      backdropFilter: "blur(10px)",
+    }}
+  >
+    {children}
   </div>
 );
 
-const Header = () => {
-  const [open, setOpen] = useState(false);
-  const links = [
-    { id: "como-funciona", label: "Como Funciona" },
-    { id: "depoimentos", label: "Depoimentos" },
-    { id: "planos", label: "Planos" },
-    { id: "faq", label: "FAQ" },
-  ];
-  return (
-    <header
-      className="sticky top-0 z-40 backdrop-blur-md"
-      style={{ background: "rgba(253,248,243,0.85)", borderBottom: `1px solid ${COLORS.line}` }}
-    >
-      <div className="max-w-6xl mx-auto px-5 md:px-8 h-[72px] flex items-center justify-between">
-        <button onClick={() => scrollTo("hero")}>
-          <Logo />
-        </button>
-
-        <nav className="hidden md:flex items-center gap-8">
-          {links.map((l) => (
-            <button
-              key={l.id}
-              onClick={() => scrollTo(l.id)}
-              className="text-[14px] font-medium transition-opacity hover:opacity-70"
-              style={{ color: COLORS.ink, fontFamily: "Inter, sans-serif" }}
-            >
-              {l.label}
-            </button>
-          ))}
-        </nav>
-
-        <div className="hidden md:flex items-center gap-3">
-          <a
-            href={WHATSAPP_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="px-4 py-2 rounded-full text-[13px] font-medium transition-all hover:bg-[#5D1717]/5"
-            style={{
-              border: `1.5px solid ${COLORS.wine}`,
-              color: COLORS.wine,
-              fontFamily: "Inter, sans-serif",
-            }}
-          >
-            Ver meu pedido
-          </a>
-          <button
-            onClick={() => scrollTo("planos")}
-            className="px-5 py-2 rounded-full text-[13px] font-semibold transition-all hover:opacity-90 hover:-translate-y-0.5"
-            style={{
-              background: COLORS.wine,
-              color: "#fff",
-              fontFamily: "Inter, sans-serif",
-              boxShadow: "0 6px 20px -8px rgba(93,23,23,0.5)",
-            }}
-          >
-            Criar minha música
-          </button>
-        </div>
-
-        <button className="md:hidden p-2" onClick={() => setOpen(!open)} aria-label="menu">
-          {open ? <X color={COLORS.wine} /> : <Menu color={COLORS.wine} />}
-        </button>
-      </div>
-
-      {open && (
-        <div className="md:hidden px-5 pb-5 pt-2 space-y-3" style={{ background: COLORS.bg }}>
-          {links.map((l) => (
-            <button
-              key={l.id}
-              onClick={() => {
-                scrollTo(l.id);
-                setOpen(false);
-              }}
-              className="block w-full text-left py-2 text-[15px]"
-              style={{ color: COLORS.ink, fontFamily: "Inter, sans-serif" }}
-            >
-              {l.label}
-            </button>
-          ))}
-          <button
-            onClick={() => {
-              scrollTo("planos");
-              setOpen(false);
-            }}
-            className="w-full py-3 rounded-full text-[14px] font-semibold mt-2"
-            style={{ background: COLORS.wine, color: "#fff" }}
-          >
-            Criar minha música
-          </button>
-        </div>
-      )}
-    </header>
+const PrimaryBtn = ({
+  href,
+  children,
+  onClick,
+}: {
+  href?: string;
+  children: React.ReactNode;
+  onClick?: () => void;
+}) => {
+  const cls =
+    "group inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full text-sm font-semibold transition-all duration-300 active:scale-[0.98]";
+  const style: React.CSSProperties = {
+    ...sans,
+    background: C.ink,
+    color: C.bg,
+    boxShadow: "0 10px 30px -12px rgba(14,10,10,0.45)",
+  };
+  const inner = (
+    <>
+      {children}
+      <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+    </>
+  );
+  return href ? (
+    <a href={href} className={cls} style={style}>
+      {inner}
+    </a>
+  ) : (
+    <button onClick={onClick} className={cls} style={style}>
+      {inner}
+    </button>
   );
 };
 
-const Hero = () => (
-  <section id="hero" className="relative overflow-hidden" style={{ background: COLORS.bg }}>
-    <div
-      className="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full opacity-[0.08] blur-3xl"
-      style={{ background: COLORS.wine }}
-    />
-    <div
-      className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full opacity-[0.06] blur-3xl"
-      style={{ background: COLORS.wine }}
-    />
-    <div className="relative max-w-5xl mx-auto px-5 md:px-8 pt-16 md:pt-24 pb-20 md:pb-32 text-center">
-      <div
-        data-reveal
-        className="mp-reveal inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-8"
-        style={{
-          background: "#fff",
-          border: `1px solid ${COLORS.line}`,
-          color: COLORS.wine,
-          fontSize: 12,
-          fontFamily: "Inter, sans-serif",
-          fontWeight: 500,
-        }}
-      >
-        <Sparkles size={14} /> +2.000 músicas criadas · ★ 4.9 · Entrega em 5 dias
-      </div>
-
-      <h1
-        data-reveal
-        className="mp-reveal text-[40px] md:text-[68px] leading-[1.05] mb-6"
-        style={{
-          fontFamily: "'Playfair Display', serif",
-          fontWeight: 700,
-          color: COLORS.ink,
-          letterSpacing: "-0.02em",
-        }}
-      >
-        Transforme sua história em uma{" "}
-        <span style={{ color: COLORS.wine, fontStyle: "italic" }}>música inesquecível</span>.
-      </h1>
-
-      <p
-        data-reveal
-        className="mp-reveal text-[16px] md:text-[19px] max-w-2xl mx-auto mb-10"
-        style={{
-          color: COLORS.inkSoft,
-          fontFamily: "Inter, sans-serif",
-          lineHeight: 1.6,
-        }}
-      >
-        Cada vida tem uma trilha sonora. Compomos músicas únicas, feitas à mão por artistas reais,
-        a partir da sua história — para emocionar quem você ama.
-      </p>
-
-      <div data-reveal className="mp-reveal flex flex-col sm:flex-row gap-3 justify-center items-center">
-        <button
-          onClick={() => scrollTo("planos")}
-          className="group px-7 py-4 rounded-full text-[15px] font-semibold inline-flex items-center gap-2 transition-all hover:opacity-95 hover:-translate-y-0.5"
-          style={{
-            background: COLORS.wine,
-            color: "#fff",
-            fontFamily: "Inter, sans-serif",
-            boxShadow: "0 16px 40px -16px rgba(93,23,23,0.6)",
-          }}
-        >
-          Criar minha música personalizada
-          <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
-        </button>
-        <button
-          className="px-7 py-4 rounded-full text-[15px] font-medium inline-flex items-center gap-2 transition-all hover:bg-[#5D1717]/5"
-          style={{
-            border: `1.5px solid ${COLORS.wine}`,
-            color: COLORS.wine,
-            fontFamily: "Inter, sans-serif",
-          }}
-        >
-          <Play size={16} fill={COLORS.wine} /> Ouvir um exemplo
-        </button>
-      </div>
-    </div>
-  </section>
-);
-
-const HowItWorks = () => {
-  const steps = [
-    {
-      icon: Mic,
-      title: "Conte sua história",
-      desc: "Em um formulário simples, compartilhe a história, os nomes e os sentimentos que devem viver na canção.",
-    },
-    {
-      icon: Music,
-      title: "Escolha o estilo",
-      desc: "Selecione o gênero, o tom e a voz que mais combinam com o momento — do romântico ao alegre.",
-    },
-    {
-      icon: Headphones,
-      title: "Receba sua música",
-      desc: "Em até 5 dias, sua música chega pronta em alta qualidade, com letra exclusiva e arranjo profissional.",
-    },
-  ];
-  return (
-    <section id="como-funciona" className="py-24 md:py-32" style={{ background: COLORS.bgAlt }}>
-      <div className="max-w-6xl mx-auto px-5 md:px-8">
-        <div className="text-center mb-16" data-reveal>
-          <p
-            className="mp-reveal text-[12px] tracking-[0.2em] uppercase mb-3"
-            style={{ color: COLORS.wine, fontFamily: "Inter, sans-serif", fontWeight: 600 }}
-          >
-            Como funciona
-          </p>
-          <h2
-            className="mp-reveal text-[34px] md:text-[48px]"
-            style={{
-              fontFamily: "'Playfair Display', serif",
-              fontWeight: 700,
-              color: COLORS.ink,
-              letterSpacing: "-0.02em",
-            }}
-          >
-            Três passos para uma emoção eterna
-          </h2>
-        </div>
-
-        <div className="grid md:grid-cols-3 gap-6 md:gap-8">
-          {steps.map((s, i) => (
-            <div
-              key={i}
-              data-reveal
-              className="mp-reveal p-8 rounded-2xl transition-all hover:-translate-y-1"
-              style={{
-                background: "#fff",
-                border: `1px solid ${COLORS.line}`,
-                boxShadow: "0 4px 24px -8px rgba(31,20,20,0.06)",
-              }}
-            >
-              <div
-                className="w-12 h-12 rounded-full flex items-center justify-center mb-5"
-                style={{ background: COLORS.wine + "12", color: COLORS.wine }}
-              >
-                <s.icon size={22} />
-              </div>
-              <div
-                className="text-[12px] font-semibold mb-2"
-                style={{ color: COLORS.wine, fontFamily: "Inter, sans-serif" }}
-              >
-                Passo {String(i + 1).padStart(2, "0")}
-              </div>
-              <h3
-                className="text-[22px] mb-3"
-                style={{
-                  fontFamily: "'Playfair Display', serif",
-                  fontWeight: 600,
-                  color: COLORS.ink,
-                }}
-              >
-                {s.title}
-              </h3>
-              <p
-                className="text-[15px]"
-                style={{ color: COLORS.inkSoft, fontFamily: "Inter, sans-serif", lineHeight: 1.6 }}
-              >
-                {s.desc}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
-
-const Categorias = () => {
-  const cats = [
-    { icon: Heart, label: "Amor" },
-    { icon: Gift, label: "Casamento" },
-    { icon: Cake, label: "Aniversário" },
-    { icon: Star, label: "Homenagem" },
-    { icon: Sparkles, label: "Nascimento" },
-    { icon: Music, label: "Amizade" },
-  ];
-  return (
-    <section className="py-24 md:py-32" style={{ background: COLORS.bg }}>
-      <div className="max-w-6xl mx-auto px-5 md:px-8">
-        <div className="text-center mb-14" data-reveal>
-          <p
-            className="mp-reveal text-[12px] tracking-[0.2em] uppercase mb-3"
-            style={{ color: COLORS.wine, fontFamily: "Inter, sans-serif", fontWeight: 600 }}
-          >
-            Para cada momento
-          </p>
-          <h2
-            className="mp-reveal text-[34px] md:text-[48px]"
-            style={{
-              fontFamily: "'Playfair Display', serif",
-              fontWeight: 700,
-              color: COLORS.ink,
-              letterSpacing: "-0.02em",
-            }}
-          >
-            Uma música certa
-          </h2>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {cats.map((c, i) => (
-            <button
-              key={i}
-              onClick={() => scrollTo("planos")}
-              data-reveal
-              className="mp-reveal aspect-square rounded-2xl flex flex-col items-center justify-center gap-3 transition-all hover:-translate-y-1 hover:shadow-lg group"
-              style={{ background: "#fff", border: `1px solid ${COLORS.line}` }}
-            >
-              <div
-                className="w-12 h-12 rounded-full flex items-center justify-center transition-colors group-hover:bg-[#5D1717] group-hover:text-white"
-                style={{ background: COLORS.wine + "12", color: COLORS.wine }}
-              >
-                <c.icon size={20} />
-              </div>
-              <span
-                className="text-[14px] font-medium"
-                style={{ color: COLORS.ink, fontFamily: "Inter, sans-serif" }}
-              >
-                {c.label}
-              </span>
-            </button>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
-
-const Depoimentos = () => {
-  const items = [
-    {
-      i: "MR",
-      n: "Mariana R.",
-      o: "Casamento",
-      t: "Chorei do começo ao fim. A letra parecia escrita por alguém que viveu nossa história. Tocou no nosso primeiro dance e ninguém ficou em pé.",
-    },
-    {
-      i: "JL",
-      n: "João L.",
-      o: "Aniversário da mãe",
-      t: "Foi o presente mais emocionante que já dei. Minha mãe ouve todos os dias. Vale cada centavo.",
-    },
-    {
-      i: "AC",
-      n: "Ana C.",
-      o: "Homenagem",
-      t: "Fiz para meu pai que se foi. A música conseguiu guardar quem ele era. Eternamente grata.",
-    },
-  ];
-  return (
-    <section id="depoimentos" className="py-24 md:py-32" style={{ background: COLORS.bgAlt }}>
-      <div className="max-w-6xl mx-auto px-5 md:px-8">
-        <div className="text-center mb-14" data-reveal>
-          <p
-            className="mp-reveal text-[12px] tracking-[0.2em] uppercase mb-3"
-            style={{ color: COLORS.wine, fontFamily: "Inter, sans-serif", fontWeight: 600 }}
-          >
-            Histórias reais
-          </p>
-          <h2
-            className="mp-reveal text-[34px] md:text-[48px]"
-            style={{
-              fontFamily: "'Playfair Display', serif",
-              fontWeight: 700,
-              color: COLORS.ink,
-              letterSpacing: "-0.02em",
-            }}
-          >
-            Quem ouviu, se emocionou
-          </h2>
-        </div>
-        <div className="grid md:grid-cols-3 gap-6">
-          {items.map((d, i) => (
-            <div
-              key={i}
-              data-reveal
-              className="mp-reveal p-8 rounded-2xl"
-              style={{ background: "#fff", border: `1px solid ${COLORS.line}` }}
-            >
-              <div className="flex gap-1 mb-4" style={{ color: COLORS.wine }}>
-                {[...Array(5)].map((_, j) => (
-                  <Star key={j} size={14} fill={COLORS.wine} />
-                ))}
-              </div>
-              <p
-                className="text-[15px] mb-6"
-                style={{ color: COLORS.ink, fontFamily: "Inter, sans-serif", lineHeight: 1.65 }}
-              >
-                “{d.t}”
-              </p>
-              <div className="flex items-center gap-3">
-                <div
-                  className="w-11 h-11 rounded-full flex items-center justify-center text-[13px] font-semibold"
-                  style={{ background: COLORS.wine, color: "#fff", fontFamily: "Inter, sans-serif" }}
-                >
-                  {d.i}
-                </div>
-                <div>
-                  <div
-                    className="text-[14px] font-semibold"
-                    style={{ color: COLORS.ink, fontFamily: "Inter, sans-serif" }}
-                  >
-                    {d.n}
-                  </div>
-                  <div
-                    className="text-[12px]"
-                    style={{ color: COLORS.inkSoft, fontFamily: "Inter, sans-serif" }}
-                  >
-                    {d.o}
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
-
-const Planos = () => {
-  const plans = [
-    {
-      name: "Essencial",
-      price: "R$ 197",
-      desc: "A emoção em formato música.",
-      feats: ["Música personalizada (2-3 min)", "Entrega em 7 dias", "1 estilo musical", "Arquivo MP3 em alta qualidade"],
-      featured: false,
-    },
-    {
-      name: "Express",
-      price: "R$ 297",
-      desc: "O presente mais pedido.",
-      feats: [
-        "Música personalizada (2-3 min)",
-        "Entrega em 5 dias",
-        "Escolha de gênero e voz",
-        "MP3 + arte personalizada",
-        "1 revisão incluída",
-      ],
-      featured: true,
-    },
-    {
-      name: "Turbo VIP",
-      price: "R$ 497",
-      desc: "Quando o momento merece tudo.",
-      feats: [
-        "Música personalizada (3-4 min)",
-        "Entrega em 48h",
-        "Voz e estilo premium",
-        "MP3 + WAV + clipe lyric video",
-        "Revisões ilimitadas",
-        "Prioridade no atendimento",
-      ],
-      featured: false,
-    },
-  ];
-  return (
-    <section id="planos" className="py-24 md:py-32" style={{ background: COLORS.bg }}>
-      <div className="max-w-6xl mx-auto px-5 md:px-8">
-        <div className="text-center mb-14" data-reveal>
-          <p
-            className="mp-reveal text-[12px] tracking-[0.2em] uppercase mb-3"
-            style={{ color: COLORS.wine, fontFamily: "Inter, sans-serif", fontWeight: 600 }}
-          >
-            Planos
-          </p>
-          <h2
-            className="mp-reveal text-[34px] md:text-[48px]"
-            style={{
-              fontFamily: "'Playfair Display', serif",
-              fontWeight: 700,
-              color: COLORS.ink,
-              letterSpacing: "-0.02em",
-            }}
-          >
-            Escolha o tom da sua história
-          </h2>
-        </div>
-
-        <div className="grid md:grid-cols-3 gap-6">
-          {plans.map((p, i) => (
-            <div
-              key={i}
-              data-reveal
-              className="mp-reveal relative p-8 rounded-3xl flex flex-col transition-all hover:-translate-y-1"
-              style={{
-                background: p.featured ? COLORS.wine : "#fff",
-                color: p.featured ? "#fff" : COLORS.ink,
-                border: `1px solid ${p.featured ? COLORS.wine : COLORS.line}`,
-                boxShadow: p.featured
-                  ? "0 30px 60px -20px rgba(93,23,23,0.45)"
-                  : "0 4px 24px -8px rgba(31,20,20,0.06)",
-                transform: p.featured ? "scale(1.02)" : undefined,
-              }}
-            >
-              {p.featured && (
-                <div
-                  className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider"
-                  style={{ background: "#fff", color: COLORS.wine, fontFamily: "Inter, sans-serif" }}
-                >
-                  Mais popular
-                </div>
-              )}
-              <h3
-                className="text-[26px] mb-1"
-                style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700 }}
-              >
-                {p.name}
-              </h3>
-              <p
-                className="text-[14px] mb-6 opacity-80"
-                style={{ fontFamily: "Inter, sans-serif" }}
-              >
-                {p.desc}
-              </p>
-              <div
-                className="text-[42px] mb-6"
-                style={{
-                  fontFamily: "'Playfair Display', serif",
-                  fontWeight: 700,
-                  letterSpacing: "-0.02em",
-                }}
-              >
-                {p.price}
-              </div>
-              <ul className="space-y-3 mb-8 flex-1">
-                {p.feats.map((f, j) => (
-                  <li
-                    key={j}
-                    className="flex items-start gap-2 text-[14px]"
-                    style={{ fontFamily: "Inter, sans-serif" }}
-                  >
-                    <CheckCircle2
-                      size={16}
-                      className="mt-0.5 shrink-0"
-                      style={{ color: p.featured ? "#fff" : COLORS.wine }}
-                    />
-                    <span style={{ opacity: 0.9 }}>{f}</span>
-                  </li>
-                ))}
-              </ul>
-              <a
-                href={WHATSAPP_URL}
-                target="_blank"
-                rel="noreferrer"
-                className="text-center py-3.5 rounded-full text-[14px] font-semibold transition-all hover:opacity-90"
-                style={{
-                  background: p.featured ? "#fff" : COLORS.wine,
-                  color: p.featured ? COLORS.wine : "#fff",
-                  fontFamily: "Inter, sans-serif",
-                }}
-              >
-                Quero este plano
-              </a>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
-
-const FAQ = () => {
-  const faqs = [
-    {
-      q: "Quanto tempo leva para receber minha música?",
-      a: "Depende do plano escolhido. O Essencial entrega em até 7 dias, o Express em 5 dias e o Turbo VIP em apenas 48 horas.",
-    },
-    {
-      q: "A música é realmente única e exclusiva?",
-      a: "Sim. Cada composição é feita do zero por nossos artistas, baseada exclusivamente na sua história. Você recebe os direitos de uso pessoal.",
-    },
-    {
-      q: "Posso pedir alterações na letra ou no arranjo?",
-      a: "Os planos Express incluem 1 revisão e o Turbo VIP oferece revisões ilimitadas dentro do escopo combinado.",
-    },
-    {
-      q: "Em quais estilos vocês compõem?",
-      a: "Trabalhamos com diversos gêneros: pop, MPB, sertanejo, romântico, acústico, gospel, rock, infantil e muito mais.",
-    },
-    {
-      q: "Como faço o pagamento?",
-      a: "Aceitamos cartão de crédito, PIX e boleto. O pedido entra em produção após a confirmação do pagamento.",
-    },
-  ];
-  const [open, setOpen] = useState<number | null>(0);
-  return (
-    <section id="faq" className="py-24 md:py-32" style={{ background: COLORS.bgAlt }}>
-      <div className="max-w-3xl mx-auto px-5 md:px-8">
-        <div className="text-center mb-14" data-reveal>
-          <p
-            className="mp-reveal text-[12px] tracking-[0.2em] uppercase mb-3"
-            style={{ color: COLORS.wine, fontFamily: "Inter, sans-serif", fontWeight: 600 }}
-          >
-            Dúvidas frequentes
-          </p>
-          <h2
-            className="mp-reveal text-[34px] md:text-[48px]"
-            style={{
-              fontFamily: "'Playfair Display', serif",
-              fontWeight: 700,
-              color: COLORS.ink,
-              letterSpacing: "-0.02em",
-            }}
-          >
-            Tudo que você precisa saber
-          </h2>
-        </div>
-        <div className="space-y-3">
-          {faqs.map((f, i) => {
-            const isOpen = open === i;
-            return (
-              <div
-                key={i}
-                data-reveal
-                className="mp-reveal rounded-2xl overflow-hidden"
-                style={{ background: "#fff", border: `1px solid ${COLORS.line}` }}
-              >
-                <button
-                  onClick={() => setOpen(isOpen ? null : i)}
-                  className="w-full flex items-center justify-between gap-4 px-6 py-5 text-left"
-                >
-                  <span
-                    className="text-[16px] font-semibold"
-                    style={{ color: COLORS.ink, fontFamily: "Inter, sans-serif" }}
-                  >
-                    {f.q}
-                  </span>
-                  <ChevronDown
-                    size={20}
-                    className="shrink-0 transition-transform"
-                    style={{
-                      color: COLORS.wine,
-                      transform: isOpen ? "rotate(180deg)" : "rotate(0)",
-                    }}
-                  />
-                </button>
-                <div
-                  className="grid transition-all duration-300"
-                  style={{ gridTemplateRows: isOpen ? "1fr" : "0fr" }}
-                >
-                  <div className="overflow-hidden">
-                    <p
-                      className="px-6 pb-5 text-[15px]"
-                      style={{
-                        color: COLORS.inkSoft,
-                        fontFamily: "Inter, sans-serif",
-                        lineHeight: 1.65,
-                      }}
-                    >
-                      {f.a}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    </section>
-  );
-};
-
-const Footer = () => (
-  <footer style={{ background: COLORS.wineDark, color: "#fff" }} className="pt-16 pb-8">
-    <div className="max-w-6xl mx-auto px-5 md:px-8">
-      <div className="grid md:grid-cols-4 gap-10 mb-12">
-        <div className="md:col-span-2">
-          <Logo light />
-          <p
-            className="mt-4 max-w-md text-[14px]"
-            style={{ fontFamily: "Inter, sans-serif", color: "#FDF8F3", opacity: 0.75, lineHeight: 1.65 }}
-          >
-            Compomos músicas únicas a partir das suas histórias. Cada canção é um presente que dura
-            para sempre.
-          </p>
-          <a
-            href={WHATSAPP_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-2 mt-6 px-5 py-3 rounded-full text-[14px] font-semibold transition-all hover:scale-[1.02]"
-            style={{ background: "#25D366", color: "#fff", fontFamily: "Inter, sans-serif" }}
-          >
-            <MessageCircle size={16} /> Falar com suporte
-          </a>
-        </div>
-        <div>
-          <h4
-            className="text-[13px] uppercase tracking-wider mb-4"
-            style={{ fontFamily: "Inter, sans-serif", fontWeight: 600, opacity: 0.6 }}
-          >
-            Navegação
-          </h4>
-          <ul className="space-y-2.5 text-[14px]" style={{ fontFamily: "Inter, sans-serif" }}>
-            {[
-              ["Como Funciona", "como-funciona"],
-              ["Depoimentos", "depoimentos"],
-              ["Planos", "planos"],
-              ["FAQ", "faq"],
-            ].map(([l, id]) => (
-              <li key={id}>
-                <button onClick={() => scrollTo(id)} className="opacity-80 hover:opacity-100">
-                  {l}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div>
-          <h4
-            className="text-[13px] uppercase tracking-wider mb-4"
-            style={{ fontFamily: "Inter, sans-serif", fontWeight: 600, opacity: 0.6 }}
-          >
-            Contato
-          </h4>
-          <ul className="space-y-2.5 text-[14px]" style={{ fontFamily: "Inter, sans-serif" }}>
-            <li>
-              <a
-                href={`mailto:${EMAIL}`}
-                className="inline-flex items-center gap-2 opacity-80 hover:opacity-100"
-              >
-                <Mail size={14} /> {EMAIL}
-              </a>
-            </li>
-            <li>
-              <a
-                href={WHATSAPP_URL}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 opacity-80 hover:opacity-100"
-              >
-                <MessageCircle size={14} /> WhatsApp
-              </a>
-            </li>
-          </ul>
-          <div className="flex gap-3 mt-5">
-            {[Instagram, Facebook].map((Ic, i) => (
-              <a
-                key={i}
-                href="#"
-                className="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:scale-110"
-                style={{ background: "rgba(255,255,255,0.08)" }}
-              >
-                <Ic size={15} />
-              </a>
-            ))}
-          </div>
-        </div>
-      </div>
-      <div
-        className="pt-6 flex flex-col md:flex-row items-center justify-between gap-3 text-[12px]"
-        style={{ borderTop: "1px solid rgba(255,255,255,0.1)", fontFamily: "Inter, sans-serif", opacity: 0.6 }}
-      >
-        <span>© {new Date().getFullYear()} MelodiaPod. Todos os direitos reservados.</span>
-        <span>Feito com ♥ para emocionar.</span>
-      </div>
-    </div>
-  </footer>
-);
-
-const FloatingWhatsApp = () => (
+const GhostBtn = ({
+  href,
+  children,
+}: {
+  href: string;
+  children: React.ReactNode;
+}) => (
   <a
-    href={WHATSAPP_URL}
-    target="_blank"
-    rel="noreferrer"
-    aria-label="Falar no WhatsApp"
-    className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full flex items-center justify-center shadow-2xl transition-all hover:scale-110"
+    href={href}
+    className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full text-sm font-semibold transition-all duration-300 active:scale-[0.98]"
     style={{
-      background: "#25D366",
-      boxShadow: "0 12px 32px -8px rgba(37,211,102,0.6)",
+      ...sans,
+      background: "rgba(255,255,255,0.6)",
+      color: C.ink,
+      border: `1px solid ${C.lineStrong}`,
+      backdropFilter: "blur(10px)",
     }}
   >
-    <MessageCircle size={26} color="#fff" fill="#fff" />
-    <span
-      className="absolute inset-0 rounded-full animate-ping"
-      style={{ background: "#25D366", opacity: 0.3 }}
-    />
+    {children}
   </a>
 );
 
+// ── Page ───────────────────────────────────────────────────────
 export default function MelodiaPod() {
   useFonts();
-  useReveal();
-  useEffect(() => {
-    document.title = "MelodiaPod — Músicas personalizadas que emocionam";
-    const prev = document.body.style.background;
-    document.body.style.background = COLORS.bg;
-    return () => {
-      document.body.style.background = prev;
-    };
-  }, []);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   return (
-    <div style={{ background: COLORS.bg, color: COLORS.ink, fontFamily: "Inter, sans-serif" }}>
-      <style>{`
-        .mp-reveal { opacity: 0; transform: translateY(18px); transition: opacity .8s ease, transform .8s ease; }
-        .mp-reveal.mp-in { opacity: 1; transform: translateY(0); }
-      `}</style>
-      <Header />
-      <main>
-        <Hero />
-        <HowItWorks />
-        <Categorias />
-        <Depoimentos />
-        <Planos />
-        <FAQ />
-      </main>
-      <Footer />
-      <FloatingWhatsApp />
+    <div
+      className="min-h-screen w-full relative overflow-x-hidden"
+      style={{ background: C.bg, color: C.ink, ...sans }}
+    >
+      {/* Ambient gradient blobs */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-32 -left-32 w-[480px] h-[480px] rounded-full"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(93,23,23,0.18), transparent 60%)",
+          filter: "blur(20px)",
+        }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute top-[40%] -right-40 w-[520px] h-[520px] rounded-full"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(93,23,23,0.10), transparent 60%)",
+          filter: "blur(20px)",
+        }}
+      />
+
+      {/* ═══ NAV ═══ */}
+      <nav className="fixed top-0 inset-x-0 z-50">
+        <div
+          className="absolute inset-0"
+          style={{
+            background: "rgba(251,247,242,0.7)",
+            backdropFilter: "blur(20px) saturate(140%)",
+            WebkitBackdropFilter: "blur(20px) saturate(140%)",
+            borderBottom: `1px solid ${C.line}`,
+          }}
+        />
+        <div className="relative max-w-6xl mx-auto px-5 md:px-8 h-14 flex items-center justify-between">
+          <a href="#top" className="flex items-center gap-2">
+            <div
+              className="w-7 h-7 rounded-full flex items-center justify-center"
+              style={{
+                background: `linear-gradient(135deg, ${C.accent}, ${C.accentSoft})`,
+              }}
+            >
+              <Music className="w-3.5 h-3.5" style={{ color: C.bg }} />
+            </div>
+            <span
+              style={{ ...serif, fontSize: 22, color: C.ink }}
+              className="leading-none"
+            >
+              MelodiaPod
+            </span>
+          </a>
+
+          <div className="hidden md:flex items-center gap-1">
+            {[
+              ["#como-funciona", "Como Funciona"],
+              ["#ocasioes", "Ocasiões"],
+              ["#depoimentos", "Histórias"],
+              ["#planos", "Planos"],
+              ["#faq", "FAQ"],
+            ].map(([href, label]) => (
+              <a
+                key={href}
+                href={href}
+                className="px-3.5 py-2 rounded-full text-[13px] font-medium transition-colors"
+                style={{ color: C.inkSoft }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.color = C.ink)
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.color = C.inkSoft)
+                }
+              >
+                {label}
+              </a>
+            ))}
+          </div>
+
+          <div className="hidden md:block">
+            <a
+              href="#planos"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-semibold transition-all"
+              style={{
+                background: C.ink,
+                color: C.bg,
+              }}
+            >
+              Criar minha música
+            </a>
+          </div>
+
+          <button
+            className="md:hidden p-2 rounded-full"
+            style={{ background: "rgba(255,255,255,0.6)", border: `1px solid ${C.line}` }}
+            onClick={() => setMenuOpen(true)}
+            aria-label="Abrir menu"
+          >
+            <Menu className="w-5 h-5" style={{ color: C.ink }} />
+          </button>
+        </div>
+
+        {/* Mobile menu */}
+        {menuOpen && (
+          <div
+            className="md:hidden fixed inset-0 z-50"
+            style={{ background: "rgba(251,247,242,0.96)", backdropFilter: "blur(20px)" }}
+          >
+            <div className="flex items-center justify-between h-14 px-5">
+              <span style={{ ...serif, fontSize: 22 }}>MelodiaPod</span>
+              <button onClick={() => setMenuOpen(false)} aria-label="Fechar menu">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="flex flex-col px-5 pt-6 gap-1">
+              {[
+                ["#como-funciona", "Como Funciona"],
+                ["#ocasioes", "Ocasiões"],
+                ["#depoimentos", "Histórias"],
+                ["#planos", "Planos"],
+                ["#faq", "FAQ"],
+              ].map(([href, label]) => (
+                <a
+                  key={href}
+                  href={href}
+                  onClick={() => setMenuOpen(false)}
+                  className="py-3.5 text-lg"
+                  style={{ ...serif, color: C.ink }}
+                >
+                  {label}
+                </a>
+              ))}
+              <a
+                href="#planos"
+                onClick={() => setMenuOpen(false)}
+                className="mt-6 inline-flex items-center justify-center gap-2 py-3.5 rounded-full text-sm font-semibold"
+                style={{ background: C.ink, color: C.bg }}
+              >
+                Criar minha música <ArrowRight className="w-4 h-4" />
+              </a>
+            </div>
+          </div>
+        )}
+      </nav>
+
+      {/* ═══ HERO ═══ */}
+      <section
+        id="top"
+        className="relative pt-32 md:pt-40 pb-24 md:pb-32 px-5 md:px-8"
+      >
+        <div className="max-w-5xl mx-auto text-center relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <div className="flex justify-center mb-7">
+              <Chip>
+                <Sparkles className="w-3 h-3" style={{ color: C.accent }} />
+                Música personalizada com IA
+              </Chip>
+            </div>
+
+            <h1
+              className="text-[44px] sm:text-6xl md:text-7xl lg:text-[88px] leading-[0.95] mb-6"
+              style={{ ...serif, color: C.ink }}
+            >
+              A trilha sonora <br />
+              da sua{" "}
+              <em
+                style={{
+                  ...serif,
+                  fontStyle: "italic",
+                  background: `linear-gradient(135deg, ${C.accent}, ${C.accentSoft})`,
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                }}
+              >
+                história.
+              </em>
+            </h1>
+
+            <p
+              className="max-w-xl mx-auto text-base md:text-lg leading-relaxed mb-10"
+              style={{ color: C.inkSoft }}
+            >
+              Conte um momento — nós transformamos em uma canção única,
+              produzida em estúdio com IA. Pronta em minutos.
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <PrimaryBtn href="#planos">Criar minha música</PrimaryBtn>
+              <GhostBtn href="#depoimentos">
+                <Play className="w-4 h-4" /> Ouvir exemplos
+              </GhostBtn>
+            </div>
+
+            <div className="mt-10 flex flex-wrap justify-center gap-2">
+              {[
+                "Pronto em ~3 minutos",
+                "Letra 100% personalizada",
+                "Voz e estilo à sua escolha",
+              ].map((t) => (
+                <div
+                  key={t}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px]"
+                  style={{
+                    background: "rgba(255,255,255,0.55)",
+                    border: `1px solid ${C.line}`,
+                    color: C.inkSoft,
+                  }}
+                >
+                  <CheckCircle2 className="w-3 h-3" style={{ color: C.accent }} />
+                  {t}
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Floating glass player preview */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-16 md:mt-20 mx-auto max-w-2xl"
+          >
+            <div
+              className="rounded-3xl p-5 md:p-7 flex items-center gap-4 md:gap-5"
+              style={{
+                background: "rgba(255,255,255,0.65)",
+                border: `1px solid ${C.line}`,
+                backdropFilter: "blur(20px)",
+                boxShadow: "0 30px 60px -30px rgba(14,10,10,0.25)",
+              }}
+            >
+              <div
+                className="w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center shrink-0"
+                style={{
+                  background: `linear-gradient(135deg, ${C.accent}, ${C.accentSoft})`,
+                }}
+              >
+                <Play className="w-7 h-7 md:w-9 md:h-9" style={{ color: C.bg }} fill={C.bg} />
+              </div>
+              <div className="flex-1 min-w-0 text-left">
+                <p style={{ ...serif, fontSize: 22, color: C.ink }} className="truncate">
+                  Para a Maria, com amor
+                </p>
+                <p className="text-xs mt-0.5" style={{ color: C.inkMuted }}>
+                  Bossa romântica · 02:48
+                </p>
+                <div
+                  className="mt-3 h-1 rounded-full overflow-hidden"
+                  style={{ background: "rgba(14,10,10,0.08)" }}
+                >
+                  <div
+                    className="h-full"
+                    style={{
+                      width: "42%",
+                      background: `linear-gradient(90deg, ${C.accent}, ${C.accentSoft})`,
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ═══ STATS / SOCIAL PROOF ═══ */}
+      <section className="px-5 md:px-8 py-10 md:py-14">
+        <div
+          className="max-w-5xl mx-auto rounded-3xl px-6 md:px-10 py-8 md:py-10"
+          style={{
+            background: "rgba(255,255,255,0.55)",
+            border: `1px solid ${C.line}`,
+            backdropFilter: "blur(14px)",
+          }}
+        >
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 text-center">
+            {[
+              { v: "12K+", l: "Músicas criadas" },
+              { v: "4.9", l: "Avaliação média" },
+              { v: "~3 min", l: "Tempo médio" },
+              { v: "100%", l: "Personalizadas" },
+            ].map((s) => (
+              <div key={s.l}>
+                <div style={{ ...serif, fontSize: 40, color: C.ink }} className="leading-none">
+                  {s.v}
+                </div>
+                <div
+                  className="mt-2 text-[11px] uppercase tracking-[0.14em]"
+                  style={{ color: C.inkMuted }}
+                >
+                  {s.l}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ HOW IT WORKS ═══ */}
+      <section id="como-funciona" className="px-5 md:px-8 py-24 md:py-32">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <Chip>3 passos</Chip>
+            <h2
+              className="mt-5 text-4xl md:text-6xl"
+              style={{ ...serif, color: C.ink }}
+            >
+              Simples como uma <em style={{ ...serif, fontStyle: "italic", color: C.accent }}>conversa.</em>
+            </h2>
+            <p className="mt-4 max-w-lg mx-auto text-base" style={{ color: C.inkSoft }}>
+              Você conta, a IA compõe, você emociona.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-5">
+            {[
+              {
+                n: "01",
+                icon: Mic,
+                t: "Conte sua história",
+                d: "Nome, ocasião, sentimentos, frases marcantes. Quanto mais detalhe, mais íntima a canção.",
+              },
+              {
+                n: "02",
+                icon: Music,
+                t: "Escolha o estilo",
+                d: "Pop, sertanejo, bossa, lo-fi, romântica… Tipo de voz, ritmo e clima — tudo no seu jeito.",
+              },
+              {
+                n: "03",
+                icon: Headphones,
+                t: "Receba e compartilhe",
+                d: "Em poucos minutos sua música chega por e-mail e WhatsApp, pronta pra emocionar.",
+              },
+            ].map((step, i) => (
+              <motion.div
+                key={step.n}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                className="rounded-3xl p-7 md:p-8 relative overflow-hidden"
+                style={{
+                  background: "rgba(255,255,255,0.7)",
+                  border: `1px solid ${C.line}`,
+                  backdropFilter: "blur(14px)",
+                }}
+              >
+                <div className="flex items-center justify-between mb-7">
+                  <span
+                    className="text-[11px] tracking-[0.18em]"
+                    style={{ color: C.inkMuted }}
+                  >
+                    PASSO {step.n}
+                  </span>
+                  <div
+                    className="w-10 h-10 rounded-full flex items-center justify-center"
+                    style={{
+                      background: `linear-gradient(135deg, ${C.accent}, ${C.accentSoft})`,
+                    }}
+                  >
+                    <step.icon className="w-4 h-4" style={{ color: C.bg }} />
+                  </div>
+                </div>
+                <h3
+                  className="text-2xl md:text-3xl mb-3"
+                  style={{ ...serif, color: C.ink }}
+                >
+                  {step.t}
+                </h3>
+                <p className="text-sm leading-relaxed" style={{ color: C.inkSoft }}>
+                  {step.d}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ OCASIÕES ═══ */}
+      <section id="ocasioes" className="px-5 md:px-8 py-24 md:py-32" style={{ background: C.bgAlt }}>
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <Chip>Ocasiões</Chip>
+            <h2
+              className="mt-5 text-4xl md:text-6xl"
+              style={{ ...serif, color: C.ink }}
+            >
+              Para todo momento que <em style={{ ...serif, fontStyle: "italic", color: C.accent }}>importa.</em>
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
+            {[
+              { icon: Heart, t: "Declaração de amor", d: "Diga o que você sente, do seu jeito." },
+              { icon: Cake, t: "Aniversários", d: "Uma canção exclusiva no parabéns." },
+              { icon: Gift, t: "Presentes únicos", d: "Inesquecível — pra família e amigos." },
+              { icon: Star, t: "Casamentos", d: "A trilha sonora do dia mais especial." },
+              { icon: Music, t: "Mesversário", d: "Eternize cada mês do seu bebê." },
+              { icon: Sparkles, t: "Datas comemorativas", d: "Mães, pais, amizade — tudo cabe em música." },
+            ].map((o, i) => (
+              <motion.div
+                key={o.t}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.4, delay: i * 0.05 }}
+                className="rounded-2xl p-5 md:p-6 transition-all"
+                style={{
+                  background: "rgba(255,255,255,0.75)",
+                  border: `1px solid ${C.line}`,
+                  backdropFilter: "blur(10px)",
+                }}
+              >
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
+                  style={{ background: "rgba(93,23,23,0.08)" }}
+                >
+                  <o.icon className="w-5 h-5" style={{ color: C.accent }} />
+                </div>
+                <h3 style={{ ...serif, fontSize: 22, color: C.ink }} className="mb-1">
+                  {o.t}
+                </h3>
+                <p className="text-sm" style={{ color: C.inkSoft }}>
+                  {o.d}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ DEPOIMENTOS ═══ */}
+      <section id="depoimentos" className="px-5 md:px-8 py-24 md:py-32">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <Chip>Histórias reais</Chip>
+            <h2
+              className="mt-5 text-4xl md:text-6xl"
+              style={{ ...serif, color: C.ink }}
+            >
+              Emoções que <em style={{ ...serif, fontStyle: "italic", color: C.accent }}>viraram música.</em>
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-5">
+            {[
+              {
+                q: "Minha esposa chorou no momento que ouviu. Capturaram nossa história em 3 minutos.",
+                n: "Rafael S.",
+                r: "Aniversário de casamento",
+              },
+              {
+                q: "Mandei pra minha mãe no dia das mães. Ela escuta todos os dias até hoje.",
+                n: "Camila P.",
+                r: "Dia das Mães",
+              },
+              {
+                q: "Usamos no mesversário do João. Virou tradição da família — uma música por mês.",
+                n: "Bruna M.",
+                r: "Mesversário",
+              },
+            ].map((t, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 18 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                className="rounded-3xl p-7"
+                style={{
+                  background: "rgba(255,255,255,0.7)",
+                  border: `1px solid ${C.line}`,
+                  backdropFilter: "blur(14px)",
+                }}
+              >
+                <div className="flex gap-1 mb-5">
+                  {[...Array(5)].map((_, k) => (
+                    <Star key={k} className="w-3.5 h-3.5" style={{ color: C.accent }} fill={C.accent} />
+                  ))}
+                </div>
+                <p style={{ ...serif, fontSize: 22, color: C.ink }} className="leading-snug mb-6">
+                  “{t.q}”
+                </p>
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold"
+                    style={{
+                      background: `linear-gradient(135deg, ${C.accent}, ${C.accentSoft})`,
+                      color: C.bg,
+                    }}
+                  >
+                    {t.n.charAt(0)}
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold" style={{ color: C.ink }}>
+                      {t.n}
+                    </p>
+                    <p className="text-[11px]" style={{ color: C.inkMuted }}>
+                      {t.r}
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ PLANOS ═══ */}
+      <section id="planos" className="px-5 md:px-8 py-24 md:py-32" style={{ background: C.bgAlt }}>
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-16">
+            <Chip>Planos</Chip>
+            <h2 className="mt-5 text-4xl md:text-6xl" style={{ ...serif, color: C.ink }}>
+              Escolha seu <em style={{ ...serif, fontStyle: "italic", color: C.accent }}>tom.</em>
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-5">
+            {[
+              {
+                name: "Essencial",
+                price: "R$ 49",
+                desc: "Uma música personalizada, perfeita pra surpreender.",
+                feats: [
+                  "1 música exclusiva",
+                  "Letra 100% personalizada",
+                  "Estilo musical à escolha",
+                  "Entrega em até 5 minutos",
+                  "Arquivo MP3 em alta qualidade",
+                ],
+                highlight: false,
+              },
+              {
+                name: "Premium",
+                price: "R$ 89",
+                desc: "Para momentos que merecem o tratamento completo.",
+                feats: [
+                  "2 versões da música",
+                  "Letra revisada por humano",
+                  "Capa personalizada",
+                  "Entrega prioritária",
+                  "Cartão digital incluso",
+                  "Suporte dedicado",
+                ],
+                highlight: true,
+              },
+            ].map((p) => (
+              <div
+                key={p.name}
+                className="rounded-3xl p-7 md:p-9 relative"
+                style={{
+                  background: p.highlight ? C.ink : "rgba(255,255,255,0.75)",
+                  color: p.highlight ? C.bg : C.ink,
+                  border: `1px solid ${p.highlight ? "rgba(255,255,255,0.1)" : C.line}`,
+                  backdropFilter: "blur(14px)",
+                  boxShadow: p.highlight
+                    ? "0 30px 60px -25px rgba(14,10,10,0.5)"
+                    : "none",
+                }}
+              >
+                {p.highlight && (
+                  <div
+                    className="absolute -top-3 right-6 px-3 py-1 rounded-full text-[10px] tracking-[0.18em] font-semibold"
+                    style={{
+                      background: `linear-gradient(135deg, ${C.accent}, ${C.accentSoft})`,
+                      color: C.bg,
+                    }}
+                  >
+                    MAIS AMADO
+                  </div>
+                )}
+                <h3 style={{ ...serif, fontSize: 32 }}>{p.name}</h3>
+                <p
+                  className="text-sm mt-1 mb-6"
+                  style={{ color: p.highlight ? "rgba(251,247,242,0.6)" : C.inkSoft }}
+                >
+                  {p.desc}
+                </p>
+                <div className="flex items-baseline gap-1 mb-7">
+                  <span style={{ ...serif, fontSize: 56, lineHeight: 1 }}>{p.price}</span>
+                  <span
+                    className="text-xs"
+                    style={{ color: p.highlight ? "rgba(251,247,242,0.55)" : C.inkMuted }}
+                  >
+                    /música
+                  </span>
+                </div>
+                <ul className="space-y-2.5 mb-8">
+                  {p.feats.map((f) => (
+                    <li key={f} className="flex items-start gap-2.5 text-sm">
+                      <CheckCircle2
+                        className="w-4 h-4 mt-0.5 shrink-0"
+                        style={{
+                          color: p.highlight ? C.bg : C.accent,
+                        }}
+                      />
+                      <span style={{ color: p.highlight ? "rgba(251,247,242,0.85)" : C.ink }}>{f}</span>
+                    </li>
+                  ))}
+                </ul>
+                <a
+                  href={WHATSAPP_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block text-center py-3.5 rounded-full text-sm font-semibold transition-all active:scale-[0.98]"
+                  style={{
+                    background: p.highlight ? C.bg : C.ink,
+                    color: p.highlight ? C.ink : C.bg,
+                  }}
+                >
+                  Começar agora
+                </a>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ FAQ ═══ */}
+      <section id="faq" className="px-5 md:px-8 py-24 md:py-32">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-14">
+            <Chip>Perguntas frequentes</Chip>
+            <h2 className="mt-5 text-4xl md:text-5xl" style={{ ...serif, color: C.ink }}>
+              Tudo que você quer <em style={{ ...serif, fontStyle: "italic", color: C.accent }}>saber.</em>
+            </h2>
+          </div>
+
+          <div className="space-y-3">
+            {[
+              {
+                q: "Quanto tempo leva pra receber minha música?",
+                a: "A maioria das músicas é entregue em até 5 minutos. Pedidos premium podem levar um pouco mais devido à revisão humana.",
+              },
+              {
+                q: "Posso escolher o estilo musical?",
+                a: "Sim! Pop, sertanejo, MPB, bossa, lo-fi, eletrônica, romântica, infantil… é só escolher no formulário.",
+              },
+              {
+                q: "A música é minha pra sempre?",
+                a: "Sim. Você recebe o arquivo em alta qualidade e tem direito de uso pessoal e compartilhamento.",
+              },
+              {
+                q: "E se eu não gostar do resultado?",
+                a: "Garantia total: ajustamos ou criamos uma nova versão sem custo até você amar.",
+              },
+              {
+                q: "Como faço o pagamento?",
+                a: "Aceitamos PIX, cartão e boleto. Tudo seguro e rápido pelo nosso checkout.",
+              },
+            ].map((f, i) => {
+              const open = openFaq === i;
+              return (
+                <div
+                  key={i}
+                  className="rounded-2xl overflow-hidden"
+                  style={{
+                    background: "rgba(255,255,255,0.7)",
+                    border: `1px solid ${C.line}`,
+                    backdropFilter: "blur(10px)",
+                  }}
+                >
+                  <button
+                    onClick={() => setOpenFaq(open ? null : i)}
+                    className="w-full flex items-center justify-between text-left p-5 md:p-6"
+                  >
+                    <span className="text-base md:text-lg font-medium pr-4" style={{ color: C.ink }}>
+                      {f.q}
+                    </span>
+                    <ChevronDown
+                      className="w-5 h-5 shrink-0 transition-transform duration-300"
+                      style={{
+                        color: C.inkSoft,
+                        transform: open ? "rotate(180deg)" : "rotate(0)",
+                      }}
+                    />
+                  </button>
+                  {open && (
+                    <div
+                      className="px-5 md:px-6 pb-6 text-sm leading-relaxed"
+                      style={{ color: C.inkSoft }}
+                    >
+                      {f.a}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ FINAL CTA ═══ */}
+      <section className="px-5 md:px-8 py-20 md:py-24">
+        <div
+          className="max-w-5xl mx-auto rounded-[36px] p-10 md:p-16 text-center relative overflow-hidden"
+          style={{
+            background: C.ink,
+            color: C.bg,
+          }}
+        >
+          <div
+            aria-hidden
+            className="absolute -top-32 -right-32 w-[400px] h-[400px] rounded-full"
+            style={{
+              background: `radial-gradient(circle, ${C.accent}, transparent 60%)`,
+              opacity: 0.5,
+              filter: "blur(20px)",
+            }}
+          />
+          <div className="relative">
+            <Sparkles className="w-7 h-7 mx-auto mb-5" style={{ color: C.bg, opacity: 0.7 }} />
+            <h2
+              className="text-4xl md:text-6xl mb-5"
+              style={{ ...serif, color: C.bg }}
+            >
+              Crie a música que vai <em style={{ ...serif, fontStyle: "italic" }}>marcar uma vida.</em>
+            </h2>
+            <p
+              className="max-w-md mx-auto text-base mb-9"
+              style={{ color: "rgba(251,247,242,0.7)" }}
+            >
+              Em minutos você tem uma canção que ninguém mais terá.
+            </p>
+            <a
+              href={WHATSAPP_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-full text-sm font-semibold transition-all active:scale-[0.98]"
+              style={{
+                background: C.bg,
+                color: C.ink,
+                boxShadow: "0 20px 40px -15px rgba(0,0,0,0.5)",
+              }}
+            >
+              Começar minha música <ArrowRight className="w-4 h-4" />
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ FOOTER ═══ */}
+      <footer
+        className="px-5 md:px-8 pt-16 pb-10"
+        style={{ borderTop: `1px solid ${C.line}` }}
+      >
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8">
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <div
+                  className="w-7 h-7 rounded-full flex items-center justify-center"
+                  style={{ background: `linear-gradient(135deg, ${C.accent}, ${C.accentSoft})` }}
+                >
+                  <Music className="w-3.5 h-3.5" style={{ color: C.bg }} />
+                </div>
+                <span style={{ ...serif, fontSize: 22 }}>MelodiaPod</span>
+              </div>
+              <p className="text-sm max-w-sm" style={{ color: C.inkSoft }}>
+                Músicas personalizadas com IA para os momentos mais importantes da sua vida.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <a
+                href={`mailto:${EMAIL}`}
+                className="inline-flex items-center gap-2 text-sm"
+                style={{ color: C.inkSoft }}
+              >
+                <Mail className="w-4 h-4" /> {EMAIL}
+              </a>
+              <a
+                href={WHATSAPP_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 text-sm"
+                style={{ color: C.inkSoft }}
+              >
+                <MessageCircle className="w-4 h-4" /> WhatsApp
+              </a>
+              <a
+                href="https://instagram.com"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 text-sm"
+                style={{ color: C.inkSoft }}
+              >
+                <Instagram className="w-4 h-4" /> @melodiapod
+              </a>
+            </div>
+          </div>
+
+          <div
+            className="mt-12 pt-6 flex flex-col md:flex-row items-center justify-between gap-3"
+            style={{ borderTop: `1px solid ${C.line}` }}
+          >
+            <p className="text-xs" style={{ color: C.inkMuted }}>
+              © {new Date().getFullYear()} MelodiaPod. Todos os direitos reservados.
+            </p>
+            <p className="text-xs" style={{ color: C.inkMuted }}>
+              Feito com <span style={{ color: C.accent }}>♥</span> e IA.
+            </p>
+          </div>
+        </div>
+      </footer>
+
+      {/* Floating WhatsApp */}
+      <a
+        href={WHATSAPP_URL}
+        target="_blank"
+        rel="noreferrer"
+        className="fixed bottom-5 right-5 z-40 w-14 h-14 rounded-full flex items-center justify-center transition-transform active:scale-95 hover:scale-105"
+        style={{
+          background: "#25D366",
+          boxShadow: "0 12px 30px -8px rgba(37,211,102,0.6)",
+        }}
+        aria-label="Falar no WhatsApp"
+      >
+        <MessageCircle className="w-6 h-6" style={{ color: "#fff" }} />
+      </a>
     </div>
   );
 }
