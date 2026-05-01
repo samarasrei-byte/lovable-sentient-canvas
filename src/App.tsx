@@ -63,6 +63,7 @@ const PromptDashboard = lazy(() => import("./pages/app/PromptDashboard"));
 const FutebolGenerator = lazy(() => import("./pages/app/FutebolGenerator"));
 const CategoryPage = lazy(() => import("./pages/CategoryPage"));
 const FotoInfantil = lazy(() => import("./pages/Mesversario"));
+const MelodiaPod = lazy(() => import("./pages/MelodiaPod"));
 const TermosDeUso = lazy(() => import("./pages/TermosDeUso"));
 const PoliticaPrivacidade = lazy(() => import("./pages/PoliticaPrivacidade"));
 
@@ -147,6 +148,7 @@ const App = () => (
 
             {/* Category Landing Pages */}
             <Route path="/fotoinfantil" element={<FotoInfantil />} />
+            <Route path="/melodiapod" element={<MelodiaPod />} />
             <Route path="/categoria/:slug" element={<CategoryPage />} />
 
             {/* Legal Pages */}
