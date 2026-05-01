@@ -18,32 +18,38 @@ import {
   Menu,
   X,
   Star,
+  BadgeCheck,
+  Quote,
+  Zap,
 } from "lucide-react";
+import { ArcanaLogo } from "@/components/ArcanaLogo";
 
-// MelodiaPod — Apple-inspired minimal, ARCANA aesthetic on light cream background.
-// Self-contained styling so it doesn't inherit ARCANA's dark theme.
+// MelodiaPod by ARCANA — Cyberpunk dark, neon purple/cyan, glassmorphism.
+// Self-contained styling so it doesn't inherit global classes.
 
 const WHATSAPP_URL =
   "https://wa.me/5511963403691?text=" +
   encodeURIComponent("Olá, gostaria de saber mais sobre a MelodiaPod!");
 const EMAIL = "contato@arcana.app.br";
 
-// Light palette inspired by Apple + ARCANA accent
+// ARCANA palette
 const C = {
-  bg: "#FBF7F2",
-  bgAlt: "#F2EAE0",
-  surface: "rgba(255,255,255,0.65)",
-  ink: "#0E0A0A",
-  inkSoft: "rgba(14,10,10,0.62)",
-  inkMuted: "rgba(14,10,10,0.42)",
-  accent: "#5D1717",
-  accentSoft: "#8A2A2A",
-  line: "rgba(14,10,10,0.08)",
-  lineStrong: "rgba(14,10,10,0.12)",
+  bg: "#0B0B12",
+  bgAlt: "#0F0F1A",
+  surface: "rgba(255,255,255,0.04)",
+  ink: "#F5F3FF",
+  inkSoft: "rgba(245,243,255,0.66)",
+  inkMuted: "rgba(245,243,255,0.42)",
+  primary: "#A855F7", // purple
+  primaryGlow: "#C084FC",
+  cyan: "#22D3EE",
+  pink: "#F472B6",
+  line: "rgba(255,255,255,0.08)",
+  lineStrong: "rgba(255,255,255,0.14)",
 };
 
 const FONTS_HREF =
-  "https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&display=swap";
+  "https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800&display=swap";
 
 function useFonts() {
   useEffect(() => {
@@ -64,18 +70,45 @@ const sans: React.CSSProperties = {
   fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
 };
 
+const gradientText: React.CSSProperties = {
+  background: `linear-gradient(135deg, ${C.primary}, ${C.cyan})`,
+  WebkitBackgroundClip: "text",
+  WebkitTextFillColor: "transparent",
+  backgroundClip: "text",
+};
+
+// ── Brand Lockup: ARCANA logo + MelodiaPod subtitle ───────────
+const BrandLockup = ({ size = "md" }: { size?: "sm" | "md" | "lg" }) => {
+  const cfg = {
+    sm: { icon: 14, text: "text-sm", sub: "text-[9px]" },
+    md: { icon: 18, text: "text-lg", sub: "text-[10px]" },
+    lg: { icon: 22, text: "text-xl", sub: "text-[11px]" },
+  }[size];
+  return (
+    <div className="flex flex-col leading-none">
+      <ArcanaLogo iconSize={cfg.icon} textSize={cfg.text} />
+      <span
+        className={`${cfg.sub} mt-1 tracking-[0.32em] uppercase font-medium pl-[26px]`}
+        style={{ color: C.inkMuted, ...sans }}
+      >
+        MelodiaPod
+      </span>
+    </div>
+  );
+};
+
 // ── Reusable bits ──────────────────────────────────────────────
 const Chip = ({ children }: { children: React.ReactNode }) => (
   <div
     className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full"
     style={{
       ...sans,
-      background: "rgba(255,255,255,0.7)",
-      border: `1px solid ${C.line}`,
-      color: C.inkSoft,
+      background: "rgba(168,85,247,0.08)",
+      border: `1px solid rgba(168,85,247,0.2)`,
+      color: C.primaryGlow,
       fontSize: 11,
       fontWeight: 500,
-      letterSpacing: "0.06em",
+      letterSpacing: "0.14em",
       textTransform: "uppercase",
       backdropFilter: "blur(10px)",
     }}
@@ -94,12 +127,12 @@ const PrimaryBtn = ({
   onClick?: () => void;
 }) => {
   const cls =
-    "group inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full text-sm font-semibold transition-all duration-300 active:scale-[0.98]";
+    "group inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full text-sm font-semibold transition-all duration-300 active:scale-[0.98] hover:scale-[1.02]";
   const style: React.CSSProperties = {
     ...sans,
-    background: C.ink,
-    color: C.bg,
-    boxShadow: "0 10px 30px -12px rgba(14,10,10,0.45)",
+    background: `linear-gradient(135deg, ${C.primary}, ${C.cyan})`,
+    color: "#0B0B12",
+    boxShadow: `0 14px 40px -10px rgba(168,85,247,0.55), 0 0 0 1px rgba(255,255,255,0.06) inset`,
   };
   const inner = (
     <>
@@ -127,10 +160,10 @@ const GhostBtn = ({
 }) => (
   <a
     href={href}
-    className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full text-sm font-semibold transition-all duration-300 active:scale-[0.98]"
+    className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full text-sm font-semibold transition-all duration-300 active:scale-[0.98] hover:bg-white/[0.06]"
     style={{
       ...sans,
-      background: "rgba(255,255,255,0.6)",
+      background: "rgba(255,255,255,0.03)",
       color: C.ink,
       border: `1px solid ${C.lineStrong}`,
       backdropFilter: "blur(10px)",
@@ -151,23 +184,39 @@ export default function MelodiaPod() {
       className="min-h-screen w-full relative overflow-x-hidden"
       style={{ background: C.bg, color: C.ink, ...sans }}
     >
-      {/* Ambient gradient blobs */}
+      {/* Ambient neon blobs */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -top-32 -left-32 w-[480px] h-[480px] rounded-full"
+        className="pointer-events-none fixed -top-32 -left-32 w-[520px] h-[520px] rounded-full"
         style={{
-          background:
-            "radial-gradient(circle, rgba(93,23,23,0.18), transparent 60%)",
-          filter: "blur(20px)",
+          background: `radial-gradient(circle, rgba(168,85,247,0.35), transparent 60%)`,
+          filter: "blur(40px)",
         }}
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute top-[40%] -right-40 w-[520px] h-[520px] rounded-full"
+        className="pointer-events-none fixed top-[35%] -right-40 w-[560px] h-[560px] rounded-full"
         style={{
-          background:
-            "radial-gradient(circle, rgba(93,23,23,0.10), transparent 60%)",
-          filter: "blur(20px)",
+          background: `radial-gradient(circle, rgba(34,211,238,0.22), transparent 60%)`,
+          filter: "blur(50px)",
+        }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none fixed bottom-0 left-1/2 -translate-x-1/2 w-[700px] h-[400px] rounded-full"
+        style={{
+          background: `radial-gradient(ellipse, rgba(244,114,182,0.10), transparent 60%)`,
+          filter: "blur(60px)",
+        }}
+      />
+      {/* Subtle grid */}
+      <div
+        aria-hidden
+        className="pointer-events-none fixed inset-0 opacity-[0.04]"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)",
+          backgroundSize: "60px 60px",
         }}
       />
 
@@ -176,28 +225,15 @@ export default function MelodiaPod() {
         <div
           className="absolute inset-0"
           style={{
-            background: "rgba(251,247,242,0.7)",
-            backdropFilter: "blur(20px) saturate(140%)",
-            WebkitBackdropFilter: "blur(20px) saturate(140%)",
+            background: "rgba(11,11,18,0.7)",
+            backdropFilter: "blur(20px) saturate(160%)",
+            WebkitBackdropFilter: "blur(20px) saturate(160%)",
             borderBottom: `1px solid ${C.line}`,
           }}
         />
-        <div className="relative max-w-6xl mx-auto px-5 md:px-8 h-14 flex items-center justify-between">
-          <a href="#top" className="flex items-center gap-2">
-            <div
-              className="w-7 h-7 rounded-full flex items-center justify-center"
-              style={{
-                background: `linear-gradient(135deg, ${C.accent}, ${C.accentSoft})`,
-              }}
-            >
-              <Music className="w-3.5 h-3.5" style={{ color: C.bg }} />
-            </div>
-            <span
-              style={{ ...serif, fontSize: 22, color: C.ink }}
-              className="leading-none"
-            >
-              MelodiaPod
-            </span>
+        <div className="relative max-w-6xl mx-auto px-5 md:px-8 h-16 flex items-center justify-between">
+          <a href="#top" className="flex items-center">
+            <BrandLockup size="md" />
           </a>
 
           <div className="hidden md:flex items-center gap-1">
@@ -213,12 +249,8 @@ export default function MelodiaPod() {
                 href={href}
                 className="px-3.5 py-2 rounded-full text-[13px] font-medium transition-colors"
                 style={{ color: C.inkSoft }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.color = C.ink)
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.color = C.inkSoft)
-                }
+                onMouseEnter={(e) => (e.currentTarget.style.color = C.ink)}
+                onMouseLeave={(e) => (e.currentTarget.style.color = C.inkSoft)}
               >
                 {label}
               </a>
@@ -228,10 +260,11 @@ export default function MelodiaPod() {
           <div className="hidden md:block">
             <a
               href="#planos"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-semibold transition-all"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-semibold transition-all hover:scale-[1.02]"
               style={{
-                background: C.ink,
-                color: C.bg,
+                background: `linear-gradient(135deg, ${C.primary}, ${C.cyan})`,
+                color: "#0B0B12",
+                boxShadow: `0 8px 24px -8px rgba(168,85,247,0.5)`,
               }}
             >
               Criar minha música
@@ -240,7 +273,10 @@ export default function MelodiaPod() {
 
           <button
             className="md:hidden p-2 rounded-full"
-            style={{ background: "rgba(255,255,255,0.6)", border: `1px solid ${C.line}` }}
+            style={{
+              background: "rgba(255,255,255,0.04)",
+              border: `1px solid ${C.line}`,
+            }}
             onClick={() => setMenuOpen(true)}
             aria-label="Abrir menu"
           >
@@ -252,12 +288,15 @@ export default function MelodiaPod() {
         {menuOpen && (
           <div
             className="md:hidden fixed inset-0 z-50"
-            style={{ background: "rgba(251,247,242,0.96)", backdropFilter: "blur(20px)" }}
+            style={{
+              background: "rgba(11,11,18,0.96)",
+              backdropFilter: "blur(20px)",
+            }}
           >
-            <div className="flex items-center justify-between h-14 px-5">
-              <span style={{ ...serif, fontSize: 22 }}>MelodiaPod</span>
+            <div className="flex items-center justify-between h-16 px-5">
+              <BrandLockup size="md" />
               <button onClick={() => setMenuOpen(false)} aria-label="Fechar menu">
-                <X className="w-6 h-6" />
+                <X className="w-6 h-6" style={{ color: C.ink }} />
               </button>
             </div>
             <div className="flex flex-col px-5 pt-6 gap-1">
@@ -272,7 +311,7 @@ export default function MelodiaPod() {
                   key={href}
                   href={href}
                   onClick={() => setMenuOpen(false)}
-                  className="py-3.5 text-lg"
+                  className="py-3.5 text-2xl"
                   style={{ ...serif, color: C.ink }}
                 >
                   {label}
@@ -282,7 +321,10 @@ export default function MelodiaPod() {
                 href="#planos"
                 onClick={() => setMenuOpen(false)}
                 className="mt-6 inline-flex items-center justify-center gap-2 py-3.5 rounded-full text-sm font-semibold"
-                style={{ background: C.ink, color: C.bg }}
+                style={{
+                  background: `linear-gradient(135deg, ${C.primary}, ${C.cyan})`,
+                  color: "#0B0B12",
+                }}
               >
                 Criar minha música <ArrowRight className="w-4 h-4" />
               </a>
@@ -294,7 +336,7 @@ export default function MelodiaPod() {
       {/* ═══ HERO ═══ */}
       <section
         id="top"
-        className="relative pt-32 md:pt-40 pb-24 md:pb-32 px-5 md:px-8"
+        className="relative pt-36 md:pt-44 pb-24 md:pb-32 px-5 md:px-8"
       >
         <div className="max-w-5xl mx-auto text-center relative z-10">
           <motion.div
@@ -304,8 +346,8 @@ export default function MelodiaPod() {
           >
             <div className="flex justify-center mb-7">
               <Chip>
-                <Sparkles className="w-3 h-3" style={{ color: C.accent }} />
-                Música personalizada com IA
+                <Sparkles className="w-3 h-3" style={{ color: C.cyan }} />
+                Powered by ARCANA · IA Musical
               </Chip>
             </div>
 
@@ -315,16 +357,7 @@ export default function MelodiaPod() {
             >
               A trilha sonora <br />
               da sua{" "}
-              <em
-                style={{
-                  ...serif,
-                  fontStyle: "italic",
-                  background: `linear-gradient(135deg, ${C.accent}, ${C.accentSoft})`,
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}
-              >
+              <em style={{ ...serif, fontStyle: "italic", ...gradientText }}>
                 história.
               </em>
             </h1>
@@ -354,12 +387,12 @@ export default function MelodiaPod() {
                   key={t}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px]"
                   style={{
-                    background: "rgba(255,255,255,0.55)",
+                    background: "rgba(255,255,255,0.03)",
                     border: `1px solid ${C.line}`,
                     color: C.inkSoft,
                   }}
                 >
-                  <CheckCircle2 className="w-3 h-3" style={{ color: C.accent }} />
+                  <CheckCircle2 className="w-3 h-3" style={{ color: C.cyan }} />
                   {t}
                 </div>
               ))}
@@ -376,22 +409,30 @@ export default function MelodiaPod() {
             <div
               className="rounded-3xl p-5 md:p-7 flex items-center gap-4 md:gap-5"
               style={{
-                background: "rgba(255,255,255,0.65)",
-                border: `1px solid ${C.line}`,
+                background: "rgba(255,255,255,0.03)",
+                border: `1px solid ${C.lineStrong}`,
                 backdropFilter: "blur(20px)",
-                boxShadow: "0 30px 60px -30px rgba(14,10,10,0.25)",
+                boxShadow: `0 30px 80px -30px rgba(168,85,247,0.45), inset 0 1px 0 rgba(255,255,255,0.06)`,
               }}
             >
               <div
-                className="w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center shrink-0"
+                className="w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center shrink-0 relative"
                 style={{
-                  background: `linear-gradient(135deg, ${C.accent}, ${C.accentSoft})`,
+                  background: `linear-gradient(135deg, ${C.primary}, ${C.cyan})`,
+                  boxShadow: `0 0 40px rgba(168,85,247,0.5)`,
                 }}
               >
-                <Play className="w-7 h-7 md:w-9 md:h-9" style={{ color: C.bg }} fill={C.bg} />
+                <Play
+                  className="w-7 h-7 md:w-9 md:h-9 relative z-10"
+                  style={{ color: "#0B0B12" }}
+                  fill="#0B0B12"
+                />
               </div>
               <div className="flex-1 min-w-0 text-left">
-                <p style={{ ...serif, fontSize: 22, color: C.ink }} className="truncate">
+                <p
+                  style={{ ...serif, fontSize: 22, color: C.ink }}
+                  className="truncate"
+                >
                   Para a Maria, com amor
                 </p>
                 <p className="text-xs mt-0.5" style={{ color: C.inkMuted }}>
@@ -399,13 +440,13 @@ export default function MelodiaPod() {
                 </p>
                 <div
                   className="mt-3 h-1 rounded-full overflow-hidden"
-                  style={{ background: "rgba(14,10,10,0.08)" }}
+                  style={{ background: "rgba(255,255,255,0.06)" }}
                 >
                   <div
                     className="h-full"
                     style={{
                       width: "42%",
-                      background: `linear-gradient(90deg, ${C.accent}, ${C.accentSoft})`,
+                      background: `linear-gradient(90deg, ${C.primary}, ${C.cyan})`,
                     }}
                   />
                 </div>
@@ -416,11 +457,11 @@ export default function MelodiaPod() {
       </section>
 
       {/* ═══ STATS / SOCIAL PROOF ═══ */}
-      <section className="px-5 md:px-8 py-10 md:py-14">
+      <section className="px-5 md:px-8 py-10 md:py-14 relative z-10">
         <div
           className="max-w-5xl mx-auto rounded-3xl px-6 md:px-10 py-8 md:py-10"
           style={{
-            background: "rgba(255,255,255,0.55)",
+            background: "rgba(255,255,255,0.03)",
             border: `1px solid ${C.line}`,
             backdropFilter: "blur(14px)",
           }}
@@ -433,11 +474,14 @@ export default function MelodiaPod() {
               { v: "100%", l: "Personalizadas" },
             ].map((s) => (
               <div key={s.l}>
-                <div style={{ ...serif, fontSize: 40, color: C.ink }} className="leading-none">
+                <div
+                  style={{ ...serif, fontSize: 44, ...gradientText }}
+                  className="leading-none"
+                >
                   {s.v}
                 </div>
                 <div
-                  className="mt-2 text-[11px] uppercase tracking-[0.14em]"
+                  className="mt-2 text-[11px] uppercase tracking-[0.18em]"
                   style={{ color: C.inkMuted }}
                 >
                   {s.l}
@@ -449,7 +493,10 @@ export default function MelodiaPod() {
       </section>
 
       {/* ═══ HOW IT WORKS ═══ */}
-      <section id="como-funciona" className="px-5 md:px-8 py-24 md:py-32">
+      <section
+        id="como-funciona"
+        className="px-5 md:px-8 py-24 md:py-32 relative z-10"
+      >
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <Chip>3 passos</Chip>
@@ -457,9 +504,15 @@ export default function MelodiaPod() {
               className="mt-5 text-4xl md:text-6xl"
               style={{ ...serif, color: C.ink }}
             >
-              Simples como uma <em style={{ ...serif, fontStyle: "italic", color: C.accent }}>conversa.</em>
+              Simples como uma{" "}
+              <em style={{ ...serif, fontStyle: "italic", ...gradientText }}>
+                conversa.
+              </em>
             </h2>
-            <p className="mt-4 max-w-lg mx-auto text-base" style={{ color: C.inkSoft }}>
+            <p
+              className="mt-4 max-w-lg mx-auto text-base"
+              style={{ color: C.inkSoft }}
+            >
               Você conta, a IA compõe, você emociona.
             </p>
           </div>
@@ -491,16 +544,16 @@ export default function MelodiaPod() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-60px" }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="rounded-3xl p-7 md:p-8 relative overflow-hidden"
+                className="rounded-3xl p-7 md:p-8 relative overflow-hidden group"
                 style={{
-                  background: "rgba(255,255,255,0.7)",
+                  background: "rgba(255,255,255,0.03)",
                   border: `1px solid ${C.line}`,
                   backdropFilter: "blur(14px)",
                 }}
               >
                 <div className="flex items-center justify-between mb-7">
                   <span
-                    className="text-[11px] tracking-[0.18em]"
+                    className="text-[11px] tracking-[0.22em]"
                     style={{ color: C.inkMuted }}
                   >
                     PASSO {step.n}
@@ -508,10 +561,14 @@ export default function MelodiaPod() {
                   <div
                     className="w-10 h-10 rounded-full flex items-center justify-center"
                     style={{
-                      background: `linear-gradient(135deg, ${C.accent}, ${C.accentSoft})`,
+                      background: `linear-gradient(135deg, ${C.primary}, ${C.cyan})`,
+                      boxShadow: `0 0 24px rgba(168,85,247,0.4)`,
                     }}
                   >
-                    <step.icon className="w-4 h-4" style={{ color: C.bg }} />
+                    <step.icon
+                      className="w-4 h-4"
+                      style={{ color: "#0B0B12" }}
+                    />
                   </div>
                 </div>
                 <h3
@@ -520,7 +577,10 @@ export default function MelodiaPod() {
                 >
                   {step.t}
                 </h3>
-                <p className="text-sm leading-relaxed" style={{ color: C.inkSoft }}>
+                <p
+                  className="text-sm leading-relaxed"
+                  style={{ color: C.inkSoft }}
+                >
                   {step.d}
                 </p>
               </motion.div>
@@ -530,7 +590,11 @@ export default function MelodiaPod() {
       </section>
 
       {/* ═══ OCASIÕES ═══ */}
-      <section id="ocasioes" className="px-5 md:px-8 py-24 md:py-32" style={{ background: C.bgAlt }}>
+      <section
+        id="ocasioes"
+        className="px-5 md:px-8 py-24 md:py-32 relative z-10"
+        style={{ background: C.bgAlt }}
+      >
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <Chip>Ocasiões</Chip>
@@ -538,18 +602,45 @@ export default function MelodiaPod() {
               className="mt-5 text-4xl md:text-6xl"
               style={{ ...serif, color: C.ink }}
             >
-              Para todo momento que <em style={{ ...serif, fontStyle: "italic", color: C.accent }}>importa.</em>
+              Para todo momento que{" "}
+              <em style={{ ...serif, fontStyle: "italic", ...gradientText }}>
+                importa.
+              </em>
             </h2>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
             {[
-              { icon: Heart, t: "Declaração de amor", d: "Diga o que você sente, do seu jeito." },
-              { icon: Cake, t: "Aniversários", d: "Uma canção exclusiva no parabéns." },
-              { icon: Gift, t: "Presentes únicos", d: "Inesquecível — pra família e amigos." },
-              { icon: Star, t: "Casamentos", d: "A trilha sonora do dia mais especial." },
-              { icon: Music, t: "Mesversário", d: "Eternize cada mês do seu bebê." },
-              { icon: Sparkles, t: "Datas comemorativas", d: "Mães, pais, amizade — tudo cabe em música." },
+              {
+                icon: Heart,
+                t: "Declaração de amor",
+                d: "Diga o que você sente, do seu jeito.",
+              },
+              {
+                icon: Cake,
+                t: "Aniversários",
+                d: "Uma canção exclusiva no parabéns.",
+              },
+              {
+                icon: Gift,
+                t: "Presentes únicos",
+                d: "Inesquecível — pra família e amigos.",
+              },
+              {
+                icon: Star,
+                t: "Casamentos",
+                d: "A trilha sonora do dia mais especial.",
+              },
+              {
+                icon: Music,
+                t: "Mesversário",
+                d: "Eternize cada mês do seu bebê.",
+              },
+              {
+                icon: Sparkles,
+                t: "Datas comemorativas",
+                d: "Mães, pais, amizade — tudo cabe em música.",
+              },
             ].map((o, i) => (
               <motion.div
                 key={o.t}
@@ -557,20 +648,26 @@ export default function MelodiaPod() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-60px" }}
                 transition={{ duration: 0.4, delay: i * 0.05 }}
-                className="rounded-2xl p-5 md:p-6 transition-all"
+                className="rounded-2xl p-5 md:p-6 transition-all hover:-translate-y-0.5"
                 style={{
-                  background: "rgba(255,255,255,0.75)",
+                  background: "rgba(255,255,255,0.03)",
                   border: `1px solid ${C.line}`,
                   backdropFilter: "blur(10px)",
                 }}
               >
                 <div
                   className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
-                  style={{ background: "rgba(93,23,23,0.08)" }}
+                  style={{
+                    background: "rgba(168,85,247,0.12)",
+                    border: `1px solid rgba(168,85,247,0.2)`,
+                  }}
                 >
-                  <o.icon className="w-5 h-5" style={{ color: C.accent }} />
+                  <o.icon className="w-5 h-5" style={{ color: C.primaryGlow }} />
                 </div>
-                <h3 style={{ ...serif, fontSize: 22, color: C.ink }} className="mb-1">
+                <h3
+                  style={{ ...serif, fontSize: 22, color: C.ink }}
+                  className="mb-1"
+                >
                   {o.t}
                 </h3>
                 <p className="text-sm" style={{ color: C.inkSoft }}>
@@ -582,90 +679,463 @@ export default function MelodiaPod() {
         </div>
       </section>
 
-      {/* ═══ DEPOIMENTOS ═══ */}
-      <section id="depoimentos" className="px-5 md:px-8 py-24 md:py-32">
+      {/* ═══ DEPOIMENTOS — PREMIUM CONVERSION SECTION ═══ */}
+      <section
+        id="depoimentos"
+        className="px-5 md:px-8 py-24 md:py-32 relative z-10"
+      >
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <Chip>Histórias reais</Chip>
+          {/* Header com rating agregado */}
+          <div className="text-center mb-14">
+            <Chip>
+              <Star className="w-3 h-3 fill-current" style={{ color: C.cyan }} />
+              4.9 / 5 · +2.300 avaliações
+            </Chip>
             <h2
               className="mt-5 text-4xl md:text-6xl"
               style={{ ...serif, color: C.ink }}
             >
-              Emoções que <em style={{ ...serif, fontStyle: "italic", color: C.accent }}>viraram música.</em>
+              Emoções que{" "}
+              <em style={{ ...serif, fontStyle: "italic", ...gradientText }}>
+                viraram música.
+              </em>
             </h2>
+            <p
+              className="mt-4 max-w-xl mx-auto text-base"
+              style={{ color: C.inkSoft }}
+            >
+              Histórias reais de pessoas reais. Cada música, um instante
+              eternizado.
+            </p>
+
+            {/* Rating bars */}
+            <div className="mt-8 max-w-md mx-auto grid grid-cols-1 gap-1.5">
+              {[
+                { label: "5", pct: 92 },
+                { label: "4", pct: 6 },
+                { label: "3", pct: 1.5 },
+                { label: "2", pct: 0.3 },
+                { label: "1", pct: 0.2 },
+              ].map((r) => (
+                <div key={r.label} className="flex items-center gap-3">
+                  <span
+                    className="text-[11px] w-3 text-right"
+                    style={{ color: C.inkMuted }}
+                  >
+                    {r.label}
+                  </span>
+                  <Star
+                    className="w-3 h-3"
+                    style={{ color: C.inkMuted }}
+                    fill="currentColor"
+                  />
+                  <div
+                    className="flex-1 h-1.5 rounded-full overflow-hidden"
+                    style={{ background: "rgba(255,255,255,0.06)" }}
+                  >
+                    <motion.div
+                      initial={{ width: 0 }}
+                      whileInView={{ width: `${r.pct}%` }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 1, ease: "easeOut" }}
+                      className="h-full"
+                      style={{
+                        background: `linear-gradient(90deg, ${C.primary}, ${C.cyan})`,
+                      }}
+                    />
+                  </div>
+                  <span
+                    className="text-[11px] w-10 text-left tabular-nums"
+                    style={{ color: C.inkMuted }}
+                  >
+                    {r.pct}%
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-5">
+          {/* Featured testimonial — large */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.7 }}
+            className="rounded-[28px] p-8 md:p-12 mb-6 relative overflow-hidden"
+            style={{
+              background:
+                "linear-gradient(135deg, rgba(168,85,247,0.10), rgba(34,211,238,0.06))",
+              border: `1px solid rgba(168,85,247,0.24)`,
+              backdropFilter: "blur(20px)",
+              boxShadow: `0 40px 80px -40px rgba(168,85,247,0.3)`,
+            }}
+          >
+            <Quote
+              className="absolute top-8 right-8 w-16 h-16 md:w-24 md:h-24"
+              style={{ color: "rgba(168,85,247,0.12)" }}
+            />
+            <div className="relative grid md:grid-cols-[1fr_auto] gap-8 items-center">
+              <div>
+                <div className="flex gap-1 mb-5">
+                  {[...Array(5)].map((_, k) => (
+                    <Star
+                      key={k}
+                      className="w-4 h-4"
+                      style={{ color: C.cyan }}
+                      fill={C.cyan}
+                    />
+                  ))}
+                </div>
+                <p
+                  style={{ ...serif, color: C.ink }}
+                  className="text-2xl md:text-3xl lg:text-4xl leading-[1.15] mb-7"
+                >
+                  “Pedi pro nosso aniversário de 10 anos. Quando ela ouviu, a
+                  gente chorou junto. É um{" "}
+                  <em
+                    style={{
+                      ...serif,
+                      fontStyle: "italic",
+                      ...gradientText,
+                    }}
+                  >
+                    presente que ninguém mais vai ter.
+                  </em>
+                  ”
+                </p>
+                <div className="flex items-center gap-4">
+                  <div
+                    className="w-14 h-14 rounded-full flex items-center justify-center text-base font-semibold shrink-0"
+                    style={{
+                      background: `linear-gradient(135deg, ${C.primary}, ${C.cyan})`,
+                      color: "#0B0B12",
+                    }}
+                  >
+                    RS
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <p
+                        className="text-sm font-semibold"
+                        style={{ color: C.ink }}
+                      >
+                        Rafael Souza
+                      </p>
+                      <BadgeCheck
+                        className="w-4 h-4"
+                        style={{ color: C.cyan }}
+                      />
+                    </div>
+                    <p className="text-xs" style={{ color: C.inkMuted }}>
+                      Aniversário de casamento · São Paulo, SP
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Mini player */}
+              <div
+                className="rounded-2xl p-5 w-full md:w-[260px]"
+                style={{
+                  background: "rgba(11,11,18,0.6)",
+                  border: `1px solid ${C.line}`,
+                  backdropFilter: "blur(10px)",
+                }}
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                    style={{
+                      background: `linear-gradient(135deg, ${C.primary}, ${C.cyan})`,
+                    }}
+                  >
+                    <Play
+                      className="w-4 h-4"
+                      style={{ color: "#0B0B12" }}
+                      fill="#0B0B12"
+                    />
+                  </div>
+                  <div className="min-w-0">
+                    <p
+                      style={{ ...serif, color: C.ink }}
+                      className="text-base truncate"
+                    >
+                      10 Anos de Nós
+                    </p>
+                    <p className="text-[10px]" style={{ color: C.inkMuted }}>
+                      Acústico romântico · 03:12
+                    </p>
+                  </div>
+                </div>
+                <div
+                  className="h-1 rounded-full overflow-hidden"
+                  style={{ background: "rgba(255,255,255,0.06)" }}
+                >
+                  <div
+                    className="h-full"
+                    style={{
+                      width: "62%",
+                      background: `linear-gradient(90deg, ${C.primary}, ${C.cyan})`,
+                    }}
+                  />
+                </div>
+                {/* Waveform pseudo */}
+                <div className="mt-4 flex items-end gap-[2px] h-6">
+                  {Array.from({ length: 32 }).map((_, k) => {
+                    const h = 20 + Math.abs(Math.sin(k * 0.7)) * 80;
+                    const active = k < 32 * 0.62;
+                    return (
+                      <div
+                        key={k}
+                        className="flex-1 rounded-full"
+                        style={{
+                          height: `${h}%`,
+                          background: active
+                            ? `linear-gradient(180deg, ${C.primaryGlow}, ${C.cyan})`
+                            : "rgba(255,255,255,0.1)",
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Grid 6 cards */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {[
               {
-                q: "Minha esposa chorou no momento que ouviu. Capturaram nossa história em 3 minutos.",
-                n: "Rafael S.",
-                r: "Aniversário de casamento",
-              },
-              {
                 q: "Mandei pra minha mãe no dia das mães. Ela escuta todos os dias até hoje.",
-                n: "Camila P.",
+                n: "Camila Pires",
                 r: "Dia das Mães",
+                loc: "Rio de Janeiro, RJ",
+                style: "MPB · 02:54",
+                title: "Pra Você, Mãe",
+                hue: C.primary,
               },
               {
                 q: "Usamos no mesversário do João. Virou tradição da família — uma música por mês.",
-                n: "Bruna M.",
+                n: "Bruna Martins",
                 r: "Mesversário",
+                loc: "Curitiba, PR",
+                style: "Lullaby · 02:18",
+                title: "João, 6 meses",
+                hue: C.cyan,
+              },
+              {
+                q: "Pedi pro pedido de casamento. Ela disse sim antes da segunda estrofe.",
+                n: "Diego Almeida",
+                r: "Pedido de casamento",
+                loc: "Belo Horizonte, MG",
+                style: "Acústico · 03:01",
+                title: "Quer Casar Comigo?",
+                hue: C.pink,
+              },
+              {
+                q: "Surpreendi minha melhor amiga no aniversário dela. Foi a melhor reação que já vi.",
+                n: "Larissa Ferreira",
+                r: "Aniversário",
+                loc: "Porto Alegre, RS",
+                style: "Pop · 02:36",
+                title: "Pra Minha Bestie",
+                hue: C.primary,
+              },
+              {
+                q: "Fiz uma música pro meu filho que tá no exterior. Ele me ligou chorando.",
+                n: "Sandra Oliveira",
+                r: "Saudade",
+                loc: "Salvador, BA",
+                style: "Sertanejo · 03:22",
+                title: "Volta Logo, Filho",
+                hue: C.cyan,
+              },
+              {
+                q: "Eternizei minha avó. A família inteira ouve. É como tê-la perto outra vez.",
+                n: "Pedro Henrique",
+                r: "Homenagem",
+                loc: "Recife, PE",
+                style: "Bossa · 02:48",
+                title: "Vó Iolanda",
+                hue: C.pink,
               },
             ].map((t, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 18 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="rounded-3xl p-7"
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ duration: 0.5, delay: i * 0.06 }}
+                className="rounded-3xl p-6 md:p-7 group hover:-translate-y-1 transition-transform duration-300 flex flex-col"
                 style={{
-                  background: "rgba(255,255,255,0.7)",
+                  background: "rgba(255,255,255,0.03)",
                   border: `1px solid ${C.line}`,
                   backdropFilter: "blur(14px)",
                 }}
               >
-                <div className="flex gap-1 mb-5">
-                  {[...Array(5)].map((_, k) => (
-                    <Star key={k} className="w-3.5 h-3.5" style={{ color: C.accent }} fill={C.accent} />
-                  ))}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex gap-0.5">
+                    {[...Array(5)].map((_, k) => (
+                      <Star
+                        key={k}
+                        className="w-3.5 h-3.5"
+                        style={{ color: t.hue }}
+                        fill={t.hue}
+                      />
+                    ))}
+                  </div>
+                  <Quote
+                    className="w-5 h-5"
+                    style={{ color: "rgba(255,255,255,0.08)" }}
+                  />
                 </div>
-                <p style={{ ...serif, fontSize: 22, color: C.ink }} className="leading-snug mb-6">
+
+                <p
+                  style={{ ...serif, color: C.ink }}
+                  className="text-lg md:text-xl leading-snug mb-6 flex-1"
+                >
                   “{t.q}”
                 </p>
-                <div className="flex items-center gap-3">
+
+                {/* Mini track */}
+                <div
+                  className="rounded-xl p-3 mb-5 flex items-center gap-3"
+                  style={{
+                    background: "rgba(11,11,18,0.5)",
+                    border: `1px solid ${C.line}`,
+                  }}
+                >
                   <div
-                    className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold"
+                    className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
                     style={{
-                      background: `linear-gradient(135deg, ${C.accent}, ${C.accentSoft})`,
-                      color: C.bg,
+                      background: `linear-gradient(135deg, ${t.hue}, ${C.primary})`,
                     }}
                   >
-                    {t.n.charAt(0)}
+                    <Play
+                      className="w-3 h-3"
+                      style={{ color: "#0B0B12" }}
+                      fill="#0B0B12"
+                    />
                   </div>
-                  <div>
-                    <p className="text-sm font-semibold" style={{ color: C.ink }}>
-                      {t.n}
+                  <div className="min-w-0 flex-1">
+                    <p
+                      className="text-xs font-medium truncate"
+                      style={{ color: C.ink }}
+                    >
+                      {t.title}
                     </p>
-                    <p className="text-[11px]" style={{ color: C.inkMuted }}>
-                      {t.r}
+                    <p
+                      className="text-[10px] truncate"
+                      style={{ color: C.inkMuted }}
+                    >
+                      {t.style}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-semibold shrink-0"
+                    style={{
+                      background: `linear-gradient(135deg, ${t.hue}, ${C.cyan})`,
+                      color: "#0B0B12",
+                    }}
+                  >
+                    {t.n
+                      .split(" ")
+                      .map((p) => p[0])
+                      .slice(0, 2)
+                      .join("")}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1">
+                      <p
+                        className="text-sm font-semibold truncate"
+                        style={{ color: C.ink }}
+                      >
+                        {t.n}
+                      </p>
+                      <BadgeCheck
+                        className="w-3.5 h-3.5 shrink-0"
+                        style={{ color: C.cyan }}
+                      />
+                    </div>
+                    <p
+                      className="text-[11px] truncate"
+                      style={{ color: C.inkMuted }}
+                    >
+                      {t.r} · {t.loc}
                     </p>
                   </div>
                 </div>
               </motion.div>
             ))}
           </div>
+
+          {/* Trust strip */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="mt-10 rounded-2xl px-6 py-5 flex flex-col md:flex-row items-center justify-between gap-4"
+            style={{
+              background: "rgba(255,255,255,0.03)",
+              border: `1px solid ${C.line}`,
+              backdropFilter: "blur(10px)",
+            }}
+          >
+            <div className="flex items-center gap-3">
+              <div className="flex -space-x-2">
+                {[C.primary, C.cyan, C.pink, C.primaryGlow].map((c, k) => (
+                  <div
+                    key={k}
+                    className="w-8 h-8 rounded-full border-2"
+                    style={{
+                      background: `linear-gradient(135deg, ${c}, ${C.primary})`,
+                      borderColor: C.bg,
+                    }}
+                  />
+                ))}
+              </div>
+              <p className="text-sm" style={{ color: C.inkSoft }}>
+                <span className="font-semibold" style={{ color: C.ink }}>
+                  +12.000 pessoas
+                </span>{" "}
+                já criaram sua música
+              </p>
+            </div>
+            <a
+              href="#planos"
+              className="inline-flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-full transition-all hover:scale-[1.02]"
+              style={{
+                background: `linear-gradient(135deg, ${C.primary}, ${C.cyan})`,
+                color: "#0B0B12",
+              }}
+            >
+              Quero a minha <ArrowRight className="w-3.5 h-3.5" />
+            </a>
+          </motion.div>
         </div>
       </section>
 
       {/* ═══ PLANOS ═══ */}
-      <section id="planos" className="px-5 md:px-8 py-24 md:py-32" style={{ background: C.bgAlt }}>
+      <section
+        id="planos"
+        className="px-5 md:px-8 py-24 md:py-32 relative z-10"
+        style={{ background: C.bgAlt }}
+      >
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
             <Chip>Planos</Chip>
-            <h2 className="mt-5 text-4xl md:text-6xl" style={{ ...serif, color: C.ink }}>
-              Escolha seu <em style={{ ...serif, fontStyle: "italic", color: C.accent }}>tom.</em>
+            <h2
+              className="mt-5 text-4xl md:text-6xl"
+              style={{ ...serif, color: C.ink }}
+            >
+              Escolha seu{" "}
+              <em style={{ ...serif, fontStyle: "italic", ...gradientText }}>
+                tom.
+              </em>
             </h2>
           </div>
 
@@ -703,12 +1173,16 @@ export default function MelodiaPod() {
                 key={p.name}
                 className="rounded-3xl p-7 md:p-9 relative"
                 style={{
-                  background: p.highlight ? C.ink : "rgba(255,255,255,0.75)",
-                  color: p.highlight ? C.bg : C.ink,
-                  border: `1px solid ${p.highlight ? "rgba(255,255,255,0.1)" : C.line}`,
+                  background: p.highlight
+                    ? `linear-gradient(135deg, rgba(168,85,247,0.14), rgba(34,211,238,0.08))`
+                    : "rgba(255,255,255,0.03)",
+                  color: C.ink,
+                  border: p.highlight
+                    ? `1px solid rgba(168,85,247,0.4)`
+                    : `1px solid ${C.line}`,
                   backdropFilter: "blur(14px)",
                   boxShadow: p.highlight
-                    ? "0 30px 60px -25px rgba(14,10,10,0.5)"
+                    ? `0 30px 80px -30px rgba(168,85,247,0.5)`
                     : "none",
                 }}
               >
@@ -716,26 +1190,31 @@ export default function MelodiaPod() {
                   <div
                     className="absolute -top-3 right-6 px-3 py-1 rounded-full text-[10px] tracking-[0.18em] font-semibold"
                     style={{
-                      background: `linear-gradient(135deg, ${C.accent}, ${C.accentSoft})`,
-                      color: C.bg,
+                      background: `linear-gradient(135deg, ${C.primary}, ${C.cyan})`,
+                      color: "#0B0B12",
                     }}
                   >
                     MAIS AMADO
                   </div>
                 )}
-                <h3 style={{ ...serif, fontSize: 32 }}>{p.name}</h3>
-                <p
-                  className="text-sm mt-1 mb-6"
-                  style={{ color: p.highlight ? "rgba(251,247,242,0.6)" : C.inkSoft }}
-                >
+                <h3 style={{ ...serif, fontSize: 32, color: C.ink }}>
+                  {p.name}
+                </h3>
+                <p className="text-sm mt-1 mb-6" style={{ color: C.inkSoft }}>
                   {p.desc}
                 </p>
                 <div className="flex items-baseline gap-1 mb-7">
-                  <span style={{ ...serif, fontSize: 56, lineHeight: 1 }}>{p.price}</span>
                   <span
-                    className="text-xs"
-                    style={{ color: p.highlight ? "rgba(251,247,242,0.55)" : C.inkMuted }}
+                    style={{
+                      ...serif,
+                      fontSize: 56,
+                      lineHeight: 1,
+                      ...(p.highlight ? gradientText : { color: C.ink }),
+                    }}
                   >
+                    {p.price}
+                  </span>
+                  <span className="text-xs" style={{ color: C.inkMuted }}>
                     /música
                   </span>
                 </div>
@@ -744,11 +1223,9 @@ export default function MelodiaPod() {
                     <li key={f} className="flex items-start gap-2.5 text-sm">
                       <CheckCircle2
                         className="w-4 h-4 mt-0.5 shrink-0"
-                        style={{
-                          color: p.highlight ? C.bg : C.accent,
-                        }}
+                        style={{ color: p.highlight ? C.cyan : C.primaryGlow }}
                       />
-                      <span style={{ color: p.highlight ? "rgba(251,247,242,0.85)" : C.ink }}>{f}</span>
+                      <span style={{ color: C.inkSoft }}>{f}</span>
                     </li>
                   ))}
                 </ul>
@@ -756,11 +1233,20 @@ export default function MelodiaPod() {
                   href={WHATSAPP_URL}
                   target="_blank"
                   rel="noreferrer"
-                  className="block text-center py-3.5 rounded-full text-sm font-semibold transition-all active:scale-[0.98]"
-                  style={{
-                    background: p.highlight ? C.bg : C.ink,
-                    color: p.highlight ? C.ink : C.bg,
-                  }}
+                  className="block text-center py-3.5 rounded-full text-sm font-semibold transition-all active:scale-[0.98] hover:scale-[1.02]"
+                  style={
+                    p.highlight
+                      ? {
+                          background: `linear-gradient(135deg, ${C.primary}, ${C.cyan})`,
+                          color: "#0B0B12",
+                          boxShadow: `0 14px 30px -10px rgba(168,85,247,0.5)`,
+                        }
+                      : {
+                          background: "rgba(255,255,255,0.06)",
+                          color: C.ink,
+                          border: `1px solid ${C.lineStrong}`,
+                        }
+                  }
                 >
                   Começar agora
                 </a>
@@ -771,12 +1257,21 @@ export default function MelodiaPod() {
       </section>
 
       {/* ═══ FAQ ═══ */}
-      <section id="faq" className="px-5 md:px-8 py-24 md:py-32">
+      <section
+        id="faq"
+        className="px-5 md:px-8 py-24 md:py-32 relative z-10"
+      >
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-14">
             <Chip>Perguntas frequentes</Chip>
-            <h2 className="mt-5 text-4xl md:text-5xl" style={{ ...serif, color: C.ink }}>
-              Tudo que você quer <em style={{ ...serif, fontStyle: "italic", color: C.accent }}>saber.</em>
+            <h2
+              className="mt-5 text-4xl md:text-5xl"
+              style={{ ...serif, color: C.ink }}
+            >
+              Tudo que você quer{" "}
+              <em style={{ ...serif, fontStyle: "italic", ...gradientText }}>
+                saber.
+              </em>
             </h2>
           </div>
 
@@ -809,7 +1304,7 @@ export default function MelodiaPod() {
                   key={i}
                   className="rounded-2xl overflow-hidden"
                   style={{
-                    background: "rgba(255,255,255,0.7)",
+                    background: "rgba(255,255,255,0.03)",
                     border: `1px solid ${C.line}`,
                     backdropFilter: "blur(10px)",
                   }}
@@ -818,7 +1313,10 @@ export default function MelodiaPod() {
                     onClick={() => setOpenFaq(open ? null : i)}
                     className="w-full flex items-center justify-between text-left p-5 md:p-6"
                   >
-                    <span className="text-base md:text-lg font-medium pr-4" style={{ color: C.ink }}>
+                    <span
+                      className="text-base md:text-lg font-medium pr-4"
+                      style={{ color: C.ink }}
+                    >
                       {f.q}
                     </span>
                     <ChevronDown
@@ -845,80 +1343,83 @@ export default function MelodiaPod() {
       </section>
 
       {/* ═══ FINAL CTA ═══ */}
-      <section className="px-5 md:px-8 py-20 md:py-24">
+      <section className="px-5 md:px-8 py-20 md:py-24 relative z-10">
         <div
           className="max-w-5xl mx-auto rounded-[36px] p-10 md:p-16 text-center relative overflow-hidden"
           style={{
-            background: C.ink,
-            color: C.bg,
+            background:
+              "linear-gradient(135deg, rgba(168,85,247,0.16), rgba(34,211,238,0.10))",
+            border: `1px solid rgba(168,85,247,0.3)`,
+            backdropFilter: "blur(20px)",
+            boxShadow: `0 60px 120px -40px rgba(168,85,247,0.5)`,
           }}
         >
           <div
             aria-hidden
             className="absolute -top-32 -right-32 w-[400px] h-[400px] rounded-full"
             style={{
-              background: `radial-gradient(circle, ${C.accent}, transparent 60%)`,
-              opacity: 0.5,
-              filter: "blur(20px)",
+              background: `radial-gradient(circle, ${C.primary}, transparent 60%)`,
+              opacity: 0.4,
+              filter: "blur(40px)",
+            }}
+          />
+          <div
+            aria-hidden
+            className="absolute -bottom-32 -left-32 w-[400px] h-[400px] rounded-full"
+            style={{
+              background: `radial-gradient(circle, ${C.cyan}, transparent 60%)`,
+              opacity: 0.3,
+              filter: "blur(40px)",
             }}
           />
           <div className="relative">
-            <Sparkles className="w-7 h-7 mx-auto mb-5" style={{ color: C.bg, opacity: 0.7 }} />
+            <Zap
+              className="w-7 h-7 mx-auto mb-5"
+              style={{ color: C.primaryGlow }}
+              fill="currentColor"
+            />
             <h2
               className="text-4xl md:text-6xl mb-5"
-              style={{ ...serif, color: C.bg }}
+              style={{ ...serif, color: C.ink }}
             >
-              Crie a música que vai <em style={{ ...serif, fontStyle: "italic" }}>marcar uma vida.</em>
+              Crie a música que vai{" "}
+              <em style={{ ...serif, fontStyle: "italic", ...gradientText }}>
+                marcar uma vida.
+              </em>
             </h2>
             <p
               className="max-w-md mx-auto text-base mb-9"
-              style={{ color: "rgba(251,247,242,0.7)" }}
+              style={{ color: C.inkSoft }}
             >
               Em minutos você tem uma canção que ninguém mais terá.
             </p>
-            <a
-              href={WHATSAPP_URL}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-full text-sm font-semibold transition-all active:scale-[0.98]"
-              style={{
-                background: C.bg,
-                color: C.ink,
-                boxShadow: "0 20px 40px -15px rgba(0,0,0,0.5)",
-              }}
-            >
-              Começar minha música <ArrowRight className="w-4 h-4" />
-            </a>
+            <PrimaryBtn href={WHATSAPP_URL}>Começar minha música</PrimaryBtn>
           </div>
         </div>
       </section>
 
       {/* ═══ FOOTER ═══ */}
       <footer
-        className="px-5 md:px-8 pt-16 pb-10"
+        className="px-5 md:px-8 pt-16 pb-10 relative z-10"
         style={{ borderTop: `1px solid ${C.line}` }}
       >
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8">
             <div>
-              <div className="flex items-center gap-2 mb-3">
-                <div
-                  className="w-7 h-7 rounded-full flex items-center justify-center"
-                  style={{ background: `linear-gradient(135deg, ${C.accent}, ${C.accentSoft})` }}
-                >
-                  <Music className="w-3.5 h-3.5" style={{ color: C.bg }} />
-                </div>
-                <span style={{ ...serif, fontSize: 22 }}>MelodiaPod</span>
-              </div>
-              <p className="text-sm max-w-sm" style={{ color: C.inkSoft }}>
-                Músicas personalizadas com IA para os momentos mais importantes da sua vida.
+              <BrandLockup size="md" />
+              <p
+                className="text-sm max-w-sm mt-4"
+                style={{ color: C.inkSoft }}
+              >
+                Músicas personalizadas com IA para os momentos mais importantes
+                da sua vida. Um produto ARCANA.
               </p>
             </div>
 
             <div className="flex flex-col gap-3">
               <a
                 href={`mailto:${EMAIL}`}
-                className="inline-flex items-center gap-2 text-sm"
+                className="inline-flex items-center gap-2 text-sm hover:opacity-80 transition-opacity"
                 style={{ color: C.inkSoft }}
               >
                 <Mail className="w-4 h-4" /> {EMAIL}
@@ -927,7 +1428,7 @@ export default function MelodiaPod() {
                 href={WHATSAPP_URL}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 text-sm"
+                className="inline-flex items-center gap-2 text-sm hover:opacity-80 transition-opacity"
                 style={{ color: C.inkSoft }}
               >
                 <MessageCircle className="w-4 h-4" /> WhatsApp
@@ -936,41 +1437,38 @@ export default function MelodiaPod() {
                 href="https://instagram.com"
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 text-sm"
+                className="inline-flex items-center gap-2 text-sm hover:opacity-80 transition-opacity"
                 style={{ color: C.inkSoft }}
               >
-                <Instagram className="w-4 h-4" /> @melodiapod
+                <Instagram className="w-4 h-4" /> Instagram
               </a>
             </div>
           </div>
 
           <div
-            className="mt-12 pt-6 flex flex-col md:flex-row items-center justify-between gap-3"
-            style={{ borderTop: `1px solid ${C.line}` }}
+            className="mt-10 pt-6 text-xs flex flex-col md:flex-row items-center justify-between gap-2"
+            style={{ borderTop: `1px solid ${C.line}`, color: C.inkMuted }}
           >
-            <p className="text-xs" style={{ color: C.inkMuted }}>
-              © {new Date().getFullYear()} MelodiaPod. Todos os direitos reservados.
-            </p>
-            <p className="text-xs" style={{ color: C.inkMuted }}>
-              Feito com <span style={{ color: C.accent }}>♥</span> e IA.
-            </p>
+            <p>© {new Date().getFullYear()} ARCANA · MelodiaPod. Todos os direitos reservados.</p>
+            <p>Feito com ♥ no Brasil</p>
           </div>
         </div>
       </footer>
 
-      {/* Floating WhatsApp */}
+      {/* ═══ FLOATING WHATSAPP ═══ */}
       <a
         href={WHATSAPP_URL}
         target="_blank"
         rel="noreferrer"
-        className="fixed bottom-5 right-5 z-40 w-14 h-14 rounded-full flex items-center justify-center transition-transform active:scale-95 hover:scale-105"
+        className="fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 px-5 py-3 rounded-full text-sm font-semibold transition-all hover:scale-[1.04]"
         style={{
-          background: "#25D366",
-          boxShadow: "0 12px 30px -8px rgba(37,211,102,0.6)",
+          background: `linear-gradient(135deg, ${C.primary}, ${C.cyan})`,
+          color: "#0B0B12",
+          boxShadow: `0 20px 50px -10px rgba(168,85,247,0.6)`,
         }}
-        aria-label="Falar no WhatsApp"
       >
-        <MessageCircle className="w-6 h-6" style={{ color: "#fff" }} />
+        <MessageCircle className="w-4 h-4" />
+        Falar no WhatsApp
       </a>
     </div>
   );
