@@ -148,6 +148,7 @@ const App = () => (
 
             {/* Category Landing Pages */}
             <Route path="/fotoinfantil" element={<FotoInfantil />} />
+            <Route path="/melodiapod" element={<MelodiaPod />} />
             <Route path="/categoria/:slug" element={<CategoryPage />} />
 
             {/* Legal Pages */}
