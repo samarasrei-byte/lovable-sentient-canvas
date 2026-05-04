@@ -289,7 +289,7 @@ export default function MelodiaPod() {
           <div
             className="md:hidden fixed inset-0 z-50"
             style={{
-              background: "rgba(11,11,18,0.96)",
+              background: "rgba(255,255,255,0.97)",
               backdropFilter: "blur(20px)",
             }}
           >
