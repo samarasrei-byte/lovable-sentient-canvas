@@ -32,20 +32,20 @@ const WHATSAPP_URL =
   encodeURIComponent("Olá, gostaria de saber mais sobre a MelodiaPod!");
 const EMAIL = "contato@arcana.app.br";
 
-// ARCANA palette
+// ARCANA palette — Light Premium
 const C = {
-  bg: "#0B0B12",
-  bgAlt: "#0F0F1A",
-  surface: "rgba(255,255,255,0.04)",
-  ink: "#F5F3FF",
-  inkSoft: "rgba(245,243,255,0.66)",
-  inkMuted: "rgba(245,243,255,0.42)",
+  bg: "#FFFFFF",
+  bgAlt: "#FAFAFB",
+  surface: "rgba(15,15,26,0.03)",
+  ink: "#0B0B12",
+  inkSoft: "rgba(11,11,18,0.66)",
+  inkMuted: "rgba(11,11,18,0.45)",
   primary: "#A855F7", // purple
   primaryGlow: "#C084FC",
-  cyan: "#22D3EE",
-  pink: "#F472B6",
-  line: "rgba(255,255,255,0.08)",
-  lineStrong: "rgba(255,255,255,0.14)",
+  cyan: "#0891B2", // deeper cyan for contrast on white
+  pink: "#EC4899",
+  line: "rgba(11,11,18,0.08)",
+  lineStrong: "rgba(11,11,18,0.14)",
 };
 
 const FONTS_HREF =
