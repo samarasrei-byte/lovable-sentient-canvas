@@ -212,10 +212,10 @@ export default function MelodiaPod() {
       {/* Subtle grid */}
       <div
         aria-hidden
-        className="pointer-events-none fixed inset-0 opacity-[0.04]"
+        className="pointer-events-none fixed inset-0 opacity-[0.05]"
         style={{
           backgroundImage:
-            "linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)",
+            "linear-gradient(rgba(11,11,18,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(11,11,18,0.5) 1px, transparent 1px)",
           backgroundSize: "60px 60px",
         }}
       />
@@ -225,7 +225,7 @@ export default function MelodiaPod() {
         <div
           className="absolute inset-0"
           style={{
-            background: "rgba(11,11,18,0.7)",
+            background: "rgba(255,255,255,0.78)",
             backdropFilter: "blur(20px) saturate(160%)",
             WebkitBackdropFilter: "blur(20px) saturate(160%)",
             borderBottom: `1px solid ${C.line}`,
