@@ -160,10 +160,10 @@ const GhostBtn = ({
 }) => (
   <a
     href={href}
-    className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full text-sm font-semibold transition-all duration-300 active:scale-[0.98] hover:bg-white/[0.06]"
+    className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full text-sm font-semibold transition-all duration-300 active:scale-[0.98] hover:bg-black/[0.04]"
     style={{
       ...sans,
-      background: "rgba(255,255,255,0.03)",
+      background: "rgba(11,11,18,0.02)",
       color: C.ink,
       border: `1px solid ${C.lineStrong}`,
       backdropFilter: "blur(10px)",
