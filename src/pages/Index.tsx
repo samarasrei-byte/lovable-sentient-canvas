@@ -33,9 +33,7 @@ const Index = () => {
       </Suspense>
       {/* UpgradeUpsell oculto — assinaturas serão lançadas depois */}
       
-      <Suspense fallback={<SectionFallback />}>
-        <PhotoServicesSection />
-      </Suspense>
+      <PhotoServicesSection />
       
       <Suspense fallback={<SectionFallback />}>
         <ValueProposition />
