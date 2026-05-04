@@ -837,7 +837,7 @@ export default function MelodiaPod() {
               <div
                 className="rounded-2xl p-5 w-full md:w-[260px]"
                 style={{
-                  background: "rgba(11,11,18,0.6)",
+                  background: "rgba(11,11,18,0.04)",
                   border: `1px solid ${C.line}`,
                   backdropFilter: "blur(10px)",
                 }}
