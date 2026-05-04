@@ -32,20 +32,20 @@ const WHATSAPP_URL =
   encodeURIComponent("Olá, gostaria de saber mais sobre a MelodiaPod!");
 const EMAIL = "contato@arcana.app.br";
 
-// ARCANA palette
+// ARCANA palette — Light Premium
 const C = {
-  bg: "#0B0B12",
-  bgAlt: "#0F0F1A",
-  surface: "rgba(255,255,255,0.04)",
-  ink: "#F5F3FF",
-  inkSoft: "rgba(245,243,255,0.66)",
-  inkMuted: "rgba(245,243,255,0.42)",
+  bg: "#FFFFFF",
+  bgAlt: "#FAFAFB",
+  surface: "rgba(15,15,26,0.03)",
+  ink: "#0B0B12",
+  inkSoft: "rgba(11,11,18,0.66)",
+  inkMuted: "rgba(11,11,18,0.45)",
   primary: "#A855F7", // purple
   primaryGlow: "#C084FC",
-  cyan: "#22D3EE",
-  pink: "#F472B6",
-  line: "rgba(255,255,255,0.08)",
-  lineStrong: "rgba(255,255,255,0.14)",
+  cyan: "#0891B2", // deeper cyan for contrast on white
+  pink: "#EC4899",
+  line: "rgba(11,11,18,0.08)",
+  lineStrong: "rgba(11,11,18,0.14)",
 };
 
 const FONTS_HREF =
@@ -160,10 +160,10 @@ const GhostBtn = ({
 }) => (
   <a
     href={href}
-    className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full text-sm font-semibold transition-all duration-300 active:scale-[0.98] hover:bg-white/[0.06]"
+    className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full text-sm font-semibold transition-all duration-300 active:scale-[0.98] hover:bg-black/[0.04]"
     style={{
       ...sans,
-      background: "rgba(255,255,255,0.03)",
+      background: "rgba(11,11,18,0.02)",
       color: C.ink,
       border: `1px solid ${C.lineStrong}`,
       backdropFilter: "blur(10px)",
@@ -184,38 +184,38 @@ export default function MelodiaPod() {
       className="min-h-screen w-full relative overflow-x-hidden"
       style={{ background: C.bg, color: C.ink, ...sans }}
     >
-      {/* Ambient neon blobs */}
+      {/* Ambient soft blobs */}
       <div
         aria-hidden
         className="pointer-events-none fixed -top-32 -left-32 w-[520px] h-[520px] rounded-full"
         style={{
-          background: `radial-gradient(circle, rgba(168,85,247,0.35), transparent 60%)`,
-          filter: "blur(40px)",
+          background: `radial-gradient(circle, rgba(168,85,247,0.18), transparent 60%)`,
+          filter: "blur(60px)",
         }}
       />
       <div
         aria-hidden
         className="pointer-events-none fixed top-[35%] -right-40 w-[560px] h-[560px] rounded-full"
         style={{
-          background: `radial-gradient(circle, rgba(34,211,238,0.22), transparent 60%)`,
-          filter: "blur(50px)",
+          background: `radial-gradient(circle, rgba(8,145,178,0.12), transparent 60%)`,
+          filter: "blur(70px)",
         }}
       />
       <div
         aria-hidden
         className="pointer-events-none fixed bottom-0 left-1/2 -translate-x-1/2 w-[700px] h-[400px] rounded-full"
         style={{
-          background: `radial-gradient(ellipse, rgba(244,114,182,0.10), transparent 60%)`,
-          filter: "blur(60px)",
+          background: `radial-gradient(ellipse, rgba(236,72,153,0.08), transparent 60%)`,
+          filter: "blur(70px)",
         }}
       />
       {/* Subtle grid */}
       <div
         aria-hidden
-        className="pointer-events-none fixed inset-0 opacity-[0.04]"
+        className="pointer-events-none fixed inset-0 opacity-[0.05]"
         style={{
           backgroundImage:
-            "linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)",
+            "linear-gradient(rgba(11,11,18,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(11,11,18,0.5) 1px, transparent 1px)",
           backgroundSize: "60px 60px",
         }}
       />
@@ -225,7 +225,7 @@ export default function MelodiaPod() {
         <div
           className="absolute inset-0"
           style={{
-            background: "rgba(11,11,18,0.7)",
+            background: "rgba(255,255,255,0.78)",
             backdropFilter: "blur(20px) saturate(160%)",
             WebkitBackdropFilter: "blur(20px) saturate(160%)",
             borderBottom: `1px solid ${C.line}`,
@@ -289,7 +289,7 @@ export default function MelodiaPod() {
           <div
             className="md:hidden fixed inset-0 z-50"
             style={{
-              background: "rgba(11,11,18,0.96)",
+              background: "rgba(255,255,255,0.97)",
               backdropFilter: "blur(20px)",
             }}
           >
@@ -837,7 +837,7 @@ export default function MelodiaPod() {
               <div
                 className="rounded-2xl p-5 w-full md:w-[260px]"
                 style={{
-                  background: "rgba(11,11,18,0.6)",
+                  background: "rgba(11,11,18,0.04)",
                   border: `1px solid ${C.line}`,
                   backdropFilter: "blur(10px)",
                 }}
@@ -1001,7 +1001,7 @@ export default function MelodiaPod() {
                 <div
                   className="rounded-xl p-3 mb-5 flex items-center gap-3"
                   style={{
-                    background: "rgba(11,11,18,0.5)",
+                    background: "rgba(11,11,18,0.03)",
                     border: `1px solid ${C.line}`,
                   }}
                 >
