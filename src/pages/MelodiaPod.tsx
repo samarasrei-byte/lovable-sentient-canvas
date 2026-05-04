@@ -184,29 +184,29 @@ export default function MelodiaPod() {
       className="min-h-screen w-full relative overflow-x-hidden"
       style={{ background: C.bg, color: C.ink, ...sans }}
     >
-      {/* Ambient neon blobs */}
+      {/* Ambient soft blobs */}
       <div
         aria-hidden
         className="pointer-events-none fixed -top-32 -left-32 w-[520px] h-[520px] rounded-full"
         style={{
-          background: `radial-gradient(circle, rgba(168,85,247,0.35), transparent 60%)`,
-          filter: "blur(40px)",
+          background: `radial-gradient(circle, rgba(168,85,247,0.18), transparent 60%)`,
+          filter: "blur(60px)",
         }}
       />
       <div
         aria-hidden
         className="pointer-events-none fixed top-[35%] -right-40 w-[560px] h-[560px] rounded-full"
         style={{
-          background: `radial-gradient(circle, rgba(34,211,238,0.22), transparent 60%)`,
-          filter: "blur(50px)",
+          background: `radial-gradient(circle, rgba(8,145,178,0.12), transparent 60%)`,
+          filter: "blur(70px)",
         }}
       />
       <div
         aria-hidden
         className="pointer-events-none fixed bottom-0 left-1/2 -translate-x-1/2 w-[700px] h-[400px] rounded-full"
         style={{
-          background: `radial-gradient(ellipse, rgba(244,114,182,0.10), transparent 60%)`,
-          filter: "blur(60px)",
+          background: `radial-gradient(ellipse, rgba(236,72,153,0.08), transparent 60%)`,
+          filter: "blur(70px)",
         }}
       />
       {/* Subtle grid */}
