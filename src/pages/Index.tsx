@@ -3,9 +3,9 @@ import { HeroArcana2 } from "@/components/HeroArcana2";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { UpdatePrompt } from "@/components/pwa/UpdatePrompt";
 import { PromptMarketplace } from "@/components/marketplace/PromptMarketplace";
+import { PhotoServicesSection } from "@/components/photo-services/PhotoServicesSection";
 const MassiveGallery = lazy(() => import("@/components/MassiveGallery").then(m => ({ default: m.MassiveGallery })));
 const UpgradeUpsell = lazy(() => import("@/components/landing/UpgradeUpsell").then(m => ({ default: m.UpgradeUpsell })));
-const PhotoServicesSection = lazy(() => import("@/components/photo-services/PhotoServicesSection").then(m => ({ default: m.PhotoServicesSection })));
 const ValueProposition = lazy(() => import("@/components/landing/ValueProposition").then(m => ({ default: m.ValueProposition })));
 const TestimonialsSection = lazy(() => import("@/components/landing/TestimonialsSection").then(m => ({ default: m.TestimonialsSection })));
 const HowItWorksNew = lazy(() => import("@/components/HowItWorksNew").then(m => ({ default: m.HowItWorksNew })));
@@ -33,9 +33,7 @@ const Index = () => {
       </Suspense>
       {/* UpgradeUpsell oculto — assinaturas serão lançadas depois */}
       
-      <Suspense fallback={<SectionFallback />}>
-        <PhotoServicesSection />
-      </Suspense>
+      <PhotoServicesSection />
       
       <Suspense fallback={<SectionFallback />}>
         <ValueProposition />
