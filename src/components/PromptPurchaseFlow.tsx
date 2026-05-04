@@ -409,21 +409,36 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
     return { ok: true };
   };
 
-  const handlePhotoUpload = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handlePhotoUpload = async (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    let file = e.target.files?.[0];
+    // Reset the input value so re-selecting the same file re-triggers onChange
+    if (e.target) e.target.value = '';
 
     if (!file) return;
+    console.log('[Upload] file received', { name: file.name, type: file.type, size: file.size });
+
     if (file.size > 20 * 1024 * 1024) {
       toast.error('Arquivo muito grande. Máximo 20MB.');
       return;
     }
 
-    // Validate file type — support HEIC with friendly message
-    const supportedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/heic', 'image/heif'];
-    const fileExt = file.name.toLowerCase().split('.').pop();
-    const isHeic = fileExt === 'heic' || fileExt === 'heif' || file.type === 'image/heic' || file.type === 'image/heif';
-    
-    if (!supportedTypes.includes(file.type) && !isHeic && !file.type.startsWith('image/')) {
+    // Detect HEIC/HEIF (iPhone default format) — file.type is often empty on iOS
+    const fileName = (file.name || '').toLowerCase();
+    const fileExt = fileName.split('.').pop() || '';
+    const isHeic =
+      fileExt === 'heic' ||
+      fileExt === 'heif' ||
+      file.type === 'image/heic' ||
+      file.type === 'image/heif';
+
+    // Be permissive: allow if type starts with image/ OR has known image extension OR is HEIC
+    const knownExts = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'heic', 'heif', 'bmp'];
+    const looksLikeImage =
+      (file.type && file.type.startsWith('image/')) ||
+      knownExts.includes(fileExt) ||
+      isHeic;
+
+    if (!looksLikeImage) {
       toast.error('Formato não suportado. Envie JPG, PNG ou HEIC.');
       return;
     }
@@ -435,66 +450,124 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       return next;
     });
 
-    // Show uploading feedback
     toast.loading('Processando foto...', { id: `photo-upload-${index}` });
-    setPhotos(prev => {
+    setPhotos((prev) => {
       const next = [...prev];
       next[index] = { ...next[index], status: 'uploading' };
       return next;
     });
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const img = new Image();
-      img.onload = () => {
-        // Validate quality
-        const quality = validatePhotoQuality(img);
-        if (!quality.ok) {
-          toast.error(quality.warning || 'Foto não aceita.', { id: `photo-upload-${index}` });
-          return;
-        }
-        if (quality.warning) {
-          toast.warning(quality.warning, { id: `photo-upload-${index}`, duration: 5000 });
-        } else {
-          toast.success('Foto carregada!', { id: `photo-upload-${index}` });
-        }
-
-        const canvas = document.createElement('canvas');
-        // Use higher resolution for preview to improve analysis accuracy
-        const maxSize = 768;
-        const scale = Math.min(maxSize / img.width, maxSize / img.height, 1);
-        canvas.width = img.width * scale;
-        canvas.height = img.height * scale;
-        const ctx = canvas.getContext('2d');
-        ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-        const preview = canvas.toDataURL('image/jpeg', 0.88);
-
-        setPhotos((prev) => {
-          const updated = [...prev];
-          updated[index] = { file, preview, status: 'analyzing' };
-          return updated;
+    // Convert HEIC → JPEG (iPhone fix)
+    if (isHeic) {
+      try {
+        toast.loading('Convertendo foto do iPhone (HEIC)...', { id: `photo-upload-${index}` });
+        const heic2any = (await import('heic2any')).default;
+        const converted = await heic2any({
+          blob: file,
+          toType: 'image/jpeg',
+          quality: 0.9,
         });
+        const blob = Array.isArray(converted) ? converted[0] : converted;
+        file = new File([blob], fileName.replace(/\.(heic|heif)$/i, '.jpg'), {
+          type: 'image/jpeg',
+        });
+        console.log('[Upload] HEIC converted', { newSize: file.size });
+      } catch (err) {
+        console.error('[Upload] HEIC conversion failed', err);
+        toast.error(
+          'Não conseguimos converter sua foto HEIC. No iPhone vá em Ajustes → Câmera → Formatos → "Mais Compatível" e tire uma nova foto, ou escolha outra do rolo.',
+          { id: `photo-upload-${index}`, duration: 9000 }
+        );
+        setPhotos((prev) => {
+          const next = [...prev];
+          next[index] = { file: null, preview: '' };
+          return next;
+        });
+        return;
+      }
+    }
 
-        void analyzeUploadedPhoto(index, preview);
-      };
-      img.onerror = () => {
-        // HEIC fallback: if browser can't load HEIC natively, try conversion
-        if (isHeic) {
-          toast.error('Seu dispositivo não suporta fotos HEIC diretamente. Por favor, tire uma foto em JPG nas configurações da câmera (Configurações → Câmera → Formatos → Mais Compatível).', { 
-            id: `photo-upload-${index}`,
-            duration: 8000 
-          });
-        } else {
-          toast.error('Não foi possível carregar a foto. Tente outro arquivo.', { id: `photo-upload-${index}` });
-        }
-      };
-      img.src = event.target?.result as string;
-    };
-    reader.onerror = () => {
-      toast.error('Erro ao ler o arquivo. Tente novamente.', { id: `photo-upload-${index}` });
-    };
-    reader.readAsDataURL(file);
+    // Read file with timeout safety net
+    const readAsDataUrl = (f: File) =>
+      new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        const timer = setTimeout(() => reject(new Error('timeout')), 30000);
+        reader.onload = (ev) => {
+          clearTimeout(timer);
+          resolve(ev.target?.result as string);
+        };
+        reader.onerror = () => {
+          clearTimeout(timer);
+          reject(new Error('read-error'));
+        };
+        reader.readAsDataURL(f);
+      });
+
+    const loadImage = (src: string) =>
+      new Promise<HTMLImageElement>((resolve, reject) => {
+        const img = new Image();
+        const timer = setTimeout(() => reject(new Error('img-timeout')), 30000);
+        img.onload = () => {
+          clearTimeout(timer);
+          resolve(img);
+        };
+        img.onerror = () => {
+          clearTimeout(timer);
+          reject(new Error('img-error'));
+        };
+        img.src = src;
+      });
+
+    try {
+      const dataUrl = await readAsDataUrl(file);
+      const img = await loadImage(dataUrl);
+
+      const quality = validatePhotoQuality(img);
+      if (!quality.ok) {
+        toast.error(quality.warning || 'Foto não aceita.', { id: `photo-upload-${index}` });
+        setPhotos((prev) => {
+          const next = [...prev];
+          next[index] = { file: null, preview: '' };
+          return next;
+        });
+        return;
+      }
+      if (quality.warning) {
+        toast.warning(quality.warning, { id: `photo-upload-${index}`, duration: 5000 });
+      } else {
+        toast.success('Foto carregada!', { id: `photo-upload-${index}` });
+      }
+
+      const canvas = document.createElement('canvas');
+      const maxSize = 768;
+      const scale = Math.min(maxSize / img.width, maxSize / img.height, 1);
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+      const ctx = canvas.getContext('2d');
+      ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      const preview = canvas.toDataURL('image/jpeg', 0.88);
+
+      setPhotos((prev) => {
+        const updated = [...prev];
+        updated[index] = { file, preview, status: 'analyzing' };
+        return updated;
+      });
+
+      void analyzeUploadedPhoto(index, preview);
+    } catch (err: any) {
+      console.error('[Upload] processing failed', err);
+      const msg =
+        err?.message === 'timeout' || err?.message === 'img-timeout'
+          ? 'A foto demorou muito para carregar. Tente uma foto menor.'
+          : 'Não foi possível carregar a foto. Tente outra imagem (JPG ou PNG).';
+      toast.error(msg, { id: `photo-upload-${index}`, duration: 6000 });
+      setPhotos((prev) => {
+        const next = [...prev];
+        next[index] = { file: null, preview: '' };
+        return next;
+      });
+    }
   };
 
   const addPhotoSlot = () => {
