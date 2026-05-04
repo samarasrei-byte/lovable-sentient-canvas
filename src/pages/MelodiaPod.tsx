@@ -1001,7 +1001,7 @@ export default function MelodiaPod() {
                 <div
                   className="rounded-xl p-3 mb-5 flex items-center gap-3"
                   style={{
-                    background: "rgba(11,11,18,0.5)",
+                    background: "rgba(11,11,18,0.03)",
                     border: `1px solid ${C.line}`,
                   }}
                 >
