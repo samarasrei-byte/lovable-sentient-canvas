@@ -16,7 +16,6 @@ import {
   MessageCircle,
   Menu,
   X,
-  GraduationCap,
   Baby,
   Users,
   Church,
@@ -24,11 +23,17 @@ import {
   Music2,
   Send,
   Flame,
+  Quote,
+  Mail as MailIcon,
+  PenLine,
+  Wand2,
+  Clock,
+  Star,
 } from "lucide-react";
 import { ArcanaLogo } from "@/components/ArcanaLogo";
 
 // MelodiaPod by ARCANA — Light premium with vibrant orange accent.
-// Bigger typography, floating boxes, lead form modal on CTA click.
+// Estrutura baseada no copy oficial enviado pelo cliente.
 
 const WHATSAPP_NUMBER = "5511963403691";
 const EMAIL = "contato@arcana.app.br";
@@ -41,11 +46,10 @@ const C = {
   ink: "#0B0B12",
   inkSoft: "rgba(11,11,18,0.66)",
   inkMuted: "rgba(11,11,18,0.45)",
-  primary: "#A855F7",        // Arcana purple
+  primary: "#A855F7",
   primaryGlow: "#C084FC",
   cyan: "#0891B2",
   pink: "#EC4899",
-  // 🟠 NEW vibrant accent — used to highlight "trilha sonora" + key CTAs
   orange: "#FF6A1A",
   orangeDeep: "#FF3D00",
   orangeSoft: "#FFB088",
@@ -75,7 +79,6 @@ const sans: React.CSSProperties = {
   fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
 };
 
-// Orange accent gradient (for highlighted words + main CTA)
 const orangeGradientText: React.CSSProperties = {
   background: `linear-gradient(135deg, ${C.orangeDeep}, ${C.orange})`,
   WebkitBackgroundClip: "text",
@@ -83,7 +86,6 @@ const orangeGradientText: React.CSSProperties = {
   backgroundClip: "text",
 };
 
-// Purple/cyan gradient (used for secondary highlights + brand)
 const brandGradientText: React.CSSProperties = {
   background: `linear-gradient(135deg, ${C.primary}, ${C.cyan})`,
   WebkitBackgroundClip: "text",
@@ -91,7 +93,7 @@ const brandGradientText: React.CSSProperties = {
   backgroundClip: "text",
 };
 
-// ── Brand Lockup: ARCANA logo + MelodiaPod subtitle ───────────
+// ── Brand Lockup ──────────────────────────────────────────────
 const BrandLockup = ({ size = "md" }: { size?: "sm" | "md" | "lg" }) => {
   const cfg = {
     sm: { icon: 14, text: "text-sm", sub: "text-[9px]" },
@@ -152,13 +154,17 @@ const Chip = ({
 const PrimaryBtn = ({
   children,
   onClick,
+  size = "md",
 }: {
   children: React.ReactNode;
   onClick?: () => void;
+  size?: "md" | "lg";
 }) => (
   <button
     onClick={onClick}
-    className="group inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full text-base font-bold transition-all duration-300 active:scale-[0.98] hover:scale-[1.03]"
+    className={`group inline-flex items-center justify-center gap-2 rounded-full font-bold transition-all duration-300 active:scale-[0.98] hover:scale-[1.03] ${
+      size === "lg" ? "px-10 py-5 text-lg" : "px-8 py-4 text-base"
+    }`}
     style={{
       ...sans,
       background: `linear-gradient(135deg, ${C.orangeDeep}, ${C.orange})`,
@@ -167,7 +173,7 @@ const PrimaryBtn = ({
     }}
   >
     {children}
-    <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-0.5" />
+    <ArrowRight className={`${size === "lg" ? "w-5 h-5" : "w-5 h-5"} transition-transform group-hover:translate-x-0.5`} />
   </button>
 );
 
@@ -199,27 +205,6 @@ const GhostBtn = ({
   );
 };
 
-// ── Waveform pseudo decoration ─────────────────────────────────
-const Waveform = ({ color, seed = 1 }: { color: string; seed?: number }) => (
-  <div className="flex items-end justify-center gap-[3px] h-14 w-full">
-    {Array.from({ length: 44 }).map((_, k) => {
-      const h = 25 + Math.abs(Math.sin((k + seed) * 0.6)) * 75;
-      return (
-        <div
-          key={k}
-          className="rounded-full"
-          style={{
-            width: 3,
-            height: `${h}%`,
-            background: color,
-            opacity: 0.85,
-          }}
-        />
-      );
-    })}
-  </div>
-);
-
 // ── Lead Form Modal ────────────────────────────────────────────
 type LeadForm = {
   name: string;
@@ -232,7 +217,7 @@ type LeadForm = {
 
 const OCCASIONS = [
   "Aniversário", "Casamento", "Pedido de Namoro", "Pedido de Casamento",
-  "Dia das Mães", "Dia dos Pais", "Novo Bebê", "Mesversário",
+  "Dia das Mães", "Dia dos Pais", "Novo Bebê", "Bodas",
   "Formatura", "Amizade", "Natal", "Sem Motivo Especial",
 ];
 const STYLES = [
@@ -303,7 +288,6 @@ const LeadModal = ({ open, onClose }: { open: boolean; onClose: () => void }) =>
             maxHeight: "92dvh",
           }}
         >
-          {/* Header */}
           <div
             className="px-6 md:px-8 pt-7 pb-6 relative"
             style={{
@@ -324,13 +308,12 @@ const LeadModal = ({ open, onClose }: { open: boolean; onClose: () => void }) =>
                 className="text-[11px] font-bold tracking-[0.22em] uppercase"
                 style={{ color: C.orange, ...sans }}
               >
-                Sua música em 3 passos
+                Sua canção em 3 passos
               </span>
             </div>
             <h3 className="text-2xl md:text-3xl" style={{ ...serif, color: C.ink }}>
               Conte sua história
             </h3>
-            {/* Steps progress */}
             <div className="flex gap-1.5 mt-5">
               {[0, 1, 2].map((i) => (
                 <div
@@ -347,7 +330,6 @@ const LeadModal = ({ open, onClose }: { open: boolean; onClose: () => void }) =>
             </div>
           </div>
 
-          {/* Body */}
           <div
             className="px-6 md:px-8 py-6 overflow-y-auto"
             style={{ maxHeight: "55vh", ...sans }}
@@ -403,7 +385,7 @@ const LeadModal = ({ open, onClose }: { open: boolean; onClose: () => void }) =>
                   <textarea
                     value={form.story}
                     onChange={(e) => update("story", e.target.value)}
-                    placeholder="Como vocês se conheceram, momentos marcantes, frases especiais, sentimentos…"
+                    placeholder="Lembranças marcantes, apelidos, momentos engraçados, emocionantes…"
                     rows={6}
                     className="w-full px-4 py-3.5 rounded-xl text-base outline-none resize-none leading-relaxed"
                     style={{ background: C.bgAlt, border: `1px solid ${C.line}`, color: C.ink }}
@@ -452,7 +434,6 @@ const LeadModal = ({ open, onClose }: { open: boolean; onClose: () => void }) =>
             )}
           </div>
 
-          {/* Footer */}
           <div
             className="px-6 md:px-8 py-4 flex items-center justify-between gap-3"
             style={{ borderTop: `1px solid ${C.line}`, background: "#FFFFFF" }}
@@ -524,7 +505,7 @@ export default function MelodiaPod() {
       className="min-h-screen w-full relative overflow-x-hidden"
       style={{ background: C.bg, color: C.ink, ...sans }}
     >
-      {/* Ambient soft blobs — orange + purple */}
+      {/* Ambient soft blobs */}
       <div
         aria-hidden
         className="pointer-events-none fixed -top-32 -left-32 w-[520px] h-[520px] rounded-full"
@@ -562,7 +543,8 @@ export default function MelodiaPod() {
             {[
               ["#como-funciona", "Como Funciona"],
               ["#ocasioes", "Ocasiões"],
-              ["#exemplos", "Exemplos"],
+              ["#reacoes", "Reações"],
+              ["#entrega", "O que Recebe"],
               ["#faq", "FAQ"],
             ].map(([href, label]) => (
               <a
@@ -588,7 +570,7 @@ export default function MelodiaPod() {
                 boxShadow: `0 10px 28px -8px rgba(255,61,0,0.5)`,
               }}
             >
-              Começar agora <ArrowRight className="w-4 h-4" />
+              Quero criar minha música <ArrowRight className="w-4 h-4" />
             </button>
           </div>
 
@@ -605,7 +587,6 @@ export default function MelodiaPod() {
           </button>
         </div>
 
-        {/* Mobile menu */}
         {menuOpen && (
           <div
             className="md:hidden fixed inset-0 z-50"
@@ -624,7 +605,8 @@ export default function MelodiaPod() {
               {[
                 ["#como-funciona", "Como Funciona"],
                 ["#ocasioes", "Ocasiões"],
-                ["#exemplos", "Exemplos"],
+                ["#reacoes", "Reações"],
+                ["#entrega", "O que Recebe"],
                 ["#faq", "FAQ"],
               ].map(([href, label]) => (
                 <a
@@ -646,7 +628,7 @@ export default function MelodiaPod() {
                   boxShadow: `0 10px 28px -8px rgba(255,61,0,0.5)`,
                 }}
               >
-                Começar agora <ArrowRight className="w-5 h-5" />
+                Quero criar minha música <ArrowRight className="w-5 h-5" />
               </button>
             </div>
           </div>
@@ -656,7 +638,7 @@ export default function MelodiaPod() {
       {/* ═══ HERO ═══ */}
       <section
         id="top"
-        className="relative pt-36 md:pt-48 pb-24 md:pb-32 px-5 md:px-8"
+        className="relative pt-36 md:pt-44 pb-20 md:pb-28 px-5 md:px-8"
       >
         <div className="max-w-5xl mx-auto text-center relative z-10">
           <motion.div
@@ -666,19 +648,31 @@ export default function MelodiaPod() {
           >
             <div className="flex justify-center mb-8 gap-2 flex-wrap">
               <Chip tone="orange">
-                <Flame className="w-3.5 h-3.5" /> Áudio em 2K
+                <Sparkles className="w-3.5 h-3.5" /> Música feita à mão
               </Chip>
               <Chip>
-                <Sparkles className="w-3 h-3" style={{ color: C.cyan }} />
+                <Music className="w-3 h-3" style={{ color: C.primary }} />
                 Powered by ARCANA
               </Chip>
             </div>
 
-            <h1
-              className="text-[52px] sm:text-7xl md:text-[88px] lg:text-[108px] leading-[0.92] mb-7"
+            {/* Quote opening */}
+            <p
+              className="max-w-3xl mx-auto text-2xl md:text-4xl leading-[1.25] mb-8 italic"
               style={{ ...serif, color: C.ink }}
             >
-              A{" "}
+              <Quote
+                className="inline-block w-6 h-6 md:w-8 md:h-8 -mt-2 mr-1 opacity-50"
+                style={{ color: C.orange }}
+              />
+              Eu não imaginava que uma canção pudesse tocar tanto o meu coração.
+            </p>
+
+            <h1
+              className="text-[44px] sm:text-6xl md:text-[80px] lg:text-[96px] leading-[0.95] mb-7"
+              style={{ ...serif, color: C.ink }}
+            >
+              Presenteie com uma{" "}
               <em
                 style={{
                   ...serif,
@@ -686,35 +680,49 @@ export default function MelodiaPod() {
                   ...orangeGradientText,
                 }}
               >
-                trilha sonora
+                música feita
               </em>{" "}
-              <br />
-              da sua{" "}
+              <br className="hidden md:inline" />
               <em style={{ ...serif, fontStyle: "italic", ...brandGradientText }}>
-                história.
+                sob medida.
               </em>
             </h1>
 
             <p
-              className="max-w-2xl mx-auto text-lg md:text-2xl leading-relaxed mb-12 font-light"
+              className="max-w-2xl mx-auto text-lg md:text-2xl leading-relaxed mb-10 font-light"
               style={{ color: C.inkSoft }}
             >
-              Conte um momento — nós transformamos em uma canção única,
-              produzida em estúdio com IA. Pronta em minutos, em qualidade{" "}
-              <strong style={{ color: C.orangeDeep, fontWeight: 700 }}>2K</strong>.
+              Inspirada nos momentos, sentimentos e lembranças que só vocês viveram.
+              Entregue com{" "}
+              <strong style={{ color: C.orangeDeep, fontWeight: 700 }}>
+                amor e cuidado em até 5 dias
+              </strong>.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <PrimaryBtn onClick={openLead}>Criar minha música</PrimaryBtn>
-              <GhostBtn href="#exemplos">
-                <Play className="w-4 h-4" /> Ouvir exemplos
-              </GhostBtn>
+              <PrimaryBtn onClick={openLead} size="lg">
+                Quero criar minha música
+              </PrimaryBtn>
+            </div>
+
+            {/* Trust line */}
+            <div className="mt-10 inline-flex items-center gap-2 px-4 py-2 rounded-full"
+              style={{ background: C.bgAlt, border: `1px solid ${C.line}` }}>
+              <div className="flex -space-x-1">
+                {[C.orange, C.primary, C.cyan, C.pink].map((co, i) => (
+                  <div key={i} className="w-6 h-6 rounded-full border-2 border-white"
+                    style={{ background: `linear-gradient(135deg, ${co}, ${C.orange})` }} />
+                ))}
+              </div>
+              <span className="text-sm font-semibold" style={{ color: C.ink }}>
+                +1.000 histórias transformadas em canção
+              </span>
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* ═══ HOW IT WORKS ═══ */}
+      {/* ═══ COMO SUA HISTÓRIA VIRA MÚSICA ═══ */}
       <section
         id="como-funciona"
         className="px-5 md:px-8 py-24 md:py-32 relative z-10"
@@ -726,9 +734,9 @@ export default function MelodiaPod() {
               className="mt-6 text-5xl md:text-7xl"
               style={{ ...serif, color: C.ink }}
             >
-              Simples como uma{" "}
+              Como sua história{" "}
               <em style={{ ...serif, fontStyle: "italic", ...orangeGradientText }}>
-                conversa.
+                vira música.
               </em>
             </h2>
           </div>
@@ -737,23 +745,23 @@ export default function MelodiaPod() {
             {[
               {
                 n: "01",
-                icon: Mic,
-                t: "Conte sua história",
-                d: "Nome, ocasião, sentimentos, frases marcantes. Quanto mais detalhe, mais íntima a canção.",
+                icon: PenLine,
+                t: "Conte o que torna essa história especial",
+                d: "Compartilhe lembranças marcantes, apelidos, detalhes únicos, momentos engraçados, emocionantes e tudo aquilo que representa essa relação.",
                 color: C.orange,
               },
               {
                 n: "02",
-                icon: Music,
-                t: "Escolha o estilo",
-                d: "Pop, sertanejo, bossa, lo-fi, romântica… Tipo de voz, ritmo e clima — tudo no seu jeito.",
+                icon: Wand2,
+                t: "Sua canção ganha vida",
+                d: "A partir das suas informações, criamos uma letra exclusiva, uma melodia original e uma produção pensada para emocionar.",
                 color: C.primary,
               },
               {
                 n: "03",
-                icon: Headphones,
-                t: "Receba e compartilhe",
-                d: "Em poucos minutos sua música chega por e-mail e WhatsApp, em qualidade 2K, pronta pra emocionar.",
+                icon: MailIcon,
+                t: "Receba, envie e emocione",
+                d: "Quando estiver pronta, você recebe sua música em uma página especial para compartilhar com quem você ama.",
                 color: C.cyan,
               },
             ].map((step, i) => (
@@ -788,7 +796,7 @@ export default function MelodiaPod() {
                   </div>
                 </div>
                 <h3
-                  className="text-3xl md:text-4xl mb-4"
+                  className="text-2xl md:text-3xl mb-4 leading-tight"
                   style={{ ...serif, color: C.ink }}
                 >
                   {step.t}
@@ -805,7 +813,46 @@ export default function MelodiaPod() {
         </div>
       </section>
 
-      {/* ═══ OCASIÕES — Floating boxes ═══ */}
+      {/* ═══ DEPOIMENTO DESTACADO ═══ */}
+      <section className="px-5 md:px-8 pb-20 md:pb-28 relative z-10">
+        <div className="max-w-3xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.6 }}
+            className="rounded-[32px] p-10 md:p-14 text-center relative overflow-hidden"
+            style={{
+              background: "linear-gradient(135deg, rgba(255,61,0,0.06), rgba(168,85,247,0.05))",
+              border: `1px solid rgba(255,106,26,0.20)`,
+              boxShadow: `0 30px 80px -30px rgba(255,61,0,0.20)`,
+            }}
+          >
+            <Quote
+              className="w-10 h-10 mx-auto mb-6 opacity-40"
+              style={{ color: C.orange }}
+            />
+            <p
+              className="text-2xl md:text-4xl leading-snug mb-8 italic"
+              style={{ ...serif, color: C.ink }}
+            >
+              Meu esposo se emocionou muito. Ele falou que nunca tinha recebido
+              um presente tão verdadeiro.
+            </p>
+            <div className="flex flex-col items-center gap-1">
+              <div className="flex gap-0.5 mb-2">
+                {[1,2,3,4,5].map(i => (
+                  <Star key={i} className="w-4 h-4" style={{ color: C.orange, fill: C.orange }} />
+                ))}
+              </div>
+              <p className="text-base font-bold" style={{ color: C.ink }}>Sarah M.</p>
+              <p className="text-sm" style={{ color: C.inkMuted }}>Presente de aniversário</p>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ═══ OCASIÕES ═══ */}
       <section
         id="ocasioes"
         className="px-5 md:px-8 py-24 md:py-32 relative z-10"
@@ -818,34 +865,27 @@ export default function MelodiaPod() {
               className="mt-6 text-5xl md:text-7xl"
               style={{ ...serif, color: C.ink }}
             >
-              Cada ocasião merece{" "}
+              Uma canção para{" "}
               <em style={{ ...serif, fontStyle: "italic", ...orangeGradientText }}>
-                uma canção.
+                cada ocasião.
               </em>
             </h2>
-            <p
-              className="mt-6 max-w-xl mx-auto text-lg md:text-xl font-light"
-              style={{ color: C.inkSoft }}
-            >
-              De aniversários a pedidos de casamento, criamos músicas para todos
-              os momentos que merecem ser lembrados para sempre.
-            </p>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {[
-              { icon: Heart, t: "Amor", color: C.pink },
-              { icon: Sparkles, t: "Casamento", color: C.cyan },
-              { icon: Cake, t: "Aniversário", color: C.orange },
-              { icon: Users, t: "Dia das Mães", color: C.pink },
-              { icon: Users, t: "Dia dos Pais", color: C.cyan },
-              { icon: Heart, t: "Amizade", color: C.primary },
-              { icon: Baby, t: "Novo Bebê", color: C.orange },
-              { icon: GraduationCap, t: "Formatura", color: C.cyan },
-              { icon: Gift, t: "Pedido de Namoro", color: C.pink },
-              { icon: Church, t: "Pedido de Casamento", color: C.primary },
-              { icon: TreePine, t: "Natal", color: C.orange },
-              { icon: Music2, t: "Sem Motivo Especial", color: C.cyan },
+              { emoji: "💕", icon: Heart, t: "Declaração de amor", color: C.pink },
+              { emoji: "💍", icon: Sparkles, t: "Casamento", color: C.cyan },
+              { emoji: "🎂", icon: Cake, t: "Aniversário", color: C.orange },
+              { emoji: "🥂", icon: Gift, t: "Bodas", color: C.primary },
+              { emoji: "👶", icon: Baby, t: "Chegada de um bebê", color: C.cyan },
+              { emoji: "🤝", icon: Users, t: "Amizade", color: C.primary },
+              { emoji: "👩", icon: Heart, t: "Homenagem para mãe", color: C.pink },
+              { emoji: "👨", icon: Heart, t: "Homenagem para pai", color: C.cyan },
+              { emoji: "🎄", icon: TreePine, t: "Datas comemorativas", color: C.orange },
+              { emoji: "🎵", icon: Music2, t: "Só porque deu vontade", color: C.primary },
+              { emoji: "💍", icon: Church, t: "Pedido de casamento", color: C.pink },
+              { emoji: "🎓", icon: Sparkles, t: "Formatura", color: C.cyan },
             ].map((o, i) => (
               <motion.button
                 key={o.t}
@@ -855,7 +895,7 @@ export default function MelodiaPod() {
                 viewport={{ once: true, margin: "-40px" }}
                 transition={{ duration: 0.4, delay: (i % 8) * 0.04 }}
                 whileHover={{ y: -6 }}
-                className="rounded-3xl p-6 md:p-7 flex flex-col items-center justify-center text-center cursor-pointer min-h-[160px] md:min-h-[180px] group"
+                className="rounded-3xl p-6 md:p-7 flex flex-col items-center justify-center text-center cursor-pointer min-h-[170px] md:min-h-[190px] group"
                 style={{
                   background: "#FFFFFF",
                   border: `1px solid ${C.line}`,
@@ -871,17 +911,11 @@ export default function MelodiaPod() {
                   e.currentTarget.style.borderColor = C.line;
                 }}
               >
-                <div
-                  className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110"
-                  style={{
-                    background: `linear-gradient(135deg, ${o.color}20, ${o.color}10)`,
-                    border: `1px solid ${o.color}30`,
-                  }}
-                >
-                  <o.icon className="w-7 h-7" style={{ color: o.color }} />
+                <div className="text-4xl mb-3 transition-transform group-hover:scale-110">
+                  {o.emoji}
                 </div>
                 <h3
-                  className="text-base md:text-lg font-semibold"
+                  className="text-base md:text-lg font-semibold leading-tight"
                   style={{ color: C.ink, ...sans }}
                 >
                   {o.t}
@@ -889,114 +923,213 @@ export default function MelodiaPod() {
               </motion.button>
             ))}
           </div>
-
-          <div className="mt-14 text-center">
-            <PrimaryBtn onClick={openLead}>Criar minha música</PrimaryBtn>
-          </div>
         </div>
       </section>
 
-      {/* ═══ EXEMPLOS DE MÚSICAS ═══ */}
+      {/* ═══ CTA INTERMEDIÁRIO ═══ */}
+      <section className="px-5 md:px-8 py-24 md:py-32 relative z-10">
+        <div className="max-w-3xl mx-auto text-center">
+          <Chip tone="orange">Comece hoje</Chip>
+          <h2
+            className="mt-6 text-5xl md:text-7xl mb-7"
+            style={{ ...serif, color: C.ink }}
+          >
+            Comece hoje a criar uma{" "}
+            <em style={{ ...serif, fontStyle: "italic", ...orangeGradientText }}>
+              lembrança inesquecível.
+            </em>
+          </h2>
+          <p
+            className="text-lg md:text-2xl mb-10 font-light max-w-xl mx-auto"
+            style={{ color: C.inkSoft }}
+          >
+            Em poucos minutos, você dá o primeiro passo para transformar sua
+            história em música.
+          </p>
+          <PrimaryBtn onClick={openLead} size="lg">
+            Começar minha canção
+          </PrimaryBtn>
+        </div>
+      </section>
+
+      {/* ═══ REAÇÕES (vídeos placeholder) ═══ */}
       <section
-        id="exemplos"
+        id="reacoes"
         className="px-5 md:px-8 py-24 md:py-32 relative z-10"
+        style={{ background: C.bgAlt }}
       >
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <Chip tone="orange">Exemplos reais</Chip>
+            <Chip>Pessoas reais. Emoções verdadeiras.</Chip>
             <h2
               className="mt-6 text-5xl md:text-7xl"
               style={{ ...serif, color: C.ink }}
             >
-              Músicas{" "}
+              Reações que{" "}
               <em style={{ ...serif, fontStyle: "italic", ...orangeGradientText }}>
-                criadas.
+                dizem tudo.
               </em>
             </h2>
             <p
               className="mt-6 max-w-xl mx-auto text-lg md:text-xl font-light"
               style={{ color: C.inkSoft }}
             >
-              Cada música é única, criada a partir da história de quem pediu.
-              Ouça alguns exemplos e imagine a sua.
+              Veja momentos de quem recebeu uma música personalizada feita
+              especialmente para sua história.
             </p>
           </div>
 
-          <div className="grid gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {[
-              { name: "Hebert", desc: "Canção de amor", duration: "2:41", style: "Pop", color: C.orange, seed: 1 },
-              { name: "Alice", desc: "Canção de amor", duration: "2:38", style: "Acústico", color: C.pink, seed: 3 },
-              { name: "Marina & Pedro", desc: "Pedido de casamento", duration: "3:12", style: "Romântico", color: C.cyan, seed: 5 },
-              { name: "Pequeno João", desc: "Mesversário · 6 meses", duration: "2:18", style: "Lullaby", color: C.primary, seed: 7 },
-            ].map((ex, i) => (
+              { name: "Sarah", caption: "Presente do esposo", color: C.pink },
+              { name: "Marina", caption: "Pedido de casamento", color: C.orange },
+              { name: "Lucas", caption: "Homenagem ao pai", color: C.cyan },
+            ].map((v, i) => (
               <motion.div
-                key={ex.name}
-                initial={{ opacity: 0, y: 16 }}
+                key={v.name}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-40px" }}
-                transition={{ duration: 0.45, delay: i * 0.08 }}
-                className="rounded-3xl p-7 md:p-9 transition-all hover:-translate-y-1"
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                className="rounded-3xl overflow-hidden relative aspect-[9/14] cursor-pointer group"
                 style={{
-                  background: "#FFFFFF",
+                  background: `linear-gradient(135deg, ${v.color}25, ${C.primary}15)`,
                   border: `1px solid ${C.line}`,
-                  boxShadow: `0 18px 48px -16px rgba(11,11,18,0.10)`,
+                  boxShadow: `0 18px 48px -16px rgba(11,11,18,0.12)`,
                 }}
+                onClick={openLead}
               >
-                <div className="mb-6 px-2">
-                  <Waveform color={ex.color} seed={ex.seed} />
+                {/* Decorative blurred bg */}
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background: `radial-gradient(ellipse at 50% 30%, ${v.color}40, transparent 60%)`,
+                    filter: "blur(20px)",
+                  }}
+                />
+                {/* Play button center */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div
+                    className="w-20 h-20 rounded-full flex items-center justify-center transition-transform group-hover:scale-110"
+                    style={{
+                      background: "rgba(255,255,255,0.95)",
+                      boxShadow: `0 20px 40px -10px ${v.color}80`,
+                      backdropFilter: "blur(10px)",
+                    }}
+                  >
+                    <Play
+                      className="w-8 h-8 ml-1"
+                      style={{ color: v.color }}
+                      fill="currentColor"
+                    />
+                  </div>
                 </div>
-
-                <div className="flex items-end justify-between gap-4">
-                  <div className="min-w-0">
-                    <h3
-                      className="text-3xl md:text-4xl mb-1.5"
-                      style={{ ...serif, color: C.ink }}
-                    >
-                      {ex.name}
-                    </h3>
-                    <p className="text-base" style={{ color: C.inkSoft }}>
-                      {ex.desc}
-                    </p>
-                    <p
-                      className="text-xs mt-3 tabular-nums font-semibold tracking-wider"
-                      style={{ color: C.inkMuted }}
-                    >
-                      {ex.duration} · 2K
-                    </p>
-                  </div>
-
-                  <div className="flex flex-col items-end gap-3 shrink-0">
-                    <span
-                      className="text-xs font-bold tracking-[0.16em] uppercase px-2.5 py-1 rounded-full"
-                      style={{
-                        color: ex.color,
-                        background: `${ex.color}12`,
-                        border: `1px solid ${ex.color}30`,
-                      }}
-                    >
-                      {ex.style}
-                    </span>
-                    <button
-                      aria-label={`Ouvir ${ex.name}`}
-                      className="w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center transition-transform hover:scale-105 active:scale-95"
-                      style={{
-                        background: `linear-gradient(135deg, ${ex.color}, ${C.orange})`,
-                        boxShadow: `0 14px 32px -8px ${ex.color}80`,
-                      }}
-                    >
-                      <Play
-                        className="w-6 h-6 md:w-7 md:h-7 text-white ml-0.5"
-                        fill="currentColor"
-                      />
-                    </button>
-                  </div>
+                {/* Bottom info */}
+                <div
+                  className="absolute bottom-0 inset-x-0 p-6"
+                  style={{
+                    background: "linear-gradient(to top, rgba(11,11,18,0.85), transparent)",
+                  }}
+                >
+                  <p
+                    className="text-2xl mb-1"
+                    style={{ ...serif, color: "#FFFFFF" }}
+                  >
+                    {v.name}
+                  </p>
+                  <p className="text-sm" style={{ color: "rgba(255,255,255,0.85)" }}>
+                    {v.caption}
+                  </p>
                 </div>
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
 
-          <div className="mt-14 text-center">
-            <PrimaryBtn onClick={openLead}>Quero a minha música</PrimaryBtn>
+      {/* ═══ O QUE VOCÊ RECEBE ═══ */}
+      <section id="entrega" className="px-5 md:px-8 py-24 md:py-32 relative z-10">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-16">
+            <Chip tone="orange">A entrega</Chip>
+            <h2
+              className="mt-6 text-5xl md:text-7xl"
+              style={{ ...serif, color: C.ink }}
+            >
+              O que você{" "}
+              <em style={{ ...serif, fontStyle: "italic", ...orangeGradientText }}>
+                recebe.
+              </em>
+            </h2>
+            <p
+              className="mt-6 max-w-2xl mx-auto text-lg md:text-xl font-light"
+              style={{ color: C.inkSoft }}
+            >
+              Quando sua canção estiver finalizada, enviamos o acesso diretamente
+              no seu e-mail para você ouvir, guardar e compartilhar.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-5 md:gap-6 mb-14">
+            {[
+              {
+                icon: Headphones,
+                t: "Produção musical profissional",
+                d: "Uma música bem produzida, com qualidade para emocionar e ser compartilhada.",
+                color: C.orange,
+              },
+              {
+                icon: PenLine,
+                t: "Letra feita a partir da sua história",
+                d: "Cada verso é inspirado nos detalhes, lembranças e sentimentos que você compartilhou.",
+                color: C.primary,
+              },
+              {
+                icon: Clock,
+                t: "Entrega rápida",
+                d: "Sua música personalizada fica pronta em até 5 dias.",
+                color: C.cyan,
+              },
+            ].map((item, i) => (
+              <motion.div
+                key={item.t}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                className="rounded-3xl p-8 transition-all hover:-translate-y-1"
+                style={{
+                  background: "#FFFFFF",
+                  border: `1px solid ${C.line}`,
+                  boxShadow: `0 18px 48px -16px rgba(11,11,18,0.08)`,
+                }}
+              >
+                <div
+                  className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6"
+                  style={{
+                    background: `linear-gradient(135deg, ${item.color}, ${C.orange})`,
+                    boxShadow: `0 12px 28px -8px ${item.color}66`,
+                  }}
+                >
+                  <item.icon className="w-6 h-6 text-white" />
+                </div>
+                <h3
+                  className="text-2xl md:text-3xl mb-3 leading-tight"
+                  style={{ ...serif, color: C.ink }}
+                >
+                  {item.t}
+                </h3>
+                <p className="text-base leading-relaxed" style={{ color: C.inkSoft }}>
+                  {item.d}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="text-center">
+            <PrimaryBtn onClick={openLead} size="lg">
+              Criar minha música agora
+            </PrimaryBtn>
           </div>
         </div>
       </section>
@@ -1023,11 +1156,12 @@ export default function MelodiaPod() {
 
           <div className="space-y-3">
             {[
-              { q: "Quanto tempo leva pra receber minha música?", a: "A maioria das músicas é entregue em até 5 minutos após o pagamento, em qualidade 2K." },
-              { q: "Posso escolher o estilo musical?", a: "Sim! Pop, sertanejo, MPB, bossa, lo-fi, eletrônica, romântica, infantil… é só escolher no formulário." },
-              { q: "A música é minha pra sempre?", a: "Sim. Você recebe o arquivo em alta qualidade e tem direito de uso pessoal e compartilhamento." },
-              { q: "E se eu não gostar do resultado?", a: "Garantia total: ajustamos ou criamos uma nova versão sem custo até você amar." },
-              { q: "Como faço o pagamento?", a: "Aceitamos PIX, cartão e boleto. Tudo seguro e rápido pelo nosso checkout." },
+              { q: "Quanto tempo leva pra receber minha música?", a: "Sua canção fica pronta em até 5 dias após o envio das informações e confirmação do pedido." },
+              { q: "Posso escolher o estilo musical?", a: "Sim! Pop, sertanejo, MPB, bossa, lo-fi, romântica, infantil… é só escolher no formulário e nossa equipe produz no estilo perfeito para sua história." },
+              { q: "Como funciona o envio das informações?", a: "Você preenche um formulário guiado contando lembranças, apelidos, detalhes únicos e sentimentos. Quanto mais detalhes, mais íntima a canção fica." },
+              { q: "A música é minha pra sempre?", a: "Sim. Você recebe o arquivo em alta qualidade através de uma página especial e tem direito de uso pessoal e compartilhamento." },
+              { q: "E se eu não gostar do resultado?", a: "Garantia total: ajustamos a letra ou criamos uma nova versão sem custo até você amar." },
+              { q: "Como faço o pagamento?", a: "Aceitamos PIX, cartão de crédito e boleto. Tudo seguro pelo nosso checkout." },
             ].map((f, i) => {
               const open = openFaq === i;
               return (
@@ -1073,7 +1207,7 @@ export default function MelodiaPod() {
         </div>
       </section>
 
-      {/* ═══ FINAL CTA ═══ */}
+      {/* ═══ FINAL CTA — emocional ═══ */}
       <section id="cta" className="px-5 md:px-8 py-24 md:py-32 relative z-10">
         <div
           className="max-w-3xl mx-auto rounded-[40px] p-10 md:p-16 text-center relative overflow-hidden"
@@ -1099,41 +1233,27 @@ export default function MelodiaPod() {
               style={{ color: C.orange }}
             />
             <h2
-              className="text-5xl md:text-6xl mb-6"
+              className="text-4xl md:text-6xl mb-6 leading-[1.05]"
               style={{ ...serif, color: C.ink }}
             >
-              Crie a música que vai{" "}
+              Não entregue só um presente.{" "}
               <em style={{ ...serif, fontStyle: "italic", ...orangeGradientText }}>
-                marcar uma vida.
+                Entregue uma emoção.
               </em>
             </h2>
             <p
-              className="max-w-md mx-auto text-lg md:text-xl mb-2 font-light"
+              className="max-w-xl mx-auto text-lg md:text-xl mb-3 font-light"
               style={{ color: C.inkSoft }}
             >
-              Em minutos você tem uma canção exclusiva em 2K, que ninguém mais terá.
+              Transforme sentimentos, memórias e histórias em uma canção feita para durar.
+            </p>
+            <p className="text-base mb-10" style={{ color: C.inkMuted }}>
+              Começar leva poucos minutos, mas a lembrança pode ficar para sempre.
             </p>
 
-            <div className="flex items-baseline justify-center gap-2 my-10">
-              <span className="text-base" style={{ color: C.inkMuted }}>
-                a partir de
-              </span>
-              <span
-                style={{
-                  ...serif,
-                  fontSize: 80,
-                  lineHeight: 1,
-                  ...orangeGradientText,
-                }}
-              >
-                R$ 49
-              </span>
-              <span className="text-base" style={{ color: C.inkMuted }}>
-                /música
-              </span>
-            </div>
-
-            <PrimaryBtn onClick={openLead}>Começar agora</PrimaryBtn>
+            <PrimaryBtn onClick={openLead} size="lg">
+              Criar minha canção personalizada
+            </PrimaryBtn>
 
             <p
               className="text-sm mt-7"
@@ -1158,7 +1278,7 @@ export default function MelodiaPod() {
                 className="text-sm max-w-sm mt-4"
                 style={{ color: C.inkSoft }}
               >
-                Músicas personalizadas com IA para os momentos mais importantes
+                Músicas personalizadas para os momentos mais importantes
                 da sua vida. Um produto ARCANA.
               </p>
             </div>
@@ -1202,7 +1322,6 @@ export default function MelodiaPod() {
         </div>
       </footer>
 
-      {/* Lead Form Modal */}
       <LeadModal open={leadOpen} onClose={() => setLeadOpen(false)} />
     </div>
   );
