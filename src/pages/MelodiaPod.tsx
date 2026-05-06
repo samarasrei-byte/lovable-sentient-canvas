@@ -858,32 +858,29 @@ export default function MelodiaPod() {
       >
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <Chip>Para cada momento</Chip>
+            <Chip>Escolha o momento</Chip>
             <h2
               className="mt-6 text-5xl md:text-7xl"
               style={{ ...serif, color: C.ink }}
             >
-              Uma canção para{" "}
+              Momentos que{" "}
               <em style={{ ...serif, fontStyle: "italic", ...orangeGradientText }}>
-                cada ocasião.
+                viram música.
               </em>
             </h2>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-3 gap-3 md:gap-4 max-w-4xl mx-auto">
             {[
-              { emoji: "💕", icon: Heart, t: "Declaração de amor", color: C.pink },
-              { emoji: "💍", icon: Sparkles, t: "Casamento", color: C.cyan },
-              { emoji: "🎂", icon: Cake, t: "Aniversário", color: C.orange },
-              { emoji: "🥂", icon: Gift, t: "Bodas", color: C.primary },
-              { emoji: "👶", icon: Baby, t: "Chegada de um bebê", color: C.cyan },
-              { emoji: "🤝", icon: Users, t: "Amizade", color: C.primary },
-              { emoji: "👩", icon: Heart, t: "Homenagem para mãe", color: C.pink },
-              { emoji: "👨", icon: Heart, t: "Homenagem para pai", color: C.cyan },
-              { emoji: "🎄", icon: TreePine, t: "Datas comemorativas", color: C.orange },
-              { emoji: "🎵", icon: Music2, t: "Só porque deu vontade", color: C.primary },
-              { emoji: "💍", icon: Church, t: "Pedido de casamento", color: C.pink },
-              { emoji: "🎓", icon: Sparkles, t: "Formatura", color: C.cyan },
+              { emoji: "💕", t: "Declaração de amor", color: C.pink },
+              { emoji: "💍", t: "Casamento", color: C.cyan },
+              { emoji: "🎂", t: "Aniversário", color: C.orange },
+              { emoji: "👶", t: "Chegada de um bebê", color: C.cyan },
+              { emoji: "👩", t: "Homenagem para mãe", color: C.pink },
+              { emoji: "👨", t: "Homenagem para pai", color: C.cyan },
+              { emoji: "👦", t: "Homenagem para filho", color: C.primary },
+              { emoji: "👧", t: "Homenagem para filha", color: C.pink },
+              { emoji: "🎵", t: "Só porque deu vontade", color: C.orange },
             ].map((o, i) => (
               <motion.button
                 key={o.t}
@@ -891,29 +888,29 @@ export default function MelodiaPod() {
                 initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-40px" }}
-                transition={{ duration: 0.4, delay: (i % 8) * 0.04 }}
+                transition={{ duration: 0.4, delay: (i % 9) * 0.04 }}
                 whileHover={{ y: -6 }}
-                className="rounded-3xl p-6 md:p-7 flex flex-col items-center justify-center text-center cursor-pointer min-h-[170px] md:min-h-[190px] group"
+                className="rounded-2xl p-3 md:p-5 flex flex-col items-center justify-center text-center cursor-pointer min-h-[110px] md:min-h-[140px] group"
                 style={{
                   background: "#FFFFFF",
                   border: `1px solid ${C.line}`,
-                  boxShadow: `0 12px 32px -12px rgba(11,11,18,0.08)`,
+                  boxShadow: `0 10px 24px -12px rgba(11,11,18,0.08)`,
                   transition: "box-shadow 0.3s ease",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.boxShadow = `0 24px 48px -16px ${o.color}40`;
+                  e.currentTarget.style.boxShadow = `0 20px 40px -16px ${o.color}40`;
                   e.currentTarget.style.borderColor = `${o.color}55`;
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.boxShadow = `0 12px 32px -12px rgba(11,11,18,0.08)`;
+                  e.currentTarget.style.boxShadow = `0 10px 24px -12px rgba(11,11,18,0.08)`;
                   e.currentTarget.style.borderColor = C.line;
                 }}
               >
-                <div className="text-4xl mb-3 transition-transform group-hover:scale-110">
+                <div className="text-3xl md:text-4xl mb-2 transition-transform group-hover:scale-110">
                   {o.emoji}
                 </div>
                 <h3
-                  className="text-base md:text-lg font-semibold leading-tight"
+                  className="text-xs md:text-sm font-semibold leading-tight"
                   style={{ color: C.ink, ...sans }}
                 >
                   {o.t}
