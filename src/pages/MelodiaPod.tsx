@@ -776,7 +776,7 @@ export default function MelodiaPod() {
                   boxShadow: `0 20px 60px -20px rgba(11,11,18,0.10)`,
                 }}
               >
-                <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center justify-between mb-5">
                   <span
                     className="text-[12px] tracking-[0.24em] font-bold"
                     style={{ color: step.color }}
@@ -794,7 +794,7 @@ export default function MelodiaPod() {
                   </div>
                 </div>
                 <h3
-                  className="text-2xl md:text-3xl mb-4 leading-tight"
+                  className="text-2xl md:text-3xl mb-4 leading-tight mt-1"
                   style={{ ...serif, color: C.ink }}
                 >
                   {step.t}
