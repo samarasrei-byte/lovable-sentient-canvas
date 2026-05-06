@@ -247,7 +247,7 @@ const LeadModal = ({ open, onClose }: { open: boolean; onClose: () => void }) =>
     const msg =
       `🎵 *Nova música personalizada — MelodiaPod*\n\n` +
       `*Nome:* ${form.name}\n` +
-      `*Ocasião:* ${form.occasion}\n` +
+      `*Tipo de homenagem:* ${form.occasion}\n` +
       `*Para quem:* ${form.honoree}\n` +
       `*História:* ${form.story}\n` +
       `*Estilo musical:* ${form.style}\n` +
@@ -259,10 +259,18 @@ const LeadModal = ({ open, onClose }: { open: boolean; onClose: () => void }) =>
     onClose();
   };
 
+  const stepTitles = [
+    "Escolha o tipo de homenagem",
+    "Conte sobre a pessoa e a história",
+    "Escolha o estilo musical",
+    "Finalize seu pedido",
+  ];
+
   const canNext =
-    (step === 0 && form.name.trim() && form.occasion) ||
+    (step === 0 && form.occasion && form.name.trim()) ||
     (step === 1 && form.honoree.trim() && form.story.trim().length >= 10) ||
-    (step === 2 && form.style && form.contact.trim().length >= 8);
+    (step === 2 && form.style) ||
+    (step === 3 && form.contact.trim().length >= 8);
 
   if (!open) return null;
 
