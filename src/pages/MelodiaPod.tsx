@@ -648,11 +648,7 @@ export default function MelodiaPod() {
           >
             <div className="flex justify-center mb-8 gap-2 flex-wrap">
               <Chip tone="orange">
-                <Sparkles className="w-3.5 h-3.5" /> Música feita à mão
-              </Chip>
-              <Chip>
-                <Music className="w-3 h-3" style={{ color: C.primary }} />
-                Powered by ARCANA
+                <Sparkles className="w-3.5 h-3.5" /> Músicas personalizadas
               </Chip>
             </div>
 
