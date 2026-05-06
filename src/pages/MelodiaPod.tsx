@@ -312,20 +312,39 @@ const LeadModal = ({ open, onClose }: { open: boolean; onClose: () => void }) =>
             >
               <X className="w-5 h-5" style={{ color: C.ink }} />
             </button>
-            <div className="flex items-center gap-2 mb-2">
-              <Music className="w-4 h-4" style={{ color: C.orange }} />
-              <span
-                className="text-[11px] font-bold tracking-[0.22em] uppercase"
-                style={{ color: C.orange, ...sans }}
-              >
-                Sua canção em 3 passos
-              </span>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Music className="w-4 h-4" style={{ color: C.orange }} />
+                <span
+                  className="text-[11px] font-bold tracking-[0.22em] uppercase"
+                  style={{ color: C.orange, ...sans }}
+                >
+                  Etapa {step + 1} de 4
+                </span>
+              </div>
+              <div className="flex items-center gap-1">
+                {[0,1,2,3].map(i => (
+                  <div
+                    key={i}
+                    className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-all"
+                    style={{
+                      background: i < step
+                        ? `linear-gradient(135deg, ${C.orangeDeep}, ${C.orange})`
+                        : i === step ? "#FFFFFF" : "rgba(11,11,18,0.05)",
+                      color: i < step ? "#FFFFFF" : i === step ? C.orangeDeep : C.inkMuted,
+                      border: i === step ? `2px solid ${C.orange}` : "none",
+                    }}
+                  >
+                    {i + 1}
+                  </div>
+                ))}
+              </div>
             </div>
             <h3 className="text-2xl md:text-3xl" style={{ ...serif, color: C.ink }}>
-              Conte sua história
+              {stepTitles[step]}
             </h3>
             <div className="flex gap-1.5 mt-5">
-              {[0, 1, 2].map((i) => (
+              {[0, 1, 2, 3].map((i) => (
                 <div
                   key={i}
                   className="h-1.5 rounded-full flex-1 transition-all duration-500"
@@ -346,18 +365,7 @@ const LeadModal = ({ open, onClose }: { open: boolean; onClose: () => void }) =>
           >
             {step === 0 && (
               <div className="space-y-5">
-                <Field label="Seu nome">
-                  <input
-                    value={form.name}
-                    onChange={(e) => update("name", e.target.value)}
-                    placeholder="Como podemos te chamar?"
-                    className="w-full px-4 py-3.5 rounded-xl text-base outline-none transition-all"
-                    style={{ background: C.bgAlt, border: `1px solid ${C.line}`, color: C.ink }}
-                    onFocus={(e) => (e.currentTarget.style.borderColor = C.orange)}
-                    onBlur={(e) => (e.currentTarget.style.borderColor = C.line)}
-                  />
-                </Field>
-                <Field label="Qual a ocasião?">
+                <Field label="Tipo de homenagem">
                   <div className="grid grid-cols-2 gap-2">
                     {OCCASIONS.map((o) => (
                       <button
@@ -374,6 +382,17 @@ const LeadModal = ({ open, onClose }: { open: boolean; onClose: () => void }) =>
                       </button>
                     ))}
                   </div>
+                </Field>
+                <Field label="Seu nome">
+                  <input
+                    value={form.name}
+                    onChange={(e) => update("name", e.target.value)}
+                    placeholder="Como podemos te chamar?"
+                    className="w-full px-4 py-3.5 rounded-xl text-base outline-none transition-all"
+                    style={{ background: C.bgAlt, border: `1px solid ${C.line}`, color: C.ink }}
+                    onFocus={(e) => (e.currentTarget.style.borderColor = C.orange)}
+                    onBlur={(e) => (e.currentTarget.style.borderColor = C.line)}
+                  />
                 </Field>
               </div>
             )}
@@ -429,17 +448,42 @@ const LeadModal = ({ open, onClose }: { open: boolean; onClose: () => void }) =>
                     ))}
                   </div>
                 </Field>
+              </div>
+            )}
+
+            {step === 3 && (
+              <div className="space-y-5">
+                <div
+                  className="rounded-2xl p-5"
+                  style={{
+                    background: "linear-gradient(135deg, rgba(255,61,0,0.06), rgba(168,85,247,0.05))",
+                    border: `1px solid ${C.line}`,
+                  }}
+                >
+                  <p className="text-xs font-bold tracking-[0.18em] uppercase mb-3" style={{ color: C.orangeDeep }}>
+                    Resumo do seu pedido
+                  </p>
+                  <ul className="space-y-1.5 text-sm" style={{ color: C.ink }}>
+                    <li><strong>Homenagem:</strong> {form.occasion}</li>
+                    <li><strong>De:</strong> {form.name}</li>
+                    <li><strong>Para:</strong> {form.honoree}</li>
+                    <li><strong>Estilo:</strong> {form.style}</li>
+                  </ul>
+                </div>
                 <Field label="WhatsApp ou e-mail">
                   <input
                     value={form.contact}
                     onChange={(e) => update("contact", e.target.value)}
-                    placeholder="Para enviarmos sua música"
+                    placeholder="Para finalizar e enviar sua música"
                     className="w-full px-4 py-3.5 rounded-xl text-base outline-none"
                     style={{ background: C.bgAlt, border: `1px solid ${C.line}`, color: C.ink }}
                     onFocus={(e) => (e.currentTarget.style.borderColor = C.orange)}
                     onBlur={(e) => (e.currentTarget.style.borderColor = C.line)}
                   />
                 </Field>
+                <p className="text-xs text-center" style={{ color: C.inkMuted }}>
+                  Ao enviar, redirecionamos para o WhatsApp para confirmar pagamento (PIX, cartão ou boleto).
+                </p>
               </div>
             )}
           </div>
@@ -455,7 +499,7 @@ const LeadModal = ({ open, onClose }: { open: boolean; onClose: () => void }) =>
             >
               {step === 0 ? "Cancelar" : "Voltar"}
             </button>
-            {step < 2 ? (
+            {step < 3 ? (
               <button
                 onClick={() => canNext && setStep(step + 1)}
                 disabled={!canNext}
@@ -479,7 +523,7 @@ const LeadModal = ({ open, onClose }: { open: boolean; onClose: () => void }) =>
                   boxShadow: canNext ? `0 10px 28px -8px rgba(255,61,0,0.5)` : "none",
                 }}
               >
-                Enviar pedido <Send className="w-4 h-4" />
+                Finalizar pedido <Send className="w-4 h-4" />
               </button>
             )}
           </div>
