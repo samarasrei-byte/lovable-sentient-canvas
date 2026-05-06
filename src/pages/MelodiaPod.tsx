@@ -701,18 +701,19 @@ export default function MelodiaPod() {
               </PrimaryBtn>
             </div>
 
-            {/* Trust line */}
-            <div className="mt-10 inline-flex items-center gap-2 px-4 py-2 rounded-full"
-              style={{ background: C.bgAlt, border: `1px solid ${C.line}` }}>
-              <div className="flex -space-x-1">
-                {[C.orange, C.primary, C.cyan, C.pink].map((co, i) => (
-                  <div key={i} className="w-6 h-6 rounded-full border-2 border-white"
-                    style={{ background: `linear-gradient(135deg, ${co}, ${C.orange})` }} />
+            {/* Trust line — 5 stars + social proof */}
+            <div className="mt-10 flex flex-col items-center gap-2">
+              <div className="flex gap-1">
+                {[1,2,3,4,5].map(i => (
+                  <Star key={i} className="w-5 h-5" style={{ color: C.orange, fill: C.orange }} />
                 ))}
               </div>
-              <span className="text-sm font-semibold" style={{ color: C.ink }}>
-                +1.000 histórias transformadas em canção
-              </span>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full"
+                style={{ background: C.bgAlt, border: `1px solid ${C.line}` }}>
+                <span className="text-sm font-semibold" style={{ color: C.ink }}>
+                  +1.000 histórias transformadas em canção
+                </span>
+              </div>
             </div>
           </motion.div>
         </div>
