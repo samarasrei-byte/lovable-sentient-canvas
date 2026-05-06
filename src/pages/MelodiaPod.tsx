@@ -719,21 +719,22 @@ export default function MelodiaPod() {
         </div>
       </section>
 
-      {/* ═══ COMO SUA HISTÓRIA VIRA MÚSICA ═══ */}
+      {/* ═══ PASSO A PASSO ═══ */}
       <section
         id="como-funciona"
         className="px-5 md:px-8 py-24 md:py-32 relative z-10"
+        style={{ background: "#ffd797" }}
       >
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <Chip tone="orange">3 passos</Chip>
+            <Chip tone="orange">Passo a passo</Chip>
             <h2
               className="mt-6 text-5xl md:text-7xl"
               style={{ ...serif, color: C.ink }}
             >
-              Como sua história{" "}
+              Da sua história{" "}
               <em style={{ ...serif, fontStyle: "italic", ...orangeGradientText }}>
-                vira música.
+                à canção perfeita.
               </em>
             </h2>
           </div>
