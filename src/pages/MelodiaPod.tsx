@@ -216,13 +216,15 @@ type LeadForm = {
 };
 
 const OCCASIONS = [
-  "Aniversário", "Casamento", "Pedido de Namoro", "Pedido de Casamento",
-  "Dia das Mães", "Dia dos Pais", "Novo Bebê", "Bodas",
-  "Formatura", "Amizade", "Natal", "Sem Motivo Especial",
+  "Declaração de amor", "Casamento", "Aniversário", "Chegada de bebê",
+  "Homenagem para mãe", "Homenagem para pai",
+  "Homenagem para filho", "Homenagem para filha",
+  "Pedido de casamento", "Bodas", "Formatura", "Só porque deu vontade",
 ];
 const STYLES = [
-  "Pop", "Sertanejo", "MPB", "Bossa Nova", "Acústico",
-  "Romântico", "Lo-fi", "Infantil", "Rock", "Eletrônica",
+  "Gospel", "Samba", "Pagode raiz", "Pagode romântico",
+  "Sertanejo raiz", "Sertanejo romântico", "Sertanejo universitário",
+  "MPB", "Rock", "Hip Hop", "Pop", "Acústico",
 ];
 
 const LeadModal = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
@@ -247,7 +249,7 @@ const LeadModal = ({ open, onClose }: { open: boolean; onClose: () => void }) =>
     const msg =
       `🎵 *Nova música personalizada — MelodiaPod*\n\n` +
       `*Nome:* ${form.name}\n` +
-      `*Ocasião:* ${form.occasion}\n` +
+      `*Tipo de homenagem:* ${form.occasion}\n` +
       `*Para quem:* ${form.honoree}\n` +
       `*História:* ${form.story}\n` +
       `*Estilo musical:* ${form.style}\n` +
@@ -259,10 +261,18 @@ const LeadModal = ({ open, onClose }: { open: boolean; onClose: () => void }) =>
     onClose();
   };
 
+  const stepTitles = [
+    "Escolha o tipo de homenagem",
+    "Conte sobre a pessoa e a história",
+    "Escolha o estilo musical",
+    "Finalize seu pedido",
+  ];
+
   const canNext =
-    (step === 0 && form.name.trim() && form.occasion) ||
+    (step === 0 && form.occasion && form.name.trim()) ||
     (step === 1 && form.honoree.trim() && form.story.trim().length >= 10) ||
-    (step === 2 && form.style && form.contact.trim().length >= 8);
+    (step === 2 && form.style) ||
+    (step === 3 && form.contact.trim().length >= 8);
 
   if (!open) return null;
 
@@ -302,20 +312,39 @@ const LeadModal = ({ open, onClose }: { open: boolean; onClose: () => void }) =>
             >
               <X className="w-5 h-5" style={{ color: C.ink }} />
             </button>
-            <div className="flex items-center gap-2 mb-2">
-              <Music className="w-4 h-4" style={{ color: C.orange }} />
-              <span
-                className="text-[11px] font-bold tracking-[0.22em] uppercase"
-                style={{ color: C.orange, ...sans }}
-              >
-                Sua canção em 3 passos
-              </span>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Music className="w-4 h-4" style={{ color: C.orange }} />
+                <span
+                  className="text-[11px] font-bold tracking-[0.22em] uppercase"
+                  style={{ color: C.orange, ...sans }}
+                >
+                  Etapa {step + 1} de 4
+                </span>
+              </div>
+              <div className="flex items-center gap-1">
+                {[0,1,2,3].map(i => (
+                  <div
+                    key={i}
+                    className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-all"
+                    style={{
+                      background: i < step
+                        ? `linear-gradient(135deg, ${C.orangeDeep}, ${C.orange})`
+                        : i === step ? "#FFFFFF" : "rgba(11,11,18,0.05)",
+                      color: i < step ? "#FFFFFF" : i === step ? C.orangeDeep : C.inkMuted,
+                      border: i === step ? `2px solid ${C.orange}` : "none",
+                    }}
+                  >
+                    {i + 1}
+                  </div>
+                ))}
+              </div>
             </div>
             <h3 className="text-2xl md:text-3xl" style={{ ...serif, color: C.ink }}>
-              Conte sua história
+              {stepTitles[step]}
             </h3>
             <div className="flex gap-1.5 mt-5">
-              {[0, 1, 2].map((i) => (
+              {[0, 1, 2, 3].map((i) => (
                 <div
                   key={i}
                   className="h-1.5 rounded-full flex-1 transition-all duration-500"
@@ -336,18 +365,7 @@ const LeadModal = ({ open, onClose }: { open: boolean; onClose: () => void }) =>
           >
             {step === 0 && (
               <div className="space-y-5">
-                <Field label="Seu nome">
-                  <input
-                    value={form.name}
-                    onChange={(e) => update("name", e.target.value)}
-                    placeholder="Como podemos te chamar?"
-                    className="w-full px-4 py-3.5 rounded-xl text-base outline-none transition-all"
-                    style={{ background: C.bgAlt, border: `1px solid ${C.line}`, color: C.ink }}
-                    onFocus={(e) => (e.currentTarget.style.borderColor = C.orange)}
-                    onBlur={(e) => (e.currentTarget.style.borderColor = C.line)}
-                  />
-                </Field>
-                <Field label="Qual a ocasião?">
+                <Field label="Tipo de homenagem">
                   <div className="grid grid-cols-2 gap-2">
                     {OCCASIONS.map((o) => (
                       <button
@@ -364,6 +382,17 @@ const LeadModal = ({ open, onClose }: { open: boolean; onClose: () => void }) =>
                       </button>
                     ))}
                   </div>
+                </Field>
+                <Field label="Seu nome">
+                  <input
+                    value={form.name}
+                    onChange={(e) => update("name", e.target.value)}
+                    placeholder="Como podemos te chamar?"
+                    className="w-full px-4 py-3.5 rounded-xl text-base outline-none transition-all"
+                    style={{ background: C.bgAlt, border: `1px solid ${C.line}`, color: C.ink }}
+                    onFocus={(e) => (e.currentTarget.style.borderColor = C.orange)}
+                    onBlur={(e) => (e.currentTarget.style.borderColor = C.line)}
+                  />
                 </Field>
               </div>
             )}
@@ -419,17 +448,42 @@ const LeadModal = ({ open, onClose }: { open: boolean; onClose: () => void }) =>
                     ))}
                   </div>
                 </Field>
+              </div>
+            )}
+
+            {step === 3 && (
+              <div className="space-y-5">
+                <div
+                  className="rounded-2xl p-5"
+                  style={{
+                    background: "linear-gradient(135deg, rgba(255,61,0,0.06), rgba(168,85,247,0.05))",
+                    border: `1px solid ${C.line}`,
+                  }}
+                >
+                  <p className="text-xs font-bold tracking-[0.18em] uppercase mb-3" style={{ color: C.orangeDeep }}>
+                    Resumo do seu pedido
+                  </p>
+                  <ul className="space-y-1.5 text-sm" style={{ color: C.ink }}>
+                    <li><strong>Homenagem:</strong> {form.occasion}</li>
+                    <li><strong>De:</strong> {form.name}</li>
+                    <li><strong>Para:</strong> {form.honoree}</li>
+                    <li><strong>Estilo:</strong> {form.style}</li>
+                  </ul>
+                </div>
                 <Field label="WhatsApp ou e-mail">
                   <input
                     value={form.contact}
                     onChange={(e) => update("contact", e.target.value)}
-                    placeholder="Para enviarmos sua música"
+                    placeholder="Para finalizar e enviar sua música"
                     className="w-full px-4 py-3.5 rounded-xl text-base outline-none"
                     style={{ background: C.bgAlt, border: `1px solid ${C.line}`, color: C.ink }}
                     onFocus={(e) => (e.currentTarget.style.borderColor = C.orange)}
                     onBlur={(e) => (e.currentTarget.style.borderColor = C.line)}
                   />
                 </Field>
+                <p className="text-xs text-center" style={{ color: C.inkMuted }}>
+                  Ao enviar, redirecionamos para o WhatsApp para confirmar pagamento (PIX, cartão ou boleto).
+                </p>
               </div>
             )}
           </div>
@@ -445,7 +499,7 @@ const LeadModal = ({ open, onClose }: { open: boolean; onClose: () => void }) =>
             >
               {step === 0 ? "Cancelar" : "Voltar"}
             </button>
-            {step < 2 ? (
+            {step < 3 ? (
               <button
                 onClick={() => canNext && setStep(step + 1)}
                 disabled={!canNext}
@@ -469,7 +523,7 @@ const LeadModal = ({ open, onClose }: { open: boolean; onClose: () => void }) =>
                   boxShadow: canNext ? `0 10px 28px -8px rgba(255,61,0,0.5)` : "none",
                 }}
               >
-                Enviar pedido <Send className="w-4 h-4" />
+                Finalizar pedido <Send className="w-4 h-4" />
               </button>
             )}
           </div>
@@ -648,11 +702,7 @@ export default function MelodiaPod() {
           >
             <div className="flex justify-center mb-8 gap-2 flex-wrap">
               <Chip tone="orange">
-                <Sparkles className="w-3.5 h-3.5" /> Música feita à mão
-              </Chip>
-              <Chip>
-                <Music className="w-3 h-3" style={{ color: C.primary }} />
-                Powered by ARCANA
+                <Sparkles className="w-3.5 h-3.5" /> Músicas personalizadas
               </Chip>
             </div>
 
@@ -705,38 +755,40 @@ export default function MelodiaPod() {
               </PrimaryBtn>
             </div>
 
-            {/* Trust line */}
-            <div className="mt-10 inline-flex items-center gap-2 px-4 py-2 rounded-full"
-              style={{ background: C.bgAlt, border: `1px solid ${C.line}` }}>
-              <div className="flex -space-x-1">
-                {[C.orange, C.primary, C.cyan, C.pink].map((co, i) => (
-                  <div key={i} className="w-6 h-6 rounded-full border-2 border-white"
-                    style={{ background: `linear-gradient(135deg, ${co}, ${C.orange})` }} />
+            {/* Trust line — 5 stars + social proof */}
+            <div className="mt-10 flex flex-col items-center gap-2">
+              <div className="flex gap-1">
+                {[1,2,3,4,5].map(i => (
+                  <Star key={i} className="w-5 h-5" style={{ color: C.orange, fill: C.orange }} />
                 ))}
               </div>
-              <span className="text-sm font-semibold" style={{ color: C.ink }}>
-                +1.000 histórias transformadas em canção
-              </span>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full"
+                style={{ background: C.bgAlt, border: `1px solid ${C.line}` }}>
+                <span className="text-sm font-semibold" style={{ color: C.ink }}>
+                  +1.000 histórias transformadas em canção
+                </span>
+              </div>
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* ═══ COMO SUA HISTÓRIA VIRA MÚSICA ═══ */}
+      {/* ═══ PASSO A PASSO ═══ */}
       <section
         id="como-funciona"
         className="px-5 md:px-8 py-24 md:py-32 relative z-10"
+        style={{ background: "#ffd797" }}
       >
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <Chip tone="orange">3 passos</Chip>
+            <Chip tone="orange">Passo a passo</Chip>
             <h2
               className="mt-6 text-5xl md:text-7xl"
               style={{ ...serif, color: C.ink }}
             >
-              Como sua história{" "}
+              Da sua história{" "}
               <em style={{ ...serif, fontStyle: "italic", ...orangeGradientText }}>
-                vira música.
+                à canção perfeita.
               </em>
             </h2>
           </div>
@@ -778,7 +830,7 @@ export default function MelodiaPod() {
                   boxShadow: `0 20px 60px -20px rgba(11,11,18,0.10)`,
                 }}
               >
-                <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center justify-between mb-5">
                   <span
                     className="text-[12px] tracking-[0.24em] font-bold"
                     style={{ color: step.color }}
@@ -796,7 +848,7 @@ export default function MelodiaPod() {
                   </div>
                 </div>
                 <h3
-                  className="text-2xl md:text-3xl mb-4 leading-tight"
+                  className="text-2xl md:text-3xl mb-4 leading-tight mt-1"
                   style={{ ...serif, color: C.ink }}
                 >
                   {step.t}
@@ -860,32 +912,29 @@ export default function MelodiaPod() {
       >
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <Chip>Para cada momento</Chip>
+            <Chip>Escolha o momento</Chip>
             <h2
               className="mt-6 text-5xl md:text-7xl"
               style={{ ...serif, color: C.ink }}
             >
-              Uma canção para{" "}
+              Momentos que{" "}
               <em style={{ ...serif, fontStyle: "italic", ...orangeGradientText }}>
-                cada ocasião.
+                viram música.
               </em>
             </h2>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-3 gap-3 md:gap-4 max-w-4xl mx-auto">
             {[
-              { emoji: "💕", icon: Heart, t: "Declaração de amor", color: C.pink },
-              { emoji: "💍", icon: Sparkles, t: "Casamento", color: C.cyan },
-              { emoji: "🎂", icon: Cake, t: "Aniversário", color: C.orange },
-              { emoji: "🥂", icon: Gift, t: "Bodas", color: C.primary },
-              { emoji: "👶", icon: Baby, t: "Chegada de um bebê", color: C.cyan },
-              { emoji: "🤝", icon: Users, t: "Amizade", color: C.primary },
-              { emoji: "👩", icon: Heart, t: "Homenagem para mãe", color: C.pink },
-              { emoji: "👨", icon: Heart, t: "Homenagem para pai", color: C.cyan },
-              { emoji: "🎄", icon: TreePine, t: "Datas comemorativas", color: C.orange },
-              { emoji: "🎵", icon: Music2, t: "Só porque deu vontade", color: C.primary },
-              { emoji: "💍", icon: Church, t: "Pedido de casamento", color: C.pink },
-              { emoji: "🎓", icon: Sparkles, t: "Formatura", color: C.cyan },
+              { emoji: "💕", t: "Declaração de amor", color: C.pink },
+              { emoji: "💍", t: "Casamento", color: C.cyan },
+              { emoji: "🎂", t: "Aniversário", color: C.orange },
+              { emoji: "👶", t: "Chegada de um bebê", color: C.cyan },
+              { emoji: "👩", t: "Homenagem para mãe", color: C.pink },
+              { emoji: "👨", t: "Homenagem para pai", color: C.cyan },
+              { emoji: "👦", t: "Homenagem para filho", color: C.primary },
+              { emoji: "👧", t: "Homenagem para filha", color: C.pink },
+              { emoji: "🎵", t: "Só porque deu vontade", color: C.orange },
             ].map((o, i) => (
               <motion.button
                 key={o.t}
@@ -893,29 +942,29 @@ export default function MelodiaPod() {
                 initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-40px" }}
-                transition={{ duration: 0.4, delay: (i % 8) * 0.04 }}
+                transition={{ duration: 0.4, delay: (i % 9) * 0.04 }}
                 whileHover={{ y: -6 }}
-                className="rounded-3xl p-6 md:p-7 flex flex-col items-center justify-center text-center cursor-pointer min-h-[170px] md:min-h-[190px] group"
+                className="rounded-2xl p-3 md:p-5 flex flex-col items-center justify-center text-center cursor-pointer min-h-[110px] md:min-h-[140px] group"
                 style={{
                   background: "#FFFFFF",
                   border: `1px solid ${C.line}`,
-                  boxShadow: `0 12px 32px -12px rgba(11,11,18,0.08)`,
+                  boxShadow: `0 10px 24px -12px rgba(11,11,18,0.08)`,
                   transition: "box-shadow 0.3s ease",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.boxShadow = `0 24px 48px -16px ${o.color}40`;
+                  e.currentTarget.style.boxShadow = `0 20px 40px -16px ${o.color}40`;
                   e.currentTarget.style.borderColor = `${o.color}55`;
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.boxShadow = `0 12px 32px -12px rgba(11,11,18,0.08)`;
+                  e.currentTarget.style.boxShadow = `0 10px 24px -12px rgba(11,11,18,0.08)`;
                   e.currentTarget.style.borderColor = C.line;
                 }}
               >
-                <div className="text-4xl mb-3 transition-transform group-hover:scale-110">
+                <div className="text-3xl md:text-4xl mb-2 transition-transform group-hover:scale-110">
                   {o.emoji}
                 </div>
                 <h3
-                  className="text-base md:text-lg font-semibold leading-tight"
+                  className="text-xs md:text-sm font-semibold leading-tight"
                   style={{ color: C.ink, ...sans }}
                 >
                   {o.t}
@@ -1042,6 +1091,103 @@ export default function MelodiaPod() {
                   </p>
                 </div>
               </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ HOMENAGENS POR GÊNERO MUSICAL ═══ */}
+      <section
+        id="generos"
+        className="px-5 md:px-8 py-24 md:py-32 relative z-10"
+      >
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-14">
+            <Chip tone="orange">Inspire-se</Chip>
+            <h2
+              className="mt-6 text-4xl md:text-6xl"
+              style={{ ...serif, color: C.ink }}
+            >
+              Ouça nossas homenagens por{" "}
+              <em style={{ ...serif, fontStyle: "italic", ...orangeGradientText }}>
+                Gênero Musical.
+              </em>
+            </h2>
+            <p
+              className="mt-5 max-w-xl mx-auto text-base md:text-lg font-light"
+              style={{ color: C.inkSoft }}
+            >
+              Toque um exemplo e sinta a emoção do estilo que combina com a sua história.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
+            {[
+              { name: "Gospel", color: C.cyan },
+              { name: "Samba", color: C.orange },
+              { name: "Pagode raiz", color: C.primary },
+              { name: "Pagode romântico", color: C.pink },
+              { name: "Sertanejo raiz", color: C.orangeDeep },
+              { name: "Sertanejo romântico", color: C.pink },
+              { name: "Sertanejo universitário", color: C.orange },
+              { name: "MPB", color: C.cyan },
+              { name: "Rock", color: C.ink },
+              { name: "Hip Hop", color: C.primary },
+            ].map((g, i) => (
+              <motion.button
+                key={g.name}
+                onClick={openLead}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ duration: 0.4, delay: (i % 10) * 0.04 }}
+                whileHover={{ y: -4 }}
+                className="rounded-2xl p-4 md:p-5 flex flex-col items-center gap-3 group"
+                style={{
+                  background: "#FFFFFF",
+                  border: `1px solid ${C.line}`,
+                  boxShadow: `0 12px 28px -16px rgba(11,11,18,0.12)`,
+                  transition: "all 0.3s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = `${g.color}66`;
+                  e.currentTarget.style.boxShadow = `0 18px 36px -16px ${g.color}55`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = C.line;
+                  e.currentTarget.style.boxShadow = `0 12px 28px -16px rgba(11,11,18,0.12)`;
+                }}
+              >
+                <div
+                  className="w-12 h-12 rounded-full flex items-center justify-center transition-transform group-hover:scale-110"
+                  style={{
+                    background: `linear-gradient(135deg, ${g.color}, ${C.orange})`,
+                    boxShadow: `0 10px 24px -8px ${g.color}80`,
+                  }}
+                >
+                  <Play className="w-5 h-5 ml-0.5 text-white" fill="currentColor" />
+                </div>
+                <span
+                  className="text-sm md:text-base font-semibold text-center leading-tight"
+                  style={{ color: C.ink }}
+                >
+                  {g.name}
+                </span>
+                {/* Mini waveform */}
+                <div className="flex items-end gap-[2px] h-4">
+                  {[0.4, 0.7, 0.5, 0.9, 0.6, 0.8, 0.4].map((h, k) => (
+                    <div
+                      key={k}
+                      className="w-[2px] rounded-full"
+                      style={{
+                        height: `${h * 100}%`,
+                        background: g.color,
+                        opacity: 0.55,
+                      }}
+                    />
+                  ))}
+                </div>
+              </motion.button>
             ))}
           </div>
         </div>
