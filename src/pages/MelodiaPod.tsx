@@ -1042,6 +1042,103 @@ export default function MelodiaPod() {
         </div>
       </section>
 
+      {/* ═══ HOMENAGENS POR GÊNERO MUSICAL ═══ */}
+      <section
+        id="generos"
+        className="px-5 md:px-8 py-24 md:py-32 relative z-10"
+      >
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-14">
+            <Chip tone="orange">Inspire-se</Chip>
+            <h2
+              className="mt-6 text-4xl md:text-6xl"
+              style={{ ...serif, color: C.ink }}
+            >
+              Ouça nossas homenagens por{" "}
+              <em style={{ ...serif, fontStyle: "italic", ...orangeGradientText }}>
+                Gênero Musical.
+              </em>
+            </h2>
+            <p
+              className="mt-5 max-w-xl mx-auto text-base md:text-lg font-light"
+              style={{ color: C.inkSoft }}
+            >
+              Toque um exemplo e sinta a emoção do estilo que combina com a sua história.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
+            {[
+              { name: "Gospel", color: C.cyan },
+              { name: "Samba", color: C.orange },
+              { name: "Pagode raiz", color: C.primary },
+              { name: "Pagode romântico", color: C.pink },
+              { name: "Sertanejo raiz", color: C.orangeDeep },
+              { name: "Sertanejo romântico", color: C.pink },
+              { name: "Sertanejo universitário", color: C.orange },
+              { name: "MPB", color: C.cyan },
+              { name: "Rock", color: C.ink },
+              { name: "Hip Hop", color: C.primary },
+            ].map((g, i) => (
+              <motion.button
+                key={g.name}
+                onClick={openLead}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ duration: 0.4, delay: (i % 10) * 0.04 }}
+                whileHover={{ y: -4 }}
+                className="rounded-2xl p-4 md:p-5 flex flex-col items-center gap-3 group"
+                style={{
+                  background: "#FFFFFF",
+                  border: `1px solid ${C.line}`,
+                  boxShadow: `0 12px 28px -16px rgba(11,11,18,0.12)`,
+                  transition: "all 0.3s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = `${g.color}66`;
+                  e.currentTarget.style.boxShadow = `0 18px 36px -16px ${g.color}55`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = C.line;
+                  e.currentTarget.style.boxShadow = `0 12px 28px -16px rgba(11,11,18,0.12)`;
+                }}
+              >
+                <div
+                  className="w-12 h-12 rounded-full flex items-center justify-center transition-transform group-hover:scale-110"
+                  style={{
+                    background: `linear-gradient(135deg, ${g.color}, ${C.orange})`,
+                    boxShadow: `0 10px 24px -8px ${g.color}80`,
+                  }}
+                >
+                  <Play className="w-5 h-5 ml-0.5 text-white" fill="currentColor" />
+                </div>
+                <span
+                  className="text-sm md:text-base font-semibold text-center leading-tight"
+                  style={{ color: C.ink }}
+                >
+                  {g.name}
+                </span>
+                {/* Mini waveform */}
+                <div className="flex items-end gap-[2px] h-4">
+                  {[0.4, 0.7, 0.5, 0.9, 0.6, 0.8, 0.4].map((h, k) => (
+                    <div
+                      key={k}
+                      className="w-[2px] rounded-full"
+                      style={{
+                        height: `${h * 100}%`,
+                        background: g.color,
+                        opacity: 0.55,
+                      }}
+                    />
+                  ))}
+                </div>
+              </motion.button>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ═══ O QUE VOCÊ RECEBE ═══ */}
       <section id="entrega" className="px-5 md:px-8 py-24 md:py-32 relative z-10">
         <div className="max-w-5xl mx-auto">
