@@ -216,13 +216,15 @@ type LeadForm = {
 };
 
 const OCCASIONS = [
-  "Aniversário", "Casamento", "Pedido de Namoro", "Pedido de Casamento",
-  "Dia das Mães", "Dia dos Pais", "Novo Bebê", "Bodas",
-  "Formatura", "Amizade", "Natal", "Sem Motivo Especial",
+  "Declaração de amor", "Casamento", "Aniversário", "Chegada de bebê",
+  "Homenagem para mãe", "Homenagem para pai",
+  "Homenagem para filho", "Homenagem para filha",
+  "Pedido de casamento", "Bodas", "Formatura", "Só porque deu vontade",
 ];
 const STYLES = [
-  "Pop", "Sertanejo", "MPB", "Bossa Nova", "Acústico",
-  "Romântico", "Lo-fi", "Infantil", "Rock", "Eletrônica",
+  "Gospel", "Samba", "Pagode raiz", "Pagode romântico",
+  "Sertanejo raiz", "Sertanejo romântico", "Sertanejo universitário",
+  "MPB", "Rock", "Hip Hop", "Pop", "Acústico",
 ];
 
 const LeadModal = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
