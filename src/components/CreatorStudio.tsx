@@ -36,7 +36,7 @@ export const CreatorStudio = () => {
   ];
 
   return (
-    <section className="py-24 md:py-32 px-6 relative overflow-hidden bg-background">
+    <section className="py-24 md:py-32 px-6 relative overflow-hidden bg-background min-h-[100dvh] flex flex-col justify-center">
       {/* Dynamic Background Elements */}
       <div className="absolute top-0 left-0 w-full h-full">
         <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] animate-pulse" />

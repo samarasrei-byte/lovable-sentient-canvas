@@ -48,7 +48,7 @@ export const BeforeAfterSlider = ({
       onClick={(e) => updatePosition(e.clientX)}
     >
       {/* After (full) */}
-      <img src={afterImage} alt={afterLabel} className="w-full h-full object-cover" draggable={false} />
+      <img src={afterImage} alt={afterLabel} className="w-full h-full object-contain bg-background/50" draggable={false} />
 
       {/* Before (clipped) */}
       <div
@@ -58,7 +58,7 @@ export const BeforeAfterSlider = ({
         <img
           src={beforeImage}
           alt={beforeLabel}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain bg-background/50"
           style={{ width: `${containerRef.current?.offsetWidth || 400}px` }}
           draggable={false}
         />
