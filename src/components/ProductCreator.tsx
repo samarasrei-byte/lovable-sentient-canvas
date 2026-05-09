@@ -34,6 +34,8 @@ import { FullScreenImageViewer } from "./image-audit/FullScreenImageViewer";
 import { PremiumUploadArea } from "./image-audit/PremiumUploadArea";
 import { BeforeAfterSlider } from "./BeforeAfterSlider";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { processImageFile, compressImageDataUrl } from "@/utils/image-processing";
+
 
 const productCategories = [
   { id: "ecommerce", label: "E-commerce", prompt: "Product photography, white background, professional studio lighting, commercial quality" },
