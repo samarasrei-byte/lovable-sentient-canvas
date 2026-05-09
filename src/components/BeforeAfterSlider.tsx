@@ -58,7 +58,7 @@ export const BeforeAfterSlider = ({
         <img
           src={beforeImage}
           alt={beforeLabel}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain bg-background/50"
           style={{ width: `${containerRef.current?.offsetWidth || 400}px` }}
           draggable={false}
         />
