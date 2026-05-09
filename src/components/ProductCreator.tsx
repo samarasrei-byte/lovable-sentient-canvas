@@ -74,32 +74,41 @@ export const ProductCreator = () => {
   const productInputRef = useRef<HTMLInputElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
 
-  const handleProductUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleProductUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 10 * 1024 * 1024) {
-        toast.error("Imagem muito grande. Máximo 10MB.");
+      if (file.size > 15 * 1024 * 1024) { // Increased to 15MB for high res
+        toast.error("Imagem muito grande. Máximo 15MB.");
         return;
       }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setRawProductImage(reader.result as string);
+      
+      const loadingToast = toast.loading("Processando imagem...");
+      try {
+        const dataUrl = await processImageFile(file);
+        const compressed = await compressImageDataUrl(dataUrl);
+        setRawProductImage(compressed);
         setIsCropperOpen(true);
-      };
-      reader.readAsDataURL(file);
+        toast.dismiss(loadingToast);
+      } catch (error) {
+        console.error("Upload error:", error);
+        toast.error("Erro ao processar imagem.");
+        toast.dismiss(loadingToast);
+      }
     }
   };
 
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setLogoImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      try {
+        const dataUrl = await processImageFile(file);
+        setLogoImage(dataUrl);
+      } catch (error) {
+        toast.error("Erro ao processar logo.");
+      }
     }
   };
+
 
   const generateImages = async () => {
     if (!productImage || !category || !scenario) {
