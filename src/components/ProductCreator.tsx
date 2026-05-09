@@ -34,7 +34,8 @@ import { StayOnPageCard } from "./StayOnPageCard";
 import { FullScreenImageViewer } from "./image-audit/FullScreenImageViewer";
 import { PremiumUploadArea } from "./image-audit/PremiumUploadArea";
 import { BeforeAfterSlider } from "./BeforeAfterSlider";
-import { useMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-mobile";
+
 
 
 const productCategories = [
