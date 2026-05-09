@@ -68,6 +68,10 @@ export const ProductCreator = () => {
   const [extraElements, setExtraElements] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
+  const [selectedImageForViewer, setSelectedImageForViewer] = useState<string | null>(null);
+  const [showComparison, setShowComparison] = useState(false);
+  const isMobile = useIsMobile();
+
   
   const productInputRef = useRef<HTMLInputElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
