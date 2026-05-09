@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
@@ -35,8 +34,6 @@ import { FullScreenImageViewer } from "./image-audit/FullScreenImageViewer";
 import { PremiumUploadArea } from "./image-audit/PremiumUploadArea";
 import { BeforeAfterSlider } from "./BeforeAfterSlider";
 import { useIsMobile } from "@/hooks/use-mobile";
-
-
 
 const productCategories = [
   { id: "ecommerce", label: "E-commerce", prompt: "Product photography, white background, professional studio lighting, commercial quality" },
@@ -71,42 +68,9 @@ export const ProductCreator = () => {
   const [selectedImageForViewer, setSelectedImageForViewer] = useState<string | null>(null);
   const [showComparison, setShowComparison] = useState(false);
   const isMobile = useIsMobile();
-
   
   const productInputRef = useRef<HTMLInputElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
-
-  const compressImage = async (dataUrl: string): Promise<string> => {
-    return new Promise((resolve) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const MAX_WIDTH = 1024;
-        const MAX_HEIGHT = 1024;
-        let width = img.width;
-        let height = img.height;
-
-        if (width > height) {
-          if (width > MAX_WIDTH) {
-            height *= MAX_WIDTH / width;
-            width = MAX_WIDTH;
-          }
-        } else {
-          if (height > MAX_HEIGHT) {
-            width *= MAX_HEIGHT / height;
-            height = MAX_HEIGHT;
-          }
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx?.drawImage(img, 0, 0, width, height);
-        resolve(canvas.toDataURL('image/jpeg', 0.8));
-      };
-      img.src = dataUrl;
-    });
-  };
 
   const handleProductUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -173,7 +137,7 @@ export const ProductCreator = () => {
         toast.success("Imagens geradas com sucesso!");
       } else {
         // Fallback for demo
-        await new Promise(r => setTimeout(r, 8000));
+        await new Promise(r => setTimeout(r, 6000));
         setGeneratedImages([
           "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&q=80",
           "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80",
@@ -195,27 +159,29 @@ export const ProductCreator = () => {
     const link = document.createElement('a');
     link.href = imageUrl;
     link.download = `produto-${productName || 'arcana'}-${index + 1}.png`;
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
     toast.success("Download iniciado!");
   };
 
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto min-h-[90vh] flex flex-col">
+    <div className="p-4 md:p-8 max-w-7xl mx-auto min-h-[90dvh] flex flex-col">
       {/* Header */}
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         className="mb-12 text-center md:text-left"
       >
-        <Badge className="mb-4 bg-primary/10 text-primary border-primary/30 py-1 px-4 text-xs font-semibold uppercase tracking-widest">
+        <Badge className="mb-4 bg-primary/10 text-primary border-primary/30 py-1 px-4 text-[10px] font-black uppercase tracking-[0.2em]">
           <Zap className="w-3.5 h-3.5 mr-2 animate-pulse" />
           Arcana Engine v2.0
         </Badge>
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-black mb-4 tracking-tight leading-tight">
-          Transforme seu produto em <span className="bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent animate-shimmer bg-[length:200%_auto]">Arte Digital</span>
+        <h1 className="text-4xl md:text-5xl lg:text-7xl font-black mb-4 tracking-tighter leading-[0.9] italic">
+          TRANSFORME SEU PRODUTO EM <span className="bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent animate-shimmer bg-[length:200%_auto]">ARTE DIGITAL</span>
         </h1>
-        <p className="text-xl text-muted-foreground max-w-2xl">
-          Nossa inteligência artificial cria cenários de alta fidelidade que elevam sua marca ao nível das maiores grifes do mundo.
+        <p className="text-lg text-muted-foreground max-w-2xl font-medium">
+          O motor neural Arcana cria composições de alta fidelidade que elevam sua marca ao nível das maiores grifes do mundo.
         </p>
       </motion.div>
 
@@ -228,9 +194,9 @@ export const ProductCreator = () => {
         ].map((s) => (
           <div key={s.id} className="flex items-center shrink-0">
             <div 
-              className={`flex items-center gap-3 px-5 py-2.5 rounded-full transition-all duration-500 border ${
+              className={`flex items-center gap-3 px-6 py-3 rounded-full transition-all duration-700 border ${
                 step === s.id 
-                  ? "bg-primary text-primary-foreground border-primary shadow-[0_0_20px_-5px_hsl(var(--primary))]" 
+                  ? "bg-primary text-primary-foreground border-primary shadow-[0_0_30px_-5px_hsl(var(--primary))]" 
                   : step > s.id
                     ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/30"
                     : "bg-muted/30 text-muted-foreground border-transparent"
@@ -241,10 +207,10 @@ export const ProductCreator = () => {
               }`}>
                 {step > s.id ? <Check className="w-3.5 h-3.5" /> : s.icon}
               </div>
-              <span className="text-sm font-bold whitespace-nowrap">{s.label}</span>
+              <span className="text-[10px] font-black uppercase tracking-widest whitespace-nowrap">{s.label}</span>
             </div>
             {s.id < 3 && (
-              <div className={`mx-4 w-8 h-px hidden md:block ${
+              <div className={`mx-4 w-12 h-px hidden md:block ${
                 step > s.id ? "bg-emerald-500/30" : "bg-muted/30"
               }`} />
             )}
@@ -263,18 +229,17 @@ export const ProductCreator = () => {
               exit={{ opacity: 0, scale: 1.02 }}
               className="flex flex-col items-center justify-center py-12"
             >
-              <div className="w-full max-w-2xl p-8 rounded-[2.5rem] bg-card/30 backdrop-blur-2xl border border-primary/20 shadow-2xl relative overflow-hidden">
-                {/* Background animations */}
-                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 blur-[100px] -z-10 animate-pulse" />
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-secondary/10 blur-[100px] -z-10 animate-pulse" />
+              <div className="w-full max-w-2xl p-10 rounded-[3rem] bg-card/30 backdrop-blur-3xl border border-primary/20 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-80 h-80 bg-primary/10 blur-[120px] -z-10 animate-pulse" />
+                <div className="absolute bottom-0 left-0 w-80 h-80 bg-secondary/10 blur-[120px] -z-10 animate-pulse" />
                 
-                <div className="text-center mb-10">
-                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider mb-6">
+                <div className="text-center mb-12">
+                  <div className="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.2em] mb-8 border border-primary/20">
                     <Loader2 className="w-3 h-3 animate-spin" />
                     Processando com IA Neural
                   </div>
-                  <h2 className="text-3xl font-bold mb-3">Sua visão está ganhando vida</h2>
-                  <p className="text-muted-foreground">Mapeando geometrias e aplicando iluminação cinematográfica.</p>
+                  <h2 className="text-4xl font-black mb-4 italic uppercase tracking-tighter">Sua visão está ganhando vida</h2>
+                  <p className="text-muted-foreground font-medium">Mapeando geometrias e aplicando iluminação cinematográfica.</p>
                 </div>
 
                 <GenerationProgressBar isGenerating={isGenerating} photoCount={1} />
@@ -289,116 +254,21 @@ export const ProductCreator = () => {
               exit={{ opacity: 0, x: -20 }}
               className="grid lg:grid-cols-2 gap-8"
             >
-              <Card 
-                className={`group relative overflow-hidden transition-all duration-500 border-2 border-dashed ${
-                  productImage ? 'border-primary/50 bg-primary/5' : 'hover:border-primary/50 bg-muted/20'
-                } rounded-[2rem]`}
-              >
-                <CardContent className="p-10 flex flex-col items-center justify-center min-h-[400px]">
-                  <input
-                    ref={productInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleProductUpload}
-                    className="hidden"
-                  />
-                  {productImage ? (
-                    <div className="w-full h-full flex flex-col items-center">
-                      <div className="relative w-full aspect-square rounded-2xl overflow-hidden bg-background shadow-2xl mb-6">
-                        <img src={productImage} alt="Produto" className="w-full h-full object-contain" />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                           <Button 
-                            variant="secondary" 
-                            size="sm"
-                            className="rounded-full px-6"
-                            onClick={() => productInputRef.current?.click()}
-                          >
-                            Substituir Foto
-                          </Button>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 text-emerald-500 font-bold text-sm bg-emerald-500/10 px-4 py-2 rounded-full">
-                        <ShieldCheck className="w-4 h-4" />
-                        Ativo pronto para IA
-                      </div>
-                    </div>
-                  ) : (
-                    <div 
-                      className="flex flex-col items-center justify-center text-center cursor-pointer group-hover:scale-105 transition-transform duration-500"
-                      onClick={() => productInputRef.current?.click()}
-                    >
-                      <div className="w-20 h-20 rounded-3xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors">
-                        <ImageIcon className="w-10 h-10 text-primary" />
-                      </div>
-                      <p className="text-2xl font-black mb-2 tracking-tight">Foto do Produto</p>
-                      <p className="text-muted-foreground mb-8 max-w-xs leading-relaxed">
-                        Arraste seu produto aqui. <br/>
-                        Recomendamos fotos com fundo neutro.
-                      </p>
-                      <Badge variant="outline" className="rounded-full px-6 py-1.5 border-primary/20 bg-primary/5 text-primary">
-                        Obrigatório
-                      </Badge>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+              <PremiumUploadArea 
+                type="product"
+                image={productImage}
+                onUpload={handleProductUpload}
+                onRemove={() => setProductImage(null)}
+                inputRef={productInputRef}
+              />
 
-              <Card 
-                className={`group relative overflow-hidden transition-all duration-500 border-2 border-dashed ${
-                  logoImage ? 'border-secondary/50 bg-secondary/5' : 'hover:border-secondary/50 bg-muted/20'
-                } rounded-[2rem]`}
-              >
-                <CardContent className="p-10 flex flex-col items-center justify-center min-h-[400px]">
-                  <input
-                    ref={logoInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleLogoUpload}
-                    className="hidden"
-                  />
-                  {logoImage ? (
-                    <div className="w-full h-full flex flex-col items-center">
-                      <div className="relative w-full aspect-square rounded-2xl overflow-hidden bg-background shadow-2xl mb-6 p-12">
-                        <img src={logoImage} alt="Logo" className="w-full h-full object-contain" />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                           <Button 
-                            variant="secondary" 
-                            size="sm"
-                            className="rounded-full px-6"
-                            onClick={() => logoInputRef.current?.click()}
-                          >
-                            Trocar Logo
-                          </Button>
-                        </div>
-                      </div>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={() => setLogoImage(null)}
-                        className="text-muted-foreground hover:text-destructive transition-colors"
-                      >
-                        <X className="w-4 h-4 mr-2" /> Remover Logo
-                      </Button>
-                    </div>
-                  ) : (
-                    <div 
-                      className="flex flex-col items-center justify-center text-center cursor-pointer group-hover:scale-105 transition-transform duration-500"
-                      onClick={() => logoInputRef.current?.click()}
-                    >
-                      <div className="w-20 h-20 rounded-3xl bg-secondary/10 flex items-center justify-center mb-6 group-hover:bg-secondary/20 transition-colors">
-                        <Palette className="w-10 h-10 text-secondary" />
-                      </div>
-                      <p className="text-2xl font-black mb-2 tracking-tight">Logo da Marca</p>
-                      <p className="text-muted-foreground mb-8 max-w-xs leading-relaxed">
-                        Personalize suas imagens com sua <br/> identidade visual de forma automática.
-                      </p>
-                      <Badge variant="outline" className="rounded-full px-6 py-1.5 border-secondary/20 bg-secondary/5 text-secondary">
-                        Opcional
-                      </Badge>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+              <PremiumUploadArea 
+                type="logo"
+                image={logoImage}
+                onUpload={handleLogoUpload}
+                onRemove={() => setLogoImage(null)}
+                inputRef={logoInputRef}
+              />
             </motion.div>
           ) : step === 2 ? (
             <motion.div 
@@ -408,35 +278,35 @@ export const ProductCreator = () => {
               exit={{ opacity: 0, x: -20 }}
               className="grid lg:grid-cols-3 gap-8"
             >
-              <Card className="lg:col-span-2 rounded-[2rem] border-primary/10 overflow-hidden">
-                <CardHeader className="p-8 border-b border-muted/50">
-                  <CardTitle className="text-2xl font-bold flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                      <Zap className="w-5 h-5 text-primary" />
+              <Card className="lg:col-span-2 rounded-[2.5rem] border-primary/10 bg-background/40 backdrop-blur-xl overflow-hidden">
+                <CardHeader className="p-10 border-b border-primary/5">
+                  <CardTitle className="text-3xl font-black flex items-center gap-4 italic uppercase tracking-tighter">
+                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
+                      <Zap className="w-6 h-6 text-primary" />
                     </div>
                     Configurar Motor Criativo
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="p-8 space-y-8">
-                  <div className="grid md:grid-cols-2 gap-8">
-                    <div className="space-y-3">
-                      <Label className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Nome do Produto</Label>
+                <CardContent className="p-10 space-y-10">
+                  <div className="grid md:grid-cols-2 gap-10">
+                    <div className="space-y-4">
+                      <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Nome do Produto</Label>
                       <Input 
                         placeholder="Ex: iPhone 15 Pro Max"
                         value={productName}
                         onChange={(e) => setProductName(e.target.value)}
-                        className="h-14 rounded-2xl bg-muted/30 border-transparent focus:border-primary/30 text-lg px-6"
+                        className="h-16 rounded-2xl bg-white/5 border-white/10 focus:border-primary/30 text-lg px-8 transition-all"
                       />
                     </div>
-                    <div className="space-y-3">
-                      <Label className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Estética Visual</Label>
+                    <div className="space-y-4">
+                      <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Estética Visual</Label>
                       <Select value={category} onValueChange={setCategory}>
-                        <SelectTrigger className="h-14 rounded-2xl bg-muted/30 border-transparent focus:border-primary/30 text-lg px-6">
+                        <SelectTrigger className="h-16 rounded-2xl bg-white/5 border-white/10 focus:border-primary/30 text-lg px-8 transition-all">
                           <SelectValue placeholder="Selecione o estilo" />
                         </SelectTrigger>
-                        <SelectContent className="rounded-2xl">
+                        <SelectContent className="rounded-3xl bg-background/95 backdrop-blur-2xl border-primary/20">
                           {productCategories.map((cat) => (
-                            <SelectItem key={cat.id} value={cat.id} className="rounded-xl py-3 cursor-pointer">
+                            <SelectItem key={cat.id} value={cat.id} className="rounded-2xl py-4 cursor-pointer focus:bg-primary/10 transition-colors">
                               {cat.label}
                             </SelectItem>
                           ))}
@@ -445,80 +315,81 @@ export const ProductCreator = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-3">
-                    <Label className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Cenário Desejado</Label>
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                  <div className="space-y-4">
+                    <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Cenário Desejado</Label>
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                       {scenarios.map((scn) => (
-                        <div 
+                        <motion.div 
                           key={scn.id}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
                           onClick={() => setScenario(scn.id)}
-                          className={`cursor-pointer p-4 rounded-[1.5rem] border-2 transition-all duration-300 text-center flex flex-col items-center gap-2 ${
+                          className={`cursor-pointer p-6 rounded-[2rem] border-2 transition-all duration-500 text-center flex flex-col items-center gap-3 ${
                             scenario === scn.id 
-                              ? "border-primary bg-primary/5 shadow-lg shadow-primary/10 scale-105" 
-                              : "border-transparent bg-muted/30 hover:bg-muted/50"
+                              ? "border-primary bg-primary/10 shadow-2xl shadow-primary/20" 
+                              : "border-transparent bg-white/5 hover:bg-white/10"
                           }`}
                         >
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
                             scenario === scn.id ? "bg-primary text-white" : "bg-muted-foreground/20 text-muted-foreground"
                           }`}>
-                            <Zap className="w-4 h-4" />
+                            <Zap className="w-5 h-5" />
                           </div>
-                          <span className="text-xs font-bold leading-tight">{scn.label}</span>
-                        </div>
+                          <span className="text-[10px] font-black uppercase tracking-wider leading-tight">{scn.label}</span>
+                        </motion.div>
                       ))}
                     </div>
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-8">
-                    <div className="space-y-3">
-                      <Label className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Cores Dominantes (opcional)</Label>
+                  <div className="grid md:grid-cols-2 gap-10">
+                    <div className="space-y-4">
+                      <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Cores Dominantes</Label>
                       <Input 
                         placeholder="Ex: Azul Meia-noite, Dourado"
                         value={brandColors}
                         onChange={(e) => setBrandColors(e.target.value)}
-                        className="h-14 rounded-2xl bg-muted/30 border-transparent focus:border-primary/30 text-lg px-6"
+                        className="h-16 rounded-2xl bg-white/5 border-white/10 focus:border-primary/30 text-lg px-8 transition-all"
                       />
                     </div>
-                    <div className="space-y-3">
-                      <Label className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Detalhes de Composição (opcional)</Label>
+                    <div className="space-y-4">
+                      <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Detalhes Extras</Label>
                       <Input 
-                        placeholder="Ex: gotas de água, fumaça, neon"
+                        placeholder="Ex: gotas de água, neon"
                         value={extraElements}
                         onChange={(e) => setExtraElements(e.target.value)}
-                        className="h-14 rounded-2xl bg-muted/30 border-transparent focus:border-primary/30 text-lg px-6"
+                        className="h-16 rounded-2xl bg-white/5 border-white/10 focus:border-primary/30 text-lg px-8 transition-all"
                       />
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="rounded-[2rem] border-primary/10 bg-muted/10 overflow-hidden flex flex-col">
+              <Card className="rounded-[2.5rem] border-primary/10 bg-muted/10 overflow-hidden flex flex-col group/preview">
                 <CardHeader className="p-8">
-                  <CardTitle className="text-xl font-bold flex items-center gap-2">
-                    <Eye className="w-5 h-5 text-muted-foreground" />
+                  <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-3">
+                    <Eye className="w-4 h-4" />
                     Preview Global
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="p-8 flex-1 flex flex-col">
+                <CardContent className="p-10 flex-1 flex flex-col">
                   {productImage && (
-                    <div className="relative flex-1 aspect-[4/5] rounded-[1.5rem] overflow-hidden bg-background shadow-2xl border border-muted/50 flex items-center justify-center p-8">
-                      <img src={productImage} alt="Preview" className="w-full h-full object-contain" />
+                    <div className="relative flex-1 aspect-[4/5] rounded-[2rem] overflow-hidden bg-background shadow-2xl border border-white/5 flex items-center justify-center p-12 transition-all duration-700 group-hover/preview:scale-[1.02]">
+                      <img src={productImage} alt="Preview" className="w-full h-full object-contain drop-shadow-2xl" />
                       {logoImage && (
-                        <div className="absolute bottom-6 right-6 p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20">
-                          <img src={logoImage} alt="Logo" className="w-12 h-12 object-contain" />
+                        <div className="absolute bottom-8 right-8 p-5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl">
+                          <img src={logoImage} alt="Logo" className="w-16 h-16 object-contain" />
                         </div>
                       )}
-                      
-                      {/* Scenario overlay simulation */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
                     </div>
                   )}
-                  <div className="mt-6 p-6 rounded-2xl bg-primary/5 border border-primary/10">
-                    <div className="flex items-center gap-3 mb-2">
+                  <div className="mt-8 p-8 rounded-3xl bg-primary/5 border border-primary/10 relative overflow-hidden">
+                    <div className="absolute -right-4 -top-4 w-16 h-16 bg-primary/10 blur-2xl rounded-full" />
+                    <div className="flex items-center gap-3 mb-3">
                       <Sparkles className="w-4 h-4 text-primary" />
-                      <span className="text-xs font-bold uppercase tracking-widest">IA Insight</span>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-primary">IA Insight</span>
                     </div>
-                    <p className="text-xs text-muted-foreground leading-relaxed italic">
+                    <p className="text-xs text-muted-foreground leading-relaxed italic font-medium">
                       "A composição selecionada ({scenario || '...'}) favorece o realismo fotográfico de nível profissional."
                     </p>
                   </div>
@@ -531,53 +402,98 @@ export const ProductCreator = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="space-y-8"
+              className="space-y-12"
             >
-              <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-8 rounded-[2rem] bg-emerald-500/5 border border-emerald-500/10">
-                <div className="flex items-center gap-5">
-                  <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 flex items-center justify-center">
-                    <Check className="w-8 h-8 text-emerald-500" />
+              <div className="flex flex-col md:flex-row items-center justify-between gap-8 p-10 rounded-[3rem] bg-emerald-500/5 border border-emerald-500/10 backdrop-blur-xl">
+                <div className="flex items-center gap-8">
+                  <div className="w-20 h-20 rounded-[2rem] bg-emerald-500/10 flex items-center justify-center shadow-lg shadow-emerald-500/10">
+                    <Check className="w-10 h-10 text-emerald-500" />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-black">Renderização Completa!</h2>
-                    <p className="text-muted-foreground">Suas variações em 4K foram geradas com fidelidade máxima.</p>
+                    <h2 className="text-4xl font-black italic uppercase tracking-tighter">Renderização Completa!</h2>
+                    <p className="text-muted-foreground font-medium text-lg">Suas variações em 4K foram geradas com fidelidade máxima.</p>
                   </div>
                 </div>
-                <Button variant="outline" onClick={() => { setStep(2); setGeneratedImages([]); }} className="h-14 rounded-2xl px-8 gap-2 border-emerald-500/20 hover:bg-emerald-500/5 transition-all">
-                  <RefreshCw className="w-4 h-4" />
-                  Gerar Novas Variações
-                </Button>
+                
+                <div className="flex items-center gap-4">
+                   <Button 
+                    variant="ghost"
+                    onClick={() => setShowComparison(!showComparison)}
+                    className={`h-16 rounded-2xl px-8 gap-3 font-bold transition-all ${showComparison ? 'bg-primary/10 text-primary' : 'text-muted-foreground'}`}
+                  >
+                    <Columns className="w-5 h-5" />
+                    {showComparison ? 'Ocultar Comparação' : 'Comparar com Original'}
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    onClick={() => { setStep(2); setGeneratedImages([]); setShowComparison(false); }} 
+                    className="h-16 rounded-2xl px-8 gap-3 border-emerald-500/20 hover:bg-emerald-500/5 transition-all font-bold"
+                  >
+                    <RefreshCw className="w-5 h-5" />
+                    Novas Variações
+                  </Button>
+                </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {showComparison && productImage && generatedImages.length > 0 && (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  className="w-full max-w-4xl mx-auto mb-16"
+                >
+                  <Card className="p-4 rounded-[3rem] bg-background/40 backdrop-blur-xl border-primary/20 overflow-hidden shadow-2xl">
+                    <div className="aspect-video relative rounded-[2rem] overflow-hidden">
+                      <BeforeAfterSlider 
+                        beforeImage={productImage}
+                        afterImage={generatedImages[0]}
+                      />
+                    </div>
+                  </Card>
+                </motion.div>
+              )}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 {generatedImages.map((img, index) => (
                   <motion.div 
                     key={index}
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: index * 0.1 }}
+                    className="relative"
                   >
-                    <Card className="overflow-hidden group rounded-[2rem] border-transparent hover:border-primary/30 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10">
-                      <div className="aspect-[4/5] relative">
-                        <img src={img} alt={`Render ${index + 1}`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col items-center justify-end p-8 gap-4">
+                    <Card className="overflow-hidden group rounded-[2.5rem] border-transparent hover:border-primary/30 transition-all duration-700 hover:shadow-[0_20px_60px_-15px_hsl(var(--primary)/0.2)]">
+                      <div className="aspect-[4/5] relative bg-background/50">
+                        {/* THE FIX: object-contain instead of object-cover in preview, or add a toggle */}
+                        <img 
+                          src={img} 
+                          alt={`Render ${index + 1}`} 
+                          className="w-full h-full object-contain p-2 transition-transform duration-1000 group-hover:scale-105" 
+                        />
+                        
+                        {/* Interaction Overlay */}
+                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col items-center justify-end p-8 gap-4">
                           <Button 
-                            className="w-full h-12 rounded-xl bg-white text-black hover:bg-white/90 gap-2 font-bold"
+                            className="w-full h-14 rounded-2xl bg-white text-black hover:bg-white/90 gap-3 font-black uppercase tracking-tighter italic"
                             onClick={() => downloadImage(img, index)}
                           >
-                            <Download className="w-4 h-4" /> Exportar 4K
+                            <Download className="w-5 h-5" /> Exportar 4K
                           </Button>
-                          <div className="flex gap-2 w-full">
-                            <Button variant="secondary" className="flex-1 h-12 rounded-xl bg-white/20 backdrop-blur-md border-white/20 text-white hover:bg-white/30">
-                              <Sliders className="w-4 h-4" />
-                            </Button>
-                            <Button variant="secondary" className="flex-1 h-12 rounded-xl bg-white/20 backdrop-blur-md border-white/20 text-white hover:bg-white/30">
-                              <ImageIcon className="w-4 h-4" />
+                          
+                          <div className="flex gap-3 w-full">
+                            <Button 
+                              variant="secondary" 
+                              onClick={() => setSelectedImageForViewer(img)}
+                              className="flex-1 h-14 rounded-2xl bg-white/20 backdrop-blur-xl border-white/20 text-white hover:bg-white/30 gap-2 font-bold"
+                            >
+                              <Maximize2 className="w-5 h-5" />
+                              <span className="text-[10px] uppercase tracking-widest">Full</span>
                             </Button>
                           </div>
                         </div>
-                        <div className="absolute top-4 left-4">
-                          <Badge className="bg-black/50 backdrop-blur-md border-white/20 text-white text-[10px] py-1 px-3">
+
+                        <div className="absolute top-6 left-6">
+                          <Badge className="bg-black/40 backdrop-blur-xl border-white/10 text-white text-[10px] font-black py-1.5 px-4 rounded-full uppercase tracking-widest">
                             VAR-{index + 1}
                           </Badge>
                         </div>
@@ -596,15 +512,15 @@ export const ProductCreator = () => {
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="mt-16 flex items-center justify-between py-8 border-t border-muted/50"
+          className="mt-20 flex items-center justify-between py-10 border-t border-white/5"
         >
           {step > 1 ? (
             <Button 
               variant="ghost" 
               onClick={() => setStep(step - 1)}
-              className="h-14 px-8 rounded-2xl gap-3 font-bold text-muted-foreground hover:text-foreground hover:bg-muted/30"
+              className="h-16 px-10 rounded-2xl gap-4 font-black uppercase tracking-widest text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all"
             >
-              <ChevronLeft className="w-5 h-5" /> Configurações
+              <ChevronLeft className="w-6 h-6" /> Configurações
             </Button>
           ) : <div />}
           
@@ -613,15 +529,15 @@ export const ProductCreator = () => {
               size="lg"
               onClick={() => step === 2 ? generateImages() : setStep(2)}
               disabled={step === 1 && !productImage}
-              className="h-14 px-12 rounded-2xl gap-3 font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_10px_30px_-10px_hsl(var(--primary))] hover:scale-105 transition-all duration-300"
+              className="h-16 px-14 rounded-2xl gap-4 font-black uppercase tracking-widest bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_20px_50px_-15px_hsl(var(--primary)/0.5)] hover:scale-105 transition-all duration-500 active:scale-95"
             >
               {step === 2 ? (
                 <>
-                  <Sparkles className="w-5 h-5" /> Iniciar Renderização Neural
+                  <Sparkles className="w-6 h-6" /> Renderizar
                 </>
               ) : (
                 <>
-                  Continuar <ChevronRight className="w-5 h-5" />
+                  Continuar <ChevronRight className="w-6 h-6" />
                 </>
               )}
             </Button>
@@ -629,7 +545,7 @@ export const ProductCreator = () => {
         </motion.div>
       )}
 
-      {/* Cropper Modal */}
+      {/* Modals & Overlays */}
       {rawProductImage && (
         <ImageCropper 
           image={rawProductImage}
@@ -645,6 +561,14 @@ export const ProductCreator = () => {
           }}
         />
       )}
+
+      {/* Fullscreen Viewer */}
+      <FullScreenImageViewer 
+        image={selectedImageForViewer || ""}
+        isOpen={!!selectedImageForViewer}
+        onClose={() => setSelectedImageForViewer(null)}
+        title={productName ? `Render: ${productName}` : "Arcana AI Render"}
+      />
     </div>
   );
 };
