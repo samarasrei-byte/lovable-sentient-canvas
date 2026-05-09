@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,13 +22,20 @@ import {
   X,
   Zap,
   ShieldCheck,
-  Eye
+  Eye,
+  Maximize2,
+  Columns
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { ImageCropper } from "./ImageCropper";
 import { GenerationProgressBar } from "./GenerationProgressBar";
 import { StayOnPageCard } from "./StayOnPageCard";
+import { FullScreenImageViewer } from "./image-audit/FullScreenImageViewer";
+import { PremiumUploadArea } from "./image-audit/PremiumUploadArea";
+import { BeforeAfterSlider } from "./BeforeAfterSlider";
+import { useMobile } from "@/hooks/use-mobile";
+
 
 const productCategories = [
   { id: "ecommerce", label: "E-commerce", prompt: "Product photography, white background, professional studio lighting, commercial quality" },
