@@ -125,7 +125,7 @@ export const ImageCropper = ({ image, open, onClose, onCropComplete, aspect = 1 
           />
         </div>
 
-        <div className="p-6 space-y-6 bg-card/50 backdrop-blur-md">
+        <div className="p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] space-y-6 bg-card/50 backdrop-blur-md">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-3">
               <div className="flex items-center justify-between text-xs font-medium text-muted-foreground uppercase tracking-wider">
