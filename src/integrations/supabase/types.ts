@@ -155,6 +155,33 @@ export type Database = {
         }
         Relationships: []
       }
+      api_health_logs: {
+        Row: {
+          created_at: string | null
+          error_message: string | null
+          id: string
+          provider: string
+          response_time_ms: number | null
+          status: string
+        }
+        Insert: {
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          provider: string
+          response_time_ms?: number | null
+          status: string
+        }
+        Update: {
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          provider?: string
+          response_time_ms?: number | null
+          status?: string
+        }
+        Relationships: []
+      }
       artists: {
         Row: {
           audio_url: string | null
@@ -1828,6 +1855,33 @@ export type Database = {
         }
         Relationships: []
       }
+      system_config: {
+        Row: {
+          description: string | null
+          id: string
+          key: string
+          updated_at: string | null
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          description?: string | null
+          id?: string
+          key: string
+          updated_at?: string | null
+          updated_by?: string | null
+          value: Json
+        }
+        Update: {
+          description?: string | null
+          id?: string
+          key?: string
+          updated_at?: string | null
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: []
+      }
       ticket_messages: {
         Row: {
           attachment_url: string | null
@@ -2049,7 +2103,14 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      admin_credit_stats: {
+        Row: {
+          total_circulating_credits: number | null
+          total_images_generated: number | null
+          total_users: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       add_credits: {
