@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/glass-button";
+import { motion } from "framer-motion";
+import { GlassButton } from "@/components/ui/glass-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,7 +29,8 @@ import {
   Server,
   Zap,
   BarChart3,
-  ShieldAlert
+  ShieldAlert,
+  RefreshCw
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -92,7 +94,7 @@ export const SuperAdminPanel = () => {
         .from('admin_credit_stats' as any)
         .select('*');
       
-      const firstRow = statsData?.[0];
+      const firstRow = statsData?.[0] as any;
       if (firstRow) {
         setStats(prev => ({
           ...prev,
