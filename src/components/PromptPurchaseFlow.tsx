@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GlassCard, GlassCardContent, GlassCardHeader, GlassCardTitle } from "@/components/ui/glass-card";
 import { GlassButton } from "@/components/ui/glass-button";
@@ -11,7 +11,7 @@ import {
   X, Upload, User, AtSign, Sparkles, QrCode, Copy, Check, Download,
   Loader2, CheckCircle2, Clock, Pencil, Plus, Trash2,
   RefreshCw, AlertTriangle, ImagePlus, Share2, Eye,
-  Smartphone, CreditCard, Camera, Heart, Palette
+  Smartphone, CreditCard, Camera, Heart, Palette, FileWarning
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { GenerationProgressBar } from "./GenerationProgressBar";
@@ -22,6 +22,29 @@ import { ModerationAppealModal } from "./ModerationAppealModal";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import heic2any from "heic2any";
+
+// Helper for image compression and safety (Scientist approach)
+const processImageForAudit = async (file: File): Promise<File> => {
+  // Convert HEIC if needed
+  let processedFile = file;
+  if (file.type === "image/heic" || file.name.toLowerCase().endsWith(".heic")) {
+    try {
+      const convertedBlob = await heic2any({ blob: file, toType: "image/jpeg", quality: 0.8 }) as Blob;
+      processedFile = new File([convertedBlob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", { type: "image/jpeg" });
+    } catch (e) {
+      console.error("HEIC conversion failed", e);
+      throw new Error("Falha ao converter formato Apple (HEIC). Tente JPG ou PNG.");
+    }
+  }
+
+  // Basic check for size to avoid crashing browser
+  if (processedFile.size > 20 * 1024 * 1024) {
+    throw new Error("Imagem muito grande (máximo 20MB).");
+  }
+
+  return processedFile;
+};
 
 interface Prompt {
   id: string;
