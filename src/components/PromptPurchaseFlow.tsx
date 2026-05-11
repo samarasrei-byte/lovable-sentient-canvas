@@ -2736,3 +2736,16 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
     </Dialog>
   );
 };
+
+// Data Science Audit: Effect to clean up blobs on unmount
+const useBlobCleanup = (photos: any[]) => {
+  useEffect(() => {
+    return () => {
+      photos.forEach(photo => {
+        if (photo.preview && photo.preview.startsWith('blob:')) {
+          URL.revokeObjectURL(photo.preview);
+        }
+      });
+    };
+  }, []);
+};
