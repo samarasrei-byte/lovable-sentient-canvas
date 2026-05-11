@@ -576,7 +576,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
 
       setPhotos((prev) => {
         const updated = [...prev];
-        updated[index] = { file, preview, status: 'analyzing' };
+        updated[index] = { file: processedFile, preview, status: 'analyzing' };
         return updated;
       });
 
