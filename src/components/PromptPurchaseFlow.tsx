@@ -542,7 +542,10 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       });
 
     try {
-      const dataUrl = await readAsDataUrl(file);
+      toast.loading("Processando imagem...", { id: `photo-upload-${index}` });
+      
+      const processedFile = await processImageForAudit(file);
+      const dataUrl = await readAsDataUrl(processedFile);
       const img = await loadImage(dataUrl);
 
       const quality = validatePhotoQuality(img);
@@ -558,7 +561,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       if (quality.warning) {
         toast.warning(quality.warning, { id: `photo-upload-${index}`, duration: 5000 });
       } else {
-        toast.success('Foto carregada!', { id: `photo-upload-${index}` });
+        toast.success('Foto pronta!', { id: `photo-upload-${index}` });
       }
 
       const canvas = document.createElement('canvas');
