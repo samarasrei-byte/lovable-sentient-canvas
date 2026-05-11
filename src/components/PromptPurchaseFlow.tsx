@@ -1930,65 +1930,159 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                 </div>
 
                 {/* Hero Upload Area */}
-                <div className="flex-1 min-h-0">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {photos.map((photo, index) => (
-                      <div 
+                <div className="flex-1 min-h-0 space-y-4">
+                  {photos.map((photo, index) => {
+                    const isHero = index === 0;
+                    if (isHero) {
+                      return (
+                        <div key={index} className="relative">
+                          {/* Gradient border wrapper */}
+                          <div className="relative rounded-[28px] p-[1.5px] bg-gradient-to-br from-primary/70 via-primary/20 to-cyan-400/70">
+                            <div className="relative rounded-[26px] bg-[#0F0B17] overflow-hidden">
+                              {/* subtle grid background */}
+                              <div
+                                className="absolute inset-0 opacity-[0.07] pointer-events-none"
+                                style={{
+                                  backgroundImage:
+                                    'linear-gradient(to right, rgba(255,255,255,.5) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,.5) 1px, transparent 1px)',
+                                  backgroundSize: '24px 24px',
+                                }}
+                              />
+                              <input
+                                type="file"
+                                ref={el => fileInputRefs.current[index] = el}
+                                onChange={(e) => handlePhotoUpload(index, e)}
+                                accept="image/*"
+                                className="hidden"
+                              />
+
+                              {photo.preview ? (
+                                <div className="relative w-full aspect-square max-h-[60vh]">
+                                  <img src={photo.preview} alt="Sua melhor foto" className="w-full h-full object-contain" />
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      const nextPhotos = [...photos];
+                                      nextPhotos[index] = { file: null, preview: '' };
+                                      setPhotos(nextPhotos);
+                                    }}
+                                    className="absolute top-3 right-3 p-2 rounded-full bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-all backdrop-blur-md"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                  {analyzingPhotoSlots.includes(index) && (
+                                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center gap-3">
+                                      <Loader2 className="w-10 h-10 text-primary animate-spin" />
+                                      <p className="text-xs font-black uppercase tracking-widest text-primary">Analisando traços...</p>
+                                    </div>
+                                  )}
+                                </div>
+                              ) : (
+                                <div className="relative px-6 py-8 sm:py-10 flex flex-col items-center text-center">
+                                  {/* Camera icon with green dot */}
+                                  <div className="relative mb-5">
+                                    <div className="w-[88px] h-[88px] rounded-3xl bg-primary/15 border border-primary/25 flex items-center justify-center shadow-[0_0_40px_-10px_hsl(var(--primary)/0.6)]">
+                                      <Camera className="w-10 h-10 text-primary" strokeWidth={1.75} />
+                                    </div>
+                                    <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-green-400 ring-4 ring-[#0F0B17] shadow-[0_0_12px_hsl(142_76%_50%/0.8)]" />
+                                  </div>
+
+                                  <h3 className="text-2xl font-black text-white tracking-tight mb-2">
+                                    Sua melhor foto
+                                  </h3>
+                                  <p className="text-sm text-white/55 leading-relaxed max-w-[300px] mb-5">
+                                    Rosto visível, boa iluminação, de frente.
+                                    Quanto melhor a foto, mais parecido fica!
+                                  </p>
+
+                                  {/* Checklist */}
+                                  <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mb-7">
+                                    <span className="text-xs font-semibold text-primary/90 flex items-center gap-1.5">
+                                      <span className="text-green-400">✅</span> Rosto de frente
+                                    </span>
+                                    <span className="text-xs font-semibold text-primary/90 flex items-center gap-1.5">
+                                      <span className="text-green-400">✅</span> Boa luz
+                                    </span>
+                                    <span className="text-xs font-semibold text-primary/90 flex items-center gap-1.5">
+                                      <span className="text-green-400">✅</span> Sem óculos escuros
+                                    </span>
+                                  </div>
+
+                                  {/* Gradient CTA */}
+                                  <button
+                                    onClick={() => fileInputRefs.current[index]?.click()}
+                                    className="w-full max-w-[340px] h-14 rounded-2xl font-black text-white text-base tracking-tight flex items-center justify-center gap-3 bg-gradient-to-r from-[#A855F7] via-[#8B5CF6] to-[#22D3EE] shadow-[0_10px_30px_-10px_rgba(139,92,246,0.7)] hover:shadow-[0_14px_40px_-10px_rgba(139,92,246,0.9)] active:scale-[0.99] transition-all"
+                                  >
+                                    <Upload className="w-5 h-5" />
+                                    Escolher foto
+                                  </button>
+
+                                  {/* Format info */}
+                                  <div className="flex items-center justify-center gap-5 mt-5 text-[11px] font-medium text-white/40">
+                                    <span className="flex items-center gap-1.5">
+                                      <CheckCircle2 className="w-3.5 h-3.5 text-green-400/80" />
+                                      JPG, PNG, HEIC
+                                    </span>
+                                    <span className="flex items-center gap-1.5">
+                                      <CheckCircle2 className="w-3.5 h-3.5 text-green-400/80" />
+                                      Até 20MB
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    // Additional photo slots (consistent style, smaller)
+                    return (
+                      <div
                         key={index}
                         className={cn(
-                          "relative group aspect-[4/5] rounded-[32px] overflow-hidden border-2 transition-all duration-500",
-                          photo.file ? "border-primary/40 bg-[#0A0A0B]" : "border-white/5 bg-white/[0.02] border-dashed hover:border-primary/30 hover:bg-primary/[0.02]",
-                          index === 0 && photos.length > 1 ? "md:col-span-2 lg:col-span-2 aspect-[16/10] sm:aspect-[16/9]" : ""
+                          "relative group aspect-[4/5] rounded-[24px] overflow-hidden border-2 transition-all duration-500",
+                          photo.file ? "border-primary/40 bg-[#0A0A0B]" : "border-white/10 bg-white/[0.02] border-dashed hover:border-primary/30"
                         )}
                       >
                         {photo.preview ? (
-                          <div className="relative w-full h-full group/preview">
-                            <img src={photo.preview} alt={`Foto ${index + 1}`} className="w-full h-full object-cover transition-transform duration-700 group-hover/preview:scale-110" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 opacity-0 group-hover/preview:opacity-100 transition-opacity flex flex-col justify-between p-4">
-                              <div className="flex justify-between items-start">
-                                <Badge className="bg-primary/80 backdrop-blur-md border-none">{getPhotoLabel(index)}</Badge>
-                                <button 
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const nextPhotos = [...photos];
-                                    nextPhotos[index] = { file: null, preview: '' };
-                                    setPhotos(nextPhotos);
-                                  }}
-                                  className="p-2 rounded-full bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-all backdrop-blur-md"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              </div>
-                            </div>
-                            {analyzingPhotoSlots.includes(index) && (
-                              <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center space-y-3">
-                                <Loader2 className="w-10 h-10 text-primary animate-spin" />
-                                <p className="text-xs font-black uppercase tracking-widest text-primary animate-pulse">Analisando traços...</p>
-                              </div>
-                            )}
+                          <div className="relative w-full h-full">
+                            <img src={photo.preview} alt={`Foto ${index + 1}`} className="w-full h-full object-cover" />
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const nextPhotos = [...photos];
+                                nextPhotos[index] = { file: null, preview: '' };
+                                setPhotos(nextPhotos);
+                              }}
+                              className="absolute top-2 right-2 p-2 rounded-full bg-red-500/30 text-white hover:bg-red-500 backdrop-blur-md"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                            <Badge className="absolute bottom-2 left-2 bg-primary/80 backdrop-blur-md border-none">{getPhotoLabel(index)}</Badge>
                           </div>
                         ) : (
-                          <div 
+                          <div
                             onClick={() => fileInputRefs.current[index]?.click()}
-                            className="w-full h-full flex flex-col items-center justify-center cursor-pointer p-8 group/upload"
+                            className="w-full h-full flex flex-col items-center justify-center cursor-pointer p-6"
                           >
-                            <input 
-                              type="file" 
+                            <input
+                              type="file"
                               ref={el => fileInputRefs.current[index] = el}
                               onChange={(e) => handlePhotoUpload(index, e)}
                               accept="image/*"
                               className="hidden"
                             />
-                            <div className="w-16 h-16 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center mb-4 group-hover/upload:scale-110 group-hover/upload:bg-primary/10 group-hover/upload:border-primary/20 transition-all duration-500">
-                              <ImagePlus className="w-8 h-8 text-white/20 group-hover/upload:text-primary transition-colors" />
+                            <div className="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-3">
+                              <ImagePlus className="w-7 h-7 text-primary/70" />
                             </div>
-                            <p className="text-sm font-bold text-white/40 group-hover/upload:text-white transition-colors">{getPhotoLabel(index)}</p>
-                            <p className="text-[10px] uppercase tracking-[0.2em] text-white/10 mt-2 font-black">Toque para enviar</p>
+                            <p className="text-sm font-bold text-white/70">{getPhotoLabel(index)}</p>
+                            <p className="text-[10px] uppercase tracking-[0.2em] text-white/30 mt-1 font-black">Toque para enviar</p>
                           </div>
                         )}
                       </div>
-                    ))}
-                  </div>
+                    );
+                  })}
                 </div>
 
                 <div className="sticky bottom-0 pt-4 pb-2 bg-gradient-to-t from-[#0A0A0B] to-transparent">
