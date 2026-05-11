@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { GlassButton } from "@/components/ui/glass-button";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -89,7 +90,7 @@ export const SuperAdminPanel = () => {
   const fetchSystemData = async () => {
     try {
       setLoading(true);
-      // Fetch stats from our new view (added via migration)
+      // Fetch stats from our new view
       const { data: statsData, error: statsError } = await supabase
         .from('admin_credit_stats' as any)
         .select('*');
@@ -187,9 +188,9 @@ export const SuperAdminPanel = () => {
                  <span className="text-xs font-black text-white/70">24%</span>
               </div>
             </div>
-            <Button variant="outline" size="icon" onClick={fetchSystemData} className="rounded-2xl border-white/10 bg-white/5 hover:bg-white/10">
+            <GlassButton variant="outline" size="icon" onClick={fetchSystemData} className="rounded-2xl border-white/10 bg-white/5 hover:bg-white/10">
               <RefreshCw className={cn("w-5 h-5", loading && "animate-spin")} />
-            </Button>
+            </GlassButton>
           </div>
         </div>
       </div>
@@ -306,6 +307,54 @@ export const SuperAdminPanel = () => {
           </div>
         </TabsContent>
 
+        <TabsContent value="products" className="mt-10">
+          <Card className="bg-white/[0.02] border-white/5 rounded-[2.5rem] overflow-hidden">
+            <CardHeader className="p-10 flex flex-row items-center justify-between border-b border-white/5">
+              <div>
+                <CardTitle className="text-2xl font-black uppercase italic tracking-tighter">Templates de Produtos</CardTitle>
+                <CardDescription className="text-xs font-bold uppercase tracking-widest text-white/30">Gerencie os ativos neurais para e-commerce</CardDescription>
+              </div>
+              <Button className="gap-3 rounded-2xl bg-primary hover:bg-primary/80 h-12 px-6 font-black uppercase tracking-widest text-[10px]">
+                <Plus className="w-4 h-4" />
+                Novo Template
+              </Button>
+            </CardHeader>
+            <CardContent className="p-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {productTemplates.map((template) => (
+                  <Card key={template.id} className="overflow-hidden bg-white/5 border-white/5 rounded-[2rem] group">
+                    <div className="aspect-video relative overflow-hidden">
+                      <img src={template.image} alt={template.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                      <Badge className="absolute top-4 right-4 bg-black/60 backdrop-blur-md border-none rounded-full px-4 py-1 font-black text-[10px] uppercase tracking-widest">{template.credits} CRÉDITOS</Badge>
+                    </div>
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="font-black uppercase tracking-tight text-lg italic">{template.name}</h3>
+                        <Switch checked={template.active} />
+                      </div>
+                      <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-4">{template.category}</p>
+                      <div className="flex gap-2 mb-6">
+                        {template.tags.map(tag => (
+                          <Badge key={tag} variant="outline" className="text-[9px] font-black uppercase tracking-widest border-white/10 rounded-full px-3">{tag}</Badge>
+                        ))}
+                      </div>
+                      <div className="flex gap-3">
+                        <Button variant="outline" size="sm" className="flex-1 gap-2 rounded-xl h-10 font-black uppercase text-[10px] border-white/5 hover:bg-white/5">
+                          <Edit className="w-3 h-3" />
+                          Editar
+                        </Button>
+                        <Button variant="destructive" size="sm" className="gap-2 rounded-xl h-10 w-10 p-0 border-none bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         <TabsContent value="settings" className="mt-10 outline-none focus:ring-0">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <Card className="bg-white/[0.02] border-white/5 rounded-[2.5rem] overflow-hidden">
@@ -392,10 +441,10 @@ export const SuperAdminPanel = () => {
           </div>
 
           <div className="flex justify-end pt-10">
-            <Button onClick={handleSaveSettings} className="h-16 px-12 bg-primary hover:bg-primary/80 text-white font-black rounded-[1.5rem] gap-3 uppercase tracking-widest shadow-2xl shadow-primary/20">
+            <GlassButton onClick={handleSaveSettings} className="h-16 px-12 bg-primary hover:bg-primary/80 text-white font-black rounded-[1.5rem] gap-3 uppercase tracking-widest shadow-2xl shadow-primary/20">
               <Save className="w-5 h-5" />
               Commit System Changes
-            </Button>
+            </GlassButton>
           </div>
         </TabsContent>
       </Tabs>
