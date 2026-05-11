@@ -2120,7 +2120,7 @@ export type Database = {
           p_type?: string
           p_user_id: string
         }
-        Returns: number
+        Returns: undefined
       }
       consume_credits: {
         Args: {
@@ -2138,21 +2138,6 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
-      }
-      is_user_banned: { Args: { _user_id: string }; Returns: boolean }
-      log_admin_action: {
-        Args: {
-          p_action: string
-          p_entity_id: string
-          p_entity_type: string
-          p_new_data?: Json
-          p_old_data?: Json
-        }
-        Returns: string
-      }
-      reset_monthly_credits: {
-        Args: { p_new_credits: number; p_user_id: string }
-        Returns: number
       }
     }
     Enums: {
