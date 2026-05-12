@@ -81,6 +81,7 @@ const AdminDashboard = () => {
       { count: pendingWithdrawals },
       { count: totalPrompts },
       { count: totalPurchases },
+      { data: blockedData },
     ] = await Promise.all([
       supabase.from("profiles").select("*", { count: "exact", head: true }),
       supabase.from("influencers").select("*"),
@@ -93,7 +94,22 @@ const AdminDashboard = () => {
       supabase.from("withdrawals").select("*", { count: "exact", head: true }).eq("status", "pending"),
       supabase.from("prompts").select("*", { count: "exact", head: true }),
       supabase.from("prompt_purchases").select("*", { count: "exact", head: true }),
+      supabase.from("blocked_prompts").select("severity"),
     ]);
+
+    const blockedCount = blockedData?.length || 0;
+    const criticalBlocked = blockedData?.filter(b => b.severity === 'critical').length || 0;
+    setBlockedStats({ total: blockedCount, critical: criticalBlocked });
+
+    const newAlerts: PlatformAlert[] = [];
+    if (criticalBlocked > 0) {
+      newAlerts.push({
+        type: 'security',
+        severity: 'critical',
+        message: `${criticalBlocked} tentativas críticas bloqueadas`,
+        details: 'Foram detectadas tentativas de geração de conteúdo envolvendo menores.'
+      });
+    }
 
     const totalInfluencers = influencers?.length || 0;
 
