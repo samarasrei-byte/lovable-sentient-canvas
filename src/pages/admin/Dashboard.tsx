@@ -19,6 +19,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 interface Stats {
   totalUsers: number;
@@ -44,6 +45,13 @@ interface TopPrompt {
   count: number;
 }
 
+interface PlatformAlert {
+  type: 'security' | 'financial' | 'system';
+  message: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  details?: string;
+}
+
 const AdminDashboard = () => {
   const [stats, setStats] = useState<Stats>({
     totalUsers: 0, totalInfluencers: 0, activeInfluencers: 0,
@@ -54,6 +62,9 @@ const AdminDashboard = () => {
   });
   const [loading, setLoading] = useState(true);
   const [topPrompts, setTopPrompts] = useState<TopPrompt[]>([]);
+  const [alerts, setAlerts] = useState<PlatformAlert[]>([]);
+  const [blockedStats, setBlockedStats] = useState({ total: 0, critical: 0 });
+  const [healthStats, setHealthStats] = useState<{ failureRate: number; successCount: number; failCount: number } | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => { loadStats(); }, []);
@@ -72,6 +83,8 @@ const AdminDashboard = () => {
       { count: pendingWithdrawals },
       { count: totalPrompts },
       { count: totalPurchases },
+      { data: blockedData },
+      { data: healthData },
     ] = await Promise.all([
       supabase.from("profiles").select("*", { count: "exact", head: true }),
       supabase.from("influencers").select("*"),
@@ -84,7 +97,42 @@ const AdminDashboard = () => {
       supabase.from("withdrawals").select("*", { count: "exact", head: true }).eq("status", "pending"),
       supabase.from("prompts").select("*", { count: "exact", head: true }),
       supabase.from("prompt_purchases").select("*", { count: "exact", head: true }),
+      supabase.from("blocked_prompts").select("severity"),
+      supabase.from("system_health_stats").select("*").single(),
     ]);
+
+    if (healthData) {
+      setHealthStats({
+        failureRate: healthData.failure_rate || 0,
+        successCount: healthData.successful_generations || 0,
+        failCount: healthData.failed_generations || 0
+      });
+    }
+
+    const blockedCount = blockedData?.length || 0;
+    const criticalBlocked = blockedData?.filter(b => b.severity === 'critical').length || 0;
+    setBlockedStats({ total: blockedCount, critical: criticalBlocked });
+
+    const newAlerts: PlatformAlert[] = [];
+    if (criticalBlocked > 0) {
+      newAlerts.push({
+        type: 'security',
+        severity: 'critical',
+        message: `${criticalBlocked} tentativas críticas bloqueadas`,
+        details: 'Foram detectadas tentativas de geração de conteúdo envolvendo menores.'
+      });
+    }
+
+    if (healthData && (healthData as any).failure_rate > 15) {
+      newAlerts.push({
+        type: 'system',
+        severity: (healthData as any).failure_rate > 30 ? 'critical' : 'high',
+        message: `Taxa de falha crítica na geração: ${(healthData as any).failure_rate.toFixed(1)}%`,
+        details: 'O sistema está rejeitando ou falhando em muitas gerações. Verifique créditos da API ou logs de segurança.'
+      });
+    }
+    
+    setAlerts(newAlerts);
 
     const totalInfluencers = influencers?.length || 0;
 
@@ -147,7 +195,42 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="space-y-6 max-w-7xl">
+    <div className="space-y-6 max-w-7xl pb-10">
+      {/* Platform Health & Audit Alerts */}
+      {alerts.length > 0 && (
+        <div className="grid grid-cols-1 gap-3">
+          {alerts.map((alert, idx) => (
+            <Card key={idx} className={`p-4 border-l-4 ${
+              alert.severity === 'critical' ? 'border-l-destructive bg-destructive/5' : 
+              alert.severity === 'high' ? 'border-l-orange-500 bg-orange-50/30' : 
+              'border-l-blue-500 bg-blue-50/30'
+            }`}>
+              <div className="flex items-start gap-4">
+                <div className={`p-2 rounded-full ${
+                  alert.severity === 'critical' ? 'bg-destructive/10 text-destructive' : 
+                  alert.severity === 'high' ? 'bg-orange-100 text-orange-600' : 
+                  'bg-blue-100 text-blue-600'
+                }`}>
+                  <AlertCircle className="h-5 w-5" />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-bold">{alert.message}</h3>
+                    <Badge variant={alert.severity === 'critical' ? 'destructive' : 'outline'} className="text-[10px] uppercase">
+                      {alert.severity}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">{alert.details}</p>
+                </div>
+                <Button variant="ghost" size="sm" onClick={() => navigate("/admin/logs")} className="text-xs">
+                  Ver Auditoria
+                </Button>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
+
       {/* KPI Cards - Primary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <KPICard
@@ -232,6 +315,39 @@ const AdminDashboard = () => {
           onClick={() => navigate("/admin/users")}
         />
       </div>
+
+      {/* Health Stats */}
+      {healthStats && (
+        <Card className="p-5 border-border/40 bg-card/30">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-semibold flex items-center gap-2">
+              <Activity className={cn("h-4 w-4", healthStats.failureRate > 15 ? "text-destructive" : "text-green-500")} />
+              Saúde do Motor de IA (Últimos 7 dias)
+            </h3>
+            <Badge variant={healthStats.failureRate > 15 ? "destructive" : "outline"}>
+              {healthStats.failureRate.toFixed(1)}% falha
+            </Badge>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <p className="text-2xl font-black text-green-500">{healthStats.successCount}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Sucessos</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-2xl font-black text-destructive">{healthStats.failCount}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Falhas/Bloqueios</p>
+            </div>
+          </div>
+          <div className="mt-4 pt-4 border-t border-border/10">
+            <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
+              <div 
+                className={cn("h-full transition-all", healthStats.failureRate > 15 ? "bg-destructive" : "bg-green-500")}
+                style={{ width: `${100 - healthStats.failureRate}%` }}
+              />
+            </div>
+          </div>
+        </Card>
+      )}
 
       {/* Top Prompts Ranking */}
       {topPrompts.length > 0 && (

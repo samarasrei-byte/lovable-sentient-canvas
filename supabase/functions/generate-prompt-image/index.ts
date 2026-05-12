@@ -219,7 +219,28 @@ serve(async (req) => {
     });
 
   } catch (error: any) {
-    console.error("Error:", error);
+    console.error("Error in generate-prompt-image:", error);
+    
+    try {
+      const supabaseAdmin = createClient(
+        Deno.env.get("SUPABASE_URL")!,
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+      );
+      
+      const body = await req.clone().json().catch(() => ({}));
+      const purchaseId = body?.purchaseId;
+      
+      if (purchaseId) {
+        await supabaseAdmin.from("prompt_purchases").update({
+          generation_status: "failed",
+          error_message: error.message || "Unknown error",
+          failed_at: new Date().toISOString()
+        }).eq("id", purchaseId);
+      }
+    } catch (dbError) {
+      console.error("Failed to log error to DB:", dbError);
+    }
+
     return new Response(JSON.stringify({ error: error.message || "Unknown error" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" }

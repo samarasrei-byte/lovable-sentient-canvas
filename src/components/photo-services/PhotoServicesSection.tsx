@@ -5,6 +5,7 @@ import { GlassButton } from "@/components/ui/glass-button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { PhotoServiceModal } from "./PhotoServiceModal";
+import { PremiumServiceCard } from "./PremiumServiceCard";
 
 interface PhotoService {
   id: string;
@@ -98,67 +99,15 @@ export const PhotoServicesSection = () => {
         </header>
 
         {/* Services Grid */}
-        <div className="grid md:grid-cols-2 gap-6 lg:gap-8 mb-10">
-          {services.map((service) => {
-            const Icon = getCategoryIcon(service.category);
-            const isMesversario = service.category === 'mesversario' || service.category === 'foto_infantil';
-            
-            return (
-              <GlassCard key={service.id} className="h-full group hover:border-secondary/40 transition-all duration-300 overflow-hidden">
-                <GlassCardContent className="p-6 md:p-8 relative">
-                  <div className="flex items-start justify-between mb-6">
-                    <div className="flex items-center gap-4">
-                      <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-secondary/20 to-primary/20 flex items-center justify-center border border-secondary/30">
-                        <Icon className="w-7 h-7 text-secondary" />
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-foreground mb-1">{service.name}</h3>
-                        <Badge className="bg-secondary/20 text-secondary border-secondary/30 text-xs">
-                          {service.themes.length} temas disponíveis
-                        </Badge>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-secondary">{formatPrice(service.price_cents)}</div>
-                      <div className="text-xs text-muted-foreground">pacote completo</div>
-                    </div>
-                  </div>
-
-                  <p className="text-muted-foreground text-sm leading-relaxed mb-6">{service.description}</p>
-
-                  <div className="grid grid-cols-2 gap-3 mb-6">
-                    {service.features.map((feature, idx) => (
-                      <div key={idx} className="flex items-center gap-2 text-sm text-foreground/80">
-                        <div className="w-1.5 h-1.5 rounded-full bg-secondary" />
-                        {feature}
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="mb-6">
-                    <div className="text-xs text-muted-foreground mb-2 uppercase tracking-wide">Alguns temas:</div>
-                    <div className="flex flex-wrap gap-2">
-                      {service.themes.slice(0, 4).map((theme) => (
-                        <span key={theme.id} className="px-3 py-1 rounded-full bg-muted/50 text-xs text-foreground/70 border border-border">
-                          {theme.name}
-                        </span>
-                      ))}
-                      {service.themes.length > 4 && (
-                        <span className="px-3 py-1 rounded-full bg-primary/20 text-xs text-primary border border-primary/30">
-                          +{service.themes.length - 4} mais
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <GlassButton variant="neon" className="w-full" onClick={() => setSelectedService(service)}>
-                    <Upload className="w-4 h-4 mr-2" />
-                    {isMesversario ? 'Criar Minha Foto Infantil' : 'Gerar Minha Foto Profissional'}
-                  </GlassButton>
-                </GlassCardContent>
-              </GlassCard>
-            );
-          })}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 mb-10">
+          {services.map((service, index) => (
+            <PremiumServiceCard 
+              key={service.id} 
+              service={service} 
+              isFirst={index === 0}
+              onClick={() => setSelectedService(service)}
+            />
+          ))}
         </div>
 
         {/* Features Highlight */}
