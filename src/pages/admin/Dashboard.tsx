@@ -84,6 +84,7 @@ const AdminDashboard = () => {
       { count: totalPrompts },
       { count: totalPurchases },
       { data: blockedData },
+      { data: healthData },
     ] = await Promise.all([
       supabase.from("profiles").select("*", { count: "exact", head: true }),
       supabase.from("influencers").select("*"),
