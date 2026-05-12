@@ -1568,6 +1568,8 @@ export type Database = {
           amount_cents: number
           created_at: string
           custom_fields: Json | null
+          error_message: string | null
+          failed_at: string | null
           generated_image_url: string | null
           generation_status: string
           id: string
@@ -1585,6 +1587,8 @@ export type Database = {
           amount_cents: number
           created_at?: string
           custom_fields?: Json | null
+          error_message?: string | null
+          failed_at?: string | null
           generated_image_url?: string | null
           generation_status?: string
           id?: string
@@ -1602,6 +1606,8 @@ export type Database = {
           amount_cents?: number
           created_at?: string
           custom_fields?: Json | null
+          error_message?: string | null
+          failed_at?: string | null
           generated_image_url?: string | null
           generation_status?: string
           id?: string
@@ -2108,6 +2114,15 @@ export type Database = {
           total_circulating_credits: number | null
           total_images_generated: number | null
           total_users: number | null
+        }
+        Relationships: []
+      }
+      system_health_stats: {
+        Row: {
+          failed_generations: number | null
+          failure_rate: number | null
+          last_failure_at: string | null
+          successful_generations: number | null
         }
         Relationships: []
       }
