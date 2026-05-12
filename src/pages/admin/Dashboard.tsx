@@ -123,6 +123,17 @@ const AdminDashboard = () => {
       });
     }
 
+    if (healthData && (healthData as any).failure_rate > 15) {
+      newAlerts.push({
+        type: 'system',
+        severity: (healthData as any).failure_rate > 30 ? 'critical' : 'high',
+        message: `Taxa de falha crítica na geração: ${(healthData as any).failure_rate.toFixed(1)}%`,
+        details: 'O sistema está rejeitando ou falhando em muitas gerações. Verifique créditos da API ou logs de segurança.'
+      });
+    }
+    
+    setAlerts(newAlerts);
+
     const totalInfluencers = influencers?.length || 0;
 
     setStats({
