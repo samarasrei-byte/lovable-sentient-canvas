@@ -44,6 +44,13 @@ interface TopPrompt {
   count: number;
 }
 
+interface PlatformAlert {
+  type: 'security' | 'financial' | 'system';
+  message: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  details?: string;
+}
+
 const AdminDashboard = () => {
   const [stats, setStats] = useState<Stats>({
     totalUsers: 0, totalInfluencers: 0, activeInfluencers: 0,
@@ -54,6 +61,8 @@ const AdminDashboard = () => {
   });
   const [loading, setLoading] = useState(true);
   const [topPrompts, setTopPrompts] = useState<TopPrompt[]>([]);
+  const [alerts, setAlerts] = useState<PlatformAlert[]>([]);
+  const [blockedStats, setBlockedStats] = useState({ total: 0, critical: 0 });
   const navigate = useNavigate();
 
   useEffect(() => { loadStats(); }, []);
@@ -147,7 +156,42 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="space-y-6 max-w-7xl">
+    <div className="space-y-6 max-w-7xl pb-10">
+      {/* Platform Health & Audit Alerts */}
+      {alerts.length > 0 && (
+        <div className="grid grid-cols-1 gap-3">
+          {alerts.map((alert, idx) => (
+            <Card key={idx} className={`p-4 border-l-4 ${
+              alert.severity === 'critical' ? 'border-l-destructive bg-destructive/5' : 
+              alert.severity === 'high' ? 'border-l-orange-500 bg-orange-50/30' : 
+              'border-l-blue-500 bg-blue-50/30'
+            }`}>
+              <div className="flex items-start gap-4">
+                <div className={`p-2 rounded-full ${
+                  alert.severity === 'critical' ? 'bg-destructive/10 text-destructive' : 
+                  alert.severity === 'high' ? 'bg-orange-100 text-orange-600' : 
+                  'bg-blue-100 text-blue-600'
+                }`}>
+                  <AlertCircle className="h-5 w-5" />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-bold">{alert.message}</h3>
+                    <Badge variant={alert.severity === 'critical' ? 'destructive' : 'outline'} className="text-[10px] uppercase">
+                      {alert.severity}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">{alert.details}</p>
+                </div>
+                <Button variant="ghost" size="sm" onClick={() => navigate("/admin/logs")} className="text-xs">
+                  Ver Auditoria
+                </Button>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
+
       {/* KPI Cards - Primary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <KPICard
