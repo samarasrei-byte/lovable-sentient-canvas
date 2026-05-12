@@ -63,6 +63,8 @@ const AdminDashboard = () => {
   const [topPrompts, setTopPrompts] = useState<TopPrompt[]>([]);
   const [alerts, setAlerts] = useState<PlatformAlert[]>([]);
   const [blockedStats, setBlockedStats] = useState({ total: 0, critical: 0 });
+  const [healthStats, setHealthStats] = useState<{ failureRate: number; successCount: number; failCount: number } | null>(null);
+  const navigate = useNavigate();
   const navigate = useNavigate();
 
   useEffect(() => { loadStats(); }, []);
@@ -95,7 +97,16 @@ const AdminDashboard = () => {
       supabase.from("prompts").select("*", { count: "exact", head: true }),
       supabase.from("prompt_purchases").select("*", { count: "exact", head: true }),
       supabase.from("blocked_prompts").select("severity"),
+      supabase.from("system_health_stats").select("*").single(),
     ]);
+
+    if (healthData) {
+      setHealthStats({
+        failureRate: healthData.failure_rate || 0,
+        successCount: healthData.successful_generations || 0,
+        failCount: healthData.failed_generations || 0
+      });
+    }
 
     const blockedCount = blockedData?.length || 0;
     const criticalBlocked = blockedData?.filter(b => b.severity === 'critical').length || 0;
@@ -292,6 +303,39 @@ const AdminDashboard = () => {
           onClick={() => navigate("/admin/users")}
         />
       </div>
+
+      {/* Health Stats */}
+      {healthStats && (
+        <Card className="p-5 border-border/40 bg-card/30">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-semibold flex items-center gap-2">
+              <Activity className={cn("h-4 w-4", healthStats.failureRate > 15 ? "text-destructive" : "text-green-500")} />
+              Saúde do Motor de IA (Últimos 7 dias)
+            </h3>
+            <Badge variant={healthStats.failureRate > 15 ? "destructive" : "outline"}>
+              {healthStats.failureRate.toFixed(1)}% falha
+            </Badge>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <p className="text-2xl font-black text-green-500">{healthStats.successCount}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Sucessos</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-2xl font-black text-destructive">{healthStats.failCount}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Falhas/Bloqueios</p>
+            </div>
+          </div>
+          <div className="mt-4 pt-4 border-t border-border/10">
+            <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
+              <div 
+                className={cn("h-full transition-all", healthStats.failureRate > 15 ? "bg-destructive" : "bg-green-500")}
+                style={{ width: `${100 - healthStats.failureRate}%` }}
+              />
+            </div>
+          </div>
+        </Card>
+      )}
 
       {/* Top Prompts Ranking */}
       {topPrompts.length > 0 && (
