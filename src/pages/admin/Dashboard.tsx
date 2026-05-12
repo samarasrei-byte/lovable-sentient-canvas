@@ -19,6 +19,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 interface Stats {
   totalUsers: number;
@@ -64,7 +65,6 @@ const AdminDashboard = () => {
   const [alerts, setAlerts] = useState<PlatformAlert[]>([]);
   const [blockedStats, setBlockedStats] = useState({ total: 0, critical: 0 });
   const [healthStats, setHealthStats] = useState<{ failureRate: number; successCount: number; failCount: number } | null>(null);
-  const navigate = useNavigate();
   const navigate = useNavigate();
 
   useEffect(() => { loadStats(); }, []);
