@@ -133,10 +133,10 @@ export default function Dashboard() {
       </motion.div>
 
       {/* ===== STATS ROW ===== */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
           { icon: CreditCard, label: "Créditos", value: credits.toString(), sub: "disponíveis", color: "text-primary", bg: "bg-primary/10" },
-          { icon: ImageIcon, label: "Fotos Geradas", value: completedCount.toString(), sub: "concluídas", color: "text-emerald-400", bg: "bg-emerald-400/10" },
+          { icon: ImageIcon, label: "Geradas", value: completedCount.toString(), sub: "concluídas", color: "text-emerald-400", bg: "bg-emerald-400/10" },
           { icon: Package, label: "Pedidos", value: purchases.length.toString(), sub: "total", color: "text-blue-400", bg: "bg-blue-400/10" },
           { icon: TrendingUp, label: "Investido", value: `R$${(totalSpent / 100).toFixed(0)}`, sub: "em prompts", color: "text-secondary", bg: "bg-secondary/10" },
         ].map((stat, i) => (
@@ -147,8 +147,8 @@ export default function Dashboard() {
                   <stat.icon className={`w-4 h-4 ${stat.color}`} />
                 </div>
                 <div>
-                  <p className="text-xl font-black text-foreground">{stat.value}</p>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{stat.label}</p>
+                  <p className="text-lg md:text-xl font-black text-foreground">{stat.value}</p>
+                  <p className="text-[9px] md:text-[10px] text-muted-foreground uppercase tracking-wider truncate">{stat.label}</p>
                 </div>
               </div>
             </Card>
@@ -157,7 +157,7 @@ export default function Dashboard() {
       </div>
 
       {/* ===== MAIN GRID: Prompts + Side ===== */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* LEFT: Featured Prompts (2 cols) */}
         <motion.div {...fadeUp(0.25)} className="lg:col-span-2">
           <div className="flex items-center justify-between mb-4">
@@ -176,7 +176,7 @@ export default function Dashboard() {
             </button>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4">
             {prompts.slice(0, 6).map((prompt, i) => (
               <motion.div
                 key={prompt.id}
@@ -339,7 +339,7 @@ export default function Dashboard() {
             Novidades chegando
           </Badge>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
           {comingSoonFeatures.map((feature, i) => (
             <motion.div
               key={feature.label}

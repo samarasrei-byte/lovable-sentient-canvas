@@ -11,7 +11,7 @@ import {
   X, Upload, User, AtSign, Sparkles, QrCode, Copy, Check, Download,
   Loader2, CheckCircle2, Clock, Pencil, Plus, Trash2,
   RefreshCw, AlertTriangle, ImagePlus, Share2, Eye,
-  Smartphone, CreditCard, Camera, Heart, Palette, FileWarning
+  Smartphone, CreditCard, Camera, Heart, Palette, FileWarning, ShieldCheck
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { GenerationProgressBar } from "./GenerationProgressBar";
@@ -1800,7 +1800,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
               <motion.div 
                 initial={{ opacity: 0, scale: 0.95 }} 
                 animate={{ opacity: 1, scale: 1 }} 
-                className="flex flex-col h-full max-w-md mx-auto w-full space-y-8 py-8"
+                className="flex flex-col h-full max-w-md mx-auto w-full space-y-6 sm:space-y-8 py-4 sm:py-8 px-2 sm:px-0"
               >
                 <div className="text-center space-y-4">
                   <div className="relative inline-block">
@@ -1810,7 +1810,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <h3 className="text-3xl font-black tracking-tight text-white uppercase">
+                    <h3 className="text-2xl sm:text-3xl font-black tracking-tight text-white uppercase">
                       {authStep === 'login' ? 'Bem-vindo' : 'Criar Conta'}
                     </h3>
                     <p className="text-sm text-muted-foreground/60 leading-relaxed">
@@ -1819,7 +1819,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   </div>
                 </div>
 
-                <div className="space-y-6 bg-white/[0.03] backdrop-blur-2xl border border-white/10 rounded-[40px] p-8 shadow-2xl relative overflow-hidden group">
+                <div className="space-y-6 bg-white/[0.03] backdrop-blur-2xl border border-white/10 rounded-3xl sm:rounded-[40px] p-6 sm:p-8 shadow-2xl relative overflow-hidden group">
                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/0 via-primary/40 to-primary/0" />
                   
                   <form onSubmit={handleAuth} className="space-y-5">
@@ -1854,7 +1854,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                       </div>
                     </div>
 
-                    <GlassButton disabled={authLoading} type="submit" className="w-full h-16 text-sm font-black uppercase tracking-widest shadow-2xl shadow-primary/20 rounded-2xl">
+                    <GlassButton disabled={authLoading} type="submit" className="w-full h-14 sm:h-16 text-sm font-black uppercase tracking-widest shadow-2xl shadow-primary/20 rounded-2xl">
                       {authLoading ? <Loader2 className="w-6 h-6 animate-spin mx-auto" /> : (authStep === 'login' ? 'Acessar agora' : 'Criar minha conta')}
                     </GlassButton>
 
@@ -1895,7 +1895,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   </p>
                 </div>
 
-                <div className="space-y-6 bg-white/[0.03] backdrop-blur-2xl border border-white/10 rounded-[32px] p-6 sm:p-8 shadow-2xl">
+                <div className="space-y-6 bg-white/[0.03] backdrop-blur-2xl border border-white/10 rounded-3xl sm:rounded-[32px] p-5 sm:p-8 shadow-2xl">
                   {/* Name field */}
                   {prompt.required_fields.includes('name') && (
                     <div className="space-y-2">
@@ -1924,7 +1924,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                             value={formData.age}
                             onChange={(e) => setFormData((prev) => ({ ...prev, age: e.target.value.replace(/\D/g, ''), months: '' }))}
                             placeholder="Anos"
-                            className="h-14 bg-white/[0.03] border-white/10 rounded-2xl focus:bg-white/[0.05] transition-all text-center text-lg font-bold"
+                            className="h-14 bg-white/[0.03] border-white/10 rounded-2xl focus:bg-white/[0.05] transition-all text-center text-lg font-bold placeholder:text-white/10"
                           />
                           <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[9px] font-black uppercase text-white/20">Anos</span>
                         </div>
@@ -1934,7 +1934,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                               value={formData.months}
                               onChange={(e) => setFormData((prev) => ({ ...prev, months: e.target.value.replace(/\D/g, ''), age: '' }))}
                               placeholder="Meses"
-                              className="h-14 bg-white/[0.03] border-white/10 rounded-2xl focus:bg-white/[0.05] transition-all text-center text-lg font-bold"
+                              className="h-14 bg-white/[0.03] border-white/10 rounded-2xl focus:bg-white/[0.05] transition-all text-center text-lg font-bold placeholder:text-white/10"
                             />
                             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[9px] font-black uppercase text-white/20">Meses</span>
                           </div>
@@ -2224,7 +2224,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                       transition={{ delay: 0.7 }}
                       className="space-y-3"
                     >
-                      <h3 className="text-2xl sm:text-3xl font-black tracking-tight bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
+                      <h3 className="text-xl sm:text-3xl font-black tracking-tight bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent px-4 leading-tight">
                         Estamos criando algo incrível...
                       </h3>
                       <p className="text-sm text-muted-foreground/70 max-w-xs mx-auto">
@@ -2250,9 +2250,9 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                 ) : (
                   <>
                     {/* Price summary */}
-                    <div className="flex items-center justify-between p-3 rounded-xl bg-primary/5 border border-primary/20">
-                      <span className="text-sm font-medium">Total</span>
-                      <span className="text-xl font-bold text-primary">{formatPrice(prompt.price_cents)}</span>
+                    <div className="flex items-center justify-between p-4 rounded-2xl bg-primary/5 border border-primary/20">
+                      <span className="text-sm font-bold uppercase tracking-widest text-primary/60">Total</span>
+                      <span className="text-2xl font-black text-primary">{formatPrice(prompt.price_cents)}</span>
                     </div>
 
                     {/* Payment method - PIX only */}
@@ -2288,13 +2288,13 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                             {/* QR Code */}
                             <div className="flex flex-col items-center gap-3">
                               <div className="bg-white p-2 sm:p-3 rounded-xl shadow-lg max-w-full">
-                                {pixData.qrCodeUrl ? (
-                                  <img 
-                                    src={pixData.qrCodeUrl} 
-                                    alt="QR Code PIX" 
-                                    className="w-40 h-40 xs:w-48 xs:h-48 sm:w-56 sm:h-56 max-w-full"
-                                  />
-                                ) : (
+                                  {pixData.qrCodeUrl ? (
+                                    <img 
+                                      src={pixData.qrCodeUrl} 
+                                      alt="QR Code PIX" 
+                                      className="w-40 h-40 xs:w-48 xs:h-48 sm:w-56 sm:h-56 max-w-full rounded-lg"
+                                    />
+                                  ) : (
                                   <QRCodeSVG value={pixData.copiaECola} size={192} className="max-w-full h-auto" />
                                 )}
                               </div>
@@ -2303,11 +2303,10 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                               </p>
                             </div>
 
-                            {/* Copia e Cola */}
-                            <div className="space-y-2">
-                              <Label className="text-[10px] text-muted-foreground">Ou copie o código PIX:</Label>
+                            <div className="space-y-3">
+                              <Label className="text-[11px] uppercase tracking-widest font-black text-white/30 ml-1">Ou copie o código PIX:</Label>
                               <div className="relative">
-                                <div className="p-2.5 pr-12 rounded-lg bg-white/5 border border-white/10 text-[10px] font-mono break-all max-h-16 overflow-y-auto">
+                                <div className="p-4 pr-14 rounded-2xl bg-white/[0.03] border border-white/10 text-xs font-mono break-all max-h-24 overflow-y-auto">
                                   {pixData.copiaECola}
                                 </div>
                                 <button
@@ -2317,9 +2316,9 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                     toast.success('Código PIX copiado!');
                                     setTimeout(() => setPixCopied(false), 3000);
                                   }}
-                                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md bg-primary/10 hover:bg-primary/20 transition-colors"
+                                  className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-xl bg-primary/10 hover:bg-primary/20 transition-all active:scale-90"
                                 >
-                                  {pixCopied ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5 text-primary" />}
+                                  {pixCopied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4 text-primary" />}
                                 </button>
                               </div>
                             </div>
@@ -2338,20 +2337,21 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                     )}
 
 
-                    {/* Verification status */}
-                    <div className="p-3 rounded-lg bg-accent/10 border border-accent/20">
-                      <div className="flex items-center gap-2 mb-1">
-                        {verifyingPayment ? (
-                          <Loader2 className="w-4 h-4 text-accent animate-spin" />
-                        ) : (
-                          <Clock className="w-4 h-4 text-accent" />
-                        )}
-                        <span className="text-xs font-semibold text-accent">
-                          {verifyingPayment ? 'Aguardando confirmação do pagamento...' : 'Pagamento Seguro via PIX (Asaas)'}
+                    <div className="p-5 rounded-2xl bg-accent/5 border border-accent/10 space-y-2">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
+                          {verifyingPayment ? (
+                            <Loader2 className="w-4 h-4 text-accent animate-spin" />
+                          ) : (
+                            <ShieldCheck className="w-4 h-4 text-accent" />
+                          )}
+                        </div>
+                        <span className="text-xs font-black uppercase tracking-widest text-accent">
+                          {verifyingPayment ? 'Aguardando confirmação...' : 'Pagamento Seguro via PIX'}
                         </span>
                       </div>
-                      <p className="text-[10px] text-muted-foreground">
-                        Após a confirmação do pagamento, sua imagem será gerada automaticamente.
+                      <p className="text-[11px] text-muted-foreground/60 leading-relaxed">
+                        A liberação é automática e imediata após o pagamento. Nossa IA iniciará sua arte no mesmo segundo.
                       </p>
                     </div>
 
@@ -2383,14 +2383,14 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
 
                     <div className="flex flex-col gap-2">
                       <Button
-                        variant="outline"
-                        size="sm"
+                        variant="ghost"
+                        size="lg"
                         onClick={() => {
                           if (paymentPollRef.current) clearInterval(paymentPollRef.current);
                           setVerifyingPayment(false);
                           setStep(prompt.required_fields.length > 0 ? 'details' : 'upload');
                         }}
-                        className="w-full text-xs"
+                        className="w-full text-xs font-bold uppercase tracking-widest text-muted-foreground/40 hover:text-white"
                       >
                         Voltar
                       </Button>

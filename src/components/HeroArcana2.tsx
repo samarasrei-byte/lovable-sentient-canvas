@@ -83,13 +83,13 @@ export const HeroArcana2 = () => {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.06] mb-8">
             <Sparkles className="w-3.5 h-3.5 text-primary/80" />
-            <span className="text-[10px] font-medium tracking-[0.2em] uppercase text-muted-foreground">
+            <span className="text-[9px] sm:text-[10px] font-bold tracking-[0.2em] uppercase text-muted-foreground">
               Fotos Profissionais com IA
             </span>
           </div>
 
           {/* Headline */}
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-[-0.05em] mb-6 leading-[0.95] text-center">
+          <h1 className="text-5xl xs:text-6xl sm:text-7xl lg:text-8xl font-black tracking-[-0.05em] mb-6 leading-[0.95] text-center">
             <span className="bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-transparent">
               Fotos de IA que
             </span>

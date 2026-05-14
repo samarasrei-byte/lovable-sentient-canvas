@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Sparkles, ChevronDown, ChevronUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 interface GalleryImage {
   id: string;
@@ -84,7 +85,7 @@ export const MassiveGallery = () => {
             <span className="text-sm font-medium text-primary">GALERIA DE CRIAÇÕES</span>
           </div>
 
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 tracking-tight">
+          <h2 className="text-3xl md:text-5xl font-black mb-4 tracking-tight px-4 leading-tight">
             <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
               {images.length}+
             </span>{" "}
@@ -96,40 +97,44 @@ export const MassiveGallery = () => {
           </p>
         </header>
 
-        {/* Category Filters */}
-        <div className="flex flex-wrap justify-center gap-2 mb-8">
-          {categories.map(cat => (
-            <button
-              key={cat}
-              onClick={() => { setSelectedCategory(cat); setExpanded(false); }}
-              className={`px-4 py-1.5 rounded-full text-xs font-medium border transition-all ${
-                selectedCategory === cat
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "bg-card/50 text-muted-foreground border-border hover:border-primary/50"
-              }`}
-            >
-              {cat}
-              {cat !== "Todos" && (
-                <span className="ml-1 opacity-60">
-                  ({images.filter(i => i.category === cat).length})
-                </span>
-              )}
-            </button>
-          ))}
+        <div className="mb-8 overflow-hidden">
+          <ScrollArea className="w-full whitespace-nowrap">
+            <div className="flex justify-start sm:justify-center gap-2 pb-4">
+              {categories.map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => { setSelectedCategory(cat); setExpanded(false); }}
+                  className={`px-4 py-2 rounded-full text-xs font-medium border transition-all shrink-0 ${
+                    selectedCategory === cat
+                      ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20"
+                      : "bg-card/50 text-muted-foreground border-border hover:border-primary/50"
+                  }`}
+                >
+                  {cat}
+                  {cat !== "Todos" && (
+                    <span className="ml-1 opacity-60">
+                      ({images.filter(i => i.category === cat).length})
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+            <ScrollBar orientation="horizontal" />
+          </ScrollArea>
         </div>
 
         {/* Masonry-like Grid */}
-        <div className="columns-2 sm:columns-3 md:columns-4 lg:columns-5 xl:columns-6 gap-3 space-y-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
           {displayImages.map((img, idx) => (
             <div
               key={img.id}
-              className="break-inside-avoid group cursor-pointer relative rounded-xl overflow-hidden border border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10"
+              className="group cursor-pointer relative rounded-xl overflow-hidden border border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 aspect-[4/5]"
               onClick={() => setLightboxImage(img)}
             >
               <img
                 src={img.example_image_url}
                 alt={img.name}
-                className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 loading={idx < 12 ? "eager" : "lazy"}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -166,16 +171,15 @@ export const MassiveGallery = () => {
           </div>
         )}
 
-        {/* Stats */}
-        <div className="flex justify-center gap-8 mt-10 text-center">
+        <div className="grid grid-cols-3 gap-4 md:gap-8 mt-12 max-w-lg mx-auto">
           {[
             { value: images.length + "+", label: "Estilos" },
             { value: categories.length - 1, label: "Categorias" },
             { value: "4K", label: "Resolução" },
           ].map((stat, i) => (
-            <div key={i}>
-              <div className="text-2xl md:text-3xl font-bold text-primary">{stat.value}</div>
-              <div className="text-xs text-muted-foreground">{stat.label}</div>
+            <div key={i} className="flex flex-col items-center">
+              <div className="text-xl md:text-3xl font-black text-primary leading-none">{stat.value}</div>
+              <div className="text-[10px] md:text-xs text-muted-foreground uppercase tracking-widest mt-1 font-bold">{stat.label}</div>
             </div>
           ))}
         </div>
