@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import {
   Image as ImageIcon, Download, Search, Calendar, Filter,
   Heart, Share2, Sparkles, Eye, Loader2, X, ChevronLeft, ChevronRight
