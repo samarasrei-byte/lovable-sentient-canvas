@@ -119,10 +119,9 @@ export const PromptCard = ({ prompt, index, onSelect, variant = 'grid' }: Prompt
 
         </div>
 
-        {/* Content Section */}
         <div className={cn(
-          "relative flex flex-col gap-2",
-          isMobile ? "p-4 pb-5" : "p-3.5"
+          "relative flex flex-col gap-1.5 md:gap-2",
+          isMobile ? "p-3 pb-4" : "p-3.5"
         )}>
           {/* Category + Complexity */}
           <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.15em] font-medium">
@@ -138,7 +137,7 @@ export const PromptCard = ({ prompt, index, onSelect, variant = 'grid' }: Prompt
           <h3 className={cn(
             "font-bold text-foreground leading-tight line-clamp-2",
             "group-hover:text-primary transition-colors duration-300",
-            isMobile ? "text-lg" : "text-base"
+            isMobile ? "text-sm md:text-lg" : "text-base"
           )}>
             {prompt.name}
           </h3>
@@ -146,7 +145,7 @@ export const PromptCard = ({ prompt, index, onSelect, variant = 'grid' }: Prompt
           {/* Description */}
           <p className={cn(
             "text-muted-foreground leading-relaxed line-clamp-2",
-            isMobile ? "text-sm" : "text-xs"
+            isMobile ? "text-[10px] md:text-sm" : "text-xs"
           )}>
             {prompt.description}
           </p>
@@ -159,13 +158,13 @@ export const PromptCard = ({ prompt, index, onSelect, variant = 'grid' }: Prompt
             <div className="flex flex-col">
               <span className={cn(
                 "font-bold tracking-tight bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent",
-                isMobile ? "text-lg" : "text-sm"
+                isMobile ? "text-sm md:text-lg" : "text-sm"
               )}>
                 {formatPrice(prompt.price_cents || 2100)}
               </span>
             </div>
             <div className={cn(
-              "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-300",
+              "flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[10px] font-medium transition-all duration-300",
               "bg-primary/10 text-primary border border-primary/20",
               "group-hover:bg-primary group-hover:text-primary-foreground group-hover:shadow-[0_0_12px_hsl(var(--primary)/0.3)]"
             )}>

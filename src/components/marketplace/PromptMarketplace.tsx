@@ -247,7 +247,7 @@ export const PromptMarketplace = () => {
             {/* Category Navigation Pills */}
             <div className="mb-10">
               <ScrollArea className="w-full whitespace-nowrap">
-                <div className="flex items-center gap-2 pb-2">
+                <div className="flex items-center gap-2 pb-3 pt-1">
                   <button
                     onClick={() => window.scrollTo({ top: document.getElementById('prompts')?.offsetTop || 0, behavior: 'smooth' })}
                     className={cn(
@@ -303,7 +303,7 @@ export const PromptMarketplace = () => {
 
               <div className={cn(
                 "grid",
-                isMobile ? "grid-cols-1 gap-5 px-1" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
+                isMobile ? "grid-cols-2 gap-3 px-1" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
               )}>
                 {featuredPrompts.map((prompt, index) => (
                   <PromptCard key={prompt.id} prompt={prompt} index={index} onSelect={setSelectedPrompt} variant="grid" />
@@ -340,7 +340,7 @@ export const PromptMarketplace = () => {
                   </div>
 
                   {isMobile ? (
-                    <div className="grid grid-cols-1 gap-5 px-1">
+                    <div className="grid grid-cols-2 gap-3 px-1">
                       {catPrompts.map((prompt, index) => (
                         <PromptCard key={prompt.id} prompt={prompt} index={index} onSelect={setSelectedPrompt} variant="grid" />
                       ))}

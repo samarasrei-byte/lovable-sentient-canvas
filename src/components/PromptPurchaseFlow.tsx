@@ -2288,13 +2288,13 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                             {/* QR Code */}
                             <div className="flex flex-col items-center gap-3">
                               <div className="bg-white p-2 sm:p-3 rounded-xl shadow-lg max-w-full">
-                                {pixData.qrCodeUrl ? (
-                                  <img 
-                                    src={pixData.qrCodeUrl} 
-                                    alt="QR Code PIX" 
-                                    className="w-40 h-40 xs:w-48 xs:h-48 sm:w-56 sm:h-56 max-w-full"
-                                  />
-                                ) : (
+                                  {pixData.qrCodeUrl ? (
+                                    <img 
+                                      src={pixData.qrCodeUrl} 
+                                      alt="QR Code PIX" 
+                                      className="w-40 h-40 xs:w-48 xs:h-48 sm:w-56 sm:h-56 max-w-full rounded-lg"
+                                    />
+                                  ) : (
                                   <QRCodeSVG value={pixData.copiaECola} size={192} className="max-w-full h-auto" />
                                 )}
                               </div>
