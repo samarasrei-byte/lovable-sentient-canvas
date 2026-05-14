@@ -132,37 +132,40 @@ export const MemoryGallery = ({ className = "" }: MemoryGalleryProps) => {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-2">
-        <div className="relative flex-1 min-w-[140px] max-w-xs">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative w-full sm:max-w-xs">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Buscar por nome..."
-            className="pl-8 h-8 text-xs bg-card/50 border-border/20"
+            className="pl-10 h-10 sm:h-8 text-sm sm:text-xs bg-card/50 border-border/20 rounded-xl"
           />
         </div>
-        <div className="flex gap-1 overflow-x-auto">
-          <Button
-            variant={categoryFilter === "all" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setCategoryFilter("all")}
-            className="text-[10px] h-8 px-3 rounded-xl shrink-0"
-          >
-            Todos
-          </Button>
-          {categories.map(cat => (
+        <ScrollArea className="w-full whitespace-nowrap">
+          <div className="flex gap-1.5 pb-2">
             <Button
-              key={cat}
-              variant={categoryFilter === cat ? "default" : "outline"}
+              variant={categoryFilter === "all" ? "default" : "outline"}
               size="sm"
-              onClick={() => setCategoryFilter(cat)}
-              className="text-[10px] h-8 px-3 rounded-xl shrink-0 capitalize"
+              onClick={() => setCategoryFilter("all")}
+              className="text-[10px] h-9 sm:h-8 px-4 sm:px-3 rounded-xl shrink-0"
             >
-              {cat}
+              Todos
             </Button>
-          ))}
-        </div>
+            {categories.map(cat => (
+              <Button
+                key={cat}
+                variant={categoryFilter === cat ? "default" : "outline"}
+                size="sm"
+                onClick={() => setCategoryFilter(cat)}
+                className="text-[10px] h-9 sm:h-8 px-4 sm:px-3 rounded-xl shrink-0 capitalize"
+              >
+                {cat}
+              </Button>
+            ))}
+          </div>
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
       </div>
 
       {/* Grid */}

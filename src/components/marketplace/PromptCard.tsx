@@ -104,13 +104,13 @@ export const PromptCard = ({ prompt, index, onSelect, variant = 'grid' }: Prompt
           {/* Top badges */}
           <div className="absolute top-3 left-3 right-3 flex items-start justify-between">
             <Badge className={cn(
-              "text-[10px] px-3 py-1 font-semibold border-0 shadow-lg",
+              "text-[9px] sm:text-[10px] px-2 sm:px-3 py-1 font-semibold border-0 shadow-lg",
               "bg-primary/90 text-primary-foreground backdrop-blur-md"
             )}>
               {prompt.hype_text || 'Trending'}
             </Badge>
             <div className={cn(
-              "w-8 h-8 rounded-full flex items-center justify-center",
+              "w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center",
               "bg-background/60 backdrop-blur-md border border-border/30"
             )}>
               <IconComponent className="w-3.5 h-3.5 text-primary" />
@@ -135,7 +135,7 @@ export const PromptCard = ({ prompt, index, onSelect, variant = 'grid' }: Prompt
 
           {/* Title */}
           <h3 className={cn(
-            "font-bold text-foreground leading-tight line-clamp-2",
+            "font-bold text-foreground leading-[1.2] line-clamp-2",
             "group-hover:text-primary transition-colors duration-300",
             isMobile ? "text-sm md:text-lg" : "text-base"
           )}>
@@ -150,14 +150,13 @@ export const PromptCard = ({ prompt, index, onSelect, variant = 'grid' }: Prompt
             {prompt.description}
           </p>
 
-          {/* Price + CTA */}
           <div className={cn(
-            "flex items-center justify-between mt-1",
-            "pt-3 border-t border-border/30"
+            "flex items-center justify-between mt-1 gap-2",
+            "pt-2.5 sm:pt-3 border-t border-border/30"
           )}>
             <div className="flex flex-col">
               <span className={cn(
-                "font-bold tracking-tight bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent",
+                "font-black tracking-tight bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent truncate",
                 isMobile ? "text-sm md:text-lg" : "text-sm"
               )}>
                 {formatPrice(prompt.price_cents || 2100)}
