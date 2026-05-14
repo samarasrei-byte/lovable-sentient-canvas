@@ -157,7 +157,7 @@ export const PromptCard = ({ prompt, index, onSelect, variant = 'grid' }: Prompt
             <div className="flex flex-col">
               <span className={cn(
                 "font-black tracking-tight bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent truncate",
-                isMobile ? "text-sm md:text-lg" : "text-sm"
+                isMobile ? "text-[13px] md:text-lg" : "text-sm"
               )}>
                 {formatPrice(prompt.price_cents || 2100)}
               </span>
