@@ -55,17 +55,22 @@ export default function Dashboard() {
   const loadDashboardData = async () => {
     const { data: { user } } = await supabase.auth.getUser();
 
-    const promptsQuery = supabase.from("prompts").select("*").eq("status", "active").order("created_at", { ascending: false }).limit(12);
-    const purchasesQuery = user ? supabase.from("prompt_purchases").select("*, prompts(name, example_image_url)").eq("user_id", user.id).order("created_at", { ascending: false }).limit(10) : Promise.resolve({ data: [] });
-    const creditsQuery = user ? supabase.from("user_credits").select("credits_balance").eq("user_id", user.id).maybeSingle() : Promise.resolve({ data: null });
-    const profileQuery = user ? supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle() : Promise.resolve({ data: null });
+    const promptsRes = await supabase.from("prompts").select("*").eq("status", "active").order("created_at", { ascending: false }).limit(12);
+    
+    let purchasesRes = { data: [] as any[] };
+    let creditsRes = { data: null as any };
+    let profileRes = { data: null as any };
 
-    const [promptsRes, purchasesRes, creditsRes, profileRes] = await Promise.all([
-      promptsQuery,
-      purchasesQuery,
-      creditsQuery,
-      profileQuery
-    ]);
+    if (user) {
+      const [purRes, credRes, profRes] = await Promise.all([
+        supabase.from("prompt_purchases").select("*, prompts(name, example_image_url)").eq("user_id", user.id).order("created_at", { ascending: false }).limit(10),
+        supabase.from("user_credits").select("credits_balance").eq("user_id", user.id).maybeSingle(),
+        supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle(),
+      ]);
+      purchasesRes = purRes as any;
+      creditsRes = credRes;
+      profileRes = profRes;
+    }
 
     if (promptsRes.data) setPrompts(promptsRes.data);
     if (purchasesRes.data) setPurchases(purchasesRes.data as any);
