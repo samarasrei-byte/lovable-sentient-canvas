@@ -57,7 +57,7 @@ export default function Dashboard() {
 
     const [promptsRes, purchasesRes, creditsRes, profileRes] = await Promise.all([
       supabase.from("prompts").select("*").eq("status", "active").order("created_at", { ascending: false }).limit(12),
-      supabase.from("prompt_purchases").select("*, prompts(name, example_image_url)").order("created_at", { ascending: false }).limit(10),
+      supabase.from("prompt_purchases").select("*, prompts(name, example_image_url)").eq("user_id", user.id).order("created_at", { ascending: false }).limit(10),
       user ? supabase.from("user_credits").select("credits_balance").eq("user_id", user.id).maybeSingle() : Promise.resolve({ data: null }),
       user ? supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle() : Promise.resolve({ data: null }),
     ]);
@@ -184,7 +184,7 @@ export default function Dashboard() {
               >
                 <Card
                   className="bg-card/50 border-border/20 rounded-2xl overflow-hidden hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 cursor-pointer group"
-                  onClick={() => navigate("/app/prompt-dashboard")}
+                  onClick={() => navigate(`/categoria/${prompt.category.toLowerCase().replace(/\s+/g, '-')}`)}
                 >
                   <div className="aspect-[4/5] relative overflow-hidden bg-muted/20">
                     {prompt.example_image_url ? (
