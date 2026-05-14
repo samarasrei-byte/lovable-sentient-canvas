@@ -157,7 +157,7 @@ export default function Dashboard() {
       </div>
 
       {/* ===== MAIN GRID: Prompts + Side ===== */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* LEFT: Featured Prompts (2 cols) */}
         <motion.div {...fadeUp(0.25)} className="lg:col-span-2">
           <div className="flex items-center justify-between mb-4">
@@ -176,7 +176,7 @@ export default function Dashboard() {
             </button>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4">
             {prompts.slice(0, 6).map((prompt, i) => (
               <motion.div
                 key={prompt.id}
@@ -339,7 +339,7 @@ export default function Dashboard() {
             Novidades chegando
           </Badge>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
           {comingSoonFeatures.map((feature, i) => (
             <motion.div
               key={feature.label}

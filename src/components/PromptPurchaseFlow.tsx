@@ -2224,7 +2224,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                       transition={{ delay: 0.7 }}
                       className="space-y-3"
                     >
-                      <h3 className="text-2xl sm:text-3xl font-black tracking-tight bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
+                      <h3 className="text-xl sm:text-3xl font-black tracking-tight bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent px-4">
                         Estamos criando algo incrível...
                       </h3>
                       <p className="text-sm text-muted-foreground/70 max-w-xs mx-auto">

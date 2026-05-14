@@ -127,7 +127,7 @@ export default function Planos() {
       </div>
 
       {/* Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {plans.map((plan, i) => (
           <motion.div
             key={plan.name}
@@ -140,13 +140,13 @@ export default function Planos() {
               <div className="absolute -inset-px rounded-2xl bg-gradient-to-b from-primary/25 via-primary/10 to-transparent blur-sm" />
             )}
 
-            <div
-              className={`relative h-full rounded-2xl border p-6 flex flex-col transition-all duration-500 ${
-                plan.popular
-                  ? "border-primary/25 bg-card"
-                  : "border-border bg-card/60 hover:border-primary/20 hover:bg-card"
-              }`}
-            >
+              <div
+                className={`relative h-full rounded-2xl border p-5 sm:p-6 flex flex-col transition-all duration-500 ${
+                  plan.popular
+                    ? "border-primary/25 bg-card"
+                    : "border-border bg-card/60 hover:border-primary/20 hover:bg-card"
+                }`}
+              >
               {plan.popular && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                   <span className="px-3 py-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-wider shadow-lg shadow-primary/25">
