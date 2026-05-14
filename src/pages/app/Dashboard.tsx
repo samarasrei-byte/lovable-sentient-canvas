@@ -55,17 +55,19 @@ export default function Dashboard() {
   const loadDashboardData = async () => {
     const { data: { user } } = await supabase.auth.getUser();
 
-    const [promptsRes, purchasesRes, creditsRes, profileRes] = await Promise.all([
-      supabase.from("prompts").select("*").eq("status", "active").order("created_at", { ascending: false }).limit(12),
-      supabase.from("prompt_purchases").select("*, prompts(name, example_image_url)").order("created_at", { ascending: false }).limit(10),
-      user ? supabase.from("user_credits").select("credits_balance").eq("user_id", user.id).maybeSingle() : Promise.resolve({ data: null }),
-      user ? supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle() : Promise.resolve({ data: null }),
-    ]);
+    const { data: promptsData } = await (supabase.from("prompts").select("*") as any).eq("status", "active").order("created_at", { ascending: false }).limit(12);
+    if (promptsData) setPrompts(promptsData as any);
 
-    if (promptsRes.data) setPrompts(promptsRes.data);
-    if (purchasesRes.data) setPurchases(purchasesRes.data as any);
-    if (creditsRes.data) setCredits((creditsRes.data as any)?.credits_balance || 0);
-    if (profileRes.data) setUserName((profileRes.data as any)?.full_name?.split(" ")[0] || "");
+    if (user) {
+      const { data: purData } = await (supabase.from("prompt_purchases").select("*, prompts(name, example_image_url)") as any).eq("user_id", user.id).order("created_at", { ascending: false }).limit(10);
+      if (purData) setPurchases(purData as any);
+
+      const { data: credData } = await (supabase.from("user_credits").select("credits_balance") as any).eq("user_id", user.id).maybeSingle();
+      if (credData) setCredits((credData as any).credits_balance || 0);
+
+      const { data: profData } = await (supabase.from("profiles").select("full_name") as any).eq("id", user.id).maybeSingle();
+      if (profData) setUserName((profData as any).full_name?.split(" ")[0] || "");
+    }
     setLoading(false);
   };
 
@@ -184,7 +186,7 @@ export default function Dashboard() {
               >
                 <Card
                   className="bg-card/50 border-border/20 rounded-2xl overflow-hidden hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 cursor-pointer group"
-                  onClick={() => navigate("/app/prompt-dashboard")}
+                  onClick={() => navigate(`/categoria/${prompt.category.toLowerCase().replace(/\s+/g, '-')}`)}
                 >
                   <div className="aspect-[4/5] relative overflow-hidden bg-muted/20">
                     {prompt.example_image_url ? (

@@ -135,12 +135,22 @@ export default function AvatarStudio() {
       reader.onload = async () => {
         const base64Video = reader.result as string;
         
-        // For now, we need to upload the video to a public URL
-        // In production, you'd upload to Supabase Storage first
+        // In production, we'd upload to Supabase Storage first
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.mp4`;
+        const { data: storageData, error: uploadError } = await supabase.storage
+          .from('user-videos')
+          .upload(fileName, videoFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('user-videos')
+          .getPublicUrl(fileName);
+
         const { data, error } = await supabase.functions.invoke('heygen-avatar', {
           body: { 
             action: 'create_avatar',
-            videoUrl: base64Video, // HeyGen needs a public URL
+            videoUrl: publicUrl,
             avatarName: avatarName.trim()
           }
         });

@@ -1,6 +1,7 @@
 import { Check, Sparkles, Zap, Shield, Image } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { toast } from "sonner";
 
 const plans = [
   {
@@ -181,6 +182,13 @@ export default function Planos() {
               </div>
 
               <button
+                onClick={() => {
+                  if (plan.cta === "Falar com vendas") {
+                    window.open(`https://wa.me/5511985214895?text=Olá! Gostaria de saber mais sobre o plano Business da Arcana.`, '_blank');
+                  } else {
+                    toast.info("Assinaturas serão lançadas em breve! Por enquanto, você pode comprar créditos avulsos.");
+                  }
+                }}
                 className={`w-full h-11 rounded-xl text-sm font-medium transition-all duration-300 ${
                   plan.popular
                     ? "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30"
