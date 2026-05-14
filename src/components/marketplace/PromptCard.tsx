@@ -74,7 +74,7 @@ export const PromptCard = ({ prompt, index, onSelect, variant = 'grid' }: Prompt
         "hover:border-primary/30 hover:shadow-[0_8px_32px_hsl(var(--primary)/0.15)]",
         "hover:translate-y-[-3px]",
         "focus-within:ring-1 focus-within:ring-primary/30 focus-within:ring-offset-1 focus-within:ring-offset-background",
-        isMobile ? "rounded-2xl bg-card/80 backdrop-blur-sm" : "rounded-xl bg-card/40",
+        isMobile ? "rounded-xl bg-card/80 backdrop-blur-sm" : "rounded-xl bg-card/40",
         isFull ? "flex flex-col" : "h-full"
       )}>
         {/* Image Container */}
@@ -104,24 +104,24 @@ export const PromptCard = ({ prompt, index, onSelect, variant = 'grid' }: Prompt
           {/* Top badges */}
           <div className="absolute top-3 left-3 right-3 flex items-start justify-between">
             <Badge className={cn(
-              "text-[9px] sm:text-[10px] px-2 sm:px-3 py-1 font-semibold border-0 shadow-lg",
+              "text-[8px] sm:text-[10px] px-1.5 sm:px-3 py-0.5 sm:py-1 font-semibold border-0 shadow-lg",
               "bg-primary/90 text-primary-foreground backdrop-blur-md"
             )}>
               {prompt.hype_text || 'Trending'}
             </Badge>
             <div className={cn(
-              "w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center",
+              "w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center",
               "bg-background/60 backdrop-blur-md border border-border/30"
             )}>
-              <IconComponent className="w-3.5 h-3.5 text-primary" />
+              <IconComponent className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-primary" />
             </div>
           </div>
 
         </div>
 
         <div className={cn(
-          "relative flex flex-col gap-1.5 md:gap-2",
-          isMobile ? "p-3 pb-4" : "p-3.5"
+          "relative flex flex-col gap-1 md:gap-2",
+          isMobile ? "p-2.5 pb-3" : "p-3.5"
         )}>
           {/* Category + Complexity */}
           <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.15em] font-medium">
@@ -135,9 +135,9 @@ export const PromptCard = ({ prompt, index, onSelect, variant = 'grid' }: Prompt
 
           {/* Title */}
           <h3 className={cn(
-            "font-bold text-foreground leading-[1.2] line-clamp-2",
+            "font-bold text-foreground leading-[1.2] line-clamp-1 sm:line-clamp-2",
             "group-hover:text-primary transition-colors duration-300",
-            isMobile ? "text-sm md:text-lg" : "text-base"
+            isMobile ? "text-[13px] md:text-lg" : "text-base"
           )}>
             {prompt.name}
           </h3>
@@ -163,11 +163,11 @@ export const PromptCard = ({ prompt, index, onSelect, variant = 'grid' }: Prompt
               </span>
             </div>
             <div className={cn(
-              "flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[10px] font-medium transition-all duration-300",
+              "flex items-center gap-1 px-1.5 py-1 rounded-full text-[9px] font-medium transition-all duration-300",
               "bg-primary/10 text-primary border border-primary/20",
               "group-hover:bg-primary group-hover:text-primary-foreground group-hover:shadow-[0_0_12px_hsl(var(--primary)/0.3)]"
             )}>
-              <ArrowUpRight className="w-3.5 h-3.5" />
+              <ArrowUpRight className="w-3 h-3" />
               <span className={isMobile ? "" : "hidden sm:inline"}>Gerar</span>
             </div>
           </div>

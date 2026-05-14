@@ -178,7 +178,7 @@ export const PromptMarketplace = () => {
   }
 
   return (
-    <section id="estilos" className="relative py-16 md:py-24 px-5 md:px-8 overflow-hidden">
+    <section id="estilos" className="relative py-12 md:py-24 px-4 md:px-8 overflow-hidden">
       <div className="max-w-6xl mx-auto relative z-10">
         {/* Header */}
         <header className="text-center mb-10">
@@ -302,7 +302,7 @@ export const PromptMarketplace = () => {
 
               <div className={cn(
                 "grid",
-                isMobile ? "grid-cols-2 gap-3 px-1" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
+                isMobile ? "grid-cols-2 gap-2 sm:gap-3 px-0" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
               )}>
                 {featuredPrompts.map((prompt, index) => (
                   <PromptCard key={prompt.id} prompt={prompt} index={index} onSelect={setSelectedPrompt} variant="grid" />
@@ -339,7 +339,7 @@ export const PromptMarketplace = () => {
                   </div>
 
                   {isMobile ? (
-                    <div className="grid grid-cols-2 gap-3 px-1">
+                    <div className="grid grid-cols-2 gap-2 sm:gap-3 px-0">
                       {catPrompts.map((prompt, index) => (
                         <PromptCard key={prompt.id} prompt={prompt} index={index} onSelect={setSelectedPrompt} variant="grid" />
                       ))}
