@@ -1924,7 +1924,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                             value={formData.age}
                             onChange={(e) => setFormData((prev) => ({ ...prev, age: e.target.value.replace(/\D/g, ''), months: '' }))}
                             placeholder="Anos"
-                            className="h-14 bg-white/[0.03] border-white/10 rounded-2xl focus:bg-white/[0.05] transition-all text-center text-lg font-bold"
+                            className="h-14 bg-white/[0.03] border-white/10 rounded-2xl focus:bg-white/[0.05] transition-all text-center text-lg font-bold placeholder:text-white/10"
                           />
                           <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[9px] font-black uppercase text-white/20">Anos</span>
                         </div>
@@ -1934,7 +1934,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                               value={formData.months}
                               onChange={(e) => setFormData((prev) => ({ ...prev, months: e.target.value.replace(/\D/g, ''), age: '' }))}
                               placeholder="Meses"
-                              className="h-14 bg-white/[0.03] border-white/10 rounded-2xl focus:bg-white/[0.05] transition-all text-center text-lg font-bold"
+                              className="h-14 bg-white/[0.03] border-white/10 rounded-2xl focus:bg-white/[0.05] transition-all text-center text-lg font-bold placeholder:text-white/10"
                             />
                             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[9px] font-black uppercase text-white/20">Meses</span>
                           </div>
