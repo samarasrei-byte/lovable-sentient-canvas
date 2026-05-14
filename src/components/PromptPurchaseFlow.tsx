@@ -1800,7 +1800,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
               <motion.div 
                 initial={{ opacity: 0, scale: 0.95 }} 
                 animate={{ opacity: 1, scale: 1 }} 
-                className="flex flex-col h-full max-w-md mx-auto w-full space-y-8 py-8"
+                className="flex flex-col h-full max-w-md mx-auto w-full space-y-6 sm:space-y-8 py-4 sm:py-8 px-2 sm:px-0"
               >
                 <div className="text-center space-y-4">
                   <div className="relative inline-block">
@@ -1819,7 +1819,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   </div>
                 </div>
 
-                <div className="space-y-6 bg-white/[0.03] backdrop-blur-2xl border border-white/10 rounded-[40px] p-8 shadow-2xl relative overflow-hidden group">
+                <div className="space-y-6 bg-white/[0.03] backdrop-blur-2xl border border-white/10 rounded-3xl sm:rounded-[40px] p-6 sm:p-8 shadow-2xl relative overflow-hidden group">
                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/0 via-primary/40 to-primary/0" />
                   
                   <form onSubmit={handleAuth} className="space-y-5">
@@ -1854,7 +1854,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                       </div>
                     </div>
 
-                    <GlassButton disabled={authLoading} type="submit" className="w-full h-16 text-sm font-black uppercase tracking-widest shadow-2xl shadow-primary/20 rounded-2xl">
+                    <GlassButton disabled={authLoading} type="submit" className="w-full h-14 sm:h-16 text-sm font-black uppercase tracking-widest shadow-2xl shadow-primary/20 rounded-2xl">
                       {authLoading ? <Loader2 className="w-6 h-6 animate-spin mx-auto" /> : (authStep === 'login' ? 'Acessar agora' : 'Criar minha conta')}
                     </GlassButton>
 
@@ -1895,7 +1895,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   </p>
                 </div>
 
-                <div className="space-y-6 bg-white/[0.03] backdrop-blur-2xl border border-white/10 rounded-[32px] p-6 sm:p-8 shadow-2xl">
+                <div className="space-y-6 bg-white/[0.03] backdrop-blur-2xl border border-white/10 rounded-3xl sm:rounded-[32px] p-5 sm:p-8 shadow-2xl">
                   {/* Name field */}
                   {prompt.required_fields.includes('name') && (
                     <div className="space-y-2">
