@@ -55,17 +55,17 @@ export default function Dashboard() {
   const loadDashboardData = async () => {
     const { data: { user } } = await supabase.auth.getUser();
 
-    const { data: promptsData } = await supabase.from("prompts").select("*").eq("status", "active").order("created_at", { ascending: false }).limit(12);
+    const { data: promptsData } = await (supabase.from("prompts").select("*") as any).eq("status", "active").order("created_at", { ascending: false }).limit(12);
     if (promptsData) setPrompts(promptsData as any);
 
     if (user) {
-      const { data: purData } = await supabase.from("prompt_purchases").select("*, prompts(name, example_image_url)").eq("user_id", user.id).order("created_at", { ascending: false }).limit(10);
+      const { data: purData } = await (supabase.from("prompt_purchases").select("*, prompts(name, example_image_url)") as any).eq("user_id", user.id).order("created_at", { ascending: false }).limit(10);
       if (purData) setPurchases(purData as any);
 
-      const { data: credData } = await supabase.from("user_credits").select("credits_balance").eq("user_id", user.id).maybeSingle();
+      const { data: credData } = await (supabase.from("user_credits").select("credits_balance") as any).eq("user_id", user.id).maybeSingle();
       if (credData) setCredits((credData as any).credits_balance || 0);
 
-      const { data: profData } = await supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle();
+      const { data: profData } = await (supabase.from("profiles").select("full_name") as any).eq("id", user.id).maybeSingle();
       if (profData) setUserName((profData as any).full_name?.split(" ")[0] || "");
     }
     setLoading(false);
