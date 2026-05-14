@@ -199,7 +199,7 @@ export const PromptMarketplace = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Buscar estilos..."
-              className="pl-11 pr-10 py-5 sm:py-2.5 bg-white/[0.03] border-white/[0.06] rounded-xl text-xs placeholder:text-muted-foreground/30 focus:border-primary/30 focus:bg-white/[0.05] transition-all"
+              className="pl-11 pr-10 h-11 sm:h-10 bg-white/[0.03] border-white/[0.06] rounded-xl text-sm sm:text-xs placeholder:text-muted-foreground/30 focus:border-primary/30 focus:bg-white/[0.05] transition-all"
             />
             {searchQuery && (
               <button
