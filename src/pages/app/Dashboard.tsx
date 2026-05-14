@@ -55,27 +55,19 @@ export default function Dashboard() {
   const loadDashboardData = async () => {
     const { data: { user } } = await supabase.auth.getUser();
 
-    const promptsRes = await supabase.from("prompts").select("*").eq("status", "active").order("created_at", { ascending: false }).limit(12);
-    
-    let purchasesRes = { data: [] as any[] };
-    let creditsRes = { data: null as any };
-    let profileRes = { data: null as any };
+    const { data: promptsData } = await supabase.from("prompts").select("*").eq("status", "active").order("created_at", { ascending: false }).limit(12);
+    if (promptsData) setPrompts(promptsData as any);
 
     if (user) {
-      const [purRes, credRes, profRes] = await Promise.all([
-        supabase.from("prompt_purchases").select("*, prompts(name, example_image_url)").eq("user_id", user.id).order("created_at", { ascending: false }).limit(10),
-        supabase.from("user_credits").select("credits_balance").eq("user_id", user.id).maybeSingle(),
-        supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle(),
-      ]);
-      purchasesRes = purRes as any;
-      creditsRes = credRes;
-      profileRes = profRes;
-    }
+      const { data: purData } = await supabase.from("prompt_purchases").select("*, prompts(name, example_image_url)").eq("user_id", user.id).order("created_at", { ascending: false }).limit(10);
+      if (purData) setPurchases(purData as any);
 
-    if (promptsRes.data) setPrompts(promptsRes.data);
-    if (purchasesRes.data) setPurchases(purchasesRes.data as any);
-    if (creditsRes.data) setCredits((creditsRes.data as any)?.credits_balance || 0);
-    if (profileRes.data) setUserName((profileRes.data as any)?.full_name?.split(" ")[0] || "");
+      const { data: credData } = await supabase.from("user_credits").select("credits_balance").eq("user_id", user.id).maybeSingle();
+      if (credData) setCredits((credData as any).credits_balance || 0);
+
+      const { data: profData } = await supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle();
+      if (profData) setUserName((profData as any).full_name?.split(" ")[0] || "");
+    }
     setLoading(false);
   };
 
