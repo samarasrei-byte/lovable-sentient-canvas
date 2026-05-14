@@ -2355,7 +2355,6 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                       </p>
                     </div>
 
-                    {/* Simulate payment button — test mode (always available) */}
                     <Button
                       variant="outline"
                       size="sm"
