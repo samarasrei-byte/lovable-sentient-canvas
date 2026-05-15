@@ -1,5 +1,6 @@
-import { useState, useEffect, useMemo, useRef } from "react";
-import { Sparkles, Loader2, Zap, Search, ChevronRight, Flame, X } from "lucide-react";
+import { useState, useMemo, useRef, useCallback } from "react";
+import { Sparkles, Loader2, Search, ChevronRight, Flame, X } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PromptCard } from "./PromptCard";
 import { PromptPurchaseFlow } from "../PromptPurchaseFlow";
@@ -57,20 +58,15 @@ const MAX_FEATURED = 30;
 const MAX_PER_CATEGORY = 12;
 
 export const PromptMarketplace = () => {
-  const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
-  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const isMobile = useIsMobile();
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-  useEffect(() => {
-    fetchPrompts();
-  }, []);
-
-  const fetchPrompts = async () => {
-    try {
+  const { data: prompts = [], isLoading } = useQuery({
+    queryKey: ["prompts"],
+    queryFn: async () => {
       const { data, error } = await supabase
         .from("prompts")
         .select("*")
@@ -80,20 +76,19 @@ export const PromptMarketplace = () => {
 
       if (error) throw error;
 
-      const parsedPrompts = (data || []).map((p: any) => ({
+      return (data || []).map((p: any) => ({
         ...p,
         required_fields: Array.isArray(p.required_fields)
           ? p.required_fields
           : JSON.parse(p.required_fields || '[]')
-      }));
+      })) as Prompt[];
+    },
+    staleTime: 1000 * 60 * 10, // 10 minutes cache for marketplace items
+  });
 
-      setPrompts(parsedPrompts);
-    } catch (error) {
-      console.error("Error fetching prompts:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const handleSelectPrompt = useCallback((prompt: Prompt) => {
+    setSelectedPrompt(prompt);
+  }, []);
 
   // Featured / hypados: is_featured first, then top by display_order
   const featuredPrompts = useMemo(() => {
@@ -156,7 +151,7 @@ export const PromptMarketplace = () => {
     sectionRefs.current[cat]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <section id="estilos" className="relative py-16 md:py-24 px-4 md:px-6 overflow-hidden">
         <div className="max-w-7xl mx-auto flex items-center justify-center py-20">
@@ -231,7 +226,7 @@ export const PromptMarketplace = () => {
               isMobile ? "grid-cols-1 gap-5 px-1" : "grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
             )}>
               {searchResults.map((prompt, index) => (
-                <PromptCard key={prompt.id} prompt={prompt} index={index} onSelect={setSelectedPrompt} variant="grid" />
+                <PromptCard key={prompt.id} prompt={prompt} index={index} onSelect={handleSelectPrompt} variant="grid" />
               ))}
             </div>
             {searchResults.length === 0 && (
@@ -305,7 +300,7 @@ export const PromptMarketplace = () => {
                 isMobile ? "grid-cols-2 gap-2 sm:gap-3 px-0" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
               )}>
                 {featuredPrompts.map((prompt, index) => (
-                  <PromptCard key={prompt.id} prompt={prompt} index={index} onSelect={setSelectedPrompt} variant="grid" />
+                  <PromptCard key={prompt.id} prompt={prompt} index={index} onSelect={handleSelectPrompt} variant="grid" />
                 ))}
               </div>
             </div>
@@ -341,13 +336,13 @@ export const PromptMarketplace = () => {
                   {isMobile ? (
                     <div className="grid grid-cols-2 gap-2 sm:gap-3 px-0">
                       {catPrompts.map((prompt, index) => (
-                        <PromptCard key={prompt.id} prompt={prompt} index={index} onSelect={setSelectedPrompt} variant="grid" />
+                        <PromptCard key={prompt.id} prompt={prompt} index={index} onSelect={handleSelectPrompt} variant="grid" />
                       ))}
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                       {catPrompts.map((prompt, index) => (
-                        <PromptCard key={prompt.id} prompt={prompt} index={index} onSelect={setSelectedPrompt} variant="grid" />
+                        <PromptCard key={prompt.id} prompt={prompt} index={index} onSelect={handleSelectPrompt} variant="grid" />
                       ))}
                     </div>
                   )}
