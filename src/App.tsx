@@ -181,6 +181,8 @@ const App = memo(() => (
       </AuthProvider>
     </QueryClientProvider>
   </ErrorBoundary>
-);
+));
+
+App.displayName = "App";
 
 export default App;
