@@ -10,7 +10,7 @@ const steps = [
 
 export const HowItWorksNew = () => {
   return (
-    <section id="como-funciona" className="py-20 md:py-28 px-5 md:px-8">
+    <section id="como-funciona" className="py-16 md:py-28 px-4 md:px-8">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-lg md:text-xl font-semibold tracking-tight mb-2">
@@ -21,7 +21,7 @@ export const HowItWorksNew = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-2">
           {steps.map((step, index) => (
             <motion.div
               key={step.number}
