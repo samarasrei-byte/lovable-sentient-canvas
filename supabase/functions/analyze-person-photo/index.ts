@@ -201,17 +201,46 @@ Standard Rules:
     console.error("Photo analysis exception:", error);
     return new Response(
       JSON.stringify({
+        seguranca: {
+          conteudo_seguro: true,
+          motivo_bloqueio: null,
+          sugestoes_seguranca: [],
+          rating: "G"
+        },
         ageGroup: "adulto",
         presentation: "indefinida",
         suggestedCategory: "retrato_pessoal",
         summary: "",
-        audit_qualidade: { rosto_detectado: true, olhando_camera: true, iluminacao_boa: true, rosto_centralizado: true, sem_obstrucoes: true, resolucao_ok: true, score_identidade: 0.8, recomendacoes: [] },
-        analise: { quantidade_pessoas: 1, pessoas: [], contexto: "individual", animais: [] },
+        audit_qualidade: { 
+          rosto_detectado: true, 
+          olhando_camera: true, 
+          iluminacao_boa: true, 
+          rosto_centralizado: true, 
+          sem_obstrucoes: true, 
+          resolucao_ok: true, 
+          score_identidade: 0.8, 
+          recomendacoes: [] 
+        },
+        analise: { 
+          quantidade_pessoas: 1, 
+          pessoas: [], 
+          contexto: "individual", 
+          animais: [] 
+        },
         areas_editaveis: [],
         prompt_gerado: "",
         categoria: "individual",
         subcategorias: [],
-        metadados: { pessoas: 1, criancas: 0, adults: 1, idosos: 0, homens: 0, mulheres: 0, idade_detectada: null, animal: null },
+        metadados: { 
+          pessoas: 1, 
+          criancas: 0, 
+          adultos: 1, 
+          idosos: 0, 
+          homens: 0, 
+          mulheres: 0, 
+          idade_detectada: null, 
+          animal: null 
+        },
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
