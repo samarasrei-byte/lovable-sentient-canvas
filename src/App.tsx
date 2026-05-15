@@ -88,7 +88,7 @@ const App = () => (
         <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/login" element={<ProtectedRoute requiredRole="admin"><Login /></ProtectedRoute>} />
+            <Route path="/login" element={<Login />} />
             
             {/* QA Routes - Hidden from public */}
             <Route path="/test-login" element={<TestLogin />} />
