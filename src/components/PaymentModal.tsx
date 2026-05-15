@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
 import { Loader2, CreditCard, DollarSign } from "lucide-react";
 
 interface PaymentModalProps {
@@ -28,6 +29,7 @@ export const PaymentModal = ({
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [description, setDescription] = useState("");
+  const { user } = useAuth();
 
   const arcanaFee = pricePerPost * 0.15; // 15% fee
   const totalAmount = pricePerPost + arcanaFee;
@@ -37,7 +39,7 @@ export const PaymentModal = ({
     setLoading(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      // No need to fetch user, already available from useAuth()
       
       if (!user) {
         toast({
