@@ -12,7 +12,7 @@ const features = [
 
 export const ValueProposition = () => {
   return (
-    <section className="py-20 md:py-28 px-5 md:px-8">
+    <section className="py-16 md:py-28 px-4 md:px-8">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-lg md:text-xl font-semibold tracking-tight mb-2">
@@ -26,7 +26,7 @@ export const ValueProposition = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 px-2">
           {features.map((feature, index) => (
             <motion.div
               key={index}
