@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
 import { Loader2 } from "lucide-react";
 
 type User = {
@@ -14,65 +13,30 @@ interface ProtectedRouteProps {
 }
 
 export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [hasAccess, setHasAccess] = useState(false);
+  const { user, profile, loading, isAdmin } = useAuth();
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        setLoading(false);
-        return;
-      }
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
-      setUser(user);
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
 
-      // Check if user is banned
-      const { data: banData } = await supabase
-        .from("bans")
-        .select("id")
-        .eq("user_id", user.id)
-        .eq("is_active", true)
-        .maybeSingle();
+  if (requiredRole === "admin" && !isAdmin) {
+    return <Navigate to="/login" replace />;
+  }
 
-      if (banData) {
-        await supabase.auth.signOut();
-        setLoading(false);
-        return;
-      }
+  if (requiredRole && profile?.role !== requiredRole && !isAdmin) {
+    return <Navigate to="/login" replace />;
+  }
 
-      if (requiredRole) {
-        const { data: roleData } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", user.id)
-          .eq("role", requiredRole)
-          .maybeSingle();
-
-        setHasAccess(!!roleData);
-      } else {
-        setHasAccess(true);
-      }
-
-      setLoading(false);
-    };
-
-    checkAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        checkAuth();
-      } else {
-        setUser(null);
-        setHasAccess(false);
-        setLoading(false);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [requiredRole]);
+  return <>{children}</>;
+};
 
   if (loading) {
     return (

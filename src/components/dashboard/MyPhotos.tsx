@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -27,7 +28,8 @@ interface UserImage {
 
 export const MyPhotos = () => {
   const [images, setImages] = useState<UserImage[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
   const [filter, setFilter] = useState<"all" | "favorites">("all");
 
   useEffect(() => {
@@ -36,7 +38,6 @@ export const MyPhotos = () => {
 
   const loadImages = async () => {
     setLoading(true);
-    const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
     let query = supabase
