@@ -75,8 +75,8 @@ export const PromptCard = memo(({ prompt, index, onSelect, variant = 'grid' }: P
         "hover:border-primary/30 hover:shadow-[0_8px_32px_hsl(var(--primary)/0.15)]",
         "hover:translate-y-[-3px]",
         "focus-within:ring-1 focus-within:ring-primary/30 focus-within:ring-offset-1 focus-within:ring-offset-background",
-        isMobile ? "rounded-xl bg-card/80 backdrop-blur-sm" : "rounded-xl bg-card/40",
-        isFull ? "flex flex-col" : "h-full"
+        isMobile ? "rounded-xl bg-card/80 backdrop-blur-sm ring-1 ring-white/5" : "rounded-xl bg-card/40",
+        isFull ? "flex flex-col h-full" : "h-full"
       )}>
         {/* Image Container */}
         <div className={cn(

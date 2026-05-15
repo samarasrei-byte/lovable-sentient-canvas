@@ -297,7 +297,7 @@ export const PromptMarketplace = memo(() => {
 
               <div className={cn(
                 "grid",
-                isMobile ? "grid-cols-2 gap-2 sm:gap-3 px-0" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
+                isMobile ? "grid-cols-2 gap-2 sm:gap-4 px-0" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
               )}>
                 {featuredPrompts.map((prompt, index) => (
                   <PromptCard key={prompt.id} prompt={prompt} index={index} onSelect={handleSelectPrompt} variant="grid" />
