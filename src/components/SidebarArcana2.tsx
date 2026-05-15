@@ -96,7 +96,7 @@ export const SidebarArcana2 = () => {
   const isPro = userPlan === "professional" || userPlan === "enterprise";
 
   return (
-    <aside className="w-64 border-r border-border/30 bg-card/40 backdrop-blur-xl p-5 flex flex-col">
+    <aside className="hidden lg:flex w-64 border-r border-border/30 bg-card/40 backdrop-blur-xl p-5 flex-col min-h-screen">
       {/* Logo */}
       <Link to="/" className="flex items-center gap-2.5 mb-8 group px-2">
         <div className="relative">

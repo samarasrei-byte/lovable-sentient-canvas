@@ -89,12 +89,12 @@ export const HeroArcana2 = () => {
           </div>
 
           {/* Headline */}
-          <h1 className="text-5xl xs:text-6xl sm:text-7xl lg:text-8xl font-black tracking-[-0.05em] mb-6 leading-[0.95] text-center">
+          <h1 className="text-4xl xs:text-5xl sm:text-7xl lg:text-8xl font-black tracking-[-0.05em] mb-6 leading-[1.1] sm:leading-[0.95] text-center">
             <span className="bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-transparent">
               Fotos de IA que
             </span>
             <br />
-            <span className="bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent animate-shimmer bg-[length:200%_auto]">
+            <span className="bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent animate-shimmer bg-[length:200%_auto] block mt-2 sm:mt-0">
               TRANSFORMAM
             </span>
           </h1>

@@ -36,9 +36,9 @@ export const MobileHeader = ({ title, showBack }: MobileHeaderProps) => {
   };
 
   return (
-    <header className="sticky top-0 z-40 md:hidden">
+    <header className="sticky top-0 z-40 lg:hidden">
       <div className="bg-card/95 backdrop-blur-xl border-b border-border/50 safe-area-top overflow-hidden">
-        <div className="flex items-center justify-between h-14 px-4">
+        <div className="flex items-center justify-between h-14 px-4 md:px-6">
           <div className="flex items-center gap-2 min-w-0">
             <Link to="/app/dashboard" className="flex-shrink-0">
               <ArcanaLogo iconSize={18} textSize="text-base" />

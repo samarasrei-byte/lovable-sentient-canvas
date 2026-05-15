@@ -54,14 +54,14 @@ export const Pricing = () => {
   ];
 
   return (
-    <section className="py-32 px-6 relative overflow-hidden">
+    <section className="py-16 md:py-32 px-4 md:px-6 relative overflow-hidden">
       {/* Background gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-primary/5 to-background" />
       
       <div className="container mx-auto relative z-10">
         {/* Header */}
         <div className="text-center mb-16 space-y-4">
-          <h2 className="text-4xl md:text-5xl font-bold">
+          <h2 className="text-3xl md:text-5xl font-bold leading-tight">
             Planos que se adaptam ao seu momento
           </h2>
           <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
@@ -70,13 +70,13 @@ export const Pricing = () => {
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto px-2">
           {plans.map((plan, index) => (
             <Card 
               key={index}
               className={`relative transition-all duration-300 ${
                 plan.highlighted 
-                  ? 'border-primary shadow-2xl shadow-primary/20 scale-105 md:scale-110' 
+                  ? 'border-primary shadow-2xl shadow-primary/20 scale-100 md:scale-105 lg:scale-110 z-10' 
                   : 'hover:shadow-xl hover:-translate-y-1'
               }`}
             >

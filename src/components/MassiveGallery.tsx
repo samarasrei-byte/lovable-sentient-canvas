@@ -83,7 +83,7 @@ export const MassiveGallery = () => {
             <span className="text-sm font-medium text-primary">GALERIA DE CRIAÇÕES</span>
           </div>
 
-          <h2 className="text-3xl md:text-5xl font-black mb-4 tracking-tight px-4 leading-tight">
+          <h2 className="text-3xl md:text-5xl font-black mb-4 tracking-tight px-2 leading-[1.1]">
             <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
               {images.length}+
             </span>{" "}

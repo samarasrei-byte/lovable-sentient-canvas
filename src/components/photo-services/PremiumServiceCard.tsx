@@ -35,13 +35,13 @@ export const PremiumServiceCard = ({ service, onClick, isFirst }: PremiumService
 
       <GlassCardContent className="p-8 relative z-10">
         <div className={cn(
-          "flex flex-col md:flex-row gap-8 items-start",
-          isFirst ? "md:items-center" : ""
+        "flex flex-col lg:flex-row gap-6 md:gap-8 items-start",
+        isFirst ? "lg:items-center" : ""
         )}>
           {/* Icon & Status */}
-          <div className="flex-shrink-0">
+          <div className="flex-shrink-0 mx-auto md:mx-0">
             <div className={cn(
-              "w-20 h-20 rounded-2xl flex items-center justify-center border transition-transform duration-500 group-hover:scale-110",
+              "w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center border transition-transform duration-500 group-hover:scale-110",
               isFirst 
                 ? "bg-gradient-to-br from-primary to-secondary border-primary/20 shadow-lg shadow-primary/20" 
                 : "bg-white/5 border-white/10"
@@ -63,7 +63,7 @@ export const PremiumServiceCard = ({ service, onClick, isFirst }: PremiumService
             <div className="flex items-center gap-3">
               <h3 className={cn(
                 "font-black tracking-tight",
-                isFirst ? "text-3xl md:text-4xl" : "text-2xl"
+                isFirst ? "text-2xl xs:text-3xl md:text-4xl" : "text-xl xs:text-2xl"
               )}>
                 {service.name}
               </h3>
@@ -99,10 +99,10 @@ export const PremiumServiceCard = ({ service, onClick, isFirst }: PremiumService
 
           {/* CTA & Pricing */}
           <div className={cn(
-            "flex-shrink-0 w-full md:w-auto flex flex-col items-center md:items-end justify-center space-y-4 p-6 rounded-2xl border bg-white/[0.02]",
+            "flex-shrink-0 w-full lg:w-auto flex flex-col items-center lg:items-end justify-center space-y-4 p-5 md:p-6 rounded-2xl border bg-white/[0.02]",
             isFirst ? "border-primary/20 bg-primary/5" : "border-white/5"
           )}>
-            <div className="text-center md:text-right">
+            <div className="text-center lg:text-right">
               <div className="text-muted-foreground text-xs uppercase tracking-[0.2em] mb-1 font-bold">Investimento</div>
               <div className="text-4xl font-black text-foreground">
                 {formatPrice(service.price_cents)}
@@ -113,7 +113,7 @@ export const PremiumServiceCard = ({ service, onClick, isFirst }: PremiumService
             <GlassButton 
               variant={isFirst ? "neon" : "outline"} 
               className={cn(
-                "w-full md:w-56 h-14 text-base font-bold transition-all",
+                "w-full lg:w-56 h-12 md:h-14 text-sm md:text-base font-bold transition-all",
                 isFirst ? "hover:scale-105 shadow-xl shadow-primary/20" : ""
               )}
               onClick={onClick}
