@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Home, Sparkles, Users, BarChart3, User } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -17,7 +18,7 @@ const navItems: NavItem[] = [
   { path: "/app/perfil", icon: User, label: "Perfil" },
 ];
 
-export const BottomNavigation = () => {
+export const BottomNavigation = memo(() => {
   const location = useLocation();
 
   return (
@@ -72,4 +73,6 @@ export const BottomNavigation = () => {
       </div>
     </nav>
   );
-};
+});
+
+BottomNavigation.displayName = "BottomNavigation";
