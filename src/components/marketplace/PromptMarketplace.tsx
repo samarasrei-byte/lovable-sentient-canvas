@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useCallback } from "react";
+import { useState, useMemo, useRef, useCallback, memo } from "react";
 import { Sparkles, Loader2, Search, ChevronRight, Flame, X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -57,7 +57,7 @@ const CATEGORY_CONFIG: Record<string, { icon: string; label: string; slug: strin
 const MAX_FEATURED = 30;
 const MAX_PER_CATEGORY = 12;
 
-export const PromptMarketplace = () => {
+export const PromptMarketplace = memo(() => {
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeSection, setActiveSection] = useState<string | null>(null);
@@ -364,4 +364,6 @@ export const PromptMarketplace = () => {
       )}
     </section>
   );
-};
+});
+
+PromptMarketplace.displayName = "PromptMarketplace";
