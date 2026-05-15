@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 import { Loader2, ArrowRight, Eye, EyeOff, Sparkles, Zap, Shield, Star } from "lucide-react";
-import { Session } from "@supabase/supabase-js";
 import { motion, AnimatePresence } from "framer-motion";
 import { createNoise3D } from "simplex-noise";
 
@@ -99,22 +99,20 @@ const FeatureItem = ({ icon: Icon, text, delay }: { icon: any; text: string; del
 const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user, loading: authLoading, isAdmin } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [session, setSession] = useState<Session | null>(null);
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (session) redirectToDashboard(session.user.id);
-    });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      if (session) redirectToDashboard(session.user.id);
-    });
-    return () => subscription.unsubscribe();
-  }, []);
+    if (user) {
+      if (isAdmin) {
+        navigate("/admin");
+      } else {
+        navigate("/app/dashboard");
+      }
+    }
+  }, [user, isAdmin, navigate]);
 
   const redirectToDashboard = async (userId: string) => {
     const { data: roleData } = await supabase
@@ -181,7 +179,7 @@ const Login = () => {
     setLoading(false);
   };
 
-  if (session) {
+  if (authLoading || user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />

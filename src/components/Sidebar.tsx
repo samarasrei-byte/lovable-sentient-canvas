@@ -1,6 +1,5 @@
-import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { 
   Home, 
@@ -51,42 +50,11 @@ const adminMenuItems: MenuItem[] = [
 export const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [userPlan, setUserPlan] = useState<string>("basic");
-  const [isAdmin, setIsAdmin] = useState(false);
-
-  useEffect(() => {
-    checkUserStatus();
-  }, []);
-
-  const checkUserStatus = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", user.id)
-        .single();
-      
-      setIsAdmin(profile?.role === 'admin');
-
-      const { data: subscription } = await supabase
-        .from("subscriptions")
-        .select("plan")
-        .eq("user_id", user.id)
-        .eq("status", "active")
-        .maybeSingle();
-
-      setUserPlan(subscription?.plan || "basic");
-    } catch (error) {
-      console.error("Error checking user status:", error);
-    }
-  };
+  const { profile, isAdmin, isPro, signOut } = useAuth();
 
   const handleLogout = async () => {
     try {
-      await supabase.auth.signOut();
+      await signOut();
       toast.success("Logout realizado com sucesso!");
       navigate("/login");
     } catch (error) {
@@ -94,8 +62,6 @@ export const Sidebar = () => {
       toast.error("Erro ao fazer logout");
     }
   };
-
-  const isPro = userPlan === "professional" || userPlan === "enterprise";
 
   return (
     <aside className="hidden md:flex w-64 border-r border-border/30 bg-card/40 backdrop-blur-xl p-5 flex-col min-h-screen">

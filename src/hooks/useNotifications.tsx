@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/use-auth";
 
 export interface Notification {
   id: string;
@@ -19,13 +20,11 @@ export const useNotifications = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
-  // Fetch initial notifications
   const fetchNotifications = async () => {
+    if (!user) return;
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
       const { data, error } = await supabase
         .from('notifications')
         .select('*')
@@ -44,7 +43,6 @@ export const useNotifications = () => {
     }
   };
 
-  // Mark notification as read
   const markAsRead = async (notificationId: string) => {
     try {
       const { error } = await supabase
@@ -63,12 +61,9 @@ export const useNotifications = () => {
     }
   };
 
-  // Mark all as read
   const markAllAsRead = async () => {
+    if (!user) return;
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
       const { error } = await supabase
         .from('notifications')
         .update({ is_read: true })
@@ -87,63 +82,58 @@ export const useNotifications = () => {
   };
 
   useEffect(() => {
+    if (!user) return;
+
     fetchNotifications();
 
-    // Subscribe to realtime notifications
-    const setupRealtimeSubscription = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+    const channel = supabase
+      .channel(`notifications-${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          const newNotification = payload.new as Notification;
+          setNotifications(prev => [newNotification, ...prev]);
+          setUnreadCount(prev => prev + 1);
+          toast.success(newNotification.title, {
+            description: newNotification.message,
+            duration: 5000,
+          });
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          const updatedNotification = payload.new as Notification;
+          setNotifications(prev =>
+            prev.map(n => n.id === updatedNotification.id ? updatedNotification : n)
+          );
+          setUnreadCount(prev => {
+            const wasRead = prev > 0;
+            // Recalculate accurately if needed, or just update if we know it was a read transition
+            return wasRead ? prev : prev; // Simpler to refetch or track status changes
+          });
+          // Better to just refetch unread count if many updates happen
+          fetchNotifications();
+        }
+      )
+      .subscribe();
 
-      const channel = supabase
-        .channel('notifications-channel')
-        .on(
-          'postgres_changes',
-          {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'notifications',
-            filter: `user_id=eq.${user.id}`
-          },
-          (payload) => {
-            console.log('New notification received:', payload);
-            const newNotification = payload.new as Notification;
-            
-            setNotifications(prev => [newNotification, ...prev]);
-            setUnreadCount(prev => prev + 1);
-
-            // Show toast notification
-            toast.success(newNotification.title, {
-              description: newNotification.message,
-              duration: 5000,
-            });
-          }
-        )
-        .on(
-          'postgres_changes',
-          {
-            event: 'UPDATE',
-            schema: 'public',
-            table: 'notifications',
-            filter: `user_id=eq.${user.id}`
-          },
-          (payload) => {
-            console.log('Notification updated:', payload);
-            const updatedNotification = payload.new as Notification;
-            
-            setNotifications(prev =>
-              prev.map(n => n.id === updatedNotification.id ? updatedNotification : n)
-            );
-          }
-        )
-        .subscribe();
-
-      return () => {
-        supabase.removeChannel(channel);
-      };
+    return () => {
+      supabase.removeChannel(channel);
     };
-
-    setupRealtimeSubscription();
-  }, []);
+  }, [user?.id]);
 
   return {
     notifications,
