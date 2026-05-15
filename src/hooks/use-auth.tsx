@@ -1,4 +1,5 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
 
@@ -16,65 +17,75 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-  const fetchProfile = async (userId: string) => {
-    try {
-      const [profileRes, subRes] = await Promise.all([
-        supabase.from("profiles").select("*").eq("id", userId).single(),
-        supabase.from("subscriptions").select("plan").eq("user_id", userId).eq("status", "active").maybeSingle()
-      ]);
+  const { data: profile, refetch: refreshProfile } = useQuery({
+    queryKey: ["profile", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      try {
+        const [profileRes, subRes] = await Promise.all([
+          supabase.from("profiles").select("*").eq("id", user.id).single(),
+          supabase.from("subscriptions").select("plan").eq("user_id", user.id).eq("status", "active").maybeSingle()
+        ]);
 
-      if (profileRes.error && profileRes.error.code !== "PGRST116") {
-        console.error("Error fetching profile:", profileRes.error);
+        if (profileRes.error && profileRes.error.code !== "PGRST116") {
+          console.error("Error fetching profile:", profileRes.error);
+        }
+
+        return {
+          ...(profileRes.data || {}),
+          plan: subRes.data?.plan || "basic"
+        };
+      } catch (error) {
+        console.error("Profile fetch error:", error);
+        return null;
       }
-
-      setProfile({
-        ...(profileRes.data || {}),
-        plan: subRes.data?.plan || "basic"
-      });
-    } catch (error) {
-      console.error("Profile fetch error:", error);
-    }
-  };
+    },
+    enabled: !!user,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
 
   useEffect(() => {
     const initAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setUser(session?.user ?? null);
-      if (session?.user) {
-        await fetchProfile(session.user.id);
-      }
       setLoading(false);
     };
 
     initAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        await fetchProfile(session.user.id);
-      } else {
-        setProfile(null);
+      const newUser = session?.user ?? null;
+      setUser(newUser);
+      
+      if (event === "SIGNED_OUT") {
+        queryClient.setQueryData(["profile", user?.id], null);
+        queryClient.clear();
       }
+      
       setLoading(false);
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [queryClient, user?.id]);
+
+  const signOut = useCallback(async () => {
+    await supabase.auth.signOut();
+    queryClient.setQueryData(["profile", user?.id], null);
+    queryClient.clear();
+  }, [queryClient, user?.id]);
 
   const value = {
     user,
     profile,
-    loading,
+    loading: loading,
     isAdmin: profile?.role === "admin",
     isPro: profile?.plan === "professional" || profile?.plan === "enterprise",
-    signOut: async () => {
-      await supabase.auth.signOut();
-    },
+    signOut,
     refreshProfile: async () => {
-      if (user) await fetchProfile(user.id);
+      await refreshProfile();
     }
   };
 

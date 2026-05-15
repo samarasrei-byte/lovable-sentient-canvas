@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
@@ -47,7 +48,7 @@ const adminMenuItems: MenuItem[] = [
   { path: "/admin/users", icon: Users, label: "Usuários" },
 ];
 
-export const Sidebar = () => {
+export const Sidebar = memo(() => {
   const location = useLocation();
   const navigate = useNavigate();
   const { profile, isAdmin, isPro, signOut } = useAuth();
@@ -193,4 +194,6 @@ export const Sidebar = () => {
       </div>
     </aside>
   );
-};
+});
+
+Sidebar.displayName = "Sidebar";

@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Sparkles, ChevronDown, ChevronUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -28,15 +29,14 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 export const MassiveGallery = () => {
-  const [images, setImages] = useState<GalleryImage[]>([]);
-  const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>("Todos");
   const [expanded, setExpanded] = useState(false);
   const [lightboxImage, setLightboxImage] = useState<GalleryImage | null>(null);
 
-  useEffect(() => {
-    const fetchImages = async () => {
-      const { data } = await supabase
+  const { data: images = [], isLoading } = useQuery({
+    queryKey: ["gallery-images"],
+    queryFn: async () => {
+      const { data, error } = await supabase
         .from("prompts")
         .select("id, name, category, example_image_url")
         .neq("status", "inactive")
@@ -44,13 +44,11 @@ export const MassiveGallery = () => {
         .order("category")
         .order("display_order");
 
-      if (data) {
-        setImages(data.filter(d => d.example_image_url) as GalleryImage[]);
-      }
-      setLoading(false);
-    };
-    fetchImages();
-  }, []);
+      if (error) throw error;
+      return (data || []).filter(d => d.example_image_url) as GalleryImage[];
+    },
+    staleTime: 1000 * 60 * 60, // 1 hour cache for gallery
+  });
 
   const categories = useMemo(() => {
     const cats = [...new Set(images.map(i => i.category))].sort();
@@ -62,10 +60,10 @@ export const MassiveGallery = () => {
     return images.filter(i => i.category === selectedCategory);
   }, [images, selectedCategory]);
 
-  const displayImages = expanded ? filtered : filtered.slice(0, 48);
-  const hasMore = filtered.length > 48;
+  const displayImages = expanded ? filtered : filtered.slice(0, 20);
+  const hasMore = filtered.length > 20;
 
-  if (loading) {
+  if (isLoading) {
     return (
       <section className="py-20 px-4">
         <div className="max-w-7xl mx-auto flex justify-center">
@@ -135,7 +133,8 @@ export const MassiveGallery = () => {
                 src={img.example_image_url}
                 alt={img.name}
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                loading={idx < 12 ? "eager" : "lazy"}
+                loading={idx < 8 ? "eager" : "lazy"}
+                decoding="async"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <div className="absolute bottom-0 left-0 right-0 p-3">

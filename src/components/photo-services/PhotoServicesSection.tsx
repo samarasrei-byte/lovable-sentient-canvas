@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
-import { Camera, Baby, Briefcase, Upload, Sparkles, Users, Wand2 } from "lucide-react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Camera, Baby, Briefcase, Upload, Users, Wand2 } from "lucide-react";
 import { GlassCard, GlassCardContent } from "@/components/ui/glass-card";
 import { GlassButton } from "@/components/ui/glass-button";
 import { Badge } from "@/components/ui/badge";
@@ -31,16 +32,11 @@ const formatPrice = (cents: number) => {
 };
 
 export const PhotoServicesSection = () => {
-  const [services, setServices] = useState<PhotoService[]>([]);
-  const [loading, setLoading] = useState(true);
   const [selectedService, setSelectedService] = useState<PhotoService | null>(null);
 
-  useEffect(() => {
-    fetchServices();
-  }, []);
-
-  const fetchServices = async () => {
-    try {
+  const { data: services = [], isLoading } = useQuery({
+    queryKey: ["photo-services"],
+    queryFn: async () => {
       const { data, error } = await supabase
         .from("photo_services")
         .select("*")
@@ -49,21 +45,16 @@ export const PhotoServicesSection = () => {
 
       if (error) throw error;
       
-      const parsedServices = (data || []).map((s: any) => ({
+      return (data || []).map((s: any) => ({
         ...s,
         themes: Array.isArray(s.themes) ? s.themes : JSON.parse(s.themes || '[]'),
         features: Array.isArray(s.features) ? s.features : JSON.parse(s.features || '[]')
-      }));
-      
-      setServices(parsedServices);
-    } catch (error) {
-      console.error("Error fetching photo services:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+      })) as PhotoService[];
+    },
+    staleTime: 1000 * 60 * 60, // 1 hour cache
+  });
 
-  if (loading) {
+  if (isLoading) {
     return (
       <section id="photo-services" className="relative py-20 px-4 md:px-6 overflow-hidden">
         <div className="max-w-7xl mx-auto flex items-center justify-center py-20">

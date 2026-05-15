@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles, Zap, Star, TrendingUp, Layers, Linkedin, ArrowUpRight, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -53,7 +54,7 @@ const formatPrice = (cents: number) => {
   }).format(cents / 100);
 };
 
-export const PromptCard = ({ prompt, index, onSelect, variant = 'grid' }: PromptCardProps) => {
+export const PromptCard = memo(({ prompt, index, onSelect, variant = 'grid' }: PromptCardProps) => {
   const IconComponent = getCategoryIcon(prompt.category);
   const complexity = getComplexityLevel(prompt);
   const isFull = variant === 'full';
@@ -175,4 +176,6 @@ export const PromptCard = ({ prompt, index, onSelect, variant = 'grid' }: Prompt
       </div>
     </article>
   );
-};
+});
+
+PromptCard.displayName = "PromptCard";

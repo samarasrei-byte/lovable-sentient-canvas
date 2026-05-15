@@ -1,5 +1,7 @@
-import { Outlet, Navigate } from "react-router-dom";
+import { Outlet, Navigate, useLocation } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
+import { PageTransition } from "@/components/PageTransition";
+import { AnimatePresence } from "framer-motion";
 import { NotificationsDropdown } from "@/components/NotificationsDropdown";
 import { BottomNavigation } from "@/components/pwa/BottomNavigation";
 import { MobileHeader } from "@/components/pwa/MobileHeader";
@@ -9,6 +11,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function AppLayout() {
   const isMobile = useIsMobile();
+  const location = useLocation();
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -28,7 +31,11 @@ export default function AppLayout() {
         
         {/* Main Content */}
         <main className={`flex-1 overflow-auto ${isMobile ? 'pb-20' : ''}`}>
-          <Outlet />
+          <AnimatePresence mode="wait">
+            <PageTransition key={location.pathname}>
+              <Outlet />
+            </PageTransition>
+          </AnimatePresence>
         </main>
         
         {/* Mobile Bottom Navigation */}
