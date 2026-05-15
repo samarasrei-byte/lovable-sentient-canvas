@@ -1,4 +1,5 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, memo } from "react";
+import { AnimatePresence } from "framer-motion";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -86,7 +87,7 @@ const PageLoader = () => (
   </div>
 );
 
-const App = () => (
+const App = memo(() => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <AuthProvider>

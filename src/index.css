@@ -231,3 +231,18 @@ lovable-badge {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
+
+/* Performance optimizations for heavy sections */
+.content-visibility-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 1000px;
+}
+
+/* Optimize paints */
+.will-change-transform {
+  will-change: transform;
+}
+
+.will-change-opacity {
+  will-change: opacity;
+}
