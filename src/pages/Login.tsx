@@ -300,10 +300,10 @@ const Login = () => {
           {/* Header */}
           <div className="mb-6 md:mb-8">
             <h2 className="text-xl md:text-2xl font-black text-foreground">
-              Bem-vindo de volta
+              {mode === "login" ? "Bem-vindo de volta" : "Criar sua conta"}
             </h2>
             <p className="text-sm text-muted-foreground mt-1">
-              Entre para continuar criando
+              {mode === "login" ? "Entre para continuar criando" : "Comece sua jornada criativa agora"}
             </p>
           </div>
 
@@ -311,40 +311,56 @@ const Login = () => {
           <div className="relative">
             <div className="absolute -inset-px rounded-2xl bg-gradient-to-b from-white/[0.08] to-transparent" />
             <div className="relative rounded-2xl bg-white/[0.03] backdrop-blur-2xl border border-white/[0.06] p-6 md:p-7">
-
-              {/* Login form only */}
-              <form onSubmit={handleLogin} className="space-y-4">
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Email</label>
-                        <Input name="email" type="email" placeholder="seu@email.com" required
-                          className="h-12 bg-white/[0.04] border-white/[0.08] rounded-xl text-foreground placeholder:text-muted-foreground/40 focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all" />
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Senha</label>
-                        <div className="relative">
-                          <Input name="password" type={showPassword ? "text" : "password"} placeholder="••••••••" required
-                            className="h-12 bg-white/[0.04] border-white/[0.08] rounded-xl text-foreground placeholder:text-muted-foreground/40 focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all pr-12" />
-                          <button type="button" onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-muted-foreground transition-colors">
-                            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                          </button>
-                        </div>
-                      </div>
-                      <button type="submit" disabled={loading}
-                        className="w-full h-12 rounded-xl bg-gradient-to-r from-primary to-primary/80 text-primary-foreground font-semibold text-sm flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-primary/25 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 disabled:opacity-50 group mt-2">
-                        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (
-                          <>Entrar <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" /></>
-                        )}
-                      </button>
+              <form onSubmit={mode === "login" ? handleLogin : handleSignup} className="space-y-4">
+                {mode === "signup" && (
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Nome Completo</label>
+                    <Input name="fullName" type="text" placeholder="Seu nome" required
+                      className="h-12 bg-white/[0.04] border-white/[0.08] rounded-xl text-foreground placeholder:text-muted-foreground/40 focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all" />
+                  </div>
+                )}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Email</label>
+                  <Input name="email" type="email" placeholder="seu@email.com" required
+                    className="h-12 bg-white/[0.04] border-white/[0.08] rounded-xl text-foreground placeholder:text-muted-foreground/40 focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all" />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Senha</label>
+                  <div className="relative">
+                    <Input name="password" type={showPassword ? "text" : "password"} placeholder="••••••••" required
+                      className="h-12 bg-white/[0.04] border-white/[0.08] rounded-xl text-foreground placeholder:text-muted-foreground/40 focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all pr-12" />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-muted-foreground transition-colors">
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+                <button type="submit" disabled={loading}
+                  className="w-full h-12 rounded-xl bg-gradient-to-r from-primary to-primary/80 text-primary-foreground font-semibold text-sm flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-primary/25 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 disabled:opacity-50 group mt-2">
+                  {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (
+                    <>{mode === "login" ? "Entrar" : "Criar Conta"} <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" /></>
+                  )}
+                </button>
               </form>
 
+              <div className="mt-6 text-center">
+                <button
+                  type="button"
+                  onClick={() => setMode(mode === "login" ? "signup" : "login")}
+                  className="text-xs text-muted-foreground hover:text-primary transition-colors"
+                >
+                  {mode === "login" ? "Não tem uma conta? Crie agora" : "Já tem uma conta? Entre aqui"}
+                </button>
+              </div>
             </div>
           </div>
 
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
-            className="text-center text-[11px] text-muted-foreground/40 mt-6">
-            Acesso restrito à administração
-          </motion.p>
+          {mode === "login" && (
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
+              className="text-center text-[11px] text-muted-foreground/40 mt-6">
+              Acesso restrito à administração
+            </motion.p>
+          )}
         </motion.div>
       </div>
     </div>
