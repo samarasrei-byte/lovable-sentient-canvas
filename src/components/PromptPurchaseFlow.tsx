@@ -371,7 +371,19 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
         }
       });
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Cleanup individual URLs when a photo is replaced
+  const updatePhotoAt = useCallback((index: number, newPhoto: PhotoSlot) => {
+    setPhotos(prev => {
+      const oldPhoto = prev[index];
+      if (oldPhoto.preview && oldPhoto.preview.startsWith('blob:') && oldPhoto.preview !== newPhoto.preview) {
+        URL.revokeObjectURL(oldPhoto.preview);
+      }
+      const updated = [...prev];
+      updated[index] = newPhoto;
+      return updated;
+    });
   }, []);
 
   const activePhotoCount = photos.filter((photo) => photo.file).length;
