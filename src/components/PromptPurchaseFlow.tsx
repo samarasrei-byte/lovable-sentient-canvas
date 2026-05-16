@@ -22,14 +22,13 @@ import { ModerationAppealModal } from "./ModerationAppealModal";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
-import heic2any from "heic2any";
-
-// Helper for image compression and safety (Scientist approach)
-const processImageForAudit = async (file: File): Promise<File> => {
+// heic2any will be imported dynamically when needed to optimize bundle size
+...
   // Convert HEIC if needed
   let processedFile = file;
   if (file.type === "image/heic" || file.name.toLowerCase().endsWith(".heic")) {
     try {
+      const heic2any = (await import("heic2any")).default;
       const convertedBlob = await heic2any({ blob: file, toType: "image/jpeg", quality: 0.8 }) as Blob;
       processedFile = new File([convertedBlob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", { type: "image/jpeg" });
     } catch (e) {
