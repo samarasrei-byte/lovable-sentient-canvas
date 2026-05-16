@@ -1579,6 +1579,7 @@ export type Database = {
           prompt_id: string
           updated_at: string
           user_email: string | null
+          user_id: string | null
           user_instagram: string | null
           user_name: string | null
           user_photo_url: string | null
@@ -1598,6 +1599,7 @@ export type Database = {
           prompt_id: string
           updated_at?: string
           user_email?: string | null
+          user_id?: string | null
           user_instagram?: string | null
           user_name?: string | null
           user_photo_url?: string | null
@@ -1617,6 +1619,7 @@ export type Database = {
           prompt_id?: string
           updated_at?: string
           user_email?: string | null
+          user_id?: string | null
           user_instagram?: string | null
           user_name?: string | null
           user_photo_url?: string | null
