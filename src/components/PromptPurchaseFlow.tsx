@@ -23,7 +23,9 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 // heic2any will be imported dynamically when needed to optimize bundle size
-...
+
+// Helper for image compression and safety (Scientist approach)
+const processImageForAudit = async (file: File): Promise<File> => {
   // Convert HEIC if needed
   let processedFile = file;
   if (file.type === "image/heic" || file.name.toLowerCase().endsWith(".heic")) {
