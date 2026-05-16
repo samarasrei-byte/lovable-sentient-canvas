@@ -22,7 +22,7 @@ import { ModerationAppealModal } from "./ModerationAppealModal";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
-import heic2any from "heic2any";
+// heic2any will be imported dynamically when needed to optimize bundle size
 
 // Helper for image compression and safety (Scientist approach)
 const processImageForAudit = async (file: File): Promise<File> => {
@@ -30,6 +30,7 @@ const processImageForAudit = async (file: File): Promise<File> => {
   let processedFile = file;
   if (file.type === "image/heic" || file.name.toLowerCase().endsWith(".heic")) {
     try {
+      const heic2any = (await import("heic2any")).default;
       const convertedBlob = await heic2any({ blob: file, toType: "image/jpeg", quality: 0.8 }) as Blob;
       processedFile = new File([convertedBlob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", { type: "image/jpeg" });
     } catch (e) {
@@ -370,7 +371,19 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
         }
       });
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Cleanup individual URLs when a photo is replaced
+  const updatePhotoAt = useCallback((index: number, newPhoto: PhotoSlot) => {
+    setPhotos(prev => {
+      const oldPhoto = prev[index];
+      if (oldPhoto.preview && oldPhoto.preview.startsWith('blob:') && oldPhoto.preview !== newPhoto.preview) {
+        URL.revokeObjectURL(oldPhoto.preview);
+      }
+      const updated = [...prev];
+      updated[index] = newPhoto;
+      return updated;
+    });
   }, []);
 
   const activePhotoCount = photos.filter((photo) => photo.file).length;
@@ -764,6 +777,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
           userName: formData.name, 
           userInstagram: formData.instagram, 
           userEmail: formData.email,
+          userId: user?.id, // Link to current user if logged in
           customFields: Object.keys(customFields).length > 0 ? customFields : undefined,
         },
       });

@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { promptId, userName, userInstagram, userEmail, customFields } = await req.json();
+    const { promptId, userName, userInstagram, userEmail, userId, customFields } = await req.json();
 
     if (!promptId) {
       return new Response(JSON.stringify({ error: "promptId is required" }), {
@@ -48,6 +48,7 @@ serve(async (req) => {
         user_name: userName || null,
         user_instagram: userInstagram || null,
         user_email: userEmail || null,
+        user_id: userId || null, // Optional link to authenticated user
         amount_cents: prompt.price_cents,
         payment_status: "pending",
         generation_status: "pending",
