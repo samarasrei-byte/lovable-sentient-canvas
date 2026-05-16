@@ -765,6 +765,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
           userName: formData.name, 
           userInstagram: formData.instagram, 
           userEmail: formData.email,
+          userId: user?.id, // Link to current user if logged in
           customFields: Object.keys(customFields).length > 0 ? customFields : undefined,
         },
       });
