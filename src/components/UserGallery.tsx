@@ -34,7 +34,12 @@ export const UserGallery = ({ onReuse }: UserGalleryProps) => {
       if (!user) {
         const localImages = localStorage.getItem('arcana_user_generated');
         if (localImages) {
-          setImages(JSON.parse(localImages));
+          try {
+            setImages(JSON.parse(localImages));
+          } catch (e) {
+            console.error('Failed to parse local images:', e);
+            localStorage.removeItem('arcana_user_generated');
+          }
         }
         setLoading(false);
         return;

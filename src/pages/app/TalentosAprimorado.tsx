@@ -193,19 +193,27 @@ export default function TalentosAprimorado() {
       t.price <= priceRange[1]
     );
 
+    // Helper to normalize follower count for sorting (e.g. "2.5M" -> 2500000)
+    const normalizeFollowers = (val: string) => {
+      const num = parseFloat(val.replace(/[^0-9.]/g, ''));
+      if (val.toLowerCase().includes('m')) return num * 1000000;
+      if (val.toLowerCase().includes('k')) return num * 1000;
+      return num;
+    };
+
     // Sorting
     switch (sortBy) {
       case "followers-desc":
-        result.sort((a, b) => parseFloat(b.followers) - parseFloat(a.followers));
+        result.sort((a, b) => normalizeFollowers(b.followers) - normalizeFollowers(a.followers));
         break;
       case "followers-asc":
-        result.sort((a, b) => parseFloat(a.followers) - parseFloat(b.followers));
+        result.sort((a, b) => normalizeFollowers(a.followers) - normalizeFollowers(b.followers));
         break;
       case "engagement-desc":
-        result.sort((a, b) => b.engagementValue - a.engagementValue);
+        result.sort((a, b) => (b.engagementValue || 0) - (a.engagementValue || 0));
         break;
       case "engagement-asc":
-        result.sort((a, b) => a.engagementValue - b.engagementValue);
+        result.sort((a, b) => (a.engagementValue || 0) - (b.engagementValue || 0));
         break;
       case "price-desc":
         result.sort((a, b) => b.price - a.price);
