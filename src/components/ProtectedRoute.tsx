@@ -22,12 +22,16 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
     return <Navigate to="/login" replace />;
   }
 
+  // If user is logged in but trying to access admin without being admin
   if (requiredRole === "admin" && !isAdmin) {
-    return <Navigate to="/login" replace />;
+    console.warn("User attempted to access admin route without admin role");
+    return <Navigate to="/app/dashboard" replace />;
   }
 
+  // If user has a specific role requirement but doesn't meet it
   if (requiredRole && profile?.role !== requiredRole && !isAdmin) {
-    return <Navigate to="/login" replace />;
+    console.warn(`User attempted to access ${requiredRole} route but has role ${profile?.role}`);
+    return <Navigate to="/app/dashboard" replace />;
   }
 
   return <>{children}</>;
