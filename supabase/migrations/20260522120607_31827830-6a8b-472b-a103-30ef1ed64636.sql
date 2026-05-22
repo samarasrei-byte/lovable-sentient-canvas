@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ALTER COLUMN full_name DROP NOT NULL;

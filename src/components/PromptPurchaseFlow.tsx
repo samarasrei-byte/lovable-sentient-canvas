@@ -672,10 +672,8 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
 
   const handleNextStep = async () => {
     if (step === 'details') {
-      if (prompt.required_fields.includes('name') && !formData.name.trim()) {
-        toast.error('Por favor, informe seu nome.');
-        return;
-      }
+      // O nome agora é opcional globalmente
+
       if (isBirthdayPrompt && !formData.age?.trim() && !formData.months?.trim()) {
         toast.error('Por favor, informe a idade ou os meses.');
         return;
@@ -752,10 +750,8 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       return;
     }
 
-    if (prompt.required_fields.includes('name') && !formData.name.trim()) {
-      toast.error('Por favor, informe seu nome.');
-      return;
-    }
+    // O nome agora é opcional globalmente
+
 
     try {
       // Collect all custom fields for persistence
@@ -955,11 +951,11 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       }
       if (!uploadData) throw lastError || new Error(`Upload da foto ${i + 1} falhou`);
 
-      const { data: signedData, error: signedError } = await supabase.storage
+      const { data: { publicUrl } } = supabase.storage
         .from('user-photos')
-        .createSignedUrl(uploadData.path, 60 * 60);
-      if (signedError || !signedData?.signedUrl) throw new Error(`Falha ao liberar a foto ${i + 1} para a IA`);
-      return signedData.signedUrl;
+        .getPublicUrl(uploadData.path);
+      return publicUrl;
+
     };
 
     try {
