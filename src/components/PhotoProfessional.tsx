@@ -363,7 +363,9 @@ export const PhotoProfessional = () => {
             className="ml-auto"
             onClick={() => {
               setStep(1);
-              setUserPhoto(null);
+              setUserPhotoPreview(null);
+              setUserPhotoUrl(null);
+
               setSelectedTemplate(null);
               setGeneratedImages([]);
             }}
