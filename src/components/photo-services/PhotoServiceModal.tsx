@@ -73,10 +73,11 @@ export const PhotoServiceModal = ({ service, onClose }: PhotoServiceModalProps) 
       return;
     }
 
-    if (!formData.email || !formData.name) {
-      toast.error("Preencha seu nome e email");
+    if (!formData.email) {
+      toast.error("Preencha seu email");
       return;
     }
+
 
     setUploading(true);
 

@@ -672,10 +672,8 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
 
   const handleNextStep = async () => {
     if (step === 'details') {
-      if (prompt.required_fields.includes('name') && !formData.name.trim()) {
-        toast.error('Por favor, informe seu nome.');
-        return;
-      }
+      // O nome agora é opcional globalmente
+
       if (isBirthdayPrompt && !formData.age?.trim() && !formData.months?.trim()) {
         toast.error('Por favor, informe a idade ou os meses.');
         return;
@@ -752,10 +750,8 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       return;
     }
 
-    if (prompt.required_fields.includes('name') && !formData.name.trim()) {
-      toast.error('Por favor, informe seu nome.');
-      return;
-    }
+    // O nome agora é opcional globalmente
+
 
     try {
       // Collect all custom fields for persistence
