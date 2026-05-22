@@ -190,8 +190,9 @@ const AdminUsers = () => {
 
   const filteredUsers = users.filter((user) => {
     const matchesSearch = 
-      user.full_name.toLowerCase().includes(search.toLowerCase()) ||
-      user.email.toLowerCase().includes(search.toLowerCase());
+      (user.full_name || "").toLowerCase().includes(search.toLowerCase()) ||
+      (user.email || "").toLowerCase().includes(search.toLowerCase());
+
     
     const matchesRole = roleFilter === "all" || user.roles.includes(roleFilter);
     
@@ -338,10 +339,11 @@ const AdminUsers = () => {
                   <td className="p-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold">
-                        {user.full_name.charAt(0).toUpperCase()}
+                        {(user.full_name || user.email).charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <p className="font-semibold">{user.full_name}</p>
+                        <p className="font-semibold">{user.full_name || "Sem nome"}</p>
+
                         <p className="text-sm text-muted-foreground">{user.email}</p>
                       </div>
                     </div>
@@ -446,10 +448,11 @@ const AdminUsers = () => {
             <div className="space-y-6">
               <div className="flex items-center gap-4">
                 <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-2xl font-bold">
-                  {selectedUser.full_name.charAt(0).toUpperCase()}
+                  {(selectedUser.full_name || selectedUser.email).charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold">{selectedUser.full_name}</h3>
+                  <h3 className="text-2xl font-bold">{selectedUser.full_name || "Sem nome"}</h3>
+
                   <p className="text-muted-foreground flex items-center gap-2">
                     <Mail className="h-4 w-4" />
                     {selectedUser.email}

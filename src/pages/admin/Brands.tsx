@@ -56,8 +56,9 @@ const AdminBrands = () => {
   };
 
   const filteredBrands = brands.filter((brand) =>
-    brand.full_name.toLowerCase().includes(search.toLowerCase()) ||
-    brand.email.toLowerCase().includes(search.toLowerCase())
+    (brand.full_name || "").toLowerCase().includes(search.toLowerCase()) ||
+    (brand.email || "").toLowerCase().includes(search.toLowerCase())
+
   );
 
   if (loading) {
@@ -147,7 +148,7 @@ const AdminBrands = () => {
                     <Building2 className="h-6 w-6 text-primary" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold">{brand.full_name}</h3>
+                    <h3 className="text-xl font-bold">{brand.full_name || "Sem nome"}</h3>
                     <p className="text-sm text-muted-foreground">{brand.email}</p>
                   </div>
                   <Badge variant="outline" className="bg-success/10 text-success border-success">
