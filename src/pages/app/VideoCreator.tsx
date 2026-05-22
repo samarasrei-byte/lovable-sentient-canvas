@@ -211,7 +211,7 @@ export default function VideoCreator() {
                   whileTap={{ scale: 0.99 }}
                 >
                   <AnimatePresence mode="wait">
-                    {uploadedImage ? (
+                    {uploadedImagePreview ? (
                       <motion.div
                         key="image"
                         initial={{ opacity: 0, scale: 0.95 }}
@@ -220,7 +220,8 @@ export default function VideoCreator() {
                         className="relative w-full h-full"
                       >
                         <img
-                          src={uploadedImage}
+                          src={uploadedImagePreview}
+
                           alt="Uploaded"
                           className="w-full h-full object-cover"
                         />
