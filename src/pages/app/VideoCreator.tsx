@@ -28,6 +28,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+import { processAndUploadImage } from "@/utils/upload-utils";
+
 
 interface GeneratedVideo {
   id: string;
@@ -40,7 +42,10 @@ interface GeneratedVideo {
 }
 
 export default function VideoCreator() {
-  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [uploadedImagePreview, setUploadedImagePreview] = useState<string | null>(null);
+  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
   const [prompt, setPrompt] = useState("");
   const [duration, setDuration] = useState<5 | 10>(5);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -49,27 +54,36 @@ export default function VideoCreator() {
   const [activeTab, setActiveTab] = useState("create");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      if (file.size > 10 * 1024 * 1024) {
-        toast.error("Imagem muito grande. Máximo 10MB.");
+      setUploadedImagePreview(URL.createObjectURL(file));
+      setIsUploading(true);
+      
+      const { url, error } = await processAndUploadImage(file);
+      setIsUploading(false);
+      
+      if (error) {
+        toast.error(error);
+        setUploadedImagePreview(null);
         return;
       }
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setUploadedImage(e.target?.result as string);
-        toast.success("Imagem carregada com sucesso!");
-      };
-      reader.readAsDataURL(file);
+      setUploadedImageUrl(url);
+      toast.success("Imagem carregada com sucesso!");
     }
   };
 
+
   const handleGenerate = async () => {
-    if (!uploadedImage) {
-      toast.error("Por favor, envie uma foto primeiro.");
+    if (!uploadedImageUrl) {
+      if (isUploading) {
+        toast.error("Aguarde o processamento da imagem...");
+      } else {
+        toast.error("Por favor, envie uma foto primeiro.");
+      }
       return;
     }
+
     if (!prompt.trim()) {
       toast.error("Por favor, descreva o vídeo que deseja criar.");
       return;
@@ -96,7 +110,7 @@ export default function VideoCreator() {
       
       const newVideo: GeneratedVideo = {
         id: Date.now().toString(),
-        thumbnail: uploadedImage,
+        thumbnail: uploadedImagePreview || "",
         videoUrl: "",
         prompt: prompt,
         duration: `${duration}s`,
@@ -188,7 +202,8 @@ export default function VideoCreator() {
                 <motion.div
                   onClick={() => fileInputRef.current?.click()}
                   className={`relative aspect-square rounded-2xl border-2 border-dashed cursor-pointer transition-all overflow-hidden ${
-                    uploadedImage
+                    uploadedImagePreview
+
                       ? "border-primary/50 bg-primary/5"
                       : "border-border hover:border-primary/50 hover:bg-muted/30"
                   }`}
@@ -222,7 +237,9 @@ export default function VideoCreator() {
                           className="absolute top-4 right-4 gap-1"
                           onClick={(e) => {
                             e.stopPropagation();
-                            setUploadedImage(null);
+                            setUploadedImagePreview(null);
+                            setUploadedImageUrl(null);
+
                           }}
                         >
                           <RefreshCw className="w-3 h-3" />
@@ -345,7 +362,7 @@ export default function VideoCreator() {
                   <Button
                     className="w-full h-14 text-lg gap-3 bg-gradient-to-r from-primary to-secondary hover:opacity-90"
                     onClick={handleGenerate}
-                    disabled={isGenerating || !uploadedImage}
+                    disabled={isGenerating || !uploadedImageUrl || isUploading}
                   >
                     {isGenerating ? (
                       <>
