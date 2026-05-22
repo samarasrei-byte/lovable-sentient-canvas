@@ -92,12 +92,12 @@ export const PhotoServiceModal = ({ service, onClose }: PhotoServiceModalProps) 
 
         if (error) throw error;
 
-        const { data: signed, error: signedError } = await supabase.storage
+        const { data: { publicUrl } } = supabase.storage
           .from('user-photos')
-          .createSignedUrl(data.path, 60 * 60);
-        if (signedError || !signed?.signedUrl) throw signedError || new Error('Falha ao gerar URL da foto');
+          .getPublicUrl(data.path);
+        
+        uploadedUrls.push(publicUrl);
 
-        uploadedUrls.push(signed.signedUrl);
       }
 
       // Build custom fields from dynamic inputs
