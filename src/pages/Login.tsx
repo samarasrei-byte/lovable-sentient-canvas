@@ -315,7 +315,7 @@ const Login = () => {
                 {mode === "signup" && (
                   <div className="space-y-1.5">
                     <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Nome Completo</label>
-                    <Input name="fullName" type="text" placeholder="Seu nome" required
+                    <Input name="fullName" type="text" placeholder="Seu nome (opcional)"
                       className="h-12 bg-white/[0.04] border-white/[0.08] rounded-xl text-foreground placeholder:text-muted-foreground/40 focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all" />
                   </div>
                 )}
