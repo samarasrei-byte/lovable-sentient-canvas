@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { processAndUploadImage } from "@/utils/upload-utils";
 import { 
   Camera, Shirt, Upload, X, CheckCircle2, Loader2, 
   Sparkles, ImagePlus, AlertTriangle, Lightbulb, Download, RotateCcw
@@ -12,11 +13,14 @@ import {
 interface UploadSlot {
   file: File | null;
   preview: string | null;
+  url: string | null;
 }
 
+
 const FutebolGenerator = () => {
-  const [facePhoto, setFacePhoto] = useState<UploadSlot>({ file: null, preview: null });
-  const [jerseyPhoto, setJerseyPhoto] = useState<UploadSlot>({ file: null, preview: null });
+  const [facePhoto, setFacePhoto] = useState<UploadSlot>({ file: null, preview: null, url: null });
+  const [jerseyPhoto, setJerseyPhoto] = useState<UploadSlot>({ file: null, preview: null, url: null });
+
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
@@ -25,41 +29,43 @@ const FutebolGenerator = () => {
 
   const bothUploaded = !!facePhoto.file && !!jerseyPhoto.file;
 
-  const handleFileSelect = useCallback((type: "face" | "jersey", file: File) => {
-    if (!file.type.startsWith("image/")) {
-      toast.error("Envie apenas imagens (JPG, PNG, WebP)");
-      return;
-    }
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error("Imagem muito grande. Máximo 10MB.");
-      return;
-    }
+  const handleFileSelect = useCallback(async (type: "face" | "jersey", file: File) => {
     const preview = URL.createObjectURL(file);
-    if (type === "face") setFacePhoto({ file, preview });
-    else setJerseyPhoto({ file, preview });
+    if (type === "face") setFacePhoto(prev => ({ ...prev, file, preview }));
+    else setJerseyPhoto(prev => ({ ...prev, file, preview }));
+
+    // Upload immediately in background to improve perceived performance
+    const { url, error } = await processAndUploadImage(file);
+    if (error) {
+      toast.error(error);
+      if (type === "face") setFacePhoto({ file: null, preview: null, url: null });
+      else setJerseyPhoto({ file: null, preview: null, url: null });
+      return;
+    }
+
+    if (type === "face") setFacePhoto(prev => ({ ...prev, url }));
+    else setJerseyPhoto(prev => ({ ...prev, url }));
   }, []);
+
 
   const clearSlot = (type: "face" | "jersey") => {
     if (type === "face") {
       if (facePhoto.preview) URL.revokeObjectURL(facePhoto.preview);
-      setFacePhoto({ file: null, preview: null });
+      setFacePhoto({ file: null, preview: null, url: null });
     } else {
       if (jerseyPhoto.preview) URL.revokeObjectURL(jerseyPhoto.preview);
-      setJerseyPhoto({ file: null, preview: null });
+      setJerseyPhoto({ file: null, preview: null, url: null });
     }
   };
 
-  const toBase64 = (file: File): Promise<string> =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
 
   const handleGenerate = async () => {
-    if (!facePhoto.file || !jerseyPhoto.file) {
-      toast.error("⚠️ Você precisa enviar sua foto e a camisa do time para continuar.");
+    if (!facePhoto.url || !jerseyPhoto.url) {
+      if (!facePhoto.file || !jerseyPhoto.file) {
+        toast.error("⚠️ Você precisa enviar sua foto e a camisa do time para continuar.");
+      } else {
+        toast.error("Aguarde o processamento das imagens...");
+      }
       return;
     }
 
@@ -68,11 +74,8 @@ const FutebolGenerator = () => {
     setGeneratedImage(null);
 
     try {
-      const [faceB64, jerseyB64] = await Promise.all([
-        toBase64(facePhoto.file),
-        toBase64(jerseyPhoto.file),
-      ]);
       setProgress(30);
+
 
       const promptTemplate = `Gere um retrato hiper-realista de um jogador de futebol profissional em um vestiário de clube.
 
@@ -87,11 +90,12 @@ INSTRUÇÕES OBRIGATÓRIAS:
       const { data, error } = await supabase.functions.invoke("generate-prompt-image", {
         body: {
           promptTemplate,
-          userPhotoUrls: [faceB64],
-          exampleImageUrl: jerseyB64,
+          userPhotoUrls: [facePhoto.url],
+          exampleImageUrl: jerseyPhoto.url,
           aiModel: "google/gemini-3.1-flash-image-preview",
         },
       });
+
 
       setProgress(90);
 
@@ -256,7 +260,7 @@ INSTRUÇÕES OBRIGATÓRIAS:
         {!generatedImage && (
           <Button
             onClick={handleGenerate}
-            disabled={!bothUploaded || isGenerating}
+            disabled={!facePhoto.url || !jerseyPhoto.url || isGenerating}
             className="w-full h-14 text-base font-semibold rounded-xl gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity disabled:opacity-40"
             size="lg"
           >

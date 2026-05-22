@@ -117,62 +117,46 @@ export default function AvatarStudio() {
       return;
     }
 
-    if (!avatarName.trim()) {
-      toast({
-        title: "Nome obrigatório",
-        description: "Por favor, dê um nome ao seu avatar",
-        variant: "destructive"
-      });
-      return;
-    }
-
     setIsProcessing(true);
     try {
-      // Convert video to base64 and upload to storage
-      const reader = new FileReader();
-      reader.readAsDataURL(videoFile);
-      
-      reader.onload = async () => {
-        const base64Video = reader.result as string;
-        
-        // In production, we'd upload to Supabase Storage first
-        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.mp4`;
-        const { data: storageData, error: uploadError } = await supabase.storage
-          .from('user-videos')
-          .upload(fileName, videoFile);
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.mp4`;
+      const { data: storageData, error: uploadError } = await supabase.storage
+        .from('user-videos')
+        .upload(fileName, videoFile);
 
-        if (uploadError) throw uploadError;
+      if (uploadError) throw uploadError;
 
-        const { data: { publicUrl } } = supabase.storage
-          .from('user-videos')
-          .getPublicUrl(fileName);
+      const { data: { publicUrl } } = supabase.storage
+        .from('user-videos')
+        .getPublicUrl(fileName);
 
-        const { data, error } = await supabase.functions.invoke('heygen-avatar', {
-          body: { 
-            action: 'create_avatar',
-            videoUrl: publicUrl,
-            avatarName: avatarName.trim()
-          }
-        });
-
-        if (error) throw error;
-
-        if (data?.error) {
-          toast({
-            title: "Erro ao criar avatar",
-            description: data.error,
-            variant: "destructive"
-          });
-        } else {
-          toast({
-            title: "Avatar em processamento!",
-            description: "Você receberá uma notificação quando estiver pronto. Isso pode levar alguns minutos."
-          });
-          
-          // Refresh avatar list
-          setTimeout(loadAvatarsAndVoices, 5000);
+      const { data, error } = await supabase.functions.invoke('heygen-avatar', {
+        body: { 
+          action: 'create_avatar',
+          videoUrl: publicUrl,
+          avatarName: avatarName.trim() || `Avatar_${Date.now()}`
         }
-      };
+      });
+
+
+      if (error) throw error;
+
+      if (data?.error) {
+        toast({
+          title: "Erro ao criar avatar",
+          description: data.error,
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Avatar em processamento!",
+          description: "Você receberá uma notificação quando estiver pronto. Isso pode levar alguns minutos."
+        });
+        
+        // Refresh avatar list
+        setTimeout(loadAvatarsAndVoices, 5000);
+      }
+
     } catch (error: any) {
       console.error('Error creating avatar:', error);
       toast({
@@ -339,7 +323,7 @@ export default function AvatarStudio() {
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="space-y-2">
-                    <Label htmlFor="avatar-name">Nome do Avatar</Label>
+                    <Label htmlFor="avatar-name">Nome do Avatar (Opcional)</Label>
                     <Input
                       id="avatar-name"
                       placeholder="Ex: Meu Avatar Profissional"
@@ -385,7 +369,7 @@ export default function AvatarStudio() {
 
                   <Button 
                     onClick={handleCreateAvatar}
-                    disabled={!videoFile || isProcessing || !avatarName.trim()}
+                    disabled={!videoFile || isProcessing}
                     className="w-full h-12 text-lg"
                     size="lg"
                   >

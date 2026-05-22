@@ -78,7 +78,7 @@ export default function Perfil() {
               <div className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="company-name">Nome da Empresa</Label>
+                    <Label htmlFor="company-name">Nome da Empresa (Opcional)</Label>
                     <Input
                       id="company-name"
                       value={companyName}
@@ -252,7 +252,7 @@ export default function Perfil() {
 
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="user-name">Nome Completo</Label>
+                    <Label htmlFor="user-name">Nome Completo (Opcional)</Label>
                     <Input
                       id="user-name"
                       value={userName}

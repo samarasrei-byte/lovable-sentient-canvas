@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { processAndUploadImage } from "@/utils/upload-utils";
+
 import {
   Sparkles,
   Upload,
@@ -75,12 +77,16 @@ const MeusProdutos = () => {
   const [showUploadDialog, setShowUploadDialog] = useState(false);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [productFile, setProductFile] = useState<File | null>(null);
   const [productPreview, setProductPreview] = useState<string | null>(null);
+  const [productUrl, setProductUrl] = useState<string | null>(null);
   const [productName, setProductName] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [userProducts, setUserProducts] = useState<UserProduct[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
+  const [isUploading, setIsUploading] = useState({ logo: false, product: false });
+
   const [activeTab, setActiveTab] = useState<"templates" | "meus">("templates");
   const [showEditor, setShowEditor] = useState(false);
   const [editingImage, setEditingImage] = useState<{ url: string; name: string } | null>(null);
@@ -111,25 +117,46 @@ const MeusProdutos = () => {
     }
   };
 
-  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setLogoFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => setLogoPreview(reader.result as string);
-      reader.readAsDataURL(file);
+      setLogoPreview(URL.createObjectURL(file));
+      setIsUploading(prev => ({ ...prev, logo: true }));
+      
+      const { url, error } = await processAndUploadImage(file);
+      setIsUploading(prev => ({ ...prev, logo: false }));
+      
+      if (error) {
+        toast({ variant: "destructive", title: "Erro no upload", description: error });
+        setLogoFile(null);
+        setLogoPreview(null);
+        return;
+      }
+      setLogoUrl(url);
     }
   };
 
-  const handleProductChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleProductChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setProductFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => setProductPreview(reader.result as string);
-      reader.readAsDataURL(file);
+      setProductPreview(URL.createObjectURL(file));
+      setIsUploading(prev => ({ ...prev, product: true }));
+      
+      const { url, error } = await processAndUploadImage(file);
+      setIsUploading(prev => ({ ...prev, product: false }));
+      
+      if (error) {
+        toast({ variant: "destructive", title: "Erro no upload", description: error });
+        setProductFile(null);
+        setProductPreview(null);
+        return;
+      }
+      setProductUrl(url);
     }
   };
+
 
   const handleSelectTemplate = (template: ProductTemplate) => {
     setSelectedTemplate(template);
@@ -139,7 +166,10 @@ const MeusProdutos = () => {
     setLogoPreview(null);
     setProductFile(null);
     setProductPreview(null);
+    setLogoUrl(null);
+    setProductUrl(null);
     setProductName("");
+
   };
 
   const handleGenerate = async () => {
@@ -164,10 +194,11 @@ const MeusProdutos = () => {
           productName,
           templateId: selectedTemplate.id,
           templateStyle: selectedTemplate.style,
-          productImageBase64: productPreview || null,
-          logoImageBase64: logoPreview || null,
+          productImageToUrl: productUrl,
+          logoImageToUrl: logoUrl,
         }
       });
+
 
       if (functionError) {
         console.error("Function error:", functionError);
