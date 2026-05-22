@@ -46,7 +46,7 @@ serve(async (req) => {
   }
 
   try {
-    const { productName, templateId, productImageBase64, logoImageBase64, productImageToUrl, logoImageToUrl, templateStyle, customPrompt } = await req.json();
+    const { productName, templateId, productImageBase64, logoImageBase64, productImageToUrl, logoImageToUrl, userPhoto, userPhotoUrl, templateStyle, customPrompt } = await req.json();
     const apiKeys = getApiKeys();
 
     console.log('Generating professional product image | Keys: primary =', apiKeys.fallback ? 'NANO_BANANA' : 'LOVABLE');
@@ -98,7 +98,7 @@ Crie uma foto publicitária premium cinematográfica que destaque "${productName
 
     contentParts.push({ type: "text", text: basePrompt });
 
-    const productImageUrl = productImageToUrl || productImageBase64;
+    const productImageUrl = productImageToUrl || userPhotoUrl || userPhoto || productImageBase64;
     if (productImageUrl) {
       contentParts.push({
         type: "image_url",

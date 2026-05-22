@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { processAndUploadImage } from "@/utils/upload-utils";
+
 
 // Import template images
 import templateBeauty from "@/assets/template-beauty.png";
@@ -73,34 +75,51 @@ const templates = [
 
 export const PhotoProfessional = () => {
   const [step, setStep] = useState(1);
-  const [userPhoto, setUserPhoto] = useState<string | null>(null);
+  const [userPhotoPreview, setUserPhotoPreview] = useState<string | null>(null);
+  const [userPhotoUrl, setUserPhotoUrl] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   
   const photoInputRef = useRef<HTMLInputElement>(null);
 
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setUserPhoto(reader.result as string);
-        setStep(2);
-      };
-      reader.readAsDataURL(file);
+      setUserPhotoPreview(URL.createObjectURL(file));
+      setStep(2);
+      setIsUploading(true);
+      
+      const { url, error } = await processAndUploadImage(file);
+      setIsUploading(false);
+      
+      if (error) {
+        toast.error(error);
+        setStep(1);
+        setUserPhotoPreview(null);
+        return;
+      }
+      setUserPhotoUrl(url);
     }
   };
+
 
   const selectTemplate = (templateId: string) => {
     setSelectedTemplate(templateId);
   };
 
   const generatePhoto = async () => {
-    if (!userPhoto || !selectedTemplate) {
-      toast.error("Selecione uma foto e um template");
+    if (!userPhotoUrl || !selectedTemplate) {
+      if (!userPhotoUrl && isUploading) {
+        toast.error("Aguarde o processamento da foto...");
+      } else {
+        toast.error("Selecione uma foto e um template");
+      }
       return;
     }
+
 
     setIsGenerating(true);
     
@@ -109,7 +128,8 @@ export const PhotoProfessional = () => {
       
       const { data, error } = await supabase.functions.invoke('generate-product-image', {
         body: {
-          userPhoto,
+          userPhotoUrl,
+
           templateId: selectedTemplate,
           templateName: template?.name,
           type: 'photo-professional'
@@ -219,8 +239,9 @@ export const PhotoProfessional = () => {
         <div className="space-y-6">
           {/* User Photo Preview */}
           <div className="flex items-center gap-4 p-4 bg-card rounded-xl border">
-            {userPhoto && (
-              <img src={userPhoto} alt="Sua foto" className="w-20 h-20 rounded-lg object-cover" />
+            {userPhotoPreview && (
+              <img src={userPhotoPreview} alt="Sua foto" className="w-20 h-20 rounded-lg object-cover" />
+
             )}
             <div className="flex-1">
               <p className="font-medium">Sua foto foi carregada!</p>
@@ -322,7 +343,7 @@ export const PhotoProfessional = () => {
           <Button 
             className="ml-auto gap-2"
             onClick={generatePhoto}
-            disabled={!selectedTemplate}
+            disabled={!selectedTemplate || isUploading || isGenerating}
           >
             {isGenerating ? (
               <>
