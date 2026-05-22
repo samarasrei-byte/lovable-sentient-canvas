@@ -955,11 +955,11 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       }
       if (!uploadData) throw lastError || new Error(`Upload da foto ${i + 1} falhou`);
 
-      const { data: signedData, error: signedError } = await supabase.storage
+      const { data: { publicUrl } } = supabase.storage
         .from('user-photos')
-        .createSignedUrl(uploadData.path, 60 * 60);
-      if (signedError || !signedData?.signedUrl) throw new Error(`Falha ao liberar a foto ${i + 1} para a IA`);
-      return signedData.signedUrl;
+        .getPublicUrl(uploadData.path);
+      return publicUrl;
+
     };
 
     try {
