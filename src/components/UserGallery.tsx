@@ -139,20 +139,18 @@ export const UserGallery = ({ onReuse }: UserGalleryProps) => {
                 </div>
               </div>
               
-              <div className="p-3 space-y-2">
-                <Badge variant="outline" className="text-xs">
-                  {image.template_name}
-                </Badge>
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium truncate">
-                    {image.product_name}
+              <div className="p-3">
+                <div className="flex flex-col gap-1">
+                  <p className="text-sm font-bold truncate">
+                    {image.template_name === 'Criança' || image.template_name === 'Bebê' 
+                      ? `${image.product_name} (${image.template_name})`
+                      : image.product_name}
                   </p>
-                  <span className="text-xs text-muted-foreground">
-                    {new Date(image.created_at).toLocaleDateString('pt-BR', { 
-                      day: '2-digit', 
-                      month: 'short' 
-                    })}
-                  </span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                      {new Date(image.created_at).toLocaleDateString('pt-BR')}
+                    </span>
+                  </div>
                 </div>
               </div>
             </Card>

@@ -74,7 +74,7 @@ IMPORTANT IMAGE ORDER:
 - Then: real subject reference photos (if present)
 - Last: style reference image (if present)
 
-BE EXTREMELY STRICT ON SAFETY. Any sexualization of minors or explicit content MUST result in passed=false.
+BE ACCURATE ON SAFETY. Only block for real violations (nudity, explicit acts). Do not block legitimate family or artistic portraits. Context matters.
 
 Respond in this EXACT JSON format:
 {
