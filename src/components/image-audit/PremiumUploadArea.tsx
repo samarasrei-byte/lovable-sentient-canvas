@@ -35,7 +35,7 @@ export const PremiumUploadArea = ({ onUpload, image, type, onRemove, inputRef }:
           className="hidden"
         />
 
-        <div className="p-8 md:p-12 flex flex-col items-center justify-center min-h-[420px]">
+        <div className="p-8 md:p-12 flex flex-col items-center justify-center min-h-[320px] md:min-h-[420px]">
           {image ? (
             <motion.div 
               initial={{ opacity: 0, scale: 0.9 }}

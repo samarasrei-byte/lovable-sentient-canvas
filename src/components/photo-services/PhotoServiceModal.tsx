@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Upload, Check, Loader2, Camera, ChevronRight, Image } from "lucide-react";
+import heic2any from "heic2any";
 import { GlassButton } from "@/components/ui/glass-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -54,13 +55,32 @@ export const PhotoServiceModal = ({ service, onClose }: PhotoServiceModalProps) 
     }).format(cents / 100);
   };
 
-  const handleFileUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length + uploadedPhotos.length > 10) {
       toast.error("Máximo de 10 fotos permitido");
       return;
     }
-    setUploadedPhotos(prev => [...prev, ...files]);
+
+    const processedFiles: File[] = [];
+    for (const file of files) {
+      if (file.type === "image/heic" || file.name.toLowerCase().endsWith(".heic")) {
+        try {
+          toast.info(`Convertendo foto do iPhone: ${file.name}...`);
+          const blob = await heic2any({ blob: file, toType: "image/jpeg", quality: 0.8 });
+          const convertedBlob = Array.isArray(blob) ? blob[0] : blob;
+          const convertedFile = new File([convertedBlob], file.name.replace(/\.heic$/i, ".jpg"), { type: "image/jpeg" });
+          processedFiles.push(convertedFile);
+        } catch (err) {
+          console.error("HEIC conversion failed", err);
+          toast.error(`Falha ao converter ${file.name}`);
+          continue;
+        }
+      } else {
+        processedFiles.push(file);
+      }
+    }
+    setUploadedPhotos(prev => [...prev, ...processedFiles]);
   }, [uploadedPhotos]);
 
   const removePhoto = (index: number) => {

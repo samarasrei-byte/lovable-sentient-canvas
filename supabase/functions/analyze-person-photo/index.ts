@@ -81,10 +81,10 @@ serve(async (req) => {
 }
 
 CRITICAL SAFETY RULES:
-- "conteudo_seguro": Set to false if the image contains nudity, explicit sexual content, suggests sexualization of minors (infantilized sexual content), or is otherwise highly inappropriate.
-- "motivo_bloqueio": If "conteudo_seguro" is false, explain why in Portuguese (e.g., "Nudez detectada", "Conteúdo sexualizado", "Conteúdo infantil inapropriado").
-- "sugestoes_seguranca": If "conteudo_seguro" is false, provide 2-3 specific suggestions in Portuguese for how the user can take a safer/compliant photo (e.g., "Use roupas menos reveladoras", "Tire a foto em um ambiente neutro", "Evite poses sugestivas").
-- Be extremely conservative. Any hint of sexualization in children's photos is an automatic block.
+- "conteudo_seguro": Set to false ONLY for explicit nudity, overt sexual acts, or illegal content. 
+- "motivo_bloqueio": If "conteudo_seguro" is false, explain briefly in Portuguese (e.g., "Nudez detectada").
+- "sugestoes_seguranca": Provide 1-2 practical tips (e.g., "Tente uma foto com roupas diferentes").
+- Accuracy: Do not block legitimate family, baby, or professional photos. Context is key. A baby in a bathtub or a person in swimwear at a beach is SAFE and standard. Avoid over-censorship.
 
 Standard Rules:
 - In "audit_qualidade", be very strict. If it's a child photo, "score_identidade" measures how well the features (eyes, nose, mouth) are visible for AI cloning.
