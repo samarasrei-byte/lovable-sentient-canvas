@@ -166,8 +166,12 @@ export const MyPhotos = () => {
                       </Button>
                     </div>
 
-                    <div className="absolute bottom-0 inset-x-0 p-3 space-y-2">
-                      <p className="text-[11px] font-bold text-white truncate">{img.template_name}</p>
+                    <div className="absolute bottom-0 inset-x-0 p-3 space-y-1">
+                      <p className="text-[11px] font-bold text-white truncate">
+                        {img.template_name === 'Criança' || img.template_name === 'Bebê' 
+                          ? `Foto (${img.template_name})`
+                          : 'Retrato Arcana'}
+                      </p>
                       <div className="flex gap-2">
                         <Button 
                           className="flex-1 h-8 text-[10px] rounded-lg bg-primary hover:bg-primary/90"
