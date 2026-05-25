@@ -187,167 +187,264 @@ const callImageGateway = async (lovableKey: string, model: string, messages: any
   }
 };
 
+declare const EdgeRuntime: { waitUntil?: (promise: Promise<unknown>) => void } | undefined;
+
+const jsonResponse = (payload: Record<string, unknown>, status = 200) =>
+  new Response(JSON.stringify(payload), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+
+const extractBearerToken = (req: Request): string | null => {
+  const authHeader = req.headers.get("authorization") || "";
+  const match = authHeader.match(/^Bearer\s+(.+)$/i);
+  return match?.[1] || null;
+};
+
+const getAuthUserId = async (req: Request, supabaseAdmin: ReturnType<typeof createClient>): Promise<string | null> => {
+  const token = extractBearerToken(req);
+  if (!token) return null;
+  const { data, error } = await supabaseAdmin.auth.getUser(token);
+  if (error || !data?.user?.id) return null;
+  return data.user.id;
+};
+
+const getGenerationStatus = async (req: Request, body: any, supabaseAdmin: ReturnType<typeof createClient>) => {
+  const purchaseId = body?.purchaseId;
+  if (!purchaseId) return jsonResponse({ error: "Pedido não informado." }, 400);
+
+  const { data: purchase, error } = await supabaseAdmin
+    .from("prompt_purchases")
+    .select("id, user_id, generation_status, generated_image_url, error_message")
+    .eq("id", purchaseId)
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!purchase) return jsonResponse({ error: "Pedido não encontrado." }, 404);
+
+  const authUserId = await getAuthUserId(req, supabaseAdmin);
+  if (purchase.user_id && purchase.user_id !== authUserId) {
+    return jsonResponse({ error: "Acesso não autorizado a este pedido." }, 403);
+  }
+
+  return jsonResponse({
+    success: true,
+    purchaseId: purchase.id,
+    status: purchase.generation_status || "pending",
+    imageUrl: purchase.generation_status === "completed" ? purchase.generated_image_url : null,
+    error: purchase.generation_status === "failed" ? (purchase.error_message || "Não conseguimos gerar esta imagem agora.") : null,
+  });
+};
+
+const performImageGeneration = async (body: any, supabaseAdmin: ReturnType<typeof createClient>) => {
+  const { 
+    purchaseId, promptTemplate, userPhotoUrl, exampleImageUrl, 
+    style = "realistic",
+    userId,
+    aiModel,
+    userPromptOverride
+  } = body;
+
+  if (!promptTemplate && !userPromptOverride) {
+    throw new PublicError("Prompt de geração ausente.", 400);
+  }
+
+  if (!userPhotoUrl && !body.userPhotoUrls?.[0] && !body.sourceImageUrl) {
+    throw new PublicError("Foto de referência ausente ou inacessível.", 400);
+  }
+
+  let fullPrompt = sanitizePromptForChildSafety(userPromptOverride || promptTemplate || "");
+  const effectiveNegativePrompt = typeof body.negativePrompt === "string" ? body.negativePrompt.trim() : "";
+  if (effectiveNegativePrompt) {
+    fullPrompt += `\n\nNEGATIVE PROMPT — avoid these issues: ${sanitizePromptForChildSafety(effectiveNegativePrompt)}`;
+  }
+
+  const flyerContext = body.flyerContext && typeof body.flyerContext === "object" ? body.flyerContext : null;
+  if (flyerContext) {
+    fullPrompt += `\n\nSTRUCTURED USER CONTEXT: ${JSON.stringify(flyerContext).slice(0, 1800)}`;
+  }
+  const referenceImageUrl = userPhotoUrl || body.userPhotoUrls?.[0] || body.sourceImageUrl;
+
+  const moderation = checkModeration(fullPrompt);
+  if (moderation.blocked) {
+    console.warn(`Moderation Block: User ${userId || 'anonymous'} attempted: ${fullPrompt}`);
+    if (purchaseId || userId) {
+      await supabaseAdmin.from("blocked_prompts").insert({
+        user_id: userId,
+        purchase_id: purchaseId,
+        prompt_text: fullPrompt,
+        reason: moderation.reason,
+        severity: fullPrompt.toLowerCase().includes('criança') || fullPrompt.toLowerCase().includes('child') ? 'critical' : 'medium'
+      });
+    }
+    throw new PublicError("Este tipo de solicitação não é permitido em nossa plataforma.", 403);
+  }
+
+  const lovableKey = Deno.env.get("LOVABLE_API_KEY");
+  if (!lovableKey) throw new Error("LOVABLE_API_KEY is missing");
+
+  let enhancedPrompt = fullPrompt;
+  if (style === "realistic") {
+    enhancedPrompt += ", ultra-realistic photography, cinematic lighting, 8k resolution, highly detailed skin texture, shot on 85mm lens";
+  } else if (style === "artistic") {
+    enhancedPrompt += ", artistic digital painting style, vibrant colors, dreamlike atmosphere, soft lighting, masterpiece";
+  }
+
+  const referenceImages = Array.isArray(body.userPhotoUrls) && body.userPhotoUrls.length > 0
+    ? body.userPhotoUrls.filter(Boolean)
+    : [referenceImageUrl].filter(Boolean);
+
+  const imageContent = referenceImages.map((url: string) => ({ type: "image_url", image_url: { url } }));
+  const styleImageContent = exampleImageUrl && !referenceImages.includes(exampleImageUrl)
+    ? [{ type: "image_url", image_url: { url: exampleImageUrl } }]
+    : [];
+
+  const messages = [
+    { role: "system", content: SYSTEM_PROMPT },
+    { 
+      role: "user", 
+      content: [
+        { type: "text", text: `CLONE THE FACE FROM THE REFERENCE PHOTO(S). Output exactly one new safe image following this description: ${enhancedPrompt}. If a style image is present, use it only for composition, lighting, mood, wardrobe, or background. Never copy identity from the style image.` },
+        ...imageContent,
+        ...styleImageContent,
+      ]
+    }
+  ];
+
+  const requestedModel = typeof aiModel === "string" && aiModel.trim() ? aiModel.trim() : DEFAULT_IMAGE_MODEL;
+  const modelsToTry = Array.from(new Set([requestedModel, DEFAULT_IMAGE_MODEL, ...FALLBACK_IMAGE_MODELS]));
+  let imageUrl: string | null = null;
+  let lastModelError: unknown = null;
+
+  for (const model of modelsToTry) {
+    try {
+      const data = await callImageGateway(lovableKey, model, messages);
+      const errorDetails = data?.error ? String(data.error) : "";
+      if (errorDetails) throw new Error(`AI model ${model} returned error payload: ${errorDetails.slice(0, 240)}`);
+
+      imageUrl = extractGeneratedImageUrl(data);
+      if (imageUrl) {
+        console.info("AI image generated", { model, purchaseId: purchaseId || null });
+        break;
+      }
+
+      throw new Error(`AI model ${model} returned no image`);
+    } catch (error) {
+      lastModelError = error;
+      if (error instanceof PublicError && (error.status === 402 || error.status === 429)) throw error;
+      console.warn("AI image attempt failed; trying fallback if available", {
+        model,
+        message: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
+  if (!imageUrl) {
+    console.error("All AI image models failed", lastModelError);
+    throw new PublicError("Não foi possível renderizar esta imagem agora. Nossa IA tentou modelos alternativos automaticamente; tente novamente em instantes.", 502);
+  }
+
+  imageUrl = await persistGeneratedImage(supabaseAdmin, imageUrl, purchaseId, userId);
+
+  if (userId) {
+    const { error: insertErr } = await supabaseAdmin.from("generated_images").insert({
+      user_id: userId,
+      image_url: imageUrl,
+      template_name: (fullPrompt || "Geração Arcana").substring(0, 50),
+      product_name: (fullPrompt || "Geração Arcana").substring(0, 80),
+      original_purchase_id: purchaseId
+    });
+    if (insertErr) {
+      console.warn("generated_images insert failed (non-fatal):", insertErr.message);
+    }
+  }
+
+  if (purchaseId) {
+    await supabaseAdmin.from("prompt_purchases").update({
+      generated_image_url: imageUrl,
+      generation_status: "completed",
+      error_message: null,
+      updated_at: new Date().toISOString(),
+    }).eq("id", purchaseId);
+  }
+
+  return { success: true, imageUrl };
+};
+
+const runGenerationJob = async (body: any) => {
+  const supabaseAdmin = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+  );
+
+  const purchaseId = body?.purchaseId;
+  try {
+    if (purchaseId) {
+      await supabaseAdmin.from("prompt_purchases").update({
+        generation_status: "processing",
+        error_message: null,
+        failed_at: null,
+        updated_at: new Date().toISOString(),
+      }).eq("id", purchaseId);
+    }
+
+    return await performImageGeneration(body, supabaseAdmin);
+  } catch (error: any) {
+    console.error("Error in generate-prompt-image:", error);
+    const safeMessage = error instanceof PublicError
+      ? error.message
+      : "Não conseguimos renderizar sua imagem neste momento. Tente novamente em instantes; seu pedido está seguro.";
+    const status = error instanceof PublicError ? error.status : 500;
+
+    if (purchaseId) {
+      try {
+        await supabaseAdmin.from("prompt_purchases").update({
+          generation_status: "failed",
+          error_message: safeMessage,
+          failed_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        }).eq("id", purchaseId);
+      } catch (dbError) {
+        console.error("Failed to log error to DB:", dbError);
+      }
+    }
+
+    return { success: false, error: safeMessage, status };
+  }
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
+    const body = await req.json().catch(() => ({}));
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    const body = await req.json();
-    const { 
-      purchaseId, promptTemplate, userPhotoUrl, exampleImageUrl, 
-      style = "realistic", // "realistic" or "artistic"
-      userId,
-      aiModel,
-      userPromptOverride // User-provided text from "Edit" flow
-    } = body;
-
-    if (!promptTemplate && !userPromptOverride) {
-      return new Response(JSON.stringify({ error: "Prompt de geração ausente." }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" }
-      });
+    if (body?.action === "status") {
+      return await getGenerationStatus(req, body, supabaseAdmin);
     }
 
-    if (!userPhotoUrl && !body.userPhotoUrls?.[0] && !body.sourceImageUrl) {
-      return new Response(JSON.stringify({ error: "Foto de referência ausente ou inacessível." }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" }
-      });
-    }
-
-    let fullPrompt = sanitizePromptForChildSafety(userPromptOverride || promptTemplate || "");
-    const effectiveNegativePrompt = typeof body.negativePrompt === "string" ? body.negativePrompt.trim() : "";
-    if (effectiveNegativePrompt) {
-      fullPrompt += `\n\nNEGATIVE PROMPT — avoid these issues: ${sanitizePromptForChildSafety(effectiveNegativePrompt)}`;
-    }
-
-    const flyerContext = body.flyerContext && typeof body.flyerContext === "object" ? body.flyerContext : null;
-    if (flyerContext) {
-      fullPrompt += `\n\nSTRUCTURED USER CONTEXT: ${JSON.stringify(flyerContext).slice(0, 1800)}`;
-    }
-    const referenceImageUrl = userPhotoUrl || body.userPhotoUrls?.[0] || body.sourceImageUrl;
-
-    // 1. MODERATION CHECK
-    const moderation = checkModeration(fullPrompt);
-    if (moderation.blocked) {
-      console.warn(`Moderation Block: User ${userId || 'anonymous'} attempted: ${fullPrompt}`);
-      
-      // Log to DB
-      if (purchaseId || userId) {
-        await supabaseAdmin.from("blocked_prompts").insert({
-          user_id: userId,
-          purchase_id: purchaseId,
-          prompt_text: fullPrompt,
-          reason: moderation.reason,
-          severity: fullPrompt.toLowerCase().includes('criança') || fullPrompt.toLowerCase().includes('child') ? 'critical' : 'medium'
-        });
+    if (body?.purchaseId && body?.async !== false) {
+      const job = runGenerationJob(body);
+      if (typeof EdgeRuntime !== "undefined" && EdgeRuntime?.waitUntil) {
+        EdgeRuntime.waitUntil(job);
+      } else {
+        job.catch((error) => console.error("Background generation failed:", error));
       }
 
-      return new Response(JSON.stringify({ 
-        error: "Este tipo de solicitação não é permitido em nossa plataforma.",
-        blocked: true 
-      }), {
-        status: 403,
-        headers: { ...corsHeaders, "Content-Type": "application/json" }
-      });
+      return jsonResponse({
+        success: true,
+        status: "processing",
+        purchaseId: body.purchaseId,
+      }, 202);
     }
 
-    const lovableKey = Deno.env.get("LOVABLE_API_KEY");
-    if (!lovableKey) throw new Error("LOVABLE_API_KEY is missing");
-
-    // Enhance prompt based on style
-    let enhancedPrompt = fullPrompt;
-    if (style === "realistic") {
-      enhancedPrompt += ", ultra-realistic photography, cinematic lighting, 8k resolution, highly detailed skin texture, shot on 85mm lens";
-    } else if (style === "artistic") {
-      enhancedPrompt += ", artistic digital painting style, vibrant colors, dreamlike atmosphere, soft lighting, masterpiece";
-    }
-
-    const referenceImages = Array.isArray(body.userPhotoUrls) && body.userPhotoUrls.length > 0
-      ? body.userPhotoUrls.filter(Boolean)
-      : [referenceImageUrl].filter(Boolean);
-
-    const imageContent = referenceImages.map((url: string) => ({ type: "image_url", image_url: { url } }));
-    const styleImageContent = exampleImageUrl && !referenceImages.includes(exampleImageUrl)
-      ? [{ type: "image_url", image_url: { url: exampleImageUrl } }]
-      : [];
-
-    const messages = [
-      { role: "system", content: SYSTEM_PROMPT },
-      { 
-        role: "user", 
-        content: [
-          { type: "text", text: `CLONE THE FACE FROM THE REFERENCE PHOTO(S). Output exactly one new safe image following this description: ${enhancedPrompt}. If a style image is present, use it only for composition, lighting, mood, wardrobe, or background. Never copy identity from the style image.` },
-          ...imageContent,
-          ...styleImageContent,
-        ]
-      }
-    ];
-
-    const requestedModel = typeof aiModel === "string" && aiModel.trim() ? aiModel.trim() : DEFAULT_IMAGE_MODEL;
-    const modelsToTry = Array.from(new Set([requestedModel, DEFAULT_IMAGE_MODEL, ...FALLBACK_IMAGE_MODELS]));
-    let imageUrl: string | null = null;
-    let lastModelError: unknown = null;
-
-    for (const model of modelsToTry) {
-      try {
-        const data = await callImageGateway(lovableKey, model, messages);
-        const errorDetails = data?.error ? String(data.error) : "";
-        if (errorDetails) throw new Error(`AI model ${model} returned error payload: ${errorDetails.slice(0, 240)}`);
-
-        imageUrl = extractGeneratedImageUrl(data);
-        if (imageUrl) {
-          console.info("AI image generated", { model, purchaseId: purchaseId || null });
-          break;
-        }
-
-        throw new Error(`AI model ${model} returned no image`);
-      } catch (error) {
-        lastModelError = error;
-        if (error instanceof PublicError && (error.status === 402 || error.status === 429)) throw error;
-        console.warn("AI image attempt failed; trying fallback if available", {
-          model,
-          message: error instanceof Error ? error.message : String(error),
-        });
-      }
-    }
-
-    if (!imageUrl) {
-      console.error("All AI image models failed", lastModelError);
-      throw new PublicError("Não foi possível renderizar esta imagem agora. Nossa IA tentou modelos alternativos automaticamente; tente novamente em instantes.", 502);
-    }
-
-    imageUrl = await persistGeneratedImage(supabaseAdmin, imageUrl, purchaseId, userId);
-
-    // Save to generated_images if userId is provided
-    if (userId) {
-      const { error: insertErr } = await supabaseAdmin.from("generated_images").insert({
-        user_id: userId,
-        image_url: imageUrl,
-        template_name: (fullPrompt || "Geração Arcana").substring(0, 50),
-        product_name: (fullPrompt || "Geração Arcana").substring(0, 80),
-        original_purchase_id: purchaseId
-      });
-      if (insertErr) {
-        // Não-fatal: a imagem já foi entregue. Apenas logamos.
-        console.warn("generated_images insert failed (non-fatal):", insertErr.message);
-      }
-    }
-
-    if (purchaseId) {
-      await supabaseAdmin.from("prompt_purchases").update({
-        generated_image_url: imageUrl,
-        generation_status: "completed"
-      }).eq("id", purchaseId);
-    }
-
-    return new Response(JSON.stringify({ success: true, imageUrl }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" }
-    });
+    const result = await runGenerationJob(body);
+    if (!result.success) return jsonResponse({ error: result.error }, result.status || 500);
+    return jsonResponse(result);
 
   } catch (error: any) {
     console.error("Error in generate-prompt-image:", error);
@@ -355,30 +452,7 @@ serve(async (req) => {
       ? error.message
       : "Não conseguimos renderizar sua imagem neste momento. Tente novamente em instantes; seu pedido está seguro.";
     const status = error instanceof PublicError ? error.status : 500;
-    
-    try {
-      const supabaseAdmin = createClient(
-        Deno.env.get("SUPABASE_URL")!,
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-      );
-      
-      const body = await req.clone().json().catch(() => ({}));
-      const purchaseId = body?.purchaseId;
-      
-      if (purchaseId) {
-        await supabaseAdmin.from("prompt_purchases").update({
-          generation_status: "failed",
-          error_message: safeMessage,
-          failed_at: new Date().toISOString()
-        }).eq("id", purchaseId);
-      }
-    } catch (dbError) {
-      console.error("Failed to log error to DB:", dbError);
-    }
 
-    return new Response(JSON.stringify({ error: safeMessage }), {
-      status,
-      headers: { ...corsHeaders, "Content-Type": "application/json" }
-    });
+    return jsonResponse({ error: safeMessage }, status);
   }
 });
