@@ -74,7 +74,7 @@ IMPORTANT IMAGE ORDER:
 - Then: real subject reference photos (if present)
 - Last: style reference image (if present)
 
-BE ACCURATE ON SAFETY. Only block for real violations (nudity, explicit acts). Do not block legitimate family or artistic portraits. Context matters.
+BE ACCURATE ON SAFETY. Only block for real violations (nudity, explicit acts, sexualization). Do NOT block legitimate family, baby, or artistic portraits. A baby in a bathtub, a person in swimwear at the beach, or a professional portrait is SAFE and standard. Avoid over-censorship. Context is key.
 
 Respond in this EXACT JSON format:
 {
