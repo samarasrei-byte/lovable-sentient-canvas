@@ -2197,25 +2197,24 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                   )}
                                 </div>
                               ) : (
-                                <div className="relative px-6 py-8 sm:py-10 flex flex-col items-center text-center">
+                                <div className="relative px-4 py-4 sm:py-10 flex flex-col items-center text-center">
                                   {/* Camera icon with green dot */}
-                                  <div className="relative mb-5">
-                                    <div className="w-[88px] h-[88px] rounded-3xl bg-primary/15 border border-primary/25 flex items-center justify-center shadow-[0_0_40px_-10px_hsl(var(--primary)/0.6)]">
-                                      <Camera className="w-10 h-10 text-primary" strokeWidth={1.75} />
+                                  <div className="relative mb-2 sm:mb-5">
+                                    <div className="w-16 h-16 sm:w-[88px] sm:h-[88px] rounded-2xl sm:rounded-3xl bg-primary/15 border border-primary/25 flex items-center justify-center shadow-[0_0_40px_-10px_hsl(var(--primary)/0.6)]">
+                                      <Camera className="w-7 h-7 sm:w-10 sm:h-10 text-primary" strokeWidth={1.75} />
                                     </div>
                                     <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-green-400 ring-4 ring-[#0F0B17] shadow-[0_0_12px_hsl(142_76%_50%/0.8)]" />
                                   </div>
 
-                                  <h3 className="text-2xl font-black text-white tracking-tight mb-2">
+                                  <h3 className="text-lg sm:text-2xl font-black text-white tracking-tight mb-1 sm:mb-2">
                                     Sua melhor foto
                                   </h3>
-                                  <p className="text-sm text-white/55 leading-relaxed max-w-[300px] mb-5">
+                                  <p className="text-xs sm:text-sm text-white/55 leading-relaxed max-w-[300px] mb-3 sm:mb-5">
                                     Rosto visível, boa iluminação, de frente.
-                                    Quanto melhor a foto, mais parecido fica!
                                   </p>
 
                                   {/* Checklist */}
-                                  <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mb-7">
+                                  <div className="hidden sm:flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mb-7">
                                     <span className="text-xs font-semibold text-primary/90 flex items-center gap-1.5">
                                       <span className="text-green-400">✅</span> Rosto de frente
                                     </span>
@@ -2230,7 +2229,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                   {/* Gradient CTA */}
                                   <button
                                     onClick={() => fileInputRefs.current[index]?.click()}
-                                    className="w-full max-w-[340px] h-14 rounded-2xl font-black text-white text-base tracking-tight flex items-center justify-center gap-3 bg-gradient-to-r from-[#A855F7] via-[#8B5CF6] to-[#22D3EE] shadow-[0_10px_30px_-10px_rgba(139,92,246,0.7)] hover:shadow-[0_14px_40px_-10px_rgba(139,92,246,0.9)] active:scale-[0.99] transition-all"
+                                    className="w-full max-w-[340px] h-12 sm:h-14 rounded-2xl font-black text-white text-base tracking-tight flex items-center justify-center gap-3 bg-gradient-to-r from-[#A855F7] via-[#8B5CF6] to-[#22D3EE] shadow-[0_10px_30px_-10px_rgba(139,92,246,0.7)] hover:shadow-[0_14px_40px_-10px_rgba(139,92,246,0.9)] active:scale-[0.99] transition-all"
                                   >
                                     <Upload className="w-5 h-5" />
                                     Escolher foto
