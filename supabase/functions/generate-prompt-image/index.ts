@@ -249,7 +249,7 @@ const performImageGeneration = async (body: any, supabaseAdmin: ReturnType<typeo
     throw new PublicError("Prompt de geração ausente.", 400);
   }
 
-  if (!userPhotoUrl && !body.userPhotoUrls?.[0] && !body.sourceImageUrl) {
+  if (!userPhotoUrl && !body.userPhotoUrls?.[0] && !body.referencePhotos?.[0] && !body.sourceImageUrl) {
     throw new PublicError("Foto de referência ausente ou inacessível.", 400);
   }
 
@@ -263,7 +263,7 @@ const performImageGeneration = async (body: any, supabaseAdmin: ReturnType<typeo
   if (flyerContext) {
     fullPrompt += `\n\nSTRUCTURED USER CONTEXT: ${JSON.stringify(flyerContext).slice(0, 1800)}`;
   }
-  const referenceImageUrl = userPhotoUrl || body.userPhotoUrls?.[0] || body.sourceImageUrl;
+  const referenceImageUrl = userPhotoUrl || body.userPhotoUrls?.[0] || body.referencePhotos?.[0] || body.sourceImageUrl;
 
   const moderation = checkModeration(fullPrompt);
   if (moderation.blocked) {
@@ -290,8 +290,13 @@ const performImageGeneration = async (body: any, supabaseAdmin: ReturnType<typeo
     enhancedPrompt += ", artistic digital painting style, vibrant colors, dreamlike atmosphere, soft lighting, masterpiece";
   }
 
-  const referenceImages = Array.isArray(body.userPhotoUrls) && body.userPhotoUrls.length > 0
-    ? body.userPhotoUrls.filter(Boolean)
+  const providedReferencePhotos = Array.isArray(body.userPhotoUrls) && body.userPhotoUrls.length > 0
+    ? body.userPhotoUrls
+    : Array.isArray(body.referencePhotos) && body.referencePhotos.length > 0
+      ? body.referencePhotos
+      : [];
+  const referenceImages = providedReferencePhotos.length > 0
+    ? providedReferencePhotos.filter(Boolean)
     : [referenceImageUrl].filter(Boolean);
 
   const imageContent = referenceImages.map((url: string) => ({ type: "image_url", image_url: { url } }));
