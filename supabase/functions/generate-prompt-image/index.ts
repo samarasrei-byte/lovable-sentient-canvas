@@ -42,14 +42,6 @@ QUALITY STANDARDS:
 - Lighting: Professional cinematic studio lighting with realistic subsurface scattering on skin.
 - Sharpness: Tack-sharp focus on the eyes.`;
 
-const FORBIDDEN_WORDS = [
-  // Child Safety
-  "nude", "naked", "sex", "porn", "erotic", "sensual", "lingerie", "bikini", "underwear",
-  "pedophile", "child", "infant", "toddler", "baby", "minor", "young", "kid",
-  // Action/Context
-  "sexual", "lust", "seductive", "provocative", "explicit", "exposed", "breasts", "butt", "genitals"
-];
-
 const checkModeration = (text: string): { blocked: boolean; reason?: string } => {
   const normalized = String(text || "").toLowerCase().trim();
   
