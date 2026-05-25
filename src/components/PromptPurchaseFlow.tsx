@@ -2745,7 +2745,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
               <motion.div 
                 initial={{ opacity: 0, scale: 0.95 }} 
                 animate={{ opacity: 1, scale: 1 }} 
-                className="flex flex-col h-full max-w-2xl mx-auto w-full space-y-4 py-4"
+                className="flex flex-col max-w-2xl mx-auto w-full space-y-4 py-4"
               >
                 <div className="text-center mb-2">
                   <CheckCircle2 className="w-8 h-8 sm:w-10 sm:h-10 text-primary mx-auto mb-1.5" />
@@ -2753,12 +2753,12 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                 </div>
 
                 <div 
-                  className="relative rounded-xl overflow-hidden border border-white/10 mx-auto transition-all duration-300 flex items-center justify-center bg-black/20"
+                  className="relative rounded-xl overflow-hidden border border-white/10 mx-auto w-full flex-shrink-0 bg-black/20"
                 >
                   <img 
                     src={generatedImage} 
                     alt="Generated" 
-                    className="w-full h-auto max-h-[40vh] sm:max-h-[50vh] object-contain rounded-xl" 
+                    className="block w-full h-auto object-contain rounded-xl" 
                   />
                 </div>
 
