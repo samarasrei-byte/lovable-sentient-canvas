@@ -209,6 +209,7 @@ serve(async (req) => {
       purchaseId, promptTemplate, userPhotoUrl, exampleImageUrl, 
       style = "realistic", // "realistic" or "artistic"
       userId,
+      aiModel,
       userPromptOverride // User-provided text from "Edit" flow
     } = body;
 
@@ -265,43 +266,61 @@ serve(async (req) => {
       enhancedPrompt += ", artistic digital painting style, vibrant colors, dreamlike atmosphere, soft lighting, masterpiece";
     }
 
+    const referenceImages = Array.isArray(body.userPhotoUrls) && body.userPhotoUrls.length > 0
+      ? body.userPhotoUrls.filter(Boolean)
+      : [referenceImageUrl].filter(Boolean);
+
+    const imageContent = referenceImages.map((url: string) => ({ type: "image_url", image_url: { url } }));
+    const styleImageContent = exampleImageUrl && !referenceImages.includes(exampleImageUrl)
+      ? [{ type: "image_url", image_url: { url: exampleImageUrl } }]
+      : [];
+
     const messages = [
       { role: "system", content: SYSTEM_PROMPT },
       { 
         role: "user", 
         content: [
-          { type: "text", text: `CLONE THE FACE FROM IMAGE 1. Output a new image following this description: ${enhancedPrompt}. Use IMAGE 2 for style/lighting inspiration ONLY.` },
-          { type: "image_url", image_url: { url: referenceImageUrl } },
-          { type: "image_url", image_url: { url: exampleImageUrl || referenceImageUrl } }
+          { type: "text", text: `CLONE THE FACE FROM THE REFERENCE PHOTO(S). Output exactly one new safe image following this description: ${enhancedPrompt}. If a style image is present, use it only for composition, lighting, mood, wardrobe, or background. Never copy identity from the style image.` },
+          ...imageContent,
+          ...styleImageContent,
         ]
       }
     ];
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${lovableKey}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: "google/gemini-3.1-flash-image-preview",
-        messages,
-        modalities: ["image", "text"]
-      })
-    });
+    const requestedModel = typeof aiModel === "string" && aiModel.trim() ? aiModel.trim() : DEFAULT_IMAGE_MODEL;
+    const modelsToTry = Array.from(new Set([requestedModel, DEFAULT_IMAGE_MODEL, ...FALLBACK_IMAGE_MODELS]));
+    let imageUrl: string | null = null;
+    let lastModelError: unknown = null;
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("AI gateway error:", errorText);
-      throw new Error(`AI Gateway error ${response.status}: ${errorText.slice(0, 240)}`);
+    for (const model of modelsToTry) {
+      try {
+        const data = await callImageGateway(lovableKey, model, messages);
+        const errorDetails = data?.error ? String(data.error) : "";
+        if (errorDetails) throw new Error(`AI model ${model} returned error payload: ${errorDetails.slice(0, 240)}`);
+
+        imageUrl = extractGeneratedImageUrl(data);
+        if (imageUrl) {
+          console.info("AI image generated", { model, purchaseId: purchaseId || null });
+          break;
+        }
+
+        throw new Error(`AI model ${model} returned no image`);
+      } catch (error) {
+        lastModelError = error;
+        if (error instanceof PublicError && (error.status === 402 || error.status === 429)) throw error;
+        console.warn("AI image attempt failed; trying fallback if available", {
+          model,
+          message: error instanceof Error ? error.message : String(error),
+        });
+      }
     }
 
-    const data = await response.json();
-    const errorDetails = data?.error ? String(data.error) : "";
-    if (errorDetails) throw new Error(`AI respondeu sem imagem: ${errorDetails.slice(0, 240)}`);
-    const imageUrl = extractGeneratedImageUrl(data);
+    if (!imageUrl) {
+      console.error("All AI image models failed", lastModelError);
+      throw new PublicError("Não foi possível renderizar esta imagem agora. Nossa IA tentou modelos alternativos automaticamente; tente novamente em instantes.", 502);
+    }
 
-    if (!imageUrl) throw new Error("A IA não retornou uma imagem válida. Tente uma foto mais nítida ou um prompt mais simples.");
+    imageUrl = await persistGeneratedImage(supabaseAdmin, imageUrl, purchaseId, userId);
 
     // Save to generated_images if userId is provided
     if (userId) {
