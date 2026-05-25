@@ -1323,17 +1323,12 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       setQaStatus('idle'); // Starting AI part
       const body = buildGenerationBody(referencePhotoUrls);
       body.purchaseId = effectivePurchaseId;
-      const { data, error } = await supabase.functions.invoke('generate-prompt-image', {
-        body,
-      });
-
-      if (error) throw error;
-      if (!data?.imageUrl) throw new Error('Nenhuma imagem gerada');
+      const { imageUrl } = await invokeImageGeneration(body, effectivePurchaseId);
 
       const newCount = generationCount + 1;
       setGenerationCount(newCount);
 
-      let finalImageUrl = data.imageUrl;
+      let finalImageUrl = imageUrl;
       let qa = await runQAValidation(finalImageUrl, referencePhotoUrls);
 
       // Block output moderation failures immediately
@@ -1367,14 +1362,13 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
           ...qa.issues.map((issue) => `- ${issue}`),
         ].join('\n');
 
-        const { data: retryData, error: retryError } = await supabase.functions.invoke('generate-prompt-image', {
-          body: buildGenerationBody(referencePhotoUrls, {
+        const retryBody = buildGenerationBody(referencePhotoUrls, {
             promptTemplate: `${prompt.prompt_template}\n\n${correctionBlock}`,
             negativePrompt: `${prompt.negative_prompt || ''}${prompt.negative_prompt ? ', ' : ''}${qa.issues.join(', ')}`,
-          }),
-        });
+          });
+        retryBody.purchaseId = effectivePurchaseId;
 
-        if (retryError) throw retryError;
+        const retryData = await invokeImageGeneration(retryBody, effectivePurchaseId);
 
         if (retryData?.imageUrl) {
           finalImageUrl = retryData.imageUrl;
