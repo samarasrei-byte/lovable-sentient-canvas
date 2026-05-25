@@ -1462,16 +1462,13 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       const referencePhotoUrls = await ensureUploadedPhotoUrls(purchaseId);
       const variationIndex = generatedVariants.length + 1;
 
-      const { data, error } = await supabase.functions.invoke('generate-prompt-image', {
-        body: buildGenerationBody(referencePhotoUrls, {
-          promptTemplate: `${prompt.prompt_template}\n\nVARIAÇÃO ${variationIndex}: gere uma composição diferente, mantendo 100% da fidelidade facial e a mesma faixa etária aparente das pessoas de referência.`,
-        }),
+      const variantBody = buildGenerationBody(referencePhotoUrls, {
+        promptTemplate: `${prompt.prompt_template}\n\nVARIAÇÃO ${variationIndex}: gere uma composição diferente, mantendo 100% da fidelidade facial e a mesma faixa etária aparente das pessoas de referência.`,
       });
+      variantBody.purchaseId = purchaseId;
+      const variantData = await invokeImageGeneration(variantBody, purchaseId);
 
-      if (error) throw error;
-      if (!data?.imageUrl) throw new Error('Nenhuma variação gerada');
-
-      let finalVariantUrl = data.imageUrl;
+      let finalVariantUrl = variantData.imageUrl;
       let qa = await runQAValidation(finalVariantUrl, referencePhotoUrls);
 
       if (qa.is_inappropriate) {
@@ -1482,14 +1479,13 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
         setQaStatus('fixing');
         setQaIssues(qa.issues);
 
-        const { data: retryData, error: retryError } = await supabase.functions.invoke('generate-prompt-image', {
-          body: buildGenerationBody(referencePhotoUrls, {
+        const retryBody = buildGenerationBody(referencePhotoUrls, {
             promptTemplate: `${prompt.prompt_template}\n\nVARIAÇÃO ${variationIndex}: gere uma composição diferente, mantendo 100% da fidelidade facial.\n\nCORREÇÕES OBRIGATÓRIAS:\n${qa.issues.map((issue) => `- ${issue}`).join('\n')}`,
             negativePrompt: `${prompt.negative_prompt || ''}${prompt.negative_prompt ? ', ' : ''}${qa.issues.join(', ')}`,
-          }),
-        });
+          });
+        retryBody.purchaseId = purchaseId;
+        const retryData = await invokeImageGeneration(retryBody, purchaseId);
 
-        if (retryError) throw retryError;
         if (retryData?.imageUrl) {
           finalVariantUrl = retryData.imageUrl;
           qa = await runQAValidation(finalVariantUrl, referencePhotoUrls);
