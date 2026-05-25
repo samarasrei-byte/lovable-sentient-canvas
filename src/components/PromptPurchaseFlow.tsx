@@ -308,6 +308,10 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const [generationCount, setGenerationCount] = useState(0);
   const [editCount, setEditCount] = useState(0);
   const [showBeforeAfter, setShowBeforeAfter] = useState(false);
+  const [showPhoneCapture, setShowPhoneCapture] = useState(false);
+  const [phoneCaptureValue, setPhoneCaptureValue] = useState('');
+  const [phoneCaptured, setPhoneCaptured] = useState(false);
+  const [phoneSubmitting, setPhoneSubmitting] = useState(false);
   const [selectedStyle, setSelectedStyle] = useState<'realistic' | 'artistic'>('realistic');
 
   // Sync photo slots with current target count: trim empty slots when reducing, ensure at least 1.
