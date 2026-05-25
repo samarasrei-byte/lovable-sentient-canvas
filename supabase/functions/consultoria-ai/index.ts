@@ -30,7 +30,7 @@ Quando solicitado para:
 Seja específico, criativo e focado em resultados mensuráveis.`;
 
     const body: any = {
-      model: "google/gemini-2.5-flash",
+      model: "google/gemini-3.5-flash",
       messages: [
         { role: "system", content: systemPrompt },
         ...messages
@@ -39,7 +39,7 @@ Seja específico, criativo e focado em resultados mensuráveis.`;
 
     // Se for geração de avatar, usar o Nano Banana
     if (type === 'generate-avatar') {
-      body.model = "google/gemini-2.5-flash-image";
+      body.model = "google/gemini-3.1-flash-image-preview";
       body.modalities = ["image", "text"];
     }
 

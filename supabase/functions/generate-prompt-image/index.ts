@@ -37,14 +37,15 @@ const FORBIDDEN_WORDS = [
 const checkModeration = (text: string): { blocked: boolean; reason?: string } => {
   const normalized = String(text || "").toLowerCase().trim();
   
-  // Rule 1: Direct forbidden words combination (Child + Sexual)
-  const childTerms = ["criança", "bebê", "bebe", "infantil", "menor", "criança", "child", "kid", "baby", "toddler", "minor"];
-  const sexualTerms = ["nua", "nu", "pelada", "pelado", "sexo", "erótico", "erotico", "sensual", "biquini", "calcinha", "cueca", "nude", "naked", "erotic", "lingerie", "bikini", "provocativo", "provocativa"];
+  // Rule 1: Direct forbidden words combination (Child + Explicitly Sexual)
+  const childTerms = ["criança", "bebê", "bebe", "infantil", "menor", "child", "kid", "baby", "toddler", "minor"];
+  // Only block if combined with explicitly sexual/pornographic terms, not just "naked" or "bikini" for babies
+  const explicitSexualTerms = ["sexo", "porn", "pornografia", "orgia", "hentai", "xxx", "sex", "lust", "seductive", "provocativo", "provocativa", "erótico", "erotico"];
   
   const hasChild = childTerms.some(term => normalized.includes(term));
-  const hasSexual = sexualTerms.some(term => normalized.includes(term));
+  const hasExplicitSexual = explicitSexualTerms.some(term => normalized.includes(term));
 
-  if (hasChild && hasSexual) {
+  if (hasChild && hasExplicitSexual) {
     return { blocked: true, reason: "Conteúdo impróprio envolvendo menores detectado." };
   }
 

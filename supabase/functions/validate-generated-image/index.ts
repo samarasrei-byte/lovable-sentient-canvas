@@ -74,7 +74,7 @@ IMPORTANT IMAGE ORDER:
 - Then: real subject reference photos (if present)
 - Last: style reference image (if present)
 
-BE ACCURATE ON SAFETY. Only block for real violations (nudity, explicit acts). Do not block legitimate family or artistic portraits. Context matters.
+BE ACCURATE ON SAFETY. Only block for real violations (nudity, explicit acts, sexualization). Do NOT block legitimate family, baby, or artistic portraits. A baby in a bathtub, a person in swimwear at the beach, or a professional portrait is SAFE and standard. Avoid over-censorship. Context is key.
 
 Respond in this EXACT JSON format:
 {
@@ -110,7 +110,7 @@ Respond in this EXACT JSON format:
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: safeReferenceImages.length > 0 || styleReferenceImageUrl ? "google/gemini-2.5-pro" : "google/gemini-2.5-flash",
+        model: "google/gemini-3.1-flash-image-preview",
         messages: [
           {
             role: "system",
