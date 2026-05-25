@@ -219,7 +219,16 @@ serve(async (req) => {
       });
     }
 
-    const fullPrompt = sanitizePromptForChildSafety(userPromptOverride || promptTemplate || "");
+    let fullPrompt = sanitizePromptForChildSafety(userPromptOverride || promptTemplate || "");
+    const effectiveNegativePrompt = typeof body.negativePrompt === "string" ? body.negativePrompt.trim() : "";
+    if (effectiveNegativePrompt) {
+      fullPrompt += `\n\nNEGATIVE PROMPT — avoid these issues: ${sanitizePromptForChildSafety(effectiveNegativePrompt)}`;
+    }
+
+    const flyerContext = body.flyerContext && typeof body.flyerContext === "object" ? body.flyerContext : null;
+    if (flyerContext) {
+      fullPrompt += `\n\nSTRUCTURED USER CONTEXT: ${JSON.stringify(flyerContext).slice(0, 1800)}`;
+    }
     const referenceImageUrl = userPhotoUrl || body.userPhotoUrls?.[0] || body.sourceImageUrl;
 
     // 1. MODERATION CHECK
