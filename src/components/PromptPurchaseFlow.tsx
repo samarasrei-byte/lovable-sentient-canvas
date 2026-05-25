@@ -923,45 +923,105 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   };
 
   const uploadPhotos = async (effectivePurchaseId: string): Promise<string[]> => {
-    // Upload all photos IN PARALLEL for maximum speed
     const activePhotos = photos
       .map((photo, i) => ({ photo, i }))
       .filter(({ photo }) => !!photo.file);
 
-    const uploadOne = async ({ photo, i }: { photo: PhotoSlot; i: number }): Promise<string> => {
+    const resizeForGenerationUpload = (file: File, index: number): Promise<File> => new Promise((resolve) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      const finish = (result: File) => {
+        URL.revokeObjectURL(url);
+        resolve(result);
+      };
+
+      img.onload = () => {
+        const maxSize = activePhotos.length > 1 ? 1280 : 1536;
+        const scale = Math.min(maxSize / img.width, maxSize / img.height, 1);
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, Math.round(img.width * scale));
+        canvas.height = Math.max(1, Math.round(img.height * scale));
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return finish(file);
+
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob((blob) => {
+          if (!blob) return finish(file);
+          finish(new File([blob], `arcana-${effectivePurchaseId}-photo${index + 1}.jpg`, { type: 'image/jpeg' }));
+        }, 'image/jpeg', 0.86);
+      };
+
+      img.onerror = () => finish(file);
+      img.src = url;
+    });
+
+    const fileToDataUrl = (file: File) => new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result || ''));
+      reader.onerror = () => reject(new Error('Falha ao ler foto para upload'));
+      reader.readAsDataURL(file);
+    });
+
+    const prepareOne = async ({ photo, i }: { photo: PhotoSlot; i: number }) => {
       let convertedFile: File;
       try {
         convertedFile = await convertToJpeg(photo.file!);
       } catch {
         throw new Error(`Conversão da foto ${i + 1} falhou`);
       }
+      const optimizedFile = await resizeForGenerationUpload(convertedFile, i);
+      return { file: optimizedFile, index: i, dataUrl: await fileToDataUrl(optimizedFile) };
+    };
 
-      const fileExt = convertedFile.name.split('.').pop() || 'jpg';
-      const filePath = `purchases/${effectivePurchaseId}-photo${i + 1}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+    const uploadDirectly = async (prepared: Awaited<ReturnType<typeof prepareOne>>[]): Promise<string[]> => {
+      const uploadOne = async ({ file, index }: Awaited<ReturnType<typeof prepareOne>>): Promise<string> => {
+        const filePath = `purchases/${effectivePurchaseId}-photo${index + 1}-${Math.random().toString(36).slice(2)}.jpg`;
+        let uploadData: any = null;
+        let lastError: any = null;
+        for (let attempt = 0; attempt < 2; attempt++) {
+          const { data, error } = await supabase.storage
+            .from('user-photos')
+            .upload(filePath, file, { cacheControl: '3600', upsert: false, contentType: 'image/jpeg' });
+          if (!error) { uploadData = data; break; }
+          lastError = error;
+          if (attempt === 0) await new Promise(r => setTimeout(r, 800));
+        }
+        if (!uploadData) throw lastError || new Error(`Upload da foto ${index + 1} falhou`);
 
-      let uploadData: any = null;
-      let lastError: any = null;
-      for (let attempt = 0; attempt < 2; attempt++) {
-        const { data, error } = await supabase.storage
+        const { data: { publicUrl } } = supabase.storage
           .from('user-photos')
-          .upload(filePath, convertedFile, { cacheControl: '3600', upsert: false });
-        if (!error) { uploadData = data; break; }
-        lastError = error;
-        if (attempt === 0) await new Promise(r => setTimeout(r, 800));
-      }
-      if (!uploadData) throw lastError || new Error(`Upload da foto ${i + 1} falhou`);
+          .getPublicUrl(uploadData.path);
+        return publicUrl;
+      };
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('user-photos')
-        .getPublicUrl(uploadData.path);
-      return publicUrl;
-
+      return Promise.all(prepared.map(uploadOne));
     };
 
     try {
-      return await Promise.all(activePhotos.map(uploadOne));
+      const prepared = await Promise.all(activePhotos.map(prepareOne));
+
+      try {
+        const { data, error } = await supabase.functions.invoke('upload-user-photos', {
+          body: {
+            purchaseId: effectivePurchaseId,
+            images: prepared.map(({ dataUrl, index }) => ({ dataUrl, slotIndex: index, fileName: `photo${index + 1}.jpg`, contentType: 'image/jpeg' })),
+          },
+        });
+
+        if (error) throw error;
+        if (Array.isArray(data?.urls) && data.urls.length === prepared.length) {
+          return data.urls;
+        }
+        throw new Error('Upload seguro retornou dados incompletos');
+      } catch (edgeUploadError) {
+        console.warn('Secure photo upload failed; falling back to direct storage upload:', edgeUploadError);
+        return await uploadDirectly(prepared);
+      }
     } catch (err) {
-      toast.error('Falha ao enviar fotos. Verifique sua conexão.');
+      console.error('Photo upload failed:', err);
+      toast.error('Falha ao enviar fotos. Verifique sua conexão e tente novamente.');
       throw err;
     }
   };
