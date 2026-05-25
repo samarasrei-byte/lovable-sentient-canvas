@@ -1302,6 +1302,48 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
     throw new Error('Nenhuma imagem gerada');
   };
 
+  useEffect(() => {
+    if (step !== 'generating' || !generationError || !purchaseId) return;
+
+    let cancelled = false;
+    let attempts = 0;
+
+    const recoverCompletedGeneration = async () => {
+      attempts += 1;
+      try {
+        const { data, error } = await supabase.functions.invoke('generate-prompt-image', {
+          body: { action: 'status', purchaseId },
+        });
+
+        if (!cancelled && !error && data?.status === 'completed' && data?.imageUrl) {
+          setGenerationError(null);
+          setGeneratedImage(data.imageUrl);
+          setGeneratedVariants([{ url: data.imageUrl, selected: true }]);
+          setQaStatus('passed');
+          setQaIssues([]);
+          setStep('complete');
+          toast.success('Sua imagem ficou pronta!');
+        }
+      } catch (error) {
+        console.warn('Generation recovery status check failed:', error);
+      }
+    };
+
+    void recoverCompletedGeneration();
+    const interval = window.setInterval(() => {
+      if (attempts >= 30) {
+        window.clearInterval(interval);
+        return;
+      }
+      void recoverCompletedGeneration();
+    }, 2500);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
+  }, [generationError, purchaseId, step]);
+
   const generateImage = async (overridePurchaseId?: string, attempt = 1) => {
     const effectivePurchaseId = overridePurchaseId || purchaseId;
     try {
