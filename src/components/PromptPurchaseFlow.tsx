@@ -2236,7 +2236,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                   </button>
 
                                   {/* Format info */}
-                                  <div className="flex items-center justify-center gap-5 mt-5 text-[11px] font-medium text-white/40">
+                                  <div className="hidden sm:flex items-center justify-center gap-5 mt-5 text-[11px] font-medium text-white/40">
                                     <span className="flex items-center gap-1.5">
                                       <CheckCircle2 className="w-3.5 h-3.5 text-green-400/80" />
                                       JPG, PNG, HEIC
