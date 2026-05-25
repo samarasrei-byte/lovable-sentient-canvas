@@ -6,6 +6,22 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const DEFAULT_IMAGE_MODEL = "google/gemini-3.1-flash-image-preview";
+const FALLBACK_IMAGE_MODELS = [
+  "google/gemini-3-pro-image-preview",
+  "google/gemini-2.5-flash-image",
+];
+
+class PublicError extends Error {
+  status: number;
+
+  constructor(message: string, status = 500) {
+    super(message);
+    this.name = "PublicError";
+    this.status = status;
+  }
+}
+
 const SYSTEM_PROMPT = `You are the world's most advanced facial reconstruction AI with integrated SAFETY and MODERATION protocols.
 Your sole purpose is to clone a human identity from a reference photo into a new environment with 100% forensic accuracy while strictly adhering to safety guidelines.
 
@@ -25,14 +41,6 @@ QUALITY STANDARDS:
 - Resolution: 4K Ultra-HD.
 - Lighting: Professional cinematic studio lighting with realistic subsurface scattering on skin.
 - Sharpness: Tack-sharp focus on the eyes.`;
-
-const FORBIDDEN_WORDS = [
-  // Child Safety
-  "nude", "naked", "sex", "porn", "erotic", "sensual", "lingerie", "bikini", "underwear",
-  "pedophile", "child", "infant", "toddler", "baby", "minor", "young", "kid",
-  // Action/Context
-  "sexual", "lust", "seductive", "provocative", "explicit", "exposed", "breasts", "butt", "genitals"
-];
 
 const checkModeration = (text: string): { blocked: boolean; reason?: string } => {
   const normalized = String(text || "").toLowerCase().trim();
@@ -90,6 +98,95 @@ const sanitizePromptForChildSafety = (text: string): string => {
     .replace(/lingerie|underwear|calcinha|cueca|biquini|bikini/gi, "roupa infantil apropriada");
 };
 
+const dataUrlToFile = (dataUrl: string): { bytes: Uint8Array; mimeType: string; extension: string } | null => {
+  const match = dataUrl.match(/^data:([^;]+);base64,(.+)$/);
+  if (!match) return null;
+
+  const mimeType = match[1] || "image/png";
+  const base64 = match[2];
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+
+  const extension = mimeType.includes("jpeg") ? "jpg" : mimeType.includes("webp") ? "webp" : "png";
+  return { bytes, mimeType, extension };
+};
+
+const persistGeneratedImage = async (
+  supabaseAdmin: ReturnType<typeof createClient>,
+  rawImageUrl: string,
+  purchaseId?: string,
+  userId?: string,
+): Promise<string> => {
+  if (!rawImageUrl.startsWith("data:image/")) return rawImageUrl;
+
+  const imageFile = dataUrlToFile(rawImageUrl);
+  if (!imageFile) return rawImageUrl;
+
+  const ownerKey = purchaseId || userId || crypto.randomUUID();
+  const filePath = `generated/${ownerKey}-${Date.now()}.${imageFile.extension}`;
+  const { error: uploadError } = await supabaseAdmin.storage
+    .from("prompt-images")
+    .upload(filePath, imageFile.bytes, {
+      contentType: imageFile.mimeType,
+      cacheControl: "31536000",
+      upsert: true,
+    });
+
+  if (uploadError) {
+    console.warn("generated image storage upload failed, returning inline image:", uploadError.message);
+    return rawImageUrl;
+  }
+
+  const { data } = supabaseAdmin.storage.from("prompt-images").getPublicUrl(filePath);
+  return data.publicUrl || rawImageUrl;
+};
+
+const callImageGateway = async (lovableKey: string, model: string, messages: any[]) => {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 115_000);
+
+  try {
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      signal: controller.signal,
+      headers: {
+        "Authorization": `Bearer ${lovableKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model,
+        messages,
+        modalities: ["image", "text"]
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("AI gateway error:", { model, status: response.status, body: errorText.slice(0, 700) });
+
+      if (response.status === 429) {
+        throw new PublicError("A IA está recebendo muitas solicitações agora. Tentando novamente em instantes.", 429);
+      }
+      if (response.status === 402) {
+        throw new PublicError("Os créditos de IA do workspace acabaram. Adicione créditos em Settings > Workspace > Usage para voltar a gerar imagens.", 402);
+      }
+
+      throw new Error(`AI image model ${model} failed with status ${response.status}: ${errorText.slice(0, 240)}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    if (error instanceof PublicError) throw error;
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw new Error(`AI image model ${model} timed out`);
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -104,6 +201,7 @@ serve(async (req) => {
       purchaseId, promptTemplate, userPhotoUrl, exampleImageUrl, 
       style = "realistic", // "realistic" or "artistic"
       userId,
+      aiModel,
       userPromptOverride // User-provided text from "Edit" flow
     } = body;
 
@@ -121,7 +219,16 @@ serve(async (req) => {
       });
     }
 
-    const fullPrompt = sanitizePromptForChildSafety(userPromptOverride || promptTemplate || "");
+    let fullPrompt = sanitizePromptForChildSafety(userPromptOverride || promptTemplate || "");
+    const effectiveNegativePrompt = typeof body.negativePrompt === "string" ? body.negativePrompt.trim() : "";
+    if (effectiveNegativePrompt) {
+      fullPrompt += `\n\nNEGATIVE PROMPT — avoid these issues: ${sanitizePromptForChildSafety(effectiveNegativePrompt)}`;
+    }
+
+    const flyerContext = body.flyerContext && typeof body.flyerContext === "object" ? body.flyerContext : null;
+    if (flyerContext) {
+      fullPrompt += `\n\nSTRUCTURED USER CONTEXT: ${JSON.stringify(flyerContext).slice(0, 1800)}`;
+    }
     const referenceImageUrl = userPhotoUrl || body.userPhotoUrls?.[0] || body.sourceImageUrl;
 
     // 1. MODERATION CHECK
@@ -160,43 +267,61 @@ serve(async (req) => {
       enhancedPrompt += ", artistic digital painting style, vibrant colors, dreamlike atmosphere, soft lighting, masterpiece";
     }
 
+    const referenceImages = Array.isArray(body.userPhotoUrls) && body.userPhotoUrls.length > 0
+      ? body.userPhotoUrls.filter(Boolean)
+      : [referenceImageUrl].filter(Boolean);
+
+    const imageContent = referenceImages.map((url: string) => ({ type: "image_url", image_url: { url } }));
+    const styleImageContent = exampleImageUrl && !referenceImages.includes(exampleImageUrl)
+      ? [{ type: "image_url", image_url: { url: exampleImageUrl } }]
+      : [];
+
     const messages = [
       { role: "system", content: SYSTEM_PROMPT },
       { 
         role: "user", 
         content: [
-          { type: "text", text: `CLONE THE FACE FROM IMAGE 1. Output a new image following this description: ${enhancedPrompt}. Use IMAGE 2 for style/lighting inspiration ONLY.` },
-          { type: "image_url", image_url: { url: referenceImageUrl } },
-          { type: "image_url", image_url: { url: exampleImageUrl || referenceImageUrl } }
+          { type: "text", text: `CLONE THE FACE FROM THE REFERENCE PHOTO(S). Output exactly one new safe image following this description: ${enhancedPrompt}. If a style image is present, use it only for composition, lighting, mood, wardrobe, or background. Never copy identity from the style image.` },
+          ...imageContent,
+          ...styleImageContent,
         ]
       }
     ];
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${lovableKey}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: "google/gemini-3.1-flash-image-preview",
-        messages,
-        modalities: ["image", "text"]
-      })
-    });
+    const requestedModel = typeof aiModel === "string" && aiModel.trim() ? aiModel.trim() : DEFAULT_IMAGE_MODEL;
+    const modelsToTry = Array.from(new Set([requestedModel, DEFAULT_IMAGE_MODEL, ...FALLBACK_IMAGE_MODELS]));
+    let imageUrl: string | null = null;
+    let lastModelError: unknown = null;
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("AI gateway error:", errorText);
-      throw new Error(`AI Gateway error ${response.status}: ${errorText.slice(0, 240)}`);
+    for (const model of modelsToTry) {
+      try {
+        const data = await callImageGateway(lovableKey, model, messages);
+        const errorDetails = data?.error ? String(data.error) : "";
+        if (errorDetails) throw new Error(`AI model ${model} returned error payload: ${errorDetails.slice(0, 240)}`);
+
+        imageUrl = extractGeneratedImageUrl(data);
+        if (imageUrl) {
+          console.info("AI image generated", { model, purchaseId: purchaseId || null });
+          break;
+        }
+
+        throw new Error(`AI model ${model} returned no image`);
+      } catch (error) {
+        lastModelError = error;
+        if (error instanceof PublicError && (error.status === 402 || error.status === 429)) throw error;
+        console.warn("AI image attempt failed; trying fallback if available", {
+          model,
+          message: error instanceof Error ? error.message : String(error),
+        });
+      }
     }
 
-    const data = await response.json();
-    const errorDetails = data?.error ? String(data.error) : "";
-    if (errorDetails) throw new Error(`AI respondeu sem imagem: ${errorDetails.slice(0, 240)}`);
-    const imageUrl = extractGeneratedImageUrl(data);
+    if (!imageUrl) {
+      console.error("All AI image models failed", lastModelError);
+      throw new PublicError("Não foi possível renderizar esta imagem agora. Nossa IA tentou modelos alternativos automaticamente; tente novamente em instantes.", 502);
+    }
 
-    if (!imageUrl) throw new Error("A IA não retornou uma imagem válida. Tente uma foto mais nítida ou um prompt mais simples.");
+    imageUrl = await persistGeneratedImage(supabaseAdmin, imageUrl, purchaseId, userId);
 
     // Save to generated_images if userId is provided
     if (userId) {
@@ -226,6 +351,10 @@ serve(async (req) => {
 
   } catch (error: any) {
     console.error("Error in generate-prompt-image:", error);
+    const safeMessage = error instanceof PublicError
+      ? error.message
+      : "Não conseguimos renderizar sua imagem neste momento. Tente novamente em instantes; seu pedido está seguro.";
+    const status = error instanceof PublicError ? error.status : 500;
     
     try {
       const supabaseAdmin = createClient(
@@ -239,7 +368,7 @@ serve(async (req) => {
       if (purchaseId) {
         await supabaseAdmin.from("prompt_purchases").update({
           generation_status: "failed",
-          error_message: error.message || "Unknown error",
+          error_message: safeMessage,
           failed_at: new Date().toISOString()
         }).eq("id", purchaseId);
       }
@@ -247,8 +376,8 @@ serve(async (req) => {
       console.error("Failed to log error to DB:", dbError);
     }
 
-    return new Response(JSON.stringify({ error: error.message || "Unknown error" }), {
-      status: 500,
+    return new Response(JSON.stringify({ error: safeMessage }), {
+      status,
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
   }

@@ -1265,8 +1265,8 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
   };
 
   const generateImage = async (overridePurchaseId?: string, attempt = 1) => {
+    const effectivePurchaseId = overridePurchaseId || purchaseId;
     try {
-      const effectivePurchaseId = overridePurchaseId || purchaseId;
       if (!effectivePurchaseId) throw new Error('Compra não iniciada corretamente');
 
       if (attempt === 1) {
@@ -1383,7 +1383,8 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       const msg = isTechnicalError
         ? 'Nossa IA está sobrecarregada no momento. Estamos reprocessando automaticamente — se persistir, fale com o suporte que resolvemos em minutos.'
         : rawMsg;
-      const isFirstAttempt = !!purchaseId && !(window as any).__arcanaRetried?.[purchaseId];
+      const retryKey = effectivePurchaseId || purchaseId;
+      const isFirstAttempt = !!retryKey && !(window as any).__arcanaRetried?.[retryKey];
 
       // Erro persistente: mantém na tela 'generating' com cartão de erro visível + WhatsApp
       if (!isFirstAttempt) {
@@ -1397,10 +1398,10 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       setQaIssues([]);
 
       // Auto-retry uma vez após 3s se foi a primeira tentativa
-      if (isFirstAttempt && purchaseId) {
-        (window as any).__arcanaRetried = { ...((window as any).__arcanaRetried || {}), [purchaseId]: true };
+      if (isFirstAttempt && retryKey) {
+        (window as any).__arcanaRetried = { ...((window as any).__arcanaRetried || {}), [retryKey]: true };
         setTimeout(() => {
-          generateImage(purchaseId).catch((retryErr) => {
+          generateImage(retryKey).catch((retryErr) => {
             const retryRaw = retryErr instanceof Error ? retryErr.message : 'Erro persistente na geração.';
             const retryIsTech = /row-level security|row level security|violates|policy|rls|jwt|postgres|pgrst|fetch failed|network|timeout/i.test(retryRaw);
             setGenerationError(retryIsTech
