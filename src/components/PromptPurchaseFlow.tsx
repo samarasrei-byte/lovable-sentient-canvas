@@ -308,6 +308,10 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
   const [generationCount, setGenerationCount] = useState(0);
   const [editCount, setEditCount] = useState(0);
   const [showBeforeAfter, setShowBeforeAfter] = useState(false);
+  const [showPhoneCapture, setShowPhoneCapture] = useState(false);
+  const [phoneCaptureValue, setPhoneCaptureValue] = useState('');
+  const [phoneCaptured, setPhoneCaptured] = useState(false);
+  const [phoneSubmitting, setPhoneSubmitting] = useState(false);
   const [selectedStyle, setSelectedStyle] = useState<'realistic' | 'artistic'>('realistic');
 
   // Sync photo slots with current target count: trim empty slots when reducing, ensure at least 1.
@@ -1776,7 +1780,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
     };
   };
 
-  const handleDownloadAll = () => {
+  const performDownloadAll = () => {
     const selected = generatedVariants.filter((variant) => variant.selected);
     if (selected.length === 0) {
       handleDownload();
@@ -1786,6 +1790,46 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
     selected.forEach((variant, index) => {
       setTimeout(() => handleDownload(variant.url), index * 500);
     });
+  };
+
+  const handleDownloadAll = () => {
+    if (!phoneCaptured) {
+      setShowPhoneCapture(true);
+      return;
+    }
+    performDownloadAll();
+  };
+
+  const submitPhoneCapture = async (skip = false) => {
+    if (!skip) {
+      const digits = phoneCaptureValue.replace(/\D/g, '');
+      if (digits.length < 10) {
+        toast.error('Digite um WhatsApp válido com DDD');
+        return;
+      }
+      setPhoneSubmitting(true);
+      try {
+        await supabase.from('notifications' as any).insert({
+          user_id: user?.id ?? null,
+          type: 'whatsapp_lead',
+          title: 'Novo lead WhatsApp (desconto)',
+          message: `Cliente ${formData.name || 'sem nome'} aceitou receber descontos em ${digits}`,
+          metadata: {
+            phone: digits,
+            purchase_id: purchaseId,
+            prompt_name: prompt.name,
+            source: 'download_discount_capture',
+          },
+        });
+      } catch (e) {
+        console.warn('Lead capture failed (non-blocking):', e);
+      } finally {
+        setPhoneSubmitting(false);
+      }
+    }
+    setPhoneCaptured(true);
+    setShowPhoneCapture(false);
+    setTimeout(() => performDownloadAll(), 100);
   };
 
   const handleSaveToProfile = async () => {
@@ -2045,13 +2089,15 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   {/* Name field */}
                   {prompt.required_fields.includes('name') && (
                     <div className="space-y-2">
-                      <Label className="text-[11px] uppercase tracking-widest font-black text-white/40 ml-1">Nome Completo</Label>
+                      <Label className="text-[11px] uppercase tracking-widest font-black text-white/40 ml-1">
+                        {isChildPrompt || isMesversarioPrompt ? 'Nome da Criança' : 'Nome Completo'}
+                      </Label>
                       <div className="relative group">
                         <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-primary transition-colors" />
                         <Input
                           value={formData.name}
                           onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
-                          placeholder="Como aparecerá na arte"
+                          placeholder={isChildPrompt || isMesversarioPrompt ? 'Nome da criança' : 'Como aparecerá na arte'}
                           className="pl-11 h-14 bg-white/[0.03] border-white/10 rounded-2xl focus:bg-white/[0.05] transition-all text-base"
                         />
                       </div>
@@ -2195,25 +2241,24 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                   )}
                                 </div>
                               ) : (
-                                <div className="relative px-6 py-8 sm:py-10 flex flex-col items-center text-center">
+                                <div className="relative px-4 py-4 sm:py-10 flex flex-col items-center text-center">
                                   {/* Camera icon with green dot */}
-                                  <div className="relative mb-5">
-                                    <div className="w-[88px] h-[88px] rounded-3xl bg-primary/15 border border-primary/25 flex items-center justify-center shadow-[0_0_40px_-10px_hsl(var(--primary)/0.6)]">
-                                      <Camera className="w-10 h-10 text-primary" strokeWidth={1.75} />
+                                  <div className="relative mb-2 sm:mb-5">
+                                    <div className="w-16 h-16 sm:w-[88px] sm:h-[88px] rounded-2xl sm:rounded-3xl bg-primary/15 border border-primary/25 flex items-center justify-center shadow-[0_0_40px_-10px_hsl(var(--primary)/0.6)]">
+                                      <Camera className="w-7 h-7 sm:w-10 sm:h-10 text-primary" strokeWidth={1.75} />
                                     </div>
                                     <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-green-400 ring-4 ring-[#0F0B17] shadow-[0_0_12px_hsl(142_76%_50%/0.8)]" />
                                   </div>
 
-                                  <h3 className="text-2xl font-black text-white tracking-tight mb-2">
+                                  <h3 className="text-lg sm:text-2xl font-black text-white tracking-tight mb-1 sm:mb-2">
                                     Sua melhor foto
                                   </h3>
-                                  <p className="text-sm text-white/55 leading-relaxed max-w-[300px] mb-5">
+                                  <p className="text-xs sm:text-sm text-white/55 leading-relaxed max-w-[300px] mb-3 sm:mb-5">
                                     Rosto visível, boa iluminação, de frente.
-                                    Quanto melhor a foto, mais parecido fica!
                                   </p>
 
                                   {/* Checklist */}
-                                  <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mb-7">
+                                  <div className="hidden sm:flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mb-7">
                                     <span className="text-xs font-semibold text-primary/90 flex items-center gap-1.5">
                                       <span className="text-green-400">✅</span> Rosto de frente
                                     </span>
@@ -2228,14 +2273,14 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                                   {/* Gradient CTA */}
                                   <button
                                     onClick={() => fileInputRefs.current[index]?.click()}
-                                    className="w-full max-w-[340px] h-14 rounded-2xl font-black text-white text-base tracking-tight flex items-center justify-center gap-3 bg-gradient-to-r from-[#A855F7] via-[#8B5CF6] to-[#22D3EE] shadow-[0_10px_30px_-10px_rgba(139,92,246,0.7)] hover:shadow-[0_14px_40px_-10px_rgba(139,92,246,0.9)] active:scale-[0.99] transition-all"
+                                    className="w-full max-w-[340px] h-12 sm:h-14 rounded-2xl font-black text-white text-base tracking-tight flex items-center justify-center gap-3 bg-gradient-to-r from-[#A855F7] via-[#8B5CF6] to-[#22D3EE] shadow-[0_10px_30px_-10px_rgba(139,92,246,0.7)] hover:shadow-[0_14px_40px_-10px_rgba(139,92,246,0.9)] active:scale-[0.99] transition-all"
                                   >
                                     <Upload className="w-5 h-5" />
                                     Escolher foto
                                   </button>
 
                                   {/* Format info */}
-                                  <div className="flex items-center justify-center gap-5 mt-5 text-[11px] font-medium text-white/40">
+                                  <div className="hidden sm:flex items-center justify-center gap-5 mt-5 text-[11px] font-medium text-white/40">
                                     <span className="flex items-center gap-1.5">
                                       <CheckCircle2 className="w-3.5 h-3.5 text-green-400/80" />
                                       JPG, PNG, HEIC
@@ -2926,6 +2971,62 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
         reason={appealModal.reason}
         purchaseId={purchaseId || undefined}
       />
+
+      {/* Phone capture modal — pre-download discount opt-in */}
+      <Dialog open={showPhoneCapture} onOpenChange={(open) => !phoneSubmitting && setShowPhoneCapture(open)}>
+        <DialogContent className="max-w-md bg-[#0F0B17] border border-white/10 rounded-3xl p-6 sm:p-8">
+          <div className="flex flex-col items-center text-center">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/30 to-cyan-400/20 border border-primary/30 flex items-center justify-center mb-4">
+              <Smartphone className="w-7 h-7 text-primary" />
+            </div>
+            <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight mb-2">
+              Ganhe descontos exclusivos
+            </h3>
+            <p className="text-sm text-white/60 leading-relaxed mb-5">
+              Deixe seu WhatsApp e receba <strong className="text-primary">cupons e novidades</strong> antes de baixar sua arte.
+            </p>
+
+            <div className="w-full space-y-3">
+              <div className="relative">
+                <Smartphone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                <Input
+                  type="tel"
+                  inputMode="tel"
+                  value={phoneCaptureValue}
+                  onChange={(e) => setPhoneCaptureValue(e.target.value)}
+                  placeholder="(11) 99999-9999"
+                  className="pl-11 h-14 bg-white/[0.03] border-white/10 rounded-2xl text-base"
+                  disabled={phoneSubmitting}
+                />
+              </div>
+
+              <button
+                onClick={() => submitPhoneCapture(false)}
+                disabled={phoneSubmitting}
+                className="w-full h-14 rounded-2xl font-black text-white text-sm tracking-wide flex items-center justify-center gap-2 bg-gradient-to-r from-[#A855F7] via-[#8B5CF6] to-[#22D3EE] shadow-[0_10px_30px_-10px_rgba(139,92,246,0.7)] active:scale-[0.99] transition-all disabled:opacity-60"
+              >
+                {phoneSubmitting ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Salvando...</>
+                ) : (
+                  <><Download className="w-4 h-4" /> Quero descontos e baixar</>
+                )}
+              </button>
+
+              <button
+                onClick={() => submitPhoneCapture(true)}
+                disabled={phoneSubmitting}
+                className="w-full text-xs text-white/40 hover:text-white/70 underline underline-offset-2 transition-colors"
+              >
+                Não, baixar sem desconto
+              </button>
+            </div>
+
+            <p className="text-[10px] text-white/30 mt-4">
+              🔒 Usamos seu contato apenas para envio de cupons. Nunca compartilhamos.
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 };
