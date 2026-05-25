@@ -1377,7 +1377,12 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       setStep('complete');
     } catch (error) {
       console.error('Error generating image:', error);
-      const msg = error instanceof Error ? error.message : 'Erro inesperado na geração.';
+      const rawMsg = error instanceof Error ? error.message : 'Erro inesperado na geração.';
+      // Sanitiza mensagens técnicas para nunca expor jargão de banco/infra ao usuário
+      const isTechnicalError = /row-level security|row level security|violates|policy|rls|jwt|postgres|pgrst|fetch failed|network|timeout/i.test(rawMsg);
+      const msg = isTechnicalError
+        ? 'Nossa IA está sobrecarregada no momento. Estamos reprocessando automaticamente — se persistir, fale com o suporte que resolvemos em minutos.'
+        : rawMsg;
       const isFirstAttempt = !!purchaseId && !(window as any).__arcanaRetried?.[purchaseId];
 
       // Erro persistente: mantém na tela 'generating' com cartão de erro visível + WhatsApp
@@ -1396,8 +1401,11 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
         (window as any).__arcanaRetried = { ...((window as any).__arcanaRetried || {}), [purchaseId]: true };
         setTimeout(() => {
           generateImage(purchaseId).catch((retryErr) => {
-            const retryMsg = retryErr instanceof Error ? retryErr.message : 'Erro persistente na geração.';
-            setGenerationError(retryMsg);
+            const retryRaw = retryErr instanceof Error ? retryErr.message : 'Erro persistente na geração.';
+            const retryIsTech = /row-level security|row level security|violates|policy|rls|jwt|postgres|pgrst|fetch failed|network|timeout/i.test(retryRaw);
+            setGenerationError(retryIsTech
+              ? 'Nossa IA está sobrecarregada. Fale no WhatsApp que resolvemos agora.'
+              : retryRaw);
           });
         }, 3000);
       }
