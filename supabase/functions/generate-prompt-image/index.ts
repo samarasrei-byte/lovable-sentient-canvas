@@ -200,12 +200,17 @@ serve(async (req) => {
 
     // Save to generated_images if userId is provided
     if (userId) {
-      await supabaseAdmin.from("generated_images").insert({
+      const { error: insertErr } = await supabaseAdmin.from("generated_images").insert({
         user_id: userId,
         image_url: imageUrl,
-        template_name: fullPrompt.substring(0, 50),
+        template_name: (fullPrompt || "Geração Arcana").substring(0, 50),
+        product_name: (fullPrompt || "Geração Arcana").substring(0, 80),
         original_purchase_id: purchaseId
       });
+      if (insertErr) {
+        // Não-fatal: a imagem já foi entregue. Apenas logamos.
+        console.warn("generated_images insert failed (non-fatal):", insertErr.message);
+      }
     }
 
     if (purchaseId) {
