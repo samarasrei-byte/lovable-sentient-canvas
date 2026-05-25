@@ -1322,7 +1322,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
 
       // Step 2: Generation (Progress: Cloning/Building)
       setQaStatus('idle'); // Starting AI part
-      const body = buildGenerationBody(referencePhotoUrls);
+      const body: Record<string, unknown> = buildGenerationBody(referencePhotoUrls);
       body.purchaseId = effectivePurchaseId;
       body.async = false;
       const { imageUrl } = await invokeImageGeneration(body, effectivePurchaseId);
