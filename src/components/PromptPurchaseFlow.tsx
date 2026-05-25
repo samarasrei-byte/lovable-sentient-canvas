@@ -1318,11 +1318,13 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       if (prompt.required_fields.includes('photo') && referencePhotoUrls.length === 0) {
         throw new Error('Nenhuma foto de referência válida foi enviada');
       }
+      setUploadedPhotoUrls(referencePhotoUrls);
 
       // Step 2: Generation (Progress: Cloning/Building)
       setQaStatus('idle'); // Starting AI part
       const body = buildGenerationBody(referencePhotoUrls);
       body.purchaseId = effectivePurchaseId;
+      body.async = false;
       const { imageUrl } = await invokeImageGeneration(body, effectivePurchaseId);
 
       const newCount = generationCount + 1;
