@@ -2045,13 +2045,15 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                   {/* Name field */}
                   {prompt.required_fields.includes('name') && (
                     <div className="space-y-2">
-                      <Label className="text-[11px] uppercase tracking-widest font-black text-white/40 ml-1">Nome Completo</Label>
+                      <Label className="text-[11px] uppercase tracking-widest font-black text-white/40 ml-1">
+                        {isChildPrompt || isMesversarioPrompt ? 'Nome da Criança' : 'Nome Completo'}
+                      </Label>
                       <div className="relative group">
                         <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-primary transition-colors" />
                         <Input
                           value={formData.name}
                           onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
-                          placeholder="Como aparecerá na arte"
+                          placeholder={isChildPrompt || isMesversarioPrompt ? 'Nome da criança' : 'Como aparecerá na arte'}
                           className="pl-11 h-14 bg-white/[0.03] border-white/10 rounded-2xl focus:bg-white/[0.05] transition-all text-base"
                         />
                       </div>
