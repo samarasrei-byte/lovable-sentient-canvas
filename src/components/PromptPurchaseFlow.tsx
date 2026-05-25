@@ -1780,7 +1780,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
     };
   };
 
-  const handleDownloadAll = () => {
+  const performDownloadAll = () => {
     const selected = generatedVariants.filter((variant) => variant.selected);
     if (selected.length === 0) {
       handleDownload();
@@ -1790,6 +1790,46 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
     selected.forEach((variant, index) => {
       setTimeout(() => handleDownload(variant.url), index * 500);
     });
+  };
+
+  const handleDownloadAll = () => {
+    if (!phoneCaptured) {
+      setShowPhoneCapture(true);
+      return;
+    }
+    performDownloadAll();
+  };
+
+  const submitPhoneCapture = async (skip = false) => {
+    if (!skip) {
+      const digits = phoneCaptureValue.replace(/\D/g, '');
+      if (digits.length < 10) {
+        toast.error('Digite um WhatsApp válido com DDD');
+        return;
+      }
+      setPhoneSubmitting(true);
+      try {
+        await supabase.from('notifications' as any).insert({
+          user_id: user?.id ?? null,
+          type: 'whatsapp_lead',
+          title: 'Novo lead WhatsApp (desconto)',
+          message: `Cliente ${formData.name || 'sem nome'} aceitou receber descontos em ${digits}`,
+          metadata: {
+            phone: digits,
+            purchase_id: purchaseId,
+            prompt_name: prompt.name,
+            source: 'download_discount_capture',
+          },
+        });
+      } catch (e) {
+        console.warn('Lead capture failed (non-blocking):', e);
+      } finally {
+        setPhoneSubmitting(false);
+      }
+    }
+    setPhoneCaptured(true);
+    setShowPhoneCapture(false);
+    setTimeout(() => performDownloadAll(), 100);
   };
 
   const handleSaveToProfile = async () => {
