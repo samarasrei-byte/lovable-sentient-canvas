@@ -350,6 +350,10 @@ serve(async (req) => {
 
   } catch (error: any) {
     console.error("Error in generate-prompt-image:", error);
+    const safeMessage = error instanceof PublicError
+      ? error.message
+      : "Não conseguimos renderizar sua imagem neste momento. Tente novamente em instantes; seu pedido está seguro.";
+    const status = error instanceof PublicError ? error.status : 500;
     
     try {
       const supabaseAdmin = createClient(
@@ -363,7 +367,7 @@ serve(async (req) => {
       if (purchaseId) {
         await supabaseAdmin.from("prompt_purchases").update({
           generation_status: "failed",
-          error_message: error.message || "Unknown error",
+          error_message: safeMessage,
           failed_at: new Date().toISOString()
         }).eq("id", purchaseId);
       }
@@ -371,8 +375,8 @@ serve(async (req) => {
       console.error("Failed to log error to DB:", dbError);
     }
 
-    return new Response(JSON.stringify({ error: error.message || "Unknown error" }), {
-      status: 500,
+    return new Response(JSON.stringify({ error: safeMessage }), {
+      status,
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
   }
