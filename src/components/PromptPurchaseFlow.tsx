@@ -2971,6 +2971,62 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
         reason={appealModal.reason}
         purchaseId={purchaseId || undefined}
       />
+
+      {/* Phone capture modal — pre-download discount opt-in */}
+      <Dialog open={showPhoneCapture} onOpenChange={(open) => !phoneSubmitting && setShowPhoneCapture(open)}>
+        <DialogContent className="max-w-md bg-[#0F0B17] border border-white/10 rounded-3xl p-6 sm:p-8">
+          <div className="flex flex-col items-center text-center">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/30 to-cyan-400/20 border border-primary/30 flex items-center justify-center mb-4">
+              <Smartphone className="w-7 h-7 text-primary" />
+            </div>
+            <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight mb-2">
+              Ganhe descontos exclusivos
+            </h3>
+            <p className="text-sm text-white/60 leading-relaxed mb-5">
+              Deixe seu WhatsApp e receba <strong className="text-primary">cupons e novidades</strong> antes de baixar sua arte.
+            </p>
+
+            <div className="w-full space-y-3">
+              <div className="relative">
+                <Smartphone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                <Input
+                  type="tel"
+                  inputMode="tel"
+                  value={phoneCaptureValue}
+                  onChange={(e) => setPhoneCaptureValue(e.target.value)}
+                  placeholder="(11) 99999-9999"
+                  className="pl-11 h-14 bg-white/[0.03] border-white/10 rounded-2xl text-base"
+                  disabled={phoneSubmitting}
+                />
+              </div>
+
+              <button
+                onClick={() => submitPhoneCapture(false)}
+                disabled={phoneSubmitting}
+                className="w-full h-14 rounded-2xl font-black text-white text-sm tracking-wide flex items-center justify-center gap-2 bg-gradient-to-r from-[#A855F7] via-[#8B5CF6] to-[#22D3EE] shadow-[0_10px_30px_-10px_rgba(139,92,246,0.7)] active:scale-[0.99] transition-all disabled:opacity-60"
+              >
+                {phoneSubmitting ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Salvando...</>
+                ) : (
+                  <><Download className="w-4 h-4" /> Quero descontos e baixar</>
+                )}
+              </button>
+
+              <button
+                onClick={() => submitPhoneCapture(true)}
+                disabled={phoneSubmitting}
+                className="w-full text-xs text-white/40 hover:text-white/70 underline underline-offset-2 transition-colors"
+              >
+                Não, baixar sem desconto
+              </button>
+            </div>
+
+            <p className="text-[10px] text-white/30 mt-4">
+              🔒 Usamos seu contato apenas para envio de cupons. Nunca compartilhamos.
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 };
