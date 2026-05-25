@@ -159,7 +159,7 @@ export const PhotoServiceModal = ({ service, onClose }: PhotoServiceModalProps) 
     switch (step) {
       case 'theme': return !!selectedTheme;
       case 'upload': return uploadedPhotos.length > 0;
-      case 'details': return formData.name && formData.email;
+      case 'details': return !!formData.email; // Nome agora é opcional, email é obrigatório para envio
       default: return false;
     }
   };
