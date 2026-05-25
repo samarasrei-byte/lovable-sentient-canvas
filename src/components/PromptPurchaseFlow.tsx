@@ -1536,28 +1536,23 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
     setIsEditing(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('generate-prompt-image', {
-        body: {
+      const editData = await invokeImageGeneration({
           purchaseId,
           promptTemplate: editInstruction,
           aiModel: 'google/gemini-3.1-flash-image-preview',
           editMode: true,
           sourceImageUrl: generatedImage,
           userName: formData.name,
-        },
-      });
-
-      if (error) throw error;
-      if (!data?.imageUrl) throw new Error('Edição não gerou imagem');
+        }, purchaseId);
 
       const referencePhotoUrls = await ensureUploadedPhotoUrls(purchaseId);
-      const qa = await runQAValidation(data.imageUrl, referencePhotoUrls);
+      const qa = await runQAValidation(editData.imageUrl, referencePhotoUrls);
 
       if (qa.is_inappropriate) {
         throw new Error('A edição gerada violou nossas diretrizes de segurança.');
       }
 
-      setGeneratedImage(data.imageUrl);
+      setGeneratedImage(editData.imageUrl);
       setGeneratedVariants((prev) => prev.map((variant, index) => ({ ...variant, selected: index === 0 })));
       setEditInstruction('');
       setEditCount(prev => prev + 1);
