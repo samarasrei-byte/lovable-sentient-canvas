@@ -6,6 +6,22 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const DEFAULT_IMAGE_MODEL = "google/gemini-3.1-flash-image-preview";
+const FALLBACK_IMAGE_MODELS = [
+  "google/gemini-3-pro-image-preview",
+  "google/gemini-2.5-flash-image",
+];
+
+class PublicError extends Error {
+  status: number;
+
+  constructor(message: string, status = 500) {
+    super(message);
+    this.name = "PublicError";
+    this.status = status;
+  }
+}
+
 const SYSTEM_PROMPT = `You are the world's most advanced facial reconstruction AI with integrated SAFETY and MODERATION protocols.
 Your sole purpose is to clone a human identity from a reference photo into a new environment with 100% forensic accuracy while strictly adhering to safety guidelines.
 
@@ -88,6 +104,95 @@ const sanitizePromptForChildSafety = (text: string): string => {
     .replace(/nu\b|nua\b|nude\b|naked\b/gi, "com roupa apropriada e totalmente coberta")
     .replace(/exposed\b|exposto\b|exposta\b/gi, "coberto de forma segura")
     .replace(/lingerie|underwear|calcinha|cueca|biquini|bikini/gi, "roupa infantil apropriada");
+};
+
+const dataUrlToFile = (dataUrl: string): { bytes: Uint8Array; mimeType: string; extension: string } | null => {
+  const match = dataUrl.match(/^data:([^;]+);base64,(.+)$/);
+  if (!match) return null;
+
+  const mimeType = match[1] || "image/png";
+  const base64 = match[2];
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+
+  const extension = mimeType.includes("jpeg") ? "jpg" : mimeType.includes("webp") ? "webp" : "png";
+  return { bytes, mimeType, extension };
+};
+
+const persistGeneratedImage = async (
+  supabaseAdmin: ReturnType<typeof createClient>,
+  rawImageUrl: string,
+  purchaseId?: string,
+  userId?: string,
+): Promise<string> => {
+  if (!rawImageUrl.startsWith("data:image/")) return rawImageUrl;
+
+  const imageFile = dataUrlToFile(rawImageUrl);
+  if (!imageFile) return rawImageUrl;
+
+  const ownerKey = purchaseId || userId || crypto.randomUUID();
+  const filePath = `generated/${ownerKey}-${Date.now()}.${imageFile.extension}`;
+  const { error: uploadError } = await supabaseAdmin.storage
+    .from("prompt-images")
+    .upload(filePath, imageFile.bytes, {
+      contentType: imageFile.mimeType,
+      cacheControl: "31536000",
+      upsert: true,
+    });
+
+  if (uploadError) {
+    console.warn("generated image storage upload failed, returning inline image:", uploadError.message);
+    return rawImageUrl;
+  }
+
+  const { data } = supabaseAdmin.storage.from("prompt-images").getPublicUrl(filePath);
+  return data.publicUrl || rawImageUrl;
+};
+
+const callImageGateway = async (lovableKey: string, model: string, messages: any[]) => {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 115_000);
+
+  try {
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      signal: controller.signal,
+      headers: {
+        "Authorization": `Bearer ${lovableKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model,
+        messages,
+        modalities: ["image", "text"]
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("AI gateway error:", { model, status: response.status, body: errorText.slice(0, 700) });
+
+      if (response.status === 429) {
+        throw new PublicError("A IA está recebendo muitas solicitações agora. Tentando novamente em instantes.", 429);
+      }
+      if (response.status === 402) {
+        throw new PublicError("Os créditos de IA do workspace acabaram. Adicione créditos em Settings > Workspace > Usage para voltar a gerar imagens.", 402);
+      }
+
+      throw new Error(`AI image model ${model} failed with status ${response.status}: ${errorText.slice(0, 240)}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    if (error instanceof PublicError) throw error;
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw new Error(`AI image model ${model} timed out`);
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
 };
 
 serve(async (req) => {
