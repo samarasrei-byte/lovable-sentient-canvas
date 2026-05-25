@@ -93,6 +93,7 @@ INSTRUÇÕES OBRIGATÓRIAS:
           userPhotoUrls: [facePhoto.url],
           exampleImageUrl: jerseyPhoto.url,
           aiModel: "google/gemini-3.1-flash-image-preview",
+          async: false,
         },
       });
 

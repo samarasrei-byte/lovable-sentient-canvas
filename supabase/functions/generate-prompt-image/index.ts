@@ -427,7 +427,7 @@ serve(async (req) => {
       return await getGenerationStatus(req, body, supabaseAdmin);
     }
 
-    if (body?.purchaseId && body?.async !== false) {
+    if (body?.purchaseId && body?.async === true) {
       const job = runGenerationJob(body);
       if (typeof EdgeRuntime !== "undefined" && EdgeRuntime?.waitUntil) {
         EdgeRuntime.waitUntil(job);
