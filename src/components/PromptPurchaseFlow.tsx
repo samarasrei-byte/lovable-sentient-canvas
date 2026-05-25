@@ -1264,6 +1264,44 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
     }
   };
 
+  const waitForGenerationCompletion = async (targetPurchaseId: string, maxAttempts = 90): Promise<{ imageUrl: string }> => {
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      await new Promise((resolve) => setTimeout(resolve, attempt < 3 ? 1500 : 2500));
+
+      const { data, error } = await supabase.functions.invoke('generate-prompt-image', {
+        body: { action: 'status', purchaseId: targetPurchaseId },
+      });
+
+      if (error) {
+        console.warn('Generation status check failed:', error);
+        continue;
+      }
+
+      if (data?.status === 'completed' && data?.imageUrl) {
+        return { imageUrl: data.imageUrl };
+      }
+
+      if (data?.status === 'failed') {
+        throw new Error(data?.error || 'Não conseguimos gerar sua imagem agora. Tente novamente.');
+      }
+    }
+
+    throw new Error('A geração ainda está processando. Clique em tentar novamente em alguns instantes para buscar o resultado.');
+  };
+
+  const invokeImageGeneration = async (body: Record<string, unknown>, targetPurchaseId?: string | null): Promise<{ imageUrl: string }> => {
+    const { data, error } = await supabase.functions.invoke('generate-prompt-image', { body });
+    if (error) throw error;
+    if (data?.imageUrl) return { imageUrl: data.imageUrl };
+
+    const statusPurchaseId = targetPurchaseId || (typeof body.purchaseId === 'string' ? body.purchaseId : null);
+    if (statusPurchaseId && ['processing', 'pending', 'queued'].includes(String(data?.status || ''))) {
+      return await waitForGenerationCompletion(statusPurchaseId);
+    }
+
+    throw new Error('Nenhuma imagem gerada');
+  };
+
   const generateImage = async (overridePurchaseId?: string, attempt = 1) => {
     const effectivePurchaseId = overridePurchaseId || purchaseId;
     try {
@@ -1285,17 +1323,12 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       setQaStatus('idle'); // Starting AI part
       const body = buildGenerationBody(referencePhotoUrls);
       body.purchaseId = effectivePurchaseId;
-      const { data, error } = await supabase.functions.invoke('generate-prompt-image', {
-        body,
-      });
-
-      if (error) throw error;
-      if (!data?.imageUrl) throw new Error('Nenhuma imagem gerada');
+      const { imageUrl } = await invokeImageGeneration(body, effectivePurchaseId);
 
       const newCount = generationCount + 1;
       setGenerationCount(newCount);
 
-      let finalImageUrl = data.imageUrl;
+      let finalImageUrl = imageUrl;
       let qa = await runQAValidation(finalImageUrl, referencePhotoUrls);
 
       // Block output moderation failures immediately
@@ -1329,14 +1362,13 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
           ...qa.issues.map((issue) => `- ${issue}`),
         ].join('\n');
 
-        const { data: retryData, error: retryError } = await supabase.functions.invoke('generate-prompt-image', {
-          body: buildGenerationBody(referencePhotoUrls, {
+        const retryBody = buildGenerationBody(referencePhotoUrls, {
             promptTemplate: `${prompt.prompt_template}\n\n${correctionBlock}`,
             negativePrompt: `${prompt.negative_prompt || ''}${prompt.negative_prompt ? ', ' : ''}${qa.issues.join(', ')}`,
-          }),
-        });
+          });
+        retryBody.purchaseId = effectivePurchaseId;
 
-        if (retryError) throw retryError;
+        const retryData = await invokeImageGeneration(retryBody, effectivePurchaseId);
 
         if (retryData?.imageUrl) {
           finalImageUrl = retryData.imageUrl;
@@ -1430,16 +1462,13 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
       const referencePhotoUrls = await ensureUploadedPhotoUrls(purchaseId);
       const variationIndex = generatedVariants.length + 1;
 
-      const { data, error } = await supabase.functions.invoke('generate-prompt-image', {
-        body: buildGenerationBody(referencePhotoUrls, {
-          promptTemplate: `${prompt.prompt_template}\n\nVARIAÇÃO ${variationIndex}: gere uma composição diferente, mantendo 100% da fidelidade facial e a mesma faixa etária aparente das pessoas de referência.`,
-        }),
+      const variantBody = buildGenerationBody(referencePhotoUrls, {
+        promptTemplate: `${prompt.prompt_template}\n\nVARIAÇÃO ${variationIndex}: gere uma composição diferente, mantendo 100% da fidelidade facial e a mesma faixa etária aparente das pessoas de referência.`,
       });
+      variantBody.purchaseId = purchaseId;
+      const variantData = await invokeImageGeneration(variantBody, purchaseId);
 
-      if (error) throw error;
-      if (!data?.imageUrl) throw new Error('Nenhuma variação gerada');
-
-      let finalVariantUrl = data.imageUrl;
+      let finalVariantUrl = variantData.imageUrl;
       let qa = await runQAValidation(finalVariantUrl, referencePhotoUrls);
 
       if (qa.is_inappropriate) {
@@ -1450,14 +1479,13 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
         setQaStatus('fixing');
         setQaIssues(qa.issues);
 
-        const { data: retryData, error: retryError } = await supabase.functions.invoke('generate-prompt-image', {
-          body: buildGenerationBody(referencePhotoUrls, {
+        const retryBody = buildGenerationBody(referencePhotoUrls, {
             promptTemplate: `${prompt.prompt_template}\n\nVARIAÇÃO ${variationIndex}: gere uma composição diferente, mantendo 100% da fidelidade facial.\n\nCORREÇÕES OBRIGATÓRIAS:\n${qa.issues.map((issue) => `- ${issue}`).join('\n')}`,
             negativePrompt: `${prompt.negative_prompt || ''}${prompt.negative_prompt ? ', ' : ''}${qa.issues.join(', ')}`,
-          }),
-        });
+          });
+        retryBody.purchaseId = purchaseId;
+        const retryData = await invokeImageGeneration(retryBody, purchaseId);
 
-        if (retryError) throw retryError;
         if (retryData?.imageUrl) {
           finalVariantUrl = retryData.imageUrl;
           qa = await runQAValidation(finalVariantUrl, referencePhotoUrls);
@@ -1508,28 +1536,23 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
     setIsEditing(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('generate-prompt-image', {
-        body: {
+      const editData = await invokeImageGeneration({
           purchaseId,
           promptTemplate: editInstruction,
           aiModel: 'google/gemini-3.1-flash-image-preview',
           editMode: true,
           sourceImageUrl: generatedImage,
           userName: formData.name,
-        },
-      });
-
-      if (error) throw error;
-      if (!data?.imageUrl) throw new Error('Edição não gerou imagem');
+        }, purchaseId);
 
       const referencePhotoUrls = await ensureUploadedPhotoUrls(purchaseId);
-      const qa = await runQAValidation(data.imageUrl, referencePhotoUrls);
+      const qa = await runQAValidation(editData.imageUrl, referencePhotoUrls);
 
       if (qa.is_inappropriate) {
         throw new Error('A edição gerada violou nossas diretrizes de segurança.');
       }
 
-      setGeneratedImage(data.imageUrl);
+      setGeneratedImage(editData.imageUrl);
       setGeneratedVariants((prev) => prev.map((variant, index) => ({ ...variant, selected: index === 0 })));
       setEditInstruction('');
       setEditCount(prev => prev + 1);
