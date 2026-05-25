@@ -188,7 +188,7 @@ Crie uma foto publicitária premium cinematográfica que destaque "${productName
     }
 
     return new Response(
-      JSON.stringify({ image: generatedImageUrl, productName, templateId }),
+      JSON.stringify({ image: generatedImageUrl, images: [generatedImageUrl], productName, templateId }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {

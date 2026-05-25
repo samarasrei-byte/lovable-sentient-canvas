@@ -110,7 +110,7 @@ Respond in this EXACT JSON format:
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: safeReferenceImages.length > 0 || styleReferenceImageUrl ? "google/gemini-2.5-pro" : "google/gemini-2.5-flash",
+        model: "google/gemini-3.1-flash-image-preview",
         messages: [
           {
             role: "system",
