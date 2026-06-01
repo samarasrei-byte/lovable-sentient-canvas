@@ -2740,12 +2740,12 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                 </div>
 
                 <div 
-                  className="relative rounded-xl overflow-hidden border border-white/10 mx-auto w-full flex-shrink-0 bg-black/20"
+                  className="relative rounded-xl border border-white/10 mx-auto w-full flex-shrink-0 bg-black/20 min-h-[400px] flex items-center justify-center"
                 >
                   <img 
                     src={generatedImage} 
                     alt="Generated" 
-                    className="block w-full h-auto object-contain rounded-xl" 
+                    className="block w-full h-auto max-h-[70vh] object-contain rounded-xl shadow-2xl" 
                   />
                 </div>
 
