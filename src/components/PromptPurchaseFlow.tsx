@@ -2546,20 +2546,7 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                       </p>
                     </div>
 
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full border-yellow-500/30 text-yellow-500 hover:bg-yellow-500/10 text-xs"
-                      onClick={() => {
-                        setPaymentStatus('paid');
-                        if (paymentPollRef.current) clearInterval(paymentPollRef.current);
-                        toast.success('Pagamento confirmado! Iniciando geração...');
-                        setStep('generating');
-                        void generateImage(purchaseId || undefined);
-                      }}
-                    >
-                      🧪 Simular Pagamento (Teste)
-                    </Button>
+                    {/* Simular Pagamento removido para produção */}
 
                     {verifyingPayment && (
                       <div className="flex items-center justify-center gap-2 py-2">
@@ -2753,12 +2740,12 @@ Se a imagem de exemplo mostrar "36" mas o usuário informou "${formData.age}", a
                 </div>
 
                 <div 
-                  className="relative rounded-xl overflow-hidden border border-white/10 mx-auto w-full flex-shrink-0 bg-black/20"
+                  className="relative rounded-xl border border-white/10 mx-auto w-full flex-shrink-0 bg-black/20 min-h-[400px] flex items-center justify-center"
                 >
                   <img 
                     src={generatedImage} 
                     alt="Generated" 
-                    className="block w-full h-auto object-contain rounded-xl" 
+                    className="block w-full h-auto max-h-[70vh] object-contain rounded-xl shadow-2xl" 
                   />
                 </div>
 
