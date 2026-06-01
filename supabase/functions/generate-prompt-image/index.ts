@@ -245,6 +245,32 @@ const performImageGeneration = async (body: any, supabaseAdmin: ReturnType<typeo
     userPromptOverride
   } = body;
 
+  // SECURITY AUDIT: Verify payment status if purchaseId is provided
+  if (purchaseId) {
+    const { data: purchase, error: purchaseError } = await supabaseAdmin
+      .from("prompt_purchases")
+      .select("payment_status")
+      .eq("id", purchaseId)
+      .single();
+
+    if (purchaseError || !purchase) {
+      throw new PublicError("Pedido não encontrado.", 404);
+    }
+
+    if (purchase.payment_status !== "paid") {
+      // For safety, we check if it's a free prompt (0 cents)
+      const { data: promptData } = await supabaseAdmin
+        .from("prompts")
+        .select("price_cents")
+        .eq("prompt_template", promptTemplate)
+        .maybeSingle();
+      
+      if (!promptData || promptData.price_cents > 0) {
+        throw new PublicError("O pagamento deste pedido ainda não foi confirmado.", 402);
+      }
+    }
+  }
+
   if (!promptTemplate && !userPromptOverride) {
     throw new PublicError("Prompt de geração ausente.", 400);
   }
