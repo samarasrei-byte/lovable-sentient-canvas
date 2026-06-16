@@ -837,7 +837,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
     setPixLoading(true);
     setPixError(null);
     try {
-      const { data, error } = await supabase.functions.invoke('create-asaas-payment', {
+      const { data, error } = await supabase.functions.invoke('create-stripe-pix', {
         body: {
           purchaseId: pId,
           priceCents: prompt.price_cents,
@@ -849,8 +849,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       if (error) throw error;
 
       if (data?.error) {
-        // Server returned business error — surface clearly with support fallback
-        console.error('Asaas server error:', data);
+        console.error('Stripe PIX server error:', data);
         setPixError(`${data.error} — Se persistir, abra um chamado de suporte informando o ID: ${pId.slice(0, 8)}`);
         return;
       }
@@ -858,10 +857,9 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       if (data?.pixCopiaECola) {
         setPixData({
           copiaECola: data.pixCopiaECola,
-          qrCodeUrl: data.qrCodeBase64 ? `data:image/png;base64,${data.qrCodeBase64}` : '',
+          qrCodeUrl: data.qrCodeUrl || (data.qrCodeBase64 ? `data:image/png;base64,${data.qrCodeBase64}` : ''),
           expiresAt: data.expiresAt ? new Date(data.expiresAt).getTime() / 1000 : Date.now() / 1000 + 1800,
         });
-        // Persist ticketUrl as fallback in case copy/paste fails
         if (data.ticketUrl) {
           (window as unknown as { __arcanaTicketUrl?: Record<string, string> }).__arcanaTicketUrl = {
             ...((window as unknown as { __arcanaTicketUrl?: Record<string, string> }).__arcanaTicketUrl || {}),
@@ -872,6 +870,7 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
       } else {
         throw new Error('NO_PIX_DATA');
       }
+
     } catch (err) {
       console.error(`Asaas payment error (attempt ${attempt}):`, err);
       // Auto-retry once after 1.5s before showing error to user
