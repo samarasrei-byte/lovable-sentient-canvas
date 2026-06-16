@@ -209,7 +209,7 @@ const AdminSettings = () => {
               </div>
 
               <div className="space-y-2">
-                <Label>API Key (Asaas)</Label>
+                <Label>API Key (Stripe)</Label>
                 <Input
                   type="password"
                   value="••••••••••••••••••••••••"
@@ -218,11 +218,12 @@ const AdminSettings = () => {
                 />
                 <p className="text-xs text-muted-foreground">
                   Gerencie a chave em{" "}
-                  <a href="https://www.asaas.com/config/integrations" target="_blank" rel="noopener noreferrer" className="text-primary underline inline-flex items-center gap-1">
-                    Asaas Integrações <ExternalLink className="w-3 h-3" />
+                  <a href="https://dashboard.stripe.com/apikeys" target="_blank" rel="noopener noreferrer" className="text-primary underline inline-flex items-center gap-1">
+                    Stripe Dashboard <ExternalLink className="w-3 h-3" />
                   </a>
                 </p>
               </div>
+
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-3 rounded-lg bg-muted/10 border border-border/20">
