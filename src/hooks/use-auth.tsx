@@ -25,18 +25,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     queryFn: async () => {
       if (!user) return null;
       try {
-        const [profileRes, subRes] = await Promise.all([
+        const [profileRes, subRes, rolesRes] = await Promise.all([
           supabase.from("profiles").select("*").eq("id", user.id).single(),
-          supabase.from("subscriptions").select("plan").eq("user_id", user.id).eq("status", "active").maybeSingle()
+          supabase.from("subscriptions").select("plan").eq("user_id", user.id).eq("status", "active").maybeSingle(),
+          supabase.from("user_roles").select("role").eq("user_id", user.id)
         ]);
 
         if (profileRes.error && profileRes.error.code !== "PGRST116") {
           console.error("Error fetching profile:", profileRes.error);
         }
 
+        const roles = (rolesRes.data || []).map((r: any) => r.role);
+        const isAdmin = roles.includes("admin");
+
         return {
           ...(profileRes.data || {}),
-          plan: subRes.data?.plan || "basic"
+          plan: subRes.data?.plan || "basic",
+          roles,
+          isAdmin,
         };
       } catch (error) {
         console.error("Profile fetch error:", error);
@@ -46,6 +52,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     enabled: !!user,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
+
 
   useEffect(() => {
     const initAuth = async () => {
@@ -81,7 +88,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     user,
     profile,
     loading: loading,
-    isAdmin: profile?.role === "admin",
+    isAdmin: !!profile?.isAdmin,
     isPro: profile?.plan === "professional" || profile?.plan === "enterprise",
     signOut,
     refreshProfile: async () => {
