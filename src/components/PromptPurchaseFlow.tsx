@@ -814,9 +814,10 @@ export const PromptPurchaseFlow = ({ prompt, onClose }: PromptPurchaseFlowProps)
     setVerifyingPayment(true);
     paymentPollRef.current = setInterval(async () => {
       try {
-        const { data, error } = await supabase.functions.invoke('verify-asaas-payment', {
+        const { data, error } = await supabase.functions.invoke('verify-stripe-pix', {
           body: { purchaseId: pId },
         });
+
 
         if (!error && data?.paid) {
           if (paymentPollRef.current) clearInterval(paymentPollRef.current);
