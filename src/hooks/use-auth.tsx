@@ -88,7 +88,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     user,
     profile,
     loading: loading,
-    isAdmin: profile?.role === "admin",
+    isAdmin: !!profile?.isAdmin,
     isPro: profile?.plan === "professional" || profile?.plan === "enterprise",
     signOut,
     refreshProfile: async () => {
