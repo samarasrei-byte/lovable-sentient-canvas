@@ -153,6 +153,12 @@ const CategoryPage = () => {
 
   const heroConfig = CATEGORY_HERO[slug || ""] || CATEGORY_HERO.geral;
 
+  const categoryLabel = (slug || "geral").replace(/-/g, " ");
+  usePageMeta({
+    title: `${categoryLabel.charAt(0).toUpperCase() + categoryLabel.slice(1)} — Prompts de IA | ARCANA`,
+    description: `Explore prompts profissionais de ${categoryLabel} na ARCANA. Fotos com IA em 60 segundos, PIX instantâneo.`,
+  });
+
   useEffect(() => {
     window.scrollTo(0, 0);
     fetchPrompts();
