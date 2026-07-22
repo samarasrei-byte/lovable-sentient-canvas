@@ -1,8 +1,13 @@
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Footer } from "@/components/Footer";
+import { usePageMeta } from "@/hooks/use-page-meta";
 
 const PoliticaPrivacidade = () => {
+  usePageMeta({
+    title: "Política de Privacidade | ARCANA",
+    description: "Como a ARCANA coleta, utiliza e protege seus dados pessoais na geração de fotos com IA.",
+  });
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-50 backdrop-blur-xl bg-background/80 border-b border-border/10">
