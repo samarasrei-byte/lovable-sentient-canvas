@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PromptCard } from "@/components/marketplace/PromptCard";
 import { PromptPurchaseFlow } from "@/components/PromptPurchaseFlow";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { usePageMeta } from "@/hooks/use-page-meta";
 import { cn } from "@/lib/utils";
 import { ArrowLeft, Loader2, Sparkles, Search, X, ChevronRight, Briefcase, Palette, Zap, Star, Flame, Heart, Shield, Wand2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
