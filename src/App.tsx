@@ -100,9 +100,9 @@ const App = memo(() => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             
-            {/* QA Routes - Hidden from public */}
-            <Route path="/test-login" element={<TestLogin />} />
-            <Route path="/qa-dashboard" element={<QADashboard />} />
+            {/* QA Routes - Admin only */}
+            <Route path="/test-login" element={<ProtectedRoute requiredRole="admin"><TestLogin /></ProtectedRoute>} />
+            <Route path="/qa-dashboard" element={<ProtectedRoute requiredRole="admin"><QADashboard /></ProtectedRoute>} />
             
             {/* Admin Routes */}
             <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminLayout /></ProtectedRoute>}>

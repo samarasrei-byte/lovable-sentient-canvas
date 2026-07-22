@@ -546,11 +546,17 @@ const Field = ({ label, children }: { label: string; children: React.ReactNode }
 );
 
 // ── Page ───────────────────────────────────────────────────────
+import { usePageMeta } from "@/hooks/use-page-meta";
+
 export default function MelodiaPod() {
   useFonts();
   const [menuOpen, setMenuOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [leadOpen, setLeadOpen] = useState(false);
+  usePageMeta({
+    title: "MelodiaPod — Podcasts musicais personalizados | ARCANA",
+    description: "Crie podcasts musicais personalizados e presentes únicos com IA na ARCANA.",
+  });
 
   const openLead = () => setLeadOpen(true);
 

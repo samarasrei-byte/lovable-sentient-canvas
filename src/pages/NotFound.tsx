@@ -1,8 +1,13 @@
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { usePageMeta } from "@/hooks/use-page-meta";
 
 const NotFound = () => {
   const location = useLocation();
+  usePageMeta({
+    title: "Página não encontrada | ARCANA",
+    description: "A página que você procura não existe. Volte para a ARCANA e gere suas fotos com IA.",
+  });
 
   useEffect(() => {
     console.error("404 Error: User attempted to access non-existent route:", location.pathname);

@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useCallback, lazy, Suspense } from "react
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { usePageMeta } from "@/hooks/use-page-meta";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -74,6 +75,10 @@ const Mesversario = () => {
   const [whatsappSent, setWhatsappSent] = useState(false);
   const [whatsappLoading, setWhatsappLoading] = useState(false);
   const isMobile = useIsMobile();
+  usePageMeta({
+    title: "Fotos de Mesversário e Infantil com IA | ARCANA",
+    description: "Crie fotos profissionais de mesversário e ensaios infantis com IA em 60 segundos. PIX instantâneo, R$21.",
+  });
 
   const handleWhatsappSubmit = useCallback(async () => {
     const cleaned = whatsapp.replace(/\D/g, '');

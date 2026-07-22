@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PromptCard } from "@/components/marketplace/PromptCard";
 import { PromptPurchaseFlow } from "@/components/PromptPurchaseFlow";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { usePageMeta } from "@/hooks/use-page-meta";
 import { cn } from "@/lib/utils";
 import { ArrowLeft, Loader2, Sparkles, Search, X, ChevronRight, Briefcase, Palette, Zap, Star, Flame, Heart, Shield, Wand2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -151,6 +152,12 @@ const CategoryPage = () => {
   const isMobile = useIsMobile();
 
   const heroConfig = CATEGORY_HERO[slug || ""] || CATEGORY_HERO.geral;
+
+  const categoryLabel = (slug || "geral").replace(/-/g, " ");
+  usePageMeta({
+    title: `${categoryLabel.charAt(0).toUpperCase() + categoryLabel.slice(1)} — Prompts de IA | ARCANA`,
+    description: `Explore prompts profissionais de ${categoryLabel} na ARCANA. Fotos com IA em 60 segundos, PIX instantâneo.`,
+  });
 
   useEffect(() => {
     window.scrollTo(0, 0);
