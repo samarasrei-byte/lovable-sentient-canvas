@@ -103,6 +103,10 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [showPassword, setShowPassword] = useState(false);
+  usePageMeta({
+    title: "Entrar | ARCANA",
+    description: "Acesse sua conta ARCANA para gerenciar suas fotos geradas com IA.",
+  });
 
   useEffect(() => {
     if (user) {
