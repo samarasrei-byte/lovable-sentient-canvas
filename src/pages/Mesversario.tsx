@@ -75,6 +75,10 @@ const Mesversario = () => {
   const [whatsappSent, setWhatsappSent] = useState(false);
   const [whatsappLoading, setWhatsappLoading] = useState(false);
   const isMobile = useIsMobile();
+  usePageMeta({
+    title: "Fotos de Mesversário e Infantil com IA | ARCANA",
+    description: "Crie fotos profissionais de mesversário e ensaios infantis com IA em 60 segundos. PIX instantâneo, R$21.",
+  });
 
   const handleWhatsappSubmit = useCallback(async () => {
     const cleaned = whatsapp.replace(/\D/g, '');
