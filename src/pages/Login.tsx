@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
+import { usePageMeta } from "@/hooks/use-page-meta";
 import { Loader2, ArrowRight, Eye, EyeOff, Sparkles, Zap, Shield, Star } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createNoise3D } from "simplex-noise";
