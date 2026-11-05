@@ -70,6 +70,15 @@ const MelodiaPod = lazy(() => import("./pages/MelodiaPod"));
 const TermosDeUso = lazy(() => import("./pages/TermosDeUso"));
 const PoliticaPrivacidade = lazy(() => import("./pages/PoliticaPrivacidade"));
 
+// Produção em Lote — experiência principal
+const BatchProductionHub = lazy(() => import("./pages/app/batch/BatchProductionHub"));
+const BatchWizard = lazy(() => import("./pages/app/batch/BatchWizard"));
+const MyVideos = lazy(() => import("./pages/app/batch/MyVideos"));
+const TemplatesGallery = lazy(() => import("./pages/app/batch/TemplatesGallery"));
+const ClientsPage = lazy(() => import("./pages/app/batch/ClientsPage"));
+const PublicationsPage = lazy(() => import("./pages/app/batch/PublicationsPage"));
+const BatchSettings = lazy(() => import("./pages/app/batch/BatchSettings"));
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -124,6 +133,14 @@ const App = memo(() => (
             {/* App Routes */}
             <Route path="/app" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
               <Route index element={<RedirectToDashboard />} />
+              {/* Produção em Lote — experiência principal */}
+              <Route path="producao-em-lote" element={<BatchProductionHub />} />
+              <Route path="producao-em-lote/nova" element={<BatchWizard />} />
+              <Route path="meus-videos" element={<MyVideos />} />
+              <Route path="templates" element={<TemplatesGallery />} />
+              <Route path="clientes" element={<ClientsPage />} />
+              <Route path="publicacoes" element={<PublicationsPage />} />
+              <Route path="configuracoes" element={<BatchSettings />} />
               <Route path="dashboard" element={<DashboardRouter />} />
               <Route path="meus-produtos" element={<MeusProdutos />} />
               <Route path="insights" element={<Insights />} />

@@ -15,6 +15,20 @@
       "when": 1793906624464,
       "tag": "0001_homepage_config_functions",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793908058495,
+      "tag": "0002_fix_credit_functions_balance_after",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793908107269,
+      "tag": "0003_fix_consume_credits_type_check",
+      "breakpoints": true
     }
   ]
 }

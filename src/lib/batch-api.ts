@@ -177,7 +177,7 @@ export async function fetchVideos(filters: VideoFilters = {}): Promise<BatchVide
   if (filters.search) query = query.ilike("title", `%${filters.search}%`);
   const { data, error } = await query;
   if (error) throw error;
-  return (data ?? []) as BatchVideo[];
+  return (data ?? []) as unknown as BatchVideo[];
 }
 
 /* ------------------------------- Ações -------------------------------- */
@@ -193,9 +193,19 @@ export interface CreateJobPayload {
 export async function invokeBatchAction<T>(payload: Record<string, unknown>): Promise<T> {
   const { data, error } = await supabase.functions.invoke("batch-production", { body: payload });
   if (error) {
-    const message =
-      (data as { error?: string } | null)?.error ??
-      (typeof error.message === "string" ? error.message : "Erro ao processar a solicitação.");
+    let message = "Erro ao processar a solicitação.";
+    // Erros HTTP (402, 400...) trazem o corpo da resposta no contexto
+    const context = (error as { context?: unknown }).context;
+    if (context instanceof Response) {
+      try {
+        const body = (await context.json()) as { error?: string };
+        if (body?.error) message = body.error;
+      } catch {
+        /* mantém mensagem padrão */
+      }
+    } else if ((data as { error?: string } | null)?.error) {
+      message = (data as { error: string }).error;
+    }
     throw new Error(message);
   }
   if ((data as { error?: string })?.error) {

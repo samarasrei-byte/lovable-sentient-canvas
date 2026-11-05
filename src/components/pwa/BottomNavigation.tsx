@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, Sparkles, Users, BarChart3, User } from "lucide-react";
+import { Home, Clapperboard, Users, Video, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
@@ -12,9 +12,9 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { path: "/app/dashboard", icon: Home, label: "Início" },
-  { path: "/app/ai-studio", icon: Sparkles, label: "Criar" },
-  { path: "/app/talentos", icon: Users, label: "Talentos" },
-  { path: "/app/analytics", icon: BarChart3, label: "Dados" },
+  { path: "/app/meus-videos", icon: Video, label: "Vídeos" },
+  { path: "/app/producao-em-lote", icon: Clapperboard, label: "Produção" },
+  { path: "/app/clientes", icon: Users, label: "Clientes" },
   { path: "/app/perfil", icon: User, label: "Perfil" },
 ];
 

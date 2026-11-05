@@ -2,25 +2,20 @@ import { memo } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { 
-  Home, 
+import {
+  Home,
   Image,
-  Camera,
-  Users, 
-  Palette,
-  Sparkles, 
-  Video, 
-  Settings, 
-  Zap, 
-  UserCircle,
-  FolderOpen,
-  Coins,
+  Users,
+  Sparkles,
+  Zap,
   Crown,
-  Lock,
   LogOut,
   MessageCircle,
-  ShoppingBag,
-  CreditCard
+  CreditCard,
+  Clapperboard,
+  LayoutTemplate,
+  CalendarClock,
+  Settings2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -33,12 +28,19 @@ interface MenuItem {
   proOnly?: boolean;
 }
 
+const batchMenuItems: MenuItem[] = [
+  { path: "/app/meus-videos", icon: Clapperboard, label: "Meus Vídeos" },
+  { path: "/app/templates", icon: LayoutTemplate, label: "Templates" },
+  { path: "/app/clientes", icon: Users, label: "Clientes" },
+  { path: "/app/publicacoes", icon: CalendarClock, label: "Publicações" },
+  { path: "/app/configuracoes", icon: Settings2, label: "Configurações" },
+];
+
 const userMenuItems: MenuItem[] = [
   { path: "/app/dashboard", icon: Home, label: "Home" },
   { path: "/app/minhas-fotos", icon: Image, label: "Minhas Fotos" },
   { path: "/app/minhas-compras", icon: CreditCard, label: "Minhas Compras" },
   { path: "/app/chamados", icon: MessageCircle, label: "Meus Chamados" },
-  { path: "/app/perfil", icon: Settings, label: "Perfil" },
   { path: "/app/em-breve", icon: Sparkles, label: "Em breve", badge: "NOVO" },
 ];
 
@@ -106,6 +108,42 @@ export const Sidebar = memo(() => {
 
       {/* Navigation */}
       <nav className="space-y-1 flex-1">
+        {/* Item principal — Produção em Lote */}
+        <Link
+          to="/app/producao-em-lote"
+          className={`group flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 mb-3 ${
+            location.pathname.startsWith("/app/producao-em-lote")
+              ? "bg-gradient-to-r from-primary to-secondary text-primary-foreground shadow-glow"
+              : "bg-gradient-to-r from-primary/15 to-secondary/15 text-foreground border border-primary/30 hover:shadow-glow"
+          }`}
+        >
+          <Clapperboard className="w-4 h-4 transition-transform duration-200 group-hover:scale-110" />
+          <span className="text-xs font-bold tracking-wide flex-1">Produção em Lote</span>
+          <Sparkles className="w-3.5 h-3.5 opacity-70" />
+        </Link>
+
+        {batchMenuItems.map((item) => {
+          const isActive = location.pathname === item.path;
+          return (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                isActive
+                  ? "bg-primary/10 text-primary border border-primary/20 shadow-lg shadow-primary/10"
+                  : "text-muted-foreground/80 hover:text-foreground hover:bg-accent/50 border border-transparent"
+              }`}
+            >
+              <item.icon className={`w-4 h-4 transition-transform duration-200 ${isActive ? "scale-110" : "group-hover:scale-105"}`} />
+              <span className="text-xs font-medium tracking-wide flex-1">{item.label}</span>
+            </Link>
+          );
+        })}
+
+        <div className="px-3 pt-5 pb-1">
+          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Fotos & Conta</span>
+        </div>
+
         {userMenuItems.map((item) => {
           const isActive = location.pathname === item.path;
           return (

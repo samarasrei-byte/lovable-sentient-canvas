@@ -4,6 +4,9 @@ import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { UpdatePrompt } from "@/components/pwa/UpdatePrompt";
 import { PromptMarketplace } from "@/components/marketplace/PromptMarketplace";
 import { PhotoServicesSection } from "@/components/photo-services/PhotoServicesSection";
+import { BatchHeroSection } from "@/components/batch/BatchHeroSection";
+import { OtherSolutionsSection } from "@/components/batch/OtherSolutionsSection";
+import { useHomepageConfig } from "@/hooks/use-homepage-config";
 const MassiveGallery = lazy(() => import("@/components/MassiveGallery").then(m => ({ default: m.MassiveGallery })));
 const UpgradeUpsell = lazy(() => import("@/components/landing/UpgradeUpsell").then(m => ({ default: m.UpgradeUpsell })));
 const ValueProposition = lazy(() => import("@/components/landing/ValueProposition").then(m => ({ default: m.ValueProposition })));
@@ -17,14 +20,31 @@ const Footer = lazy(() => import("@/components/Footer").then(m => ({ default: m.
 const SectionFallback = () => <div className="py-20" />;
 
 const Index = () => {
+  const { data: homepageConfig } = useHomepageConfig();
+  const batchIsHighlight = homepageConfig?.highlight !== "photos";
+  const showSecondary = homepageConfig?.show_secondary_features !== false;
+
   return (
     <div className="min-h-screen bg-background text-foreground scroll-smooth">
       <InstallPrompt />
       <UpdatePrompt />
-      
+
+      {/* Produção em Lote — maior destaque visual da página quando configurada */}
+      {batchIsHighlight && (
+        <div className="pt-16">
+          <BatchHeroSection />
+        </div>
+      )}
+
       {/* Hero — loaded eagerly for instant FCP */}
       <HeroArcana2 />
-      
+
+      {/* Quando fotos são o destaque, a Produção em Lote aparece logo abaixo */}
+      {!batchIsHighlight && <BatchHeroSection />}
+
+      {/* Demais soluções em seção secundária (toggle administrativo) */}
+      {showSecondary && <OtherSolutionsSection />}
+
       {/* Marketplace eager — avoids stale chunk fetch errors */}
       <PromptMarketplace />
       
