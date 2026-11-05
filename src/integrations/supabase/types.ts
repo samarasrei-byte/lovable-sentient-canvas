@@ -326,6 +326,195 @@ export type Database = {
         }
         Relationships: []
       }
+      batch_clients: {
+        Row: {
+          brand_name: string | null
+          created_at: string
+          id: string
+          instagram_handle: string | null
+          logo_url: string | null
+          name: string
+          notes: string | null
+          primary_color: string | null
+          secondary_color: string | null
+          updated_at: string
+          user_id: string
+          website_url: string | null
+          whatsapp: string | null
+        }
+        Insert: {
+          brand_name?: string | null
+          created_at?: string
+          id?: string
+          instagram_handle?: string | null
+          logo_url?: string | null
+          name: string
+          notes?: string | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          updated_at?: string
+          user_id: string
+          website_url?: string | null
+          whatsapp?: string | null
+        }
+        Update: {
+          brand_name?: string | null
+          created_at?: string
+          id?: string
+          instagram_handle?: string | null
+          logo_url?: string | null
+          name?: string
+          notes?: string | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          updated_at?: string
+          user_id?: string
+          website_url?: string | null
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
+      batch_jobs: {
+        Row: {
+          client_id: string | null
+          completed_at: string | null
+          created_at: string
+          credits_cost: number
+          credits_per_video: number
+          error_message: string | null
+          id: string
+          quantity: number
+          segment: string
+          status: string
+          template_id: string | null
+          theme: string
+          updated_at: string
+          user_id: string
+          videos_completed: number
+          videos_failed: number
+        }
+        Insert: {
+          client_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          credits_cost: number
+          credits_per_video?: number
+          error_message?: string | null
+          id?: string
+          quantity: number
+          segment: string
+          status?: string
+          template_id?: string | null
+          theme: string
+          updated_at?: string
+          user_id: string
+          videos_completed?: number
+          videos_failed?: number
+        }
+        Update: {
+          client_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          credits_cost?: number
+          credits_per_video?: number
+          error_message?: string | null
+          id?: string
+          quantity?: number
+          segment?: string
+          status?: string
+          template_id?: string | null
+          theme?: string
+          updated_at?: string
+          user_id?: string
+          videos_completed?: number
+          videos_failed?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "batch_jobs_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "batch_clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_jobs_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "video_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      batch_videos: {
+        Row: {
+          client_id: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          job_id: string
+          published_at: string | null
+          render_config: Json
+          scheduled_at: string | null
+          status: string
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          user_id: string
+          variation_index: number
+          video_url: string | null
+        }
+        Insert: {
+          client_id?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          job_id: string
+          published_at?: string | null
+          render_config?: Json
+          scheduled_at?: string | null
+          status?: string
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+          variation_index?: number
+          video_url?: string | null
+        }
+        Update: {
+          client_id?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          job_id?: string
+          published_at?: string | null
+          render_config?: Json
+          scheduled_at?: string | null
+          status?: string
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+          variation_index?: number
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "batch_videos_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "batch_clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_videos_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "batch_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blocked_prompts: {
         Row: {
           created_at: string | null
@@ -2054,6 +2243,48 @@ export type Database = {
           },
         ]
       }
+      video_templates: {
+        Row: {
+          category: string
+          config: Json
+          created_at: string
+          description: string | null
+          display_order: number
+          duration_seconds: number
+          id: string
+          is_active: boolean
+          name: string
+          thumbnail_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          config?: Json
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          duration_seconds?: number
+          id?: string
+          is_active?: boolean
+          name: string
+          thumbnail_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          config?: Json
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          duration_seconds?: number
+          id?: string
+          is_active?: boolean
+          name?: string
+          thumbnail_url?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       withdrawals: {
         Row: {
           amount: number
@@ -2150,6 +2381,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      get_homepage_config: { Args: never; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -2157,6 +2389,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      set_homepage_config: { Args: { p_value: Json }; Returns: undefined }
     }
     Enums: {
       app_role: "brand" | "influencer" | "admin"
