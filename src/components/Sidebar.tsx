@@ -28,12 +28,19 @@ interface MenuItem {
   proOnly?: boolean;
 }
 
+const batchMenuItems: MenuItem[] = [
+  { path: "/app/meus-videos", icon: Clapperboard, label: "Meus Vídeos" },
+  { path: "/app/templates", icon: LayoutTemplate, label: "Templates" },
+  { path: "/app/clientes", icon: Users, label: "Clientes" },
+  { path: "/app/publicacoes", icon: CalendarClock, label: "Publicações" },
+  { path: "/app/configuracoes", icon: Settings2, label: "Configurações" },
+];
+
 const userMenuItems: MenuItem[] = [
   { path: "/app/dashboard", icon: Home, label: "Home" },
   { path: "/app/minhas-fotos", icon: Image, label: "Minhas Fotos" },
   { path: "/app/minhas-compras", icon: CreditCard, label: "Minhas Compras" },
   { path: "/app/chamados", icon: MessageCircle, label: "Meus Chamados" },
-  { path: "/app/perfil", icon: Settings, label: "Perfil" },
   { path: "/app/em-breve", icon: Sparkles, label: "Em breve", badge: "NOVO" },
 ];
 
