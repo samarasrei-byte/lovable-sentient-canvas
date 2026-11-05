@@ -133,6 +133,14 @@ const App = memo(() => (
             {/* App Routes */}
             <Route path="/app" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
               <Route index element={<RedirectToDashboard />} />
+              {/* Produção em Lote — experiência principal */}
+              <Route path="producao-em-lote" element={<BatchProductionHub />} />
+              <Route path="producao-em-lote/nova" element={<BatchWizard />} />
+              <Route path="meus-videos" element={<MyVideos />} />
+              <Route path="templates" element={<TemplatesGallery />} />
+              <Route path="clientes" element={<ClientsPage />} />
+              <Route path="publicacoes" element={<PublicationsPage />} />
+              <Route path="configuracoes" element={<BatchSettings />} />
               <Route path="dashboard" element={<DashboardRouter />} />
               <Route path="meus-produtos" element={<MeusProdutos />} />
               <Route path="insights" element={<Insights />} />
