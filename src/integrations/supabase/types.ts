@@ -2381,6 +2381,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      get_homepage_config: { Args: never; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -2388,6 +2389,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      set_homepage_config: { Args: { p_value: Json }; Returns: undefined }
     }
     Enums: {
       app_role: "brand" | "influencer" | "admin"
