@@ -177,7 +177,7 @@ export async function fetchVideos(filters: VideoFilters = {}): Promise<BatchVide
   if (filters.search) query = query.ilike("title", `%${filters.search}%`);
   const { data, error } = await query;
   if (error) throw error;
-  return (data ?? []) as BatchVideo[];
+  return (data ?? []) as unknown as BatchVideo[];
 }
 
 /* ------------------------------- Ações -------------------------------- */
