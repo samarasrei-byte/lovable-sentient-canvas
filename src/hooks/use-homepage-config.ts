@@ -28,7 +28,9 @@ export function useSetHomepageConfig() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (config: HomepageConfig) => {
-      const { error } = await supabase.rpc("set_homepage_config", { p_value: config });
+      const { error } = await supabase.rpc("set_homepage_config", {
+        p_value: config as unknown as Json,
+      });
       if (error) throw error;
     },
     onSuccess: () => {
