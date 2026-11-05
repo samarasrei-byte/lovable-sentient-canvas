@@ -2,25 +2,20 @@ import { memo } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { 
-  Home, 
+import {
+  Home,
   Image,
-  Camera,
-  Users, 
-  Palette,
-  Sparkles, 
-  Video, 
-  Settings, 
-  Zap, 
-  UserCircle,
-  FolderOpen,
-  Coins,
+  Users,
+  Sparkles,
+  Zap,
   Crown,
-  Lock,
   LogOut,
   MessageCircle,
-  ShoppingBag,
-  CreditCard
+  CreditCard,
+  Clapperboard,
+  LayoutTemplate,
+  CalendarClock,
+  Settings2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
