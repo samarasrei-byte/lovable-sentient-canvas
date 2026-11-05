@@ -29,11 +29,18 @@ const Index = () => {
       <InstallPrompt />
       <UpdatePrompt />
 
+      {/* Produção em Lote — maior destaque visual da página quando configurada */}
+      {batchIsHighlight && (
+        <div className="pt-16">
+          <BatchHeroSection />
+        </div>
+      )}
+
       {/* Hero — loaded eagerly for instant FCP */}
       <HeroArcana2 />
 
-      {/* Produção em Lote — maior destaque visual da página */}
-      {batchIsHighlight && <BatchHeroSection />}
+      {/* Quando fotos são o destaque, a Produção em Lote aparece logo abaixo */}
+      {!batchIsHighlight && <BatchHeroSection />}
 
       {/* Demais soluções em seção secundária (toggle administrativo) */}
       {showSecondary && <OtherSolutionsSection />}
