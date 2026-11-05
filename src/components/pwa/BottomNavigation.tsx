@@ -12,9 +12,9 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { path: "/app/dashboard", icon: Home, label: "Início" },
-  { path: "/app/ai-studio", icon: Sparkles, label: "Criar" },
-  { path: "/app/talentos", icon: Users, label: "Talentos" },
-  { path: "/app/analytics", icon: BarChart3, label: "Dados" },
+  { path: "/app/meus-videos", icon: Video, label: "Vídeos" },
+  { path: "/app/producao-em-lote", icon: Clapperboard, label: "Produção" },
+  { path: "/app/clientes", icon: Users, label: "Clientes" },
   { path: "/app/perfil", icon: User, label: "Perfil" },
 ];
 

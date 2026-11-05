@@ -70,6 +70,15 @@ const MelodiaPod = lazy(() => import("./pages/MelodiaPod"));
 const TermosDeUso = lazy(() => import("./pages/TermosDeUso"));
 const PoliticaPrivacidade = lazy(() => import("./pages/PoliticaPrivacidade"));
 
+// Produção em Lote — experiência principal
+const BatchProductionHub = lazy(() => import("./pages/app/batch/BatchProductionHub"));
+const BatchWizard = lazy(() => import("./pages/app/batch/BatchWizard"));
+const MyVideos = lazy(() => import("./pages/app/batch/MyVideos"));
+const TemplatesGallery = lazy(() => import("./pages/app/batch/TemplatesGallery"));
+const ClientsPage = lazy(() => import("./pages/app/batch/ClientsPage"));
+const PublicationsPage = lazy(() => import("./pages/app/batch/PublicationsPage"));
+const BatchSettings = lazy(() => import("./pages/app/batch/BatchSettings"));
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
