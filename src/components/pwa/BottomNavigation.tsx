@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, Sparkles, Users, BarChart3, User } from "lucide-react";
+import { Home, Clapperboard, Users, Video, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
