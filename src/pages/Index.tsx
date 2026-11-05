@@ -20,14 +20,24 @@ const Footer = lazy(() => import("@/components/Footer").then(m => ({ default: m.
 const SectionFallback = () => <div className="py-20" />;
 
 const Index = () => {
+  const { data: homepageConfig } = useHomepageConfig();
+  const batchIsHighlight = homepageConfig?.highlight !== "photos";
+  const showSecondary = homepageConfig?.show_secondary_features !== false;
+
   return (
     <div className="min-h-screen bg-background text-foreground scroll-smooth">
       <InstallPrompt />
       <UpdatePrompt />
-      
+
       {/* Hero — loaded eagerly for instant FCP */}
       <HeroArcana2 />
-      
+
+      {/* Produção em Lote — maior destaque visual da página */}
+      {batchIsHighlight && <BatchHeroSection />}
+
+      {/* Demais soluções em seção secundária (toggle administrativo) */}
+      {showSecondary && <OtherSolutionsSection />}
+
       {/* Marketplace eager — avoids stale chunk fetch errors */}
       <PromptMarketplace />
       
