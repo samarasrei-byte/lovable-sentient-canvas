@@ -248,6 +248,9 @@ export default function ClientsPage() {
                 {client.brand_name ?? "—"}
                 {client.instagram_handle ? ` · @${client.instagram_handle}` : ""}
               </p>
+              <div className="mt-4">
+                <LogoPicker compact value={client.logo_url} onChange={(logo) => handleLogoChange(client, logo)} />
+              </div>
             </motion.div>
           ))}
         </div>
