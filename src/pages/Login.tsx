@@ -102,7 +102,9 @@ const Login = () => {
   const { toast } = useToast();
   const { user, loading: authLoading, isAdmin } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [mode, setMode] = useState<"login" | "signup">("login");
+  const [mode, setMode] = useState<"login" | "signup">(() =>
+    new URLSearchParams(window.location.search).get("mode") === "signup" ? "signup" : "login"
+  );
   const [showPassword, setShowPassword] = useState(false);
   usePageMeta({
     title: "Entrar | ARCANA",
@@ -180,7 +182,13 @@ const Login = () => {
       toast({ variant: "destructive", title: "Erro ao criar conta", description: error.message });
       setLoading(false); return;
     }
-    if (data.user) toast({ title: "Conta criada!", description: "Você já pode fazer login." });
+    if (data.session) {
+      // Confirmação de e-mail desligada: já entra direto no painel.
+      navigate("/app/producao-em-lote");
+    } else if (data.user) {
+      toast({ title: "Conta criada!", description: "Confira seu e-mail e clique no link para ativar a conta." });
+      setMode("login");
+    }
     setLoading(false);
   };
 
@@ -360,12 +368,6 @@ const Login = () => {
             </div>
           </div>
 
-          {mode === "login" && (
-            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
-              className="text-center text-[11px] text-muted-foreground/40 mt-6">
-              Acesso restrito à administração
-            </motion.p>
-          )}
         </motion.div>
       </div>
     </div>
