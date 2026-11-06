@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
@@ -41,6 +41,8 @@ export default function BatchWizard() {
   const [templateId, setTemplateId] = useState("");
   const [jobId, setJobId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const wizardStartedRef = useRef(false);
+  const trackedOutcomeRef = useRef<string | null>(null);
 
   const { data: clients = [] } = useQuery({ queryKey: ["batch-clients"], queryFn: fetchClients });
   const { data: templates = [] } = useQuery({
@@ -58,6 +60,17 @@ export default function BatchWizard() {
         ? false
         : 1200,
   });
+
+  // Analytics: registra uma única vez o desfecho do job (concluído ou falhou)
+  useEffect(() => {
+    if (!job || !jobId || trackedOutcomeRef.current === jobId) return;
+    if (job.status !== "completed" && job.status !== "failed") return;
+    trackedOutcomeRef.current = jobId;
+    window.__lovableEvents?.track?.(
+      job.status === "completed" ? "project.batch_generation_completed" : "project.batch_generation_failed",
+      { quantity: job.quantity, videos_completed: job.videos_completed, videos_failed: job.videos_failed },
+    );
+  }, [job, jobId]);
 
   const selectedClient = useMemo(
     () => clients.find((c) => c.id === clientId) ?? null,
@@ -94,6 +107,10 @@ export default function BatchWizard() {
         template_id: templateId,
       });
       setJobId(result.job_id);
+      window.__lovableEvents?.track?.("project.batch_job_created", {
+        quantity,
+        segment,
+      });
       toast.success("Produção iniciada!", {
         description: `${result.credits_cost} créditos utilizados.`,
       });
@@ -250,7 +267,14 @@ export default function BatchWizard() {
         </Button>
         {step < STEPS.length - 1 ? (
           <Button
-            onClick={() => canAdvance && setStep((s) => s + 1)}
+            onClick={() => {
+              if (!canAdvance) return;
+              if (step === 0 && !wizardStartedRef.current) {
+                wizardStartedRef.current = true;
+                window.__lovableEvents?.track?.("project.batch_wizard_started", { segment });
+              }
+              setStep((s) => s + 1);
+            }}
             disabled={!canAdvance}
             className="bg-gradient-to-r from-primary to-secondary"
           >

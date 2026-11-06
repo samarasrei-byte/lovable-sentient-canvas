@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { LogoPicker } from "@/components/batch/LogoPicker";
 import {
   Dialog,
   DialogContent,
@@ -16,6 +17,7 @@ import {
 import {
   createClientRecord,
   deleteClientRecord,
+  updateClientRecord,
   fetchClients,
   type BatchClient,
 } from "@/lib/batch-api";
@@ -27,6 +29,7 @@ const emptyForm = {
   whatsapp: "",
   primary_color: "#7C3AED",
   secondary_color: "#0EA5E9",
+  logo_url: null as string | null,
 };
 
 export default function ClientsPage() {
@@ -40,7 +43,7 @@ export default function ClientsPage() {
     queryFn: fetchClients,
   });
 
-  const set = (key: keyof typeof emptyForm) => (e: React.ChangeEvent<HTMLInputElement>) =>
+  const set = (key: Exclude<keyof typeof emptyForm, "logo_url">) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((prev) => ({ ...prev, [key]: e.target.value }));
 
   const handleCreate = async () => {
@@ -57,6 +60,7 @@ export default function ClientsPage() {
         whatsapp: form.whatsapp.trim() || null,
         primary_color: form.primary_color,
         secondary_color: form.secondary_color,
+        logo_url: form.logo_url,
       });
       toast.success("Cliente cadastrado!");
       setForm(emptyForm);
@@ -66,6 +70,16 @@ export default function ClientsPage() {
       toast.error("Não foi possível cadastrar o cliente.");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleLogoChange = async (client: BatchClient, logo: string | null) => {
+    try {
+      await updateClientRecord(client.id, { logo_url: logo });
+      toast.success(logo ? "Logo atualizado! Novos lotes já usam a marca." : "Logo removido.");
+      void queryClient.invalidateQueries({ queryKey: ["batch-clients"] });
+    } catch {
+      toast.error("Não foi possível salvar o logo.");
     }
   };
 
@@ -109,6 +123,15 @@ export default function ClientsPage() {
                   placeholder="Ex.: Studio Glow"
                   className="mt-1.5 bg-background/50"
                 />
+              </div>
+              <div>
+                <Label>Logo da marca</Label>
+                <div className="mt-1.5">
+                  <LogoPicker
+                    value={form.logo_url}
+                    onChange={(logo) => setForm((prev) => ({ ...prev, logo_url: logo }))}
+                  />
+                </div>
               </div>
               <div>
                 <Label htmlFor="client-brand">Nome da marca</Label>
@@ -205,7 +228,11 @@ export default function ClientsPage() {
                     background: `linear-gradient(135deg, ${client.primary_color ?? "#7C3AED"}, ${client.secondary_color ?? "#0EA5E9"})`,
                   }}
                 >
-                  {client.name.slice(0, 2).toUpperCase()}
+                  {client.logo_url ? (
+                    <img src={client.logo_url} alt="" className="w-full h-full object-contain rounded-xl bg-background p-1" />
+                  ) : (
+                    client.name.slice(0, 2).toUpperCase()
+                  )}
                 </div>
                 <button
                   type="button"
@@ -221,6 +248,9 @@ export default function ClientsPage() {
                 {client.brand_name ?? "—"}
                 {client.instagram_handle ? ` · @${client.instagram_handle}` : ""}
               </p>
+              <div className="mt-4">
+                <LogoPicker compact value={client.logo_url} onChange={(logo) => handleLogoChange(client, logo)} />
+              </div>
             </motion.div>
           ))}
         </div>

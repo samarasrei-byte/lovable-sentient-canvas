@@ -29,6 +29,13 @@
       "when": 1793908107269,
       "tag": "0003_fix_consume_credits_type_check",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793923222338,
+      "tag": "0004_client_logos_policies",
+      "breakpoints": true
     }
   ]
 }

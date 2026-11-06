@@ -276,7 +276,7 @@ export class BatchVideoRenderer {
         ctx.fillStyle = "rgba(255,255,255,0.95)";
         ctx.fill();
         ctx.clip();
-        ctx.drawImage(this.logo, W / 2 - size / 2, H * 0.3 - size / 2, size, size);
+        this.drawLogoContain(W / 2, H * 0.3, size * 0.8);
         ctx.restore();
       } else {
         ctx.fillStyle = "#ffffff";
@@ -310,6 +310,28 @@ export class BatchVideoRenderer {
       ctx.fillText(brand.name, W / 2, H * 0.92);
       ctx.restore();
     }
+
+    // Marca d'água com o logo do cliente (cenas 1 e 2)
+    if (this.logo && t < scene3.in) {
+      ctx.save();
+      ctx.globalAlpha = 0.9 * Math.min(1, t * 6);
+      ctx.fillStyle = "rgba(255,255,255,0.92)";
+      this.roundRect(W - 172, H - 172, 132, 132, 28);
+      ctx.fill();
+      this.drawLogoContain(W - 106, H - 106, 104);
+      ctx.restore();
+    }
+  }
+
+  /** Desenha o logo centralizado em (cx, cy) cabendo num quadrado de lado `box`, sem distorcer. */
+  private drawLogoContain(cx: number, cy: number, box: number): void {
+    if (!this.logo || box <= 0) return;
+    const iw = this.logo.naturalWidth || 1;
+    const ih = this.logo.naturalHeight || 1;
+    const scale = Math.min(box / iw, box / ih);
+    const w = iw * scale;
+    const h = ih * scale;
+    this.ctx.drawImage(this.logo, cx - w / 2, cy - h / 2, w, h);
   }
 
   private roundRect(x: number, y: number, w: number, h: number, r: number): void {
