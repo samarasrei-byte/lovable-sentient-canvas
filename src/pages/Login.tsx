@@ -184,7 +184,7 @@ const Login = () => {
     }
     if (data.session) {
       // Confirmação de e-mail desligada: já entra direto no painel.
-      navigate("/app/batch");
+      navigate("/app/producao-em-lote");
     } else if (data.user) {
       toast({ title: "Conta criada!", description: "Confira seu e-mail e clique no link para ativar a conta." });
       setMode("login");
