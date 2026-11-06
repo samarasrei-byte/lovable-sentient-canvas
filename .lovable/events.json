@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "events": {
+    "project.batch_generation_completed": {
+      "event_schema_version": 1,
+      "description": "A batch production job finished generating its videos.",
+      "privacy": {
+        "contains_pii": false,
+        "purpose": "product_analytics"
+      },
+      "properties_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "quantity": {
+            "type": "number"
+          },
+          "videos_completed": {
+            "type": "number"
+          },
+          "videos_failed": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "project.batch_generation_failed": {
+      "event_schema_version": 1,
+      "description": "A batch production job ended with failed status.",
+      "privacy": {
+        "contains_pii": false,
+        "purpose": "product_analytics"
+      },
+      "properties_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "quantity": {
+            "type": "number"
+          },
+          "videos_completed": {
+            "type": "number"
+          },
+          "videos_failed": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "project.batch_job_created": {
+      "event_schema_version": 1,
+      "description": "A batch production job was created and credits were charged.",
+      "privacy": {
+        "contains_pii": false,
+        "purpose": "product_analytics"
+      },
+      "properties_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "segment": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "project.batch_video_downloaded": {
+      "event_schema_version": 1,
+      "description": "User downloaded batch videos, individually as WebM or several as a ZIP.",
+      "privacy": {
+        "contains_pii": false,
+        "purpose": "product_analytics"
+      },
+      "properties_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "format",
+          "count"
+        ],
+        "properties": {
+          "format": {
+            "type": "string",
+            "enum": [
+              "webm",
+              "zip"
+            ]
+          },
+          "count": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "project.batch_wizard_started": {
+      "event_schema_version": 1,
+      "description": "User chose a segment and advanced past the first step of the batch production wizard.",
+      "privacy": {
+        "contains_pii": false,
+        "purpose": "product_analytics"
+      },
+      "properties_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "segment": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
