@@ -56,6 +56,7 @@ export default function PublicationsPage() {
         anchor.download = `${video.title.replace(/[^\w\d]+/g, "-").slice(0, 60)}.webm`;
         anchor.click();
         URL.revokeObjectURL(url);
+        window.__lovableEvents?.track?.("project.batch_video_downloaded", { format: "webm", count: 1 });
       }
     } finally {
       setDownloadingId(null);

@@ -118,6 +118,7 @@ export default function MyVideos() {
       }
       downloadBlob(blob, `${video.title.replace(/[^\w\d]+/g, "-").slice(0, 60)}.webm`);
       toast.success("Download iniciado!");
+      window.__lovableEvents?.track?.("project.batch_video_downloaded", { format: "webm", count: 1 });
     } catch {
       toast.error("Falha ao exportar o vídeo.");
     } finally {
@@ -149,6 +150,7 @@ export default function MyVideos() {
       const content = await zip.generateAsync({ type: "blob" });
       downloadBlob(content, `arcana-videos-${Date.now()}.zip`);
       toast.success(`ZIP com ${exported} vídeos baixado!`);
+      window.__lovableEvents?.track?.("project.batch_video_downloaded", { format: "zip", count: exported });
     } catch {
       toast.error("Falha ao gerar o ZIP.");
     } finally {
